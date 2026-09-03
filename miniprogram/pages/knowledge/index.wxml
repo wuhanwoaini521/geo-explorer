@@ -1,0 +1,23 @@
+<view class="page">
+  <text class="page-title">🧭 地理知识库</text>
+  <text class="page-sub">世界地形地貌 · 地质 · 水文 · 气候（MVP 示例数据）</text>
+
+  <view class="cat-row">
+    <view class="cat" wx:for="{{categories}}" wx:key="*this">{{item}}</view>
+  </view>
+
+  <view class="list">
+    <view class="item" wx:for="{{items}}" wx:key="id"
+      data-id="{{item.id}}" bindtap="onOpen">
+      <text class="item-emoji">{{item.emoji}}</text>
+      <view class="item-main">
+        <view class="item-row">
+          <text class="item-name">{{item.title}}</text>
+          <text class="item-cat">{{item.category}}</text>
+        </view>
+        <text class="item-summary">{{item.summary}}</text>
+      </view>
+      <text class="item-arrow">›</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,47 @@
+<view class="page">
+  <!-- 顶部品牌 -->
+  <view class="hero" style="background:linear-gradient(160deg, #16324f, #0c1c33);">
+    <text class="hero-title">🌍 Geo Explorer</text>
+    <text class="hero-sub">地理探索 · 沉浸式攀登珠穆朗玛峰</text>
+    <view class="hero-stats">
+      <view class="stat">
+        <text class="stat-v">{{stats.completed}}</text>
+        <text class="stat-k">完成探索</text>
+      </view>
+      <view class="stat">
+        <text class="stat-v">{{stats.totalFound}}</text>
+        <text class="stat-k">已获知识</text>
+      </view>
+      <view class="stat">
+        <text class="stat-v">{{scenes.length}}</text>
+        <text class="stat-k">可选场景</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 场景卡片 -->
+  <view class="section-title">选择探索场景</view>
+  <view class="scene-list">
+    <view class="scene-card" wx:for="{{scenes}}" wx:key="id"
+      data-id="{{item.id}}" bindtap="onOpenScene">
+      <view class="card-left">
+        <text class="card-emoji">{{item.emoji}}</text>
+      </view>
+      <view class="card-main">
+        <view class="card-row">
+          <text class="card-name">{{item.title}}</text>
+          <text class="card-badge">{{item.badge}}</text>
+        </view>
+        <text class="card-sub">{{item.subtitle}}</text>
+        <text class="card-meta">{{item.meta}}</text>
+        <text class="card-cta">进入探索 →</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设计说明（MVP 期） -->
+  <view class="about">
+    <text class="about-title">关于本次 Demo</text>
+    <text class="about-text">拖动上滑推进海拔，途中发现知识节点；天气、温度、氧含量随海拔实时变化。当前仅珠峰场景，更多场景将陆续开放。</text>
+  </view>
+</view>

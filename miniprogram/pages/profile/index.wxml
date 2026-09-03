@@ -1,0 +1,35 @@
+<view class="page">
+  <view class="me">
+    <text class="me-avatar">🧗</text>
+    <text class="me-name">Geo 探索者</text>
+    <text class="me-note">数据存于本地 · 后续接入账号同步</text>
+  </view>
+
+  <view class="stats">
+    <view class="st">
+      <text class="st-v">{{stats.completed}}</text>
+      <text class="st-k">完成探索</text>
+    </view>
+    <view class="st">
+      <text class="st-v">{{stats.totalFound}}</text>
+      <text class="st-k">已获知识</text>
+    </view>
+  </view>
+
+  <view class="sec-title">探索记录</view>
+  <view class="record" wx:if="{{!empty}}">
+    <view class="rec" wx:for="{{records}}" wx:key="id">
+      <text class="rec-emoji">{{item.emoji}}</text>
+      <view class="rec-main">
+        <text class="rec-name">{{item.title}}{{item.completed ? ' · 已登顶' : ''}}</text>
+        <text class="rec-meta">最高 {{item.reachElevation}} m / {{item.maxElevation}} m · 知识 {{item.knowledgeCount}} 条</text>
+      </view>
+      <text class="rec-pct">{{item.pct}}%</text>
+    </view>
+  </view>
+  <view class="record empty" wx:else>
+    <text>还没有探索记录，去首页开始第一段旅程吧 🏔</text>
+  </view>
+
+  <view class="btn" bindtap="onClear">清空本地记录</view>
+</view>

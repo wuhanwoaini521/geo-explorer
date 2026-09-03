@@ -1,0 +1,36 @@
+.page { min-height: 100vh; background: #0a1216; padding: 40rpx 32rpx; display: flex; flex-direction: column; }
+.page-title { font-size: 38rpx; font-weight: 800; color: #ffffff; }
+.page-sub { margin-top: 8rpx; font-size: 22rpx; color: #8fa3bf; }
+
+.levels { display: flex; gap: 20rpx; margin: 30rpx 0; }
+.lv {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 0;
+  border-radius: 20rpx;
+  background: rgba(255,255,255,0.05);
+}
+.lv-label { font-size: 22rpx; color: #8fa3bf; }
+.lv-stars { margin-top: 8rpx; font-size: 30rpx; color: #ffc36b; }
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 92rpx;
+  border-radius: 46rpx;
+  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+.btn:active { opacity: 0.86; }
+
+.tag {
+  margin-top: 26rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #7d8ba0;
+}

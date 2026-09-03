@@ -1,0 +1,15 @@
+<view class="page">
+  <text class="page-title">🎯 地理挑战</text>
+  <text class="page-sub">题库已准备 {{count}} 道题 · 挑战模式开发中</text>
+
+  <view class="levels">
+    <view class="lv" wx:for="{{levels}}" wx:key="*this">
+      <text class="lv-label">难度</text>
+      <text class="lv-stars">{{item.stars}}</text>
+    </view>
+  </view>
+
+  <view class="btn" bindtap="onPreview">预览一道示例题</view>
+
+  <view class="tag">Coming Soon · 下一迭代上线计分与排行</view>
+</view>

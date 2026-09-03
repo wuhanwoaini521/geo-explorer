@@ -1,0 +1,42 @@
+<view wx:if="{{visible && node}}" class="popup-mask" bindtap="noop" catchtouchmove="noop">
+  <view class="popup-sheet">
+    <view class="popup-head">
+      <text class="popup-emoji">{{node.emoji}}</text>
+      <view class="popup-head-text">
+        <text class="popup-title">{{node.title}}</text>
+        <text class="popup-elev">📍 海拔 {{node.elevation}} m</text>
+      </view>
+      <view class="popup-close" bindtap="onClose">
+        <text>✕</text>
+      </view>
+    </view>
+
+    <view class="popup-summary">{{node.summary}}</view>
+
+    <view wx:if="{{!expanded}}" class="btn-expand" bindtap="onToggleExpand">
+      <text>展开解释</text>
+      <text class="btn-expand-arrow">▾</text>
+    </view>
+
+    <block wx:if="{{expanded}}">
+      <view class="popup-detail">{{node.detail}}</view>
+
+      <view wx:if="{{node.facts && node.facts.length}}" class="popup-facts">
+        <view class="popup-facts-title">关键数据</view>
+        <view class="fact" wx:for="{{node.facts}}" wx:key="label">
+          <text class="fact-label">{{item.label}}</text>
+          <text class="fact-value">{{item.value}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{node.sources && node.sources.length}}" class="popup-source">
+        <text class="popup-source-flag">来源</text>
+        <text class="popup-source-text">{{node.sources[0].name}}</text>
+      </view>
+    </block>
+
+    <view class="popup-actions">
+      <button class="popup-btn-primary" bindtap="onContinue">继续探索</button>
+    </view>
+  </view>
+</view>

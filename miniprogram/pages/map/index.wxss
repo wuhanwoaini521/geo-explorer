@@ -1,0 +1,38 @@
+.page {
+  min-height: 100vh;
+  background: #0a1216;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx;
+}
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80rpx 60rpx;
+  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.04);
+}
+.placeholder-emoji { font-size: 96rpx; }
+.placeholder-title {
+  margin-top: 30rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+.placeholder-text {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #8fa3bf;
+  line-height: 1.7;
+}
+.placeholder-tag {
+  margin-top: 30rpx;
+  font-size: 22rpx;
+  color: #8ce6cf;
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(140, 230, 207, 0.12);
+}
