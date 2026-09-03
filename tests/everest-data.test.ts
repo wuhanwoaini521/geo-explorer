@@ -80,7 +80,12 @@ describe("Everest 知识节点", () => {
         n.facts.every((f) => {
           const s = (f as { source?: unknown }).source;
           if (typeof s === "string") return true;
-          return typeof s === "object" && s !== null && "name" in s && Boolean((s as { name: string }).name);
+          return (
+            typeof s === "object" &&
+            s !== null &&
+            "name" in s &&
+            Boolean((s as { name: string }).name)
+          );
         });
       expect(factsOk).toBe(true);
     }

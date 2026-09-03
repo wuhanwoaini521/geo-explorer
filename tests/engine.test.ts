@@ -33,13 +33,27 @@ describe("clamp / 数值工具", () => {
 
 describe("progressFor（海拔→全局进度）", () => {
   it("起点为 0，终点为 1", () => {
-    expect(progressFor(EVEREST.startElevation, EVEREST.startElevation, EVEREST.maxElevation)).toBe(0);
-    expect(progressFor(EVEREST.maxElevation, EVEREST.startElevation, EVEREST.maxElevation)).toBe(1);
+    expect(
+      progressFor(
+        EVEREST.startElevation,
+        EVEREST.startElevation,
+        EVEREST.maxElevation,
+      ),
+    ).toBe(0);
+    expect(
+      progressFor(
+        EVEREST.maxElevation,
+        EVEREST.startElevation,
+        EVEREST.maxElevation,
+      ),
+    ).toBe(1);
   });
 
   it("中间海拔按比例", () => {
     const mid = (EVEREST.startElevation + EVEREST.maxElevation) / 2;
-    expect(progressFor(mid, EVEREST.startElevation, EVEREST.maxElevation)).toBeCloseTo(0.5, 1);
+    expect(
+      progressFor(mid, EVEREST.startElevation, EVEREST.maxElevation),
+    ).toBeCloseTo(0.5, 1);
   });
 
   it("越界返回钳制值", () => {
@@ -51,7 +65,9 @@ describe("progressFor（海拔→全局进度）", () => {
 describe("stage 定位与插值", () => {
   it("locateStageIndex 找到最后一个 <= 海拔的阶段", () => {
     expect(locateStageIndex(EVEREST.stages, 400)).toBe(0);
-    expect(locateStageIndex(EVEREST.stages, EVEREST.maxElevation)).toBe(EVEREST.stages.length - 1);
+    expect(locateStageIndex(EVEREST.stages, EVEREST.maxElevation)).toBe(
+      EVEREST.stages.length - 1,
+    );
   });
 
   it("stageBlend 在两阶段间返回 0-1", () => {
@@ -61,9 +77,11 @@ describe("stage 定位与插值", () => {
   });
 
   it("lerpStageField 在边界处等于阶段原值", () => {
-    expect(lerpStageField(EVEREST.stages, 0, "snow")).toBe(EVEREST.stages[0].snow);
+    expect(lerpStageField(EVEREST.stages, 0, "snow")).toBe(
+      EVEREST.stages[0].snow,
+    );
     expect(lerpStageField(EVEREST.stages, EVEREST.maxElevation, "snow")).toBe(
-      EVEREST.stages[EVEREST.stages.length - 1].snow
+      EVEREST.stages[EVEREST.stages.length - 1].snow,
     );
   });
 });
@@ -101,12 +119,16 @@ describe("知识节点", () => {
     expect(unlocked.every((n) => n.elevation <= 3200)).toBe(true);
     // 升序
     for (let i = 1; i < unlocked.length; i++) {
-      expect(unlocked[i].elevation).toBeGreaterThanOrEqual(unlocked[i - 1].elevation);
+      expect(unlocked[i].elevation).toBeGreaterThanOrEqual(
+        unlocked[i - 1].elevation,
+      );
     }
   });
 
   it("下行/静止不返回节点", () => {
-    expect(knowledgeUnlockedOnMove(EVEREST.knowledgeNodes, 5000, 4000)).toEqual([]);
+    expect(knowledgeUnlockedOnMove(EVEREST.knowledgeNodes, 5000, 4000)).toEqual(
+      [],
+    );
   });
 });
 

@@ -49,7 +49,11 @@ describe("批改与计分", () => {
   it("gradeAnswer 产出标准化结果", () => {
     const q = QUIZZES[1];
     const r = gradeAnswer(q, q.answerIndex);
-    expect(r).toEqual({ quizId: q.id, optionIndex: q.answerIndex, correct: true });
+    expect(r).toEqual({
+      quizId: q.id,
+      optionIndex: q.answerIndex,
+      correct: true,
+    });
   });
 
   it("scoreAnswers 正确率", () => {

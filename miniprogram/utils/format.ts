@@ -36,7 +36,7 @@ export function formatPercent(ratio: number, digits = 1): string {
 
 /** 去掉格式化结果末尾的 ".0"（如 "12.0" -> "12"），避免整数也带小数点。 */
 function stripDotZero(s: string): string {
-  return s.includes(".") && s.endsWith(".0") ? s.slice(0, -2) : s;
+ return s.includes(".") && s.endsWith(".0") ? s.slice(0, -2) : s;
 }
 
 /** 海拔 → “当前海拔 / 总海拔” 进度百分比（0-100 整数） */
