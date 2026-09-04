@@ -95,7 +95,10 @@
         data-id="{{item.id}}" bindtap="onOpenPlace">
         <view class="place-top">
           <text class="place-emoji">{{item.emoji}}</text>
-          <text wx:if="{{item.exploration}}" class="place-badge">可探索</text>
+          <view class="place-top-r">
+            <text wx:if="{{item.favorited}}" class="place-fav">♥</text>
+            <text wx:if="{{item.exploration}}" class="place-badge">可探索</text>
+          </view>
         </view>
         <text class="place-name">{{item.name}}</text>
         <text class="place-sub">{{item.shortDescription}}</text>

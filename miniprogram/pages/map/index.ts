@@ -10,6 +10,7 @@ import { PLACES, PLACE_TYPE_META } from "../../data/places";
 import { getRecords } from "../../services/exploration-store";
 import type { ExplorationRecord } from "../../services/exploration-store";
 import { consumeTypeFilter } from "../../services/ui-bus";
+import { favorites } from "../../services/favorites-store";
 import type { Place, PlaceType } from "../../types/models";
 import { queryPlaces } from "../../utils/place-search";
 
@@ -130,7 +131,7 @@ Page({
       emoji: p.emoji,
       typeLabel: PLACE_TYPE_META.find((m) => m.type === p.type)?.label ?? "",
       shortDescription: p.shortDescription,
-      favorited: false,
+      favorited: favorites.isFavorite(p.id),
       exploration: Boolean(p.explorationId),
     }));
     this.setData({ atlas, atlasEmpty: atlas.length === 0 });

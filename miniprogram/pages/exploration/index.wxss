@@ -949,6 +949,44 @@ page {
 .ach-desc { font-size: 22rpx; color: #6f6547; }
 .ach-empty { font-size: 24rpx; color: #94896a; }
 
+/* 下一站推荐 */
+.next-stops {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.next-stop {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: rgba(151, 124, 66, 0.08);
+  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  border-radius: 14rpx;
+  padding: 16rpx 18rpx;
+}
+.next-stop:active { background: rgba(151, 124, 66, 0.16); }
+.next-stop-emoji { font-size: 36rpx; }
+.next-stop-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.next-stop-name {
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #37311e;
+}
+.next-stop-sub {
+  font-size: 20rpx;
+  color: #94896a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.next-stop-arrow { color: #b3a986; font-size: 26rpx; }
+
 .summit-actions {
   display: flex;
   flex-direction: column;

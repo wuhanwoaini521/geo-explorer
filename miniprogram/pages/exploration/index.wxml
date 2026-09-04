@@ -305,6 +305,21 @@
         <text wx:else class="ach-empty">继续探索更多自然带与随堂题，解锁成就吧～</text>
       </view>
 
+      <view class="summit-band" wx:if="{{nextStops.length}}">
+        <text class="summit-band-t">下一站 · 继续探索</text>
+        <view class="next-stops">
+          <view class="next-stop" wx:for="{{nextStops}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="onOpenNextStop">
+            <text class="next-stop-emoji">{{item.emoji}}</text>
+            <view class="next-stop-text">
+              <text class="next-stop-name">{{item.name}}</text>
+              <text class="next-stop-sub">{{item.shortDescription}}</text>
+            </view>
+            <text class="next-stop-arrow">›</text>
+          </view>
+        </view>
+      </view>
+
       <view class="summit-actions">
         <button class="act act-primary" bindtap="onRestart">重新探索</button>
         <button class="act act-ghost" bindtap="onGoProfile">探索记录</button>

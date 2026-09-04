@@ -291,6 +291,15 @@
   justify-content: space-between;
 }
 .place-emoji { font-size: 44rpx; }
+.place-top-r {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.place-fav {
+  font-size: 26rpx;
+  color: #b3401f;
+}
 .place-badge {
   font-size: 18rpx;
   color: #a06a10;

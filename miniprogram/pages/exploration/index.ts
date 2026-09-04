@@ -9,6 +9,7 @@
  * 性能：ticker 只推送真正变化的字段（diff）；markers/flora 仅在阶段切换与解锁变化时重建。
  */
 import { EXPLORATIONS, getExplorationById } from "../../data/explorations/index";
+import { PLACES } from "../../data/places";
 import {
   deriveState,
   knowledgeUnlockedOnMove,
@@ -439,6 +440,7 @@ Page({
     celebration: false,
     summit: false,
     summaryStats: null as SummaryStats | null,
+    nextStops: [] as Array<{ id: string; name: string; emoji: string; shortDescription: string }>,
   },
 
   // ---- 内部实例状态（不参与渲染） ----
@@ -481,7 +483,19 @@ Page({
     this.target = exploration.startElevation;
     this.lastElev = exploration.startElevation;
     this.highestReached = exploration.startElevation;
+    // 登顶后的「下一站」推荐：与当前场景地点不同类的精选地点（跨类型激发新探索）
+    const currentPlaceIds = new Set(
+      PLACES.filter((p) => p.explorationId === exploration.id).map((p) => p.id),
+    );
+    const picks = PLACES.filter((p) => p.featured && !currentPlaceIds.has(p.id));
+    const nextStops: Array<{ id: string; name: string; emoji: string; shortDescription: string }> = [];
+    for (const p of picks) {
+      if (nextStops.length >= 2) break;
+      if (nextStops.some((n) => PLACES.find((q) => q.id === n.id)!.type === p.type)) continue;
+      nextStops.push({ id: p.id, name: p.name, emoji: p.emoji, shortDescription: p.shortDescription });
+    }
     this.setData({
+      nextStops,
       ready: true,
       intro: true,
       title: exploration.title,
@@ -1032,6 +1046,13 @@ Page({
       maxText: formatNumber(stats.maxReached, 0),
       achievements,
     };
+  },
+
+  /** 登顶总结：跳转「下一站」地点详情（发现新的探索目标） */
+  onOpenNextStop(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/place/index?id=${id}` });
   },
 
   onBackHome() {
