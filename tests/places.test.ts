@@ -10,6 +10,7 @@ import {
   getPlaceById,
   placesByType,
 } from "../miniprogram/data/places";
+import { KNOWLEDGE } from "../miniprogram/data/knowledge";
 import type { PlaceType } from "../miniprogram/types/models";
 
 const VALID_TYPES: PlaceType[] = [
@@ -81,6 +82,18 @@ describe("数据集基本完整性", () => {
       expect(meta!.label).toBeTruthy();
       expect(meta!.emoji).toBeTruthy();
       expect(PLACE_TYPE_LABEL[t]).toBe(meta!.label);
+    }
+  });
+});
+
+describe("跨数据集引用完整性", () => {
+  const placeIds = new Set(PLACES.map((p) => p.id));
+
+  it("知识库 relatedPlaceIds 都指向真实存在的地点（防重命名断链）", () => {
+    for (const k of KNOWLEDGE) {
+      for (const pid of k.relatedPlaceIds) {
+        expect(placeIds.has(pid), `${k.id} → ${pid}`).toBe(true);
+      }
     }
   });
 });
