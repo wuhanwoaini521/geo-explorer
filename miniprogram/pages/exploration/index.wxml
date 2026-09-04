@@ -1,4 +1,4 @@
-<view wx:if="{{ready}}" class="page" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd" data-debug="climb">
+<view wx:if="{{ready}}" class="page" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd">
   <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
   <view class="layer-sky" style="background:{{skyGradient}}"></view>
 

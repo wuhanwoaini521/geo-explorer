@@ -455,14 +455,14 @@ Page({
   elapsedSec: 0,
   prevStageIndex: -1,
   frameCache: {} as Record<string, unknown>,
-  ticker: null as number | null,
+  ticker: null as ReturnType<typeof setInterval> | null,
   touching: false,
   lastTouchY: 0,
   celebrated: false,
   particlesCached: null as Particle[] | null,
   partBucket: -1,
-  bannerTimer: null as number | null,
-  celebrationTimer: null as number | null,
+  bannerTimer: null as ReturnType<typeof setTimeout> | null,
+  celebrationTimer: null as ReturnType<typeof setTimeout> | null,
 
   /* ---------------- 生命周期 ---------------- */
 
@@ -859,13 +859,6 @@ Page({
   onStartClimb() {
     if (!this.startedAt) this.startedAt = Date.now();
     this.setData({ intro: false });
-  },
-
-  /** 调试便捷入口：直达峰顶（非正常玩法） */
-  onJumpToSummit() {
-    const ex = this.exploration;
-    if (!ex) return;
-    this.target = ex.maxElevation;
   },
 
   /* ---------------- 知识节点交互 ---------------- */

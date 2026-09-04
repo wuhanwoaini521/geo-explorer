@@ -6,6 +6,9 @@ import {
   getExplorationStats,
   getRecords,
 } from "../../services/exploration-store";
+import { favorites } from "../../services/favorites-store";
+import { PLACES } from "../../data/places";
+import { PLACE_TYPE_LABEL } from "../../data/places";
 import {
   getQuizBest,
   summarizeQuizBest,
@@ -26,6 +29,14 @@ interface RecordItem {
   pct: number;
 }
 
+interface FavoriteItem {
+  id: string;
+  name: string;
+  emoji: string;
+  typeLabel: string;
+  shortDescription: string;
+}
+
 /** 难度星级文案（与挑战页 ★~★★★ 对应） */
 function difficultyStars(d: number): string {
   if (d <= 1) return "★";
@@ -40,6 +51,8 @@ Page({
     empty: false,
     quiz: { totalPlays: 0, levels: [] as (QuizSummaryLevel & { stars: string; bestText: string })[] },
     quizEmpty: true,
+    favoritesList: [] as FavoriteItem[],
+    favoritesEmpty: true,
   },
 
   onShow() {
@@ -71,7 +84,30 @@ Page({
       empty: records.length === 0,
       quiz: { totalPlays: summary.totalPlays, levels: quizLevels },
       quizEmpty: quizLevels.length === 0,
+      favoritesList: favorites.getPlaces(PLACES).map((p) => ({
+        id: p.id,
+        name: p.name,
+        emoji: p.emoji,
+        typeLabel: PLACE_TYPE_LABEL[p.type],
+        shortDescription: p.shortDescription,
+      })),
+      favoritesEmpty: favorites.count() === 0,
     });
+  },
+
+  /** 打开收藏的地点详情 */
+  onOpenFavorite(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+  },
+
+  /** 从列表快速取消收藏 */
+  onRemoveFavorite(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    favorites.toggle(id);
+    this.onShow();
   },
 
   onClear() {

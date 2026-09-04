@@ -55,6 +55,14 @@
 
 .quiz-stars { font-size: 28rpx; letter-spacing: 4rpx; color: #c08a2d; }
 
+/* 收藏 */
+.rec-remove {
+  font-size: 30rpx;
+  color: #b3401f;
+  padding: 8rpx 12rpx;
+}
+.rec-main:active { opacity: 0.75; }
+
 .btn {
   margin-top: 34rpx;
   display: flex;
