@@ -43,6 +43,7 @@ Page({
   },
 
   onShow() {
+    this.getTabBar?.()?.setData({ selected: 4 });
     const records: RecordItem[] = getRecords().map((r: ExplorationRecord) => {
       const ex = EXPLORATIONS.find((e) => e.id === r.id);
       return {

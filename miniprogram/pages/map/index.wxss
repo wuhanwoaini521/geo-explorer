@@ -3,7 +3,7 @@
   min-height: 100vh;
   background: #f6f0dd;
   color: #37311e;
-  padding: 0 32rpx 60rpx;
+  padding: 0 32rpx calc(env(safe-area-inset-bottom) + 190rpx);
   box-sizing: border-box;
 }
 .head {

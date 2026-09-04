@@ -2,7 +2,7 @@
 .page {
   min-height: 100vh;
   background: #f6f0dd;
-  padding-bottom: 60rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 190rpx);
 }
 
 /* ---------------- Hero ---------------- */

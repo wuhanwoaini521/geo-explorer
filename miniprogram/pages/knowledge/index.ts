@@ -32,6 +32,7 @@ Page({
   },
 
   onShow() {
+    this.getTabBar?.()?.setData({ selected: 2 });
     const records = getRecords();
     const unlocked = unlockedLibraryIds(records, EXPLORATIONS);
     const items: KnowledgeItem[] = filterKnowledge(

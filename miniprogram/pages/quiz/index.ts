@@ -65,6 +65,7 @@ Page({
   answers: [] as AnswerResult[],
 
   onShow() {
+    this.getTabBar?.()?.setData({ selected: 3 });
     this.refreshIdle();
   },
 

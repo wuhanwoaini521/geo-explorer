@@ -1,0 +1,16 @@
+<view class="tabbar">
+  <view class="pill">
+    <!-- 滑动琥珀指示器（带回弹过渡） -->
+    <view class="indicator" style="left: {{selected * 20}}%"></view>
+    <view
+      wx:for="{{tabs}}"
+      wx:key="pagePath"
+      class="tab {{selected === index ? 'tab-on' : ''}}"
+      data-index="{{index}}"
+      bindtap="onTap"
+    >
+      <text class="tab-ico">{{item.icon}}</text>
+      <text class="tab-text">{{item.text}}</text>
+    </view>
+  </view>
+</view>

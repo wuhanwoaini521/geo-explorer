@@ -1,4 +1,4 @@
-.page { min-height: 100vh; background: #f6f0dd; padding: 40rpx 32rpx 80rpx; }
+.page { min-height: 100vh; background: #f6f0dd; padding: 40rpx 32rpx calc(env(safe-area-inset-bottom) + 210rpx); }
 .me {
   display: flex;
   flex-direction: column;

@@ -11,6 +11,8 @@ interface WxInstance {
   data: Record<string, unknown>;
   setData(data: AnyObject, callback?: () => void): void;
   triggerEvent?(name: string, detail?: unknown, options?: unknown): void;
+  /** 自定义 tabBar 启用时页面可用；用于同步高亮项 */
+  getTabBar?(): { setData(data: AnyObject): void } | undefined;
 }
 
 /* ---------- 框架入口 ---------- */

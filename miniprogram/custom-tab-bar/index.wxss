@@ -1,0 +1,72 @@
+/* 自定义 tabBar：浮动胶囊 + 滑动指示器 + 选中弹跳 */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  padding: 0 20rpx calc(env(safe-area-inset-bottom) + 16rpx);
+  pointer-events: none;
+}
+.pill {
+  position: relative;
+  display: flex;
+  height: 108rpx;
+  border-radius: 999rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(122, 86, 14, 0.22);
+  box-shadow: 0 8rpx 0 rgba(122, 86, 14, 0.12), 0 12rpx 28rpx rgba(64, 48, 16, 0.14);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+/* 滑动指示器：琥珀柔光胶囊，带回弹曲线 */
+.indicator {
+  position: absolute;
+  top: 8rpx;
+  bottom: 8rpx;
+  width: 20%;
+  border-radius: 999rpx;
+  background: rgba(168, 119, 23, 0.12);
+  border: 1rpx solid rgba(168, 119, 23, 0.22);
+  transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.tab {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+}
+.tab-ico {
+  font-size: 36rpx;
+  line-height: 1.1;
+  filter: grayscale(0.6);
+  opacity: 0.66;
+  transition: filter 0.25s, opacity 0.25s, transform 0.25s;
+}
+.tab-text {
+  font-size: 20rpx;
+  color: #94896a;
+  letter-spacing: 2rpx;
+  transition: color 0.25s;
+}
+.tab-on .tab-ico {
+  filter: grayscale(0);
+  opacity: 1;
+  transform: translateY(-4rpx) scale(1.12);
+  animation: tabBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tab-on .tab-text {
+  color: #a06a10;
+  font-weight: 700;
+}
+@keyframes tabBounce {
+  0% { transform: translateY(6rpx) scale(0.82); }
+  55% { transform: translateY(-10rpx) scale(1.22); }
+  100% { transform: translateY(-4rpx) scale(1.12); }
+}

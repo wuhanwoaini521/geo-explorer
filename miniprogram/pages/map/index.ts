@@ -64,6 +64,7 @@ Page({
   },
 
   onShow() {
+    this.getTabBar?.()?.setData({ selected: 1 });
     // 从探索返回后刷新完成度
     this.refresh();
   },

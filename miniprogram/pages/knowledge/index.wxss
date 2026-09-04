@@ -1,4 +1,4 @@
-.page { min-height: 100vh; background: #f6f0dd; padding: 36rpx 32rpx 60rpx; }
+.page { min-height: 100vh; background: #f6f0dd; padding: 36rpx 32rpx calc(env(safe-area-inset-bottom) + 190rpx); }
 .page-title { font-size: 38rpx; font-weight: 800; color: #37311e; letter-spacing: 1rpx; }
 .page-sub { display: block; margin-top: 8rpx; font-size: 22rpx; color: #94896a; }
 

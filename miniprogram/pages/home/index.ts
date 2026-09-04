@@ -27,6 +27,7 @@ Page({
   },
 
   onShow() {
+    this.getTabBar?.()?.setData({ selected: 0 });
     const scenes: SceneCard[] = EXPLORATIONS.map((ex: Exploration) => ({
       id: ex.id,
       title: ex.title,
