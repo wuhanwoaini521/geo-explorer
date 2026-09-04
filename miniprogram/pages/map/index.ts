@@ -81,9 +81,9 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ selected: 1 });
-    // 从探索/图鉴返回后刷新完成度与筛选（首页分类入口经 ui-bus 传入）
+    // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
     const pending = consumeTypeFilter();
-    if (pending !== this.data.activeType) {
+    if (pending !== null && pending !== this.data.activeType) {
       this.setData({ activeType: pending });
     }
     this.refreshScenes();

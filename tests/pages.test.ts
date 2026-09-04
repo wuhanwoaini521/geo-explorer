@@ -4,6 +4,7 @@
  * 地点详情页（数据组装/收藏/关联/非法 id 兜底）。
  */
 import { describe, expect, it, beforeAll, vi } from "vitest";
+import { setPendingTypeFilter } from "../miniprogram/services/ui-bus";
 
 /* ---------------- wx / Page 全局 mock ---------------- */
 const wxCalls: Record<string, unknown[][]> = {};
@@ -164,6 +165,19 @@ describe("地图页图鉴", () => {
     const data = inst.data as Record<string, any>;
     expect(data.atlas.length).toBe(0);
     expect(data.atlasEmpty).toBe(true);
+  });
+
+  it("无显式筛选传入时保持当前类型（不重置）", () => {
+    const inst = createInstance(map);
+    inst.onLoad();
+    tap(inst, "onTypeTap", { type: "desert" });
+    inst.onShow(); // 无 pending → 保持 desert
+    const data = inst.data as Record<string, any>;
+    expect(data.activeType).toBe("desert");
+    // 显式传入 all → 切回全部
+    setPendingTypeFilter("all");
+    inst.onShow();
+    expect((inst.data as Record<string, any>).activeType).toBe("all");
   });
 
   it("点击地点卡 → navigateTo 地点详情", () => {
