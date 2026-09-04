@@ -7,7 +7,7 @@
 
   <!-- 已开放路线 -->
   <view class="section">
-    <view class="section-title">已开放路线</view>
+    <text class="section-title">沉浸探索 · 已开放路线</text>
     <view class="open-card" wx:for="{{open}}" wx:key="id">
       <view class="open-top">
         <text class="open-emoji">{{item.emoji}}</text>
@@ -38,24 +38,78 @@
     </view>
   </view>
 
-  <!-- 即将开放 -->
-  <view class="section">
-    <view class="sec-title">即将开放</view>
-    <view class="coming-grid">
-      <view class="coming-card" wx:for="{{coming}}" wx:key="id" bindtap="onComing">
-        <view class="coming-head">
-          <text class="coming-emoji">{{item.emoji}}</text>
-          <text class="coming-tag">✨ 设计路线中</text>
+  <!-- 预告（紧凑条） -->
+  <view class="section" wx:if="{{coming.length}}">
+    <text class="section-title">即将开放</text>
+    <view class="coming-row">
+      <view class="coming-chip" wx:for="{{coming}}" wx:key="id">
+        <text class="coming-emoji">{{item.emoji}}</text>
+        <view class="coming-text">
+          <text class="coming-name">{{item.title}}</text>
+          <text class="coming-basis">{{item.basis}} · 设计路线中</text>
         </view>
-        <text class="coming-title">{{item.title}}</text>
-        <text class="coming-region">{{item.region}}</text>
-        <text class="coming-basis">{{item.basis}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 底部提示 -->
-  <view class="foot-tip">
-    <text>🚧 更多场景（富士山、撒哈拉、马里亚纳海沟…）正在制作中，敬请期待</text>
+  <!-- ===== 世界图鉴 ===== -->
+  <view class="section atlas">
+    <view class="atlas-head">
+      <text class="section-title">世界图鉴</text>
+      <text class="atlas-count">共 {{atlasTotal}} 个地点</text>
+    </view>
+
+    <!-- 搜索 -->
+    <view class="search">
+      <text class="search-ico">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索地点 / 区域 / 特征"
+        placeholder-class="search-ph"
+        value="{{query}}"
+        confirm-type="search"
+        bindinput="onQueryInput"
+      />
+      <text wx:if="{{query}}" class="search-clear" bindtap="onQueryClear">✕</text>
+    </view>
+
+    <!-- 类型筛选 -->
+    <scroll-view class="type-scroll" scroll-x enable-flex enhanced show-scrollbar="{{false}}">
+      <view class="type-row">
+        <view
+          wx:for="{{types}}"
+          wx:key="type"
+          class="type-chip {{activeType === item.type ? 'on' : ''}}"
+          data-type="{{item.type}}"
+          bindtap="onTypeTap"
+        >
+          <text class="type-emoji">{{item.emoji}}</text>
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 地点网格 -->
+    <view class="atlas-grid" wx:if="{{!atlasEmpty}}">
+      <view class="place-card" wx:for="{{atlas}}" wx:key="id"
+        data-id="{{item.id}}" bindtap="onOpenPlace">
+        <view class="place-top">
+          <text class="place-emoji">{{item.emoji}}</text>
+          <text wx:if="{{item.exploration}}" class="place-badge">可探索</text>
+        </view>
+        <text class="place-name">{{item.name}}</text>
+        <text class="place-sub">{{item.shortDescription}}</text>
+        <view class="place-foot">
+          <text class="place-type">{{item.typeLabel}}</text>
+          <text class="place-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="atlas-empty" wx:else>
+      <text class="atlas-empty-emoji">🔭</text>
+      <text class="atlas-empty-text">没有匹配的地点，换个关键词或类型试试</text>
+    </view>
   </view>
 </view>

@@ -5,6 +5,7 @@
     "pages/knowledge/index",
     "pages/knowledge-detail/index",
     "pages/exploration/index",
+    "pages/place/index",
     "pages/quiz/index",
     "pages/profile/index"
   ],
