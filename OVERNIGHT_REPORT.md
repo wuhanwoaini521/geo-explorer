@@ -94,7 +94,18 @@
 
 ---
 
-## 附：提交清单（12 commits，语义化）
+## ⚠️ 推送与 PR（环境级阻塞，需你在有凭据的终端执行）
+
+本开发环境无法向 GitHub 认证（无 token / SSH key / 凭据管理器 / gh CLI，`git push` 报
+`could not read Username for 'https://github.com'`）。分支已全部提交在本地（14 commits），
+推送与建 PR 只需在有凭据的终端执行（PR 描述已备好 `PR_DESCRIPTION.md`）：
+
+```bash
+git push -u origin feat/geo-explorer-product-polish
+# 然后以 base=main、head=feat/geo-explorer-product-polish 创建 PR（勿自动合并）
+```
+
+## 附：提交清单（14 commits，语义化）
 
 ```
 3e92241 docs(readme): 同步世界图鉴/收藏/详情页与测试数量
