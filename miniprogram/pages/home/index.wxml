@@ -5,8 +5,8 @@
     <text class="hero-title">探索地球</text>
     <text class="hero-sub">从世界之巅到万米深渊，用一次滑动丈量地球。</text>
 
-    <view class="hero-plate">
-      <image class="hero-plate-img" src="/assets/world/everest-hero.jpg" mode="aspectFill"></image>
+    <view class="hero-plate {{heroImageFailed ? 'hero-plate-fallback' : ''}}">
+      <image wx:if="{{!heroImageFailed}}" class="hero-plate-img" src="/assets/world/everest-hero.jpg" mode="aspectFill" binderror="onHeroImageError"></image>
       <view class="hero-plate-tag">
         <text class="hero-plate-tag-t">珠穆朗玛峰 · 8,848.86 m</text>
         <text class="hero-plate-tag-s">真实高程数据（DEM）地形渲染 · Copernicus GLO-30</text>

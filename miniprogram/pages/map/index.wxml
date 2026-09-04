@@ -17,8 +17,8 @@
         </view>
         <text wx:if="{{item.completed}}" class="open-done">🏁 已完成</text>
       </view>
-      <view wx:if="{{item.id === 'everest'}}" class="open-plate">
-        <image class="open-plate-img" src="/assets/world/everest-route.jpg" mode="aspectFill"></image>
+      <view wx:if="{{item.id === 'everest' && !routeImageFailed[item.id]}}" class="open-plate">
+        <image class="open-plate-img" src="/assets/world/everest-route.jpg" mode="aspectFill" data-id="{{item.id}}" binderror="onRouteImageError"></image>
         <text class="open-plate-tag">南坳路线 · 真实 DEM 渲染</text>
       </view>
       <view class="open-meta">

@@ -38,6 +38,9 @@
   border: 2rpx solid rgba(122, 86, 14, 0.3);
   box-shadow: 0 8rpx 24rpx rgba(122, 98, 45, 0.14);
 }
+.hero-plate-fallback {
+  background: linear-gradient(160deg, #3d5a8f, #7fa8d0);
+}
 .hero-plate-img {
   width: 100%;
   height: 100%;

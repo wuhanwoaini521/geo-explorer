@@ -46,6 +46,7 @@ Page({
     featured: [] as FeaturedCard[],
     types: [] as TypeEntry[],
     discovery: null as (Discovery & { index: number }) | null,
+    heroImageFailed: false,
     stats: { completed: 0, totalFound: 0 },
     placeCount: PLACES.length,
   },
@@ -140,5 +141,10 @@ Page({
 
   onOpenMapTab() {
     wx.switchTab({ url: "/pages/map/index" });
+  },
+
+  /** 主视觉加载失败：降级为纯色卡片，避免出现破图 */
+  onHeroImageError() {
+    this.setData({ heroImageFailed: true });
   },
 });

@@ -72,6 +72,7 @@ Page({
     atlas: [] as AtlasPlace[],
     atlasTotal: PLACES.length,
     atlasEmpty: false,
+    routeImageFailed: {} as Record<string, boolean>,
   },
 
   onLoad() {
@@ -152,6 +153,13 @@ Page({
   onQueryClear() {
     this.setData({ query: "" });
     this.refreshAtlas();
+  },
+
+  /** 路线图加载失败：隐藏图块并提示（不阻断流程） */
+  onRouteImageError(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    this.setData({ [`routeImageFailed.${id}`]: true } as Record<string, unknown>);
   },
 
   /** 打开地点详情 */
