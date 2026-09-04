@@ -25,8 +25,8 @@ const wxMock = {
 (globalThis as Record<string, unknown>).wx = wxMock;
 
 interface PageDef {
-  data: Record<string, unknown>;
-  [key: string]: unknown;
+  data: Record<string, any>;
+  [key: string]: any;
 }
 let lastPageDef: PageDef | null = null;
 (globalThis as Record<string, unknown>).Page = (def: PageDef) => {
@@ -38,14 +38,14 @@ function createInstance(def: PageDef): PageDef & {
   data: Record<string, unknown>;
   setData(patch: Record<string, unknown>): void;
 } {
-  const inst = Object.create(null) as Record<string, unknown>;
+  const inst = Object.create(null) as PageDef;
   inst.data = JSON.parse(JSON.stringify(def.data));
   for (const [key, value] of Object.entries(def)) {
     if (key === "data") continue;
     inst[key] = typeof value === "function" ? (value as () => void).bind(inst) : value;
   }
-  inst.setData = function (patch: Record<string, unknown>) {
-    Object.assign(this.data, patch);
+  inst.setData = (patch: Record<string, unknown>) => {
+    Object.assign(inst.data, patch);
   };
   return inst as never;
 }
