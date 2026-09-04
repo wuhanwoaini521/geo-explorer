@@ -29,3 +29,4 @@ design/world/everest-3d/blender/*.blend1
 .idea/
 .vscode/
 *.swp
+project.private.config.json

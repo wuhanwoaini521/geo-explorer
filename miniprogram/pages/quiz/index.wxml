@@ -1,15 +1,100 @@
 <view class="page">
-  <text class="page-title">🎯 地理挑战</text>
-  <text class="page-sub">题库已准备 {{count}} 道题 · 挑战模式开发中</text>
+  <!-- ===== 阶段一：选择难度 ===== -->
+  <block wx:if="{{phase === 'idle'}}">
+    <text class="page-title">🎯 地理挑战</text>
+    <text class="page-sub">题库共 {{count}} 道题 · 每轮连答 5 题，即时判分</text>
 
-  <view class="levels">
-    <view class="lv" wx:for="{{levels}}" wx:key="*this">
-      <text class="lv-label">难度</text>
-      <text class="lv-stars">{{item.stars}}</text>
+    <view class="levels">
+      <view
+        class="lv"
+        wx:for="{{levels}}"
+        wx:key="id"
+        data-level="{{item.id}}"
+        bindtap="onStart"
+      >
+        <text class="lv-label">{{item.label}}</text>
+        <text class="lv-stars">{{item.stars}}</text>
+        <text class="lv-best">{{item.bestText}}</text>
+        <text class="lv-go">开始挑战 →</text>
+      </view>
     </view>
-  </view>
 
-  <view class="btn" bindtap="onPreview">预览一道示例题</view>
+    <view class="rule">
+      <text class="rule-t">玩法说明</text>
+      <text class="rule-line">· 每轮从题库随机抽 5 题，优先抽所选难度，不足自动补齐</text>
+      <text class="rule-line">· 选后立即判分并展示解析，本轮内不可回退修改</text>
+      <text class="rule-line">· 按难度分别记录最佳成绩：正确率优先，其次正确数</text>
+    </view>
+  </block>
 
-  <view class="tag">Coming Soon · 下一迭代上线计分与排行</view>
+  <!-- ===== 阶段二：答题 ===== -->
+  <block wx:if="{{phase === 'play' && play}}">
+    <view class="play-head">
+      <text class="play-step">{{play.index + 1}} / {{play.total}}</text>
+      <view class="play-track">
+        <view class="play-fill" style="width:{{play.index / play.total * 100}}%"></view>
+      </view>
+    </view>
+
+    <view class="q-card">
+      <view class="q-head">
+        <text class="q-emoji">{{play.emoji}}</text>
+        <text class="q-question">{{play.question}}</text>
+      </view>
+
+      <view class="q-options">
+        <view
+          wx:for="{{play.options}}"
+          wx:key="*this"
+          class="q-opt {{play.selected === index ? 'sel' : ''}} {{play.revealed && play.selected === index && play.correct ? 'right' : ''}} {{play.revealed && play.selected === index && !play.correct ? 'wrong' : ''}} {{play.revealed && play.selected !== index ? 'dim' : ''}}"
+          data-index="{{index}}"
+          bindtap="onPick"
+        >
+          <text class="q-key">{{index === 0 ? 'A' : index === 1 ? 'B' : index === 2 ? 'C' : 'D'}}</text>
+          <text class="q-opt-text">{{item}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{play.revealed}}" class="q-result">
+        <text class="q-verdict {{play.correct ? 'ok' : 'no'}}">{{play.correct ? '✓ 回答正确' : '✗ 答错了'}}</text>
+        <text class="q-explain">{{play.explanation}}</text>
+        <view class="q-next" bindtap="onNext">
+          {{play.index + 1 >= play.total ? '查看成绩 →' : '下一题 →'}}
+        </view>
+      </view>
+      <view wx:else class="q-tip">选择一个答案后立即判分</view>
+    </view>
+  </block>
+
+  <!-- ===== 阶段三：结算 ===== -->
+  <block wx:if="{{phase === 'result' && result}}">
+    <view class="result-card">
+      <text class="result-emoji">{{result.pct >= 80 ? '🎉' : result.pct >= 60 ? '👍' : '💪'}}</text>
+      <text class="result-title">挑战完成！</text>
+      <view class="result-star-row">
+        <text class="result-star {{result.stars >= 1 ? 'on' : ''}}">★</text>
+        <text class="result-star {{result.stars >= 2 ? 'on' : ''}}">★</text>
+        <text class="result-star {{result.stars >= 3 ? 'on' : ''}}">★</text>
+      </view>
+
+      <view class="result-stats">
+        <view class="rstat">
+          <text class="rstat-v">{{result.correct}}/{{result.total}}</text>
+          <text class="rstat-k">答对题数</text>
+        </view>
+        <view class="rstat">
+          <text class="rstat-v">{{result.pct}}%</text>
+          <text class="rstat-k">正确率</text>
+        </view>
+      </view>
+
+      <view wx:if="{{result.isRecord}}" class="result-record">🏅 新纪录！刷新了该难度的最佳成绩</view>
+      <view wx:else class="result-best">该难度最佳：{{result.bestText}}</view>
+
+      <view class="result-actions">
+        <view class="act act-primary" bindtap="onRetry">再来一轮</view>
+        <view class="act act-ghost" bindtap="onBackIdle">换个难度</view>
+      </view>
+    </view>
+  </block>
 </view>

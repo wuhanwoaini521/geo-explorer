@@ -1,25 +1,83 @@
-/* 首页 */
+/* 首页 —— 暖纸 · 古地图编辑风 v2 */
 .page {
   min-height: 100vh;
-  background: #0a1426;
+  background: #f6f0dd;
   padding-bottom: 60rpx;
 }
 
+/* ---------------- Hero ---------------- */
 .hero {
-  padding: 64rpx 40rpx 44rpx;
-  background: linear-gradient(160deg, #16324f, #0c1c33);
+  padding: 56rpx 40rpx 44rpx;
+  background:
+    radial-gradient(130% 100% at 88% -12%, rgba(217, 166, 58, 0.32), rgba(217, 166, 58, 0) 58%),
+    linear-gradient(165deg, #f8f0d8 0%, #eee2c0 100%);
+  border-bottom: 1rpx solid rgba(122, 86, 14, 0.2);
+}
+.hero-eyebrow {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #a06a10;
+  letter-spacing: 6rpx;
 }
 .hero-title {
-  font-size: 44rpx;
+  display: block;
+  margin-top: 14rpx;
+  font-size: 60rpx;
   font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 1rpx;
+  color: #37311e;
+  letter-spacing: 3rpx;
+  line-height: 1.2;
+}
+.hero-rule {
+  margin-top: 18rpx;
+  width: 72rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: linear-gradient(90deg, #d9a63a, #a87717);
 }
 .hero-sub {
   display: block;
-  margin-top: 10rpx;
+  margin-top: 18rpx;
+  font-size: 25rpx;
+  color: #8a7c58;
+  line-height: 1.6;
+}
+
+/* 真实 DEM 地形图版画 */
+.hero-plate {
+  position: relative;
+  margin-top: 28rpx;
+  height: 380rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 6rpx 0 rgba(122, 86, 14, 0.18);
+}
+.hero-plate-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero-plate-tag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 44rpx 24rpx 18rpx;
+  background: linear-gradient(180deg, rgba(43, 31, 10, 0) 0%, rgba(43, 31, 10, 0.62) 100%);
+  display: flex;
+  flex-direction: column;
+}
+.hero-plate-tag-t {
+  color: #fff5d5;
   font-size: 26rpx;
-  color: #9fb7d4;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+.hero-plate-tag-s {
+  color: rgba(255, 247, 225, 0.78);
+  font-size: 20rpx;
+  margin-top: 4rpx;
 }
 
 .hero-stats {
@@ -32,54 +90,85 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 22rpx 0;
-  border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.06);
+  padding: 20rpx 0;
+  border-radius: 14rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(122, 86, 14, 0.18);
+  box-shadow: 0 3rpx 0 rgba(122, 86, 14, 0.1);
 }
 .stat-v {
   font-size: 40rpx;
   font-weight: 800;
-  color: #8ce6cf;
+  color: #37311e;
 }
 .stat-k {
   font-size: 22rpx;
-  color: #9fb7d4;
+  color: #94896a;
   margin-top: 6rpx;
 }
 
 .section-title {
-  padding: 40rpx 40rpx 20rpx;
+  padding: 44rpx 40rpx 22rpx;
   font-size: 30rpx;
   font-weight: 700;
-  color: #eaf3fc;
+  color: #37311e;
+  letter-spacing: 2rpx;
 }
 
+/* ---------------- 场景卡片 ---------------- */
 .scene-list {
   padding: 0 32rpx;
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 26rpx;
 }
 .scene-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(122, 86, 14, 0.2);
+  box-shadow: 0 6rpx 0 rgba(122, 86, 14, 0.08);
+  padding: 30rpx 30rpx 26rpx 40rpx;
+}
+.scene-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10rpx;
+  background: linear-gradient(180deg, #d9a63a, #a87717);
+}
+.scene-card:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 3rpx 0 rgba(122, 86, 14, 0.08);
+}
+.card-head {
   display: flex;
   align-items: center;
-  gap: 26rpx;
-  padding: 32rpx 30rpx;
-  border-radius: 28rpx;
-  background: linear-gradient(180deg, #16233d, #101c33);
-  border: 1rpx solid rgba(255, 255, 255, 0.06);
+  gap: 22rpx;
 }
 .card-left {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 24rpx;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(140, 230, 207, 0.12);
+  background: #f4ecd3;
+  border: 1rpx solid rgba(122, 86, 14, 0.16);
+  flex-shrink: 0;
 }
 .card-emoji {
-  font-size: 64rpx;
+  font-size: 48rpx;
+}
+.card-idx {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: rgba(168, 119, 23, 0.28);
+  font-style: italic;
+  flex-shrink: 0;
 }
 .card-main {
   flex: 1;
@@ -96,48 +185,79 @@
 .card-name {
   font-size: 32rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #37311e;
+  letter-spacing: 1rpx;
 }
 .card-badge {
   font-size: 20rpx;
-  color: #8ce6cf;
+  color: #a06a10;
   padding: 6rpx 16rpx;
   border-radius: 999rpx;
-  background: rgba(140, 230, 207, 0.14);
+  background: rgba(168, 119, 23, 0.1);
+  border: 1rpx solid rgba(168, 119, 23, 0.26);
   white-space: nowrap;
 }
 .card-sub {
   margin-top: 8rpx;
   font-size: 24rpx;
-  color: #a9c1dc;
+  color: #6f6547;
 }
 .card-meta {
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #7d8ba0;
-}
-.card-cta {
-  margin-top: 16rpx;
-  font-size: 26rpx;
-  color: #38c2a0;
-  font-weight: 600;
+  color: #94896a;
 }
 
+.card-foot {
+  margin-top: 24rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx dashed rgba(122, 86, 14, 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-cta {
+  font-size: 27rpx;
+  color: #37311e;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+.card-arrow {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 4rpx 0 #7a5510;
+}
+.card-arrow-ico {
+  color: #fffdf4;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ---------------- 关于 ---------------- */
 .about {
   margin: 48rpx 32rpx 0;
   padding: 28rpx 30rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16rpx;
+  background: #f1e9d0;
+  border: 1rpx solid rgba(122, 86, 14, 0.14);
 }
 .about-title {
   font-size: 24rpx;
   font-weight: 700;
-  color: #cfe2f2;
+  color: #6f6547;
+  letter-spacing: 2rpx;
 }
 .about-text {
   display: block;
   margin-top: 12rpx;
   font-size: 22rpx;
-  color: #7d8ba0;
+  color: #8a7c58;
   line-height: 1.7;
 }

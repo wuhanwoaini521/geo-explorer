@@ -47,7 +47,8 @@
    etapes: `python scripts/terrain/build_everest_route.py` →
    `blender --background --python scripts/terrain/render_everest_route.py -- .gate3-tmp/raw .gate3-tmp/route-gate3.blend` →
    `python scripts/terrain/compose_everest_route_preview.py .gate3-tmp/raw design/world/everest-3d/preview`.
-2. `rendering-notes.md` not yet updated with Gate-3 route description (optional).
+2. ~~`rendering-notes.md` not yet updated with Gate-3 route description (optional).~~
+   ✅ DONE — "Gate 3 — Route Preview" section appended (dataset / render / outputs / validation).
 3. Consider adding route distance per-leg stats to the compose footer (optional).
 4. Confirm no merge conflicts before pushing to `origin/main`.
 

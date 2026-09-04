@@ -100,6 +100,7 @@ export const MARIANA: Exploration = {
     tags: ["地球最深点", "万米海沟", "生物发光"],
   },
   palette: ["#3fa9ee", "#0b5fa3", "#05182f"],
+  world: { style: "ocean" },
   startElevation: 0,
   maxElevation: 10935,
   estimatedMinutes: 11,
@@ -444,6 +445,7 @@ export const MARIANA: Exploration = {
     },
     {
       id: "challenger-deep",
+      knowledgeId: "k11", // 对应知识库「地球最深的水在哪」
       elevation: 10935,
       emoji: "🐋",
       title: "挑战者深渊 · 地球最深点",

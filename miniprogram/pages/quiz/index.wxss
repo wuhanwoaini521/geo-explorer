@@ -1,36 +1,191 @@
-.page { min-height: 100vh; background: #0a1216; padding: 40rpx 32rpx; display: flex; flex-direction: column; }
-.page-title { font-size: 38rpx; font-weight: 800; color: #ffffff; }
-.page-sub { margin-top: 8rpx; font-size: 22rpx; color: #8fa3bf; }
+.page {
+  min-height: 100vh;
+  background: #f6f0dd;
+  padding: 40rpx 32rpx 60rpx;
+  display: flex;
+  flex-direction: column;
+}
+.page-title { font-size: 38rpx; font-weight: 800; color: #37311e; letter-spacing: 1rpx; }
+.page-sub { margin-top: 8rpx; font-size: 22rpx; color: #94896a; }
 
-.levels { display: flex; gap: 20rpx; margin: 30rpx 0; }
+/* ---------------- 难度选择 ---------------- */
+.levels { display: flex; flex-direction: column; gap: 20rpx; margin: 30rpx 0; }
 .lv {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 28rpx 26rpx;
+  border-radius: 18rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+}
+.lv:active { opacity: 0.85; }
+.lv-label { font-size: 28rpx; font-weight: 700; color: #37311e; }
+.lv-stars { font-size: 28rpx; color: #c08a2d; }
+.lv-best { flex: 1; text-align: right; font-size: 22rpx; color: #94896a; }
+.lv-go { font-size: 24rpx; color: #a06a10; font-weight: 700; }
+
+.rule {
+  margin-top: 10rpx;
+  padding: 26rpx 24rpx;
+  border-radius: 16rpx;
+  background: #f1e9d0;
+  border: 1rpx solid rgba(151, 124, 66, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.rule-t { font-size: 24rpx; font-weight: 700; color: #6f6547; }
+.rule-line { font-size: 22rpx; color: #8a7c58; line-height: 1.6; }
+
+/* ---------------- 答题 ---------------- */
+.play-head {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 26rpx;
+}
+.play-step { font-size: 24rpx; color: #94896a; }
+.play-track {
+  flex: 1;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: rgba(151, 124, 66, 0.18);
+  overflow: hidden;
+}
+.play-fill {
+  height: 100%;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #a87717, #d9a63a);
+  transition: width 0.25s ease;
+}
+
+.q-card {
+  padding: 30rpx 26rpx;
+  border-radius: 20rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+}
+.q-head { display: flex; gap: 18rpx; align-items: flex-start; }
+.q-emoji { font-size: 40rpx; }
+.q-question { flex: 1; font-size: 30rpx; font-weight: 700; color: #37311e; line-height: 1.5; }
+
+.q-options { display: flex; flex-direction: column; gap: 18rpx; margin-top: 28rpx; }
+.q-opt {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 22rpx 22rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid rgba(151, 124, 66, 0.18);
+  background: #faf5e6;
+}
+.q-opt.sel { border-color: #b57f1f; background: rgba(168, 119, 23, 0.1); }
+.q-opt.right { border-color: #6b8f3d; background: rgba(107, 143, 61, 0.14); }
+.q-opt.wrong { border-color: #bf5b3d; background: rgba(191, 91, 61, 0.12); }
+.q-opt.dim { opacity: 0.45; }
+.q-key {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: rgba(151, 124, 66, 0.12);
+  color: #6f6547;
+  font-size: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.q-opt-text { flex: 1; font-size: 26rpx; color: #37311e; line-height: 1.5; }
+
+.q-result {
+  margin-top: 26rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid rgba(151, 124, 66, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+.q-verdict { font-size: 26rpx; font-weight: 700; }
+.q-verdict.ok { color: #5c7a34; }
+.q-verdict.no { color: #bf5b3d; }
+.q-explain { font-size: 23rpx; color: #6f6547; line-height: 1.6; }
+.q-next {
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84rpx;
+  border-radius: 42rpx;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 5rpx 0 #7a5510;
+  color: #fffdf4;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+.q-next:active { transform: translateY(3rpx); box-shadow: 0 2rpx 0 #7a5510; opacity: 0.94; }
+.q-tip { margin-top: 26rpx; font-size: 22rpx; color: #94896a; text-align: center; }
+
+/* ---------------- 结算 ---------------- */
+.result-card {
+  margin-top: 30rpx;
+  padding: 44rpx 32rpx;
+  border-radius: 20rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-emoji { font-size: 80rpx; }
+.result-title { margin-top: 12rpx; font-size: 34rpx; font-weight: 800; color: #37311e; letter-spacing: 2rpx; }
+.result-star-row { display: flex; gap: 12rpx; margin-top: 16rpx; }
+.result-star { font-size: 52rpx; color: rgba(151, 124, 66, 0.24); }
+.result-star.on { color: #c08a2d; text-shadow: 0 2rpx 10rpx rgba(168, 119, 23, 0.25); }
+
+.result-stats {
+  display: flex;
+  gap: 22rpx;
+  margin-top: 30rpx;
+  width: 100%;
+}
+.rstat {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 24rpx 0;
-  border-radius: 20rpx;
-  background: rgba(255,255,255,0.05);
+  border-radius: 14rpx;
+  background: #f1e9d0;
 }
-.lv-label { font-size: 22rpx; color: #8fa3bf; }
-.lv-stars { margin-top: 8rpx; font-size: 30rpx; color: #ffc36b; }
+.rstat-v { font-size: 40rpx; font-weight: 800; color: #a06a10; }
+.rstat-k { margin-top: 6rpx; font-size: 22rpx; color: #94896a; }
 
-.btn {
+.result-record {
+  margin-top: 26rpx;
+  padding: 14rpx 26rpx;
+  border-radius: 999rpx;
+  background: rgba(168, 119, 23, 0.12);
+  border: 1rpx solid rgba(168, 119, 23, 0.26);
+  color: #a06a10;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+.result-best { margin-top: 26rpx; font-size: 22rpx; color: #94896a; }
+
+.result-actions { display: flex; gap: 20rpx; margin-top: 34rpx; width: 100%; }
+.act {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 92rpx;
-  border-radius: 46rpx;
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #ffffff;
-  font-size: 30rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 28rpx;
   font-weight: 700;
 }
-.btn:active { opacity: 0.86; }
-
-.tag {
-  margin-top: 26rpx;
-  text-align: center;
-  font-size: 22rpx;
-  color: #7d8ba0;
-}
+.act:active { opacity: 0.86; }
+.act-primary { background: linear-gradient(135deg, #e3b04b, #b57f1f); border: 2rpx solid #7a5510; box-shadow: 0 5rpx 0 #7a5510; color: #fffdf4; }
+.act-primary:active { transform: translateY(3rpx); box-shadow: 0 2rpx 0 #7a5510; opacity: 0.94; }
+.act-ghost { background: #fffdf4; border: 2rpx solid rgba(122, 86, 14, 0.4); box-shadow: 0 4rpx 0 rgba(122, 86, 14, 0.18); color: #37311e; }
+.act-ghost:active { transform: translateY(2rpx); box-shadow: 0 1rpx 0 rgba(122, 86, 14, 0.18); }

@@ -39,7 +39,7 @@ export interface ExplorationRecord {
 const STORAGE_KEY = "geoexplorer.explorations.v1";
 
 /* ---------------- 默认实现：wx 本地存储 ---------------- */
-function defaultStorage(): StorageLike {
+export function defaultStorage(): StorageLike {
   return {
     get<T = unknown>(key: string): T | undefined {
       const w = (globalThis as Record<string, unknown>).wx as

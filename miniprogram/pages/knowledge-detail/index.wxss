@@ -1,34 +1,35 @@
-.page { min-height: 100vh; background: #0a1216; padding: 36rpx 32rpx 80rpx; }
+.page { min-height: 100vh; background: #f6f0dd; padding: 36rpx 32rpx 80rpx; }
 .head {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 40rpx 0 30rpx;
-  border-bottom: 1rpx solid rgba(255,255,255,0.06);
+  border-bottom: 1rpx solid rgba(151, 124, 66, 0.16);
 }
-.head-emoji { font-size: 84rpx; }
-.head-title { margin-top: 16rpx; font-size: 36rpx; font-weight: 800; color: #ffffff; text-align: center; }
+.head-emoji { font-size: 64rpx; }
+.head-title { margin-top: 16rpx; font-size: 36rpx; font-weight: 800; color: #37311e; text-align: center; letter-spacing: 1rpx; }
 .head-cat {
   margin-top: 12rpx;
   font-size: 22rpx;
-  color: #8ce6cf;
+  color: #a06a10;
   padding: 6rpx 22rpx;
   border-radius: 999rpx;
-  background: rgba(140, 230, 207, 0.1);
+  background: rgba(168, 119, 23, 0.1);
+  border: 1rpx solid rgba(168, 119, 23, 0.24);
 }
 .section { margin-top: 30rpx; }
 .section-title {
   font-size: 24rpx;
   font-weight: 700;
-  color: #8ce6cf;
-  letter-spacing: 1rpx;
+  color: #a06a10;
+  letter-spacing: 2rpx;
 }
 .section-body {
   display: block;
   margin-top: 14rpx;
   font-size: 26rpx;
-  color: #d7e6f5;
+  color: #37311e;
   line-height: 1.75;
 }
-.note { padding-top: 20rpx; border-top: 1rpx solid rgba(255,255,255,0.06); }
-.note .section-body { font-size: 22rpx; color: #8fa3bf; }
+.note { padding-top: 20rpx; border-top: 1rpx solid rgba(151, 124, 66, 0.16); }
+.note .section-body { font-size: 22rpx; color: #8a7c58; }

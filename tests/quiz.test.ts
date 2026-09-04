@@ -7,9 +7,53 @@ import {
   gradeAnswer,
   isCorrectAnswer,
   pickQuizzes,
+  pickQuizzesByDifficulty,
+  rateStars,
   scoreAnswers,
   shuffle,
 } from "../miniprogram/utils/quiz";
+
+describe("pickQuizzesByDifficulty（按难度抽题）", () => {
+  it("难度题充足时只抽该难度", () => {
+    const d2 = QUIZZES.filter((q) => q.difficulty === 2);
+    expect(d2.length).toBeGreaterThanOrEqual(5);
+    const picked = pickQuizzesByDifficulty(QUIZZES, 5, 2);
+    expect(picked).toHaveLength(5);
+    expect(picked.every((q) => q.difficulty === 2)).toBe(true);
+  });
+
+  it("难度题不足时用其他难度补齐到 count", () => {
+    const d3 = QUIZZES.filter((q) => q.difficulty === 3);
+    expect(d3.length).toBeLessThan(8);
+    const picked = pickQuizzesByDifficulty(QUIZZES, 8, 3);
+    expect(picked).toHaveLength(8);
+    expect(picked.filter((q) => q.difficulty === 3)).toHaveLength(d3.length);
+    expect(new Set(picked.map((q) => q.id)).size).toBe(8); // 不重复
+  });
+
+  it("难度不存在 / 未指定时退化为普通抽题", () => {
+    const picked = pickQuizzesByDifficulty(QUIZZES, 4, 99);
+    expect(picked).toHaveLength(4);
+    const plain = pickQuizzesByDifficulty(QUIZZES, 4);
+    expect(plain).toHaveLength(4);
+  });
+
+  it("count<=0 或空题库返回空", () => {
+    expect(pickQuizzesByDifficulty(QUIZZES, 0, 1)).toHaveLength(0);
+    expect(pickQuizzesByDifficulty([], 3, 1)).toHaveLength(0);
+  });
+});
+
+describe("rateStars（正确率→星级）", () => {
+  it("阈值：≥80% 三星 / ≥60% 两星 / >0 一星 / 0 无星", () => {
+    expect(rateStars(1)).toBe(3);
+    expect(rateStars(0.8)).toBe(3);
+    expect(rateStars(0.79)).toBe(2);
+    expect(rateStars(0.6)).toBe(2);
+    expect(rateStars(0.2)).toBe(1);
+    expect(rateStars(0)).toBe(0);
+  });
+});
 
 describe("pickQuizzes（抽题）", () => {
   it("抽取数量正确且不越界", () => {

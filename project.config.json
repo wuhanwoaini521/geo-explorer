@@ -1,0 +1,62 @@
+{
+  "description": "Geo Explorer —— 地理探索微信小程序。源码为 TS（miniprogram/），构建产物在 dist/miniprogram/，开发者工具加载后者。",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "enhance": false,
+    "postcss": true,
+    "minified": false,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "ignoreDevUnusedFiles": false,
+    "ignoreUploadUnusedFiles": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.7.7",
+  "appid": "wxb11931290726eb78",
+  "projectname": "geo-explorer",
+  "miniprogramRoot": "dist/miniprogram/",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "探索-珠峰",
+          "pathName": "pages/exploration/index",
+          "query": "id=everest",
+          "scene": null
+        },
+        {
+          "name": "探索-马里亚纳",
+          "pathName": "pages/exploration/index",
+          "query": "id=mariana",
+          "scene": null
+        }
+      ]
+    }
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "simulatorPluginLibVersion": {}
+}

@@ -5,14 +5,14 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(6, 12, 24, 0.62);
+  background: rgba(42, 33, 15, 0.5);
   backdrop-filter: blur(6rpx);
 }
 .popup-sheet {
   width: 100%;
   max-height: 78vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #16233d, #0f1c33);
+  background: #fffdf4;
   border-radius: 32rpx 32rpx 0 0;
   padding: 32rpx 32rpx 48rpx;
   padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
@@ -28,7 +28,7 @@
   gap: 18rpx;
 }
 .popup-emoji {
-  font-size: 64rpx;
+  font-size: 52rpx;
   line-height: 1;
 }
 .popup-head-text {
@@ -41,27 +41,28 @@
 .popup-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #37311e;
+  letter-spacing: 1rpx;
 }
 .popup-elev {
   font-size: 22rpx;
-  color: #8ce6cf;
+  color: #a06a10;
 }
 .popup-close {
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(151, 124, 66, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8fa3bf;
+  color: #8a7c58;
   font-size: 28rpx;
 }
 .popup-summary {
   margin-top: 22rpx;
   font-size: 27rpx;
-  color: #d6e3f2;
+  color: #37311e;
   line-height: 1.6;
 }
 .popup-expand {
@@ -69,7 +70,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8rpx;
-  color: #8ce6cf;
+  color: #a06a10;
   font-size: 26rpx;
 }
 .popup-expand-arrow {
@@ -78,13 +79,14 @@
 .popup-detail {
   margin-top: 22rpx;
   font-size: 26rpx;
-  color: #c6d4e8;
+  color: #4a4430;
   line-height: 1.7;
 }
 .popup-facts {
   margin-top: 26rpx;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 20rpx;
+  background: #f4ecd3;
+  border: 1rpx solid rgba(151, 124, 66, 0.14);
+  border-radius: 16rpx;
   padding: 20rpx 24rpx;
   display: flex;
   flex-direction: column;
@@ -92,8 +94,8 @@
 }
 .popup-facts-title {
   font-size: 22rpx;
-  color: #8ce6cf;
-  letter-spacing: 1rpx;
+  color: #a06a10;
+  letter-spacing: 2rpx;
 }
 .fact {
   display: flex;
@@ -102,11 +104,11 @@
 }
 .fact-label {
   font-size: 22rpx;
-  color: #8fa3bf;
+  color: #8a7c58;
 }
 .fact-value {
   font-size: 24rpx;
-  color: #e6eef7;
+  color: #37311e;
   line-height: 1.5;
 }
 .popup-source {
@@ -117,14 +119,14 @@
 }
 .popup-source-flag {
   font-size: 20rpx;
-  color: #5ec7b0;
+  color: #4a708c;
   padding: 4rpx 12rpx;
-  border-radius: 8rpx;
-  background: rgba(46, 198, 176, 0.14);
+  border-radius: 6rpx;
+  background: rgba(74, 112, 140, 0.1);
 }
 .popup-source-text {
   font-size: 20rpx;
-  color: #7d8ba0;
+  color: #94896a;
 }
 .popup-actions {
   margin-top: 30rpx;
@@ -135,14 +137,18 @@
   justify-content: center;
   height: 92rpx;
   border-radius: 46rpx;
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #ffffff;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 6rpx 0 #7a5510;
+  color: #fffdf4;
   font-size: 30rpx;
   font-weight: 600;
   letter-spacing: 2rpx;
 }
 .popup-btn-primary:active {
-  opacity: 0.86;
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 #7a5510;
+  opacity: 0.94;
 }
 /* ---------- 分层：分类标签 / 查看详情 / 完整知识 ---------- */
 .popup-cat-row {
@@ -152,25 +158,26 @@
 }
 .popup-cat {
   font-size: 20rpx;
-  color: #2cf0ce;
+  color: #a06a10;
   padding: 4rpx 14rpx;
-  border-radius: 8rpx;
-  background: rgba(46, 198, 176, 0.16);
+  border-radius: 6rpx;
+  background: rgba(168, 119, 23, 0.1);
+  border: 1rpx solid rgba(168, 119, 23, 0.24);
 }
 .popup-btn-expand {
   margin-top: 22rpx;
   display: inline-flex;
   align-items: center;
   gap: 8rpx;
-  color: #8ce6cf;
+  color: #a06a10;
   font-size: 26rpx;
   padding: 10rpx 0;
 }
 .popup-subtitle {
   margin-top: 26rpx;
   font-size: 22rpx;
-  color: #8ce6cf;
-  letter-spacing: 1rpx;
+  color: #a06a10;
+  letter-spacing: 2rpx;
 }
 .popup-sources {
   margin-top: 24rpx;
@@ -184,7 +191,7 @@
   align-items: flex-start;
 }
 .popup-src-bullet {
-  color: #5ec7b0;
+  color: #b0a586;
   font-size: 24rpx;
   line-height: 1.6;
 }
@@ -197,7 +204,7 @@
 }
 .popup-src-name {
   font-size: 22rpx;
-  color: #b9c9de;
+  color: #6f6547;
   line-height: 1.5;
 }
 .popup-src-tags {
@@ -207,24 +214,24 @@
 }
 .tag-approx {
   font-size: 20rpx;
-  color: #ffc46b;
+  color: #a06a10;
   padding: 2rpx 10rpx;
-  border-radius: 8rpx;
-  background: rgba(255, 196, 107, 0.14);
+  border-radius: 6rpx;
+  background: rgba(168, 119, 23, 0.1);
 }
 .tag-verified {
   font-size: 20rpx;
-  color: #9fb6cf;
+  color: #5c7a34;
   padding: 2rpx 10rpx;
-  border-radius: 8rpx;
-  background: rgba(159, 182, 207, 0.12);
+  border-radius: 6rpx;
+  background: rgba(107, 143, 61, 0.12);
 }
 .fact-src {
   display: flex;
   align-items: center;
   gap: 8rpx;
   font-size: 20rpx;
-  color: #7d8ba0;
+  color: #94896a;
 }
 .popup-btn-lib {
   margin-top: 24rpx;
@@ -232,8 +239,9 @@
   align-items: center;
   gap: 8rpx;
   padding: 16rpx 20rpx;
-  border-radius: 14rpx;
-  background: rgba(255, 255, 255, 0.05);
-  color: #b9d5ef;
+  border-radius: 12rpx;
+  background: #f4ecd3;
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+  color: #6f6547;
   font-size: 24rpx;
 }

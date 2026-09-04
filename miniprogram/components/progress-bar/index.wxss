@@ -5,13 +5,13 @@
   position: relative;
   width: 100%;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(151, 124, 66, 0.18);
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
   border-radius: 999rpx;
-  background: linear-gradient(90deg, #2fb6a0, #1d8fa6, #7cc4ff);
+  background: linear-gradient(90deg, #a87717, #d9a63a);
   transition: width 0.25s ease;
 }
 .progress-dot {
@@ -22,8 +22,8 @@
   width: 14rpx;
   height: 14rpx;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 12rpx rgba(255, 255, 255, 0.9);
+  background: #fffdf4;
+  box-shadow: 0 0 8rpx rgba(168, 119, 23, 0.5);
 }
 .progress-meta {
   display: flex;
@@ -34,9 +34,9 @@
 .progress-pct {
   font-size: 24rpx;
   font-weight: 600;
-  color: #8ce6cf;
+  color: #a06a10;
 }
 .progress-caption {
   font-size: 22rpx;
-  color: #8fa3bf;
+  color: #94896a;
 }

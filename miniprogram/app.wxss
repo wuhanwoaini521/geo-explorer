@@ -1,10 +1,10 @@
 /**
- * 全局样式 —— Geo Explorer 视觉基调（第 11 节：现代/自然/探索/克制）。
- * 深色底 + 青色主色 + 级联星空式的克制动效。
+ * 全局样式 —— Geo Explorer 视觉基调 v2（暖纸 / 古地图）。
+ * 淡黄纸底 + 墨色文字 + 琥珀金主色；克制的编辑排版，弱化装饰性光晕。
  */
 page {
-  background: #0a1426;
-  color: #e6eef7;
+  background: #f6f0dd;
+  color: #37311e;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
   font-size: 28rpx;
   line-height: 1.5;
@@ -52,13 +52,13 @@ button::after {
   gap: 20rpx;
 }
 .text-dim {
-  color: #8fa3bf;
+  color: #6f6547;
 }
 .text-muted {
-  color: #6f7f96;
+  color: #94896a;
 }
 .text-accent {
-  color: #8ce6cf;
+  color: #a06a10;
 }
 .text-xl {
   font-size: 40rpx;
@@ -76,7 +76,7 @@ button::after {
 }
 .caption {
   font-size: 20rpx;
-  color: #6f7f96;
+  color: #94896a;
   letter-spacing: 1rpx;
 }
 .ellipsis {
@@ -92,13 +92,13 @@ button::after {
 
 /* 通用卡片 */
 .panel {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1rpx solid rgba(255, 255, 255, 0.08);
-  border-radius: 24rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+  border-radius: 20rpx;
   padding: 28rpx;
 }
 
-/* 主按钮 */
+/* 主按钮：硬投影 + 墨色描边，可按压回弹 */
 .btn-primary {
   display: flex;
   align-items: center;
@@ -106,16 +106,18 @@ button::after {
   height: 88rpx;
   padding: 0 44rpx;
   border-radius: 44rpx;
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #ffffff;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 6rpx 0 #7a5510;
+  color: #fffdf4;
   font-size: 30rpx;
   font-weight: 600;
   letter-spacing: 2rpx;
-  box-shadow: 0 12rpx 28rpx rgba(31, 168, 160, 0.32);
 }
 .btn-primary:active {
-  opacity: 0.86;
-  transform: translateY(2rpx);
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 #7a5510;
+  opacity: 0.94;
 }
 .btn-ghost {
   display: flex;
@@ -124,11 +126,16 @@ button::after {
   height: 88rpx;
   padding: 0 44rpx;
   border-radius: 44rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.06);
-  color: #e6eef7;
+  border: 2rpx solid rgba(122, 86, 14, 0.4);
+  background: #fffdf4;
+  box-shadow: 0 4rpx 0 rgba(122, 86, 14, 0.18);
+  color: #37311e;
   font-size: 30rpx;
   letter-spacing: 2rpx;
+}
+.btn-ghost:active {
+  transform: translateY(3rpx);
+  box-shadow: 0 1rpx 0 rgba(122, 86, 14, 0.18);
 }
 
 /* 淡入 */

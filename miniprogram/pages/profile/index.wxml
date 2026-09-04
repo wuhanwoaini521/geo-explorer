@@ -14,6 +14,24 @@
       <text class="st-v">{{stats.totalFound}}</text>
       <text class="st-k">已获知识</text>
     </view>
+    <view class="st">
+      <text class="st-v">{{quiz.totalPlays}}</text>
+      <text class="st-k">挑战次数</text>
+    </view>
+  </view>
+
+  <view class="sec-title">挑战成绩</view>
+  <view class="record" wx:if="{{!quizEmpty}}">
+    <view class="rec" wx:for="{{quiz.levels}}" wx:key="difficulty">
+      <text class="rec-emoji quiz-stars">{{item.stars}}</text>
+      <view class="rec-main">
+        <text class="rec-name">难度 {{item.difficulty}} 最佳</text>
+        <text class="rec-meta">{{item.bestText}} · 挑战 {{item.plays}} 次</text>
+      </view>
+    </view>
+  </view>
+  <view class="record empty" wx:else>
+    <text>还没有挑战记录，去「挑战」页试试手气 🧠</text>
   </view>
 
   <view class="sec-title">探索记录</view>

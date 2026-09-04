@@ -145,9 +145,11 @@ def build_terrain(bpy, metadata, elev_raw):
 
     scene = bpy.context.scene
     scene.render.engine = "BLENDER_WORKBENCH"
-    scene.render.resolution_x = 1440
-    scene.render.resolution_y = 1080
+    # 高清渲染：4K 级输出，供小程序全屏竖幅裁剪（避免设备端放大发虚）
+    scene.render.resolution_x = 2880
+    scene.render.resolution_y = 2160
     scene.render.resolution_percentage = 100
+    scene.display.render_aa = "8"
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.color_mode = "RGBA"
     scene.render.film_transparent = True

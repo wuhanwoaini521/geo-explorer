@@ -64,6 +64,15 @@ describe("新场景注册（马里亚纳）", () => {
     }
   });
 
+  it("世界主题声明：珠峰为 mountain，马里亚纳为 ocean（探索页按此分派视觉）", () => {
+    expect(EXPLORATIONS.find((e) => e.id === "everest")?.world?.style).toBe(
+      "mountain",
+    );
+    expect(EXPLORATIONS.find((e) => e.id === "mariana")?.world?.style).toBe(
+      "ocean",
+    );
+  });
+
   it("马里亚纳：6 个海洋带从海面向下排布，`每 stage 带生物/地形色/照明密度", () => {
     expect(M_STAGES.length).toBe(6);
     // 深度应 单调 递增（0 → 10000）

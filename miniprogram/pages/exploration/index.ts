@@ -261,38 +261,24 @@ function buildRouteState(route: ExplorationRoute, progress: number): SceneRouteS
   };
 }
 
-/* ---------------- 山岳世界（SVG 场景插画布，仅可视化数据，引擎不参与） ---------------- */
-
-/** 前景地面按自然带（surfaceKind）选片 */
-const GROUND_BY_KIND: Record<string, string> = {
-  forest: "/assets/world/ground-forest.png",
-  alpine: "/assets/world/ground-alpine.png",
-  meadow: "/assets/world/ground-meadow.png",
-  barren: "/assets/world/ground-barren.png",
-  snow: "/assets/world/ground-snow.png",
-  glacier: "/assets/world/ground-glacier.png",
-  death: "/assets/world/ground-death.png",
-};
-
-const CLOUD_WISP = "/assets/world/cloud-wisp.png";
-const CLOUD_SEA = "/assets/world/cloud-sea.png";
+/* ---------------- 山岳世界（真实 DEM 渲染场景布，仅可视化数据，引擎不参与） ---------------- */
 
 /** 默认场景（首帧空 src 用） */
 const SCENE_DEFAULT: SceneState = {
   mode: "mnt",
   plates: {
-    far: "/assets/world/far-himalaya.png",
-    main: "/assets/world/everest-main.png",
-    snow: "/assets/world/everest-snowcap.png",
-    mid: "/assets/world/mid-ridge.png",
-    cloud: CLOUD_WISP,
-    ground: "/assets/world/ground-forest.png",
+    far: "/assets/world/everest-view-a.jpg",
+    main: "/assets/world/everest-view-b.jpg",
+    snow: "",
+    mid: "/assets/world/everest-view-c.jpg",
+    cloud: "",
+    ground: "",
   },
-  op: { far: 1, main: 1, snow: 0.45, mid: 1, cloud: 0.35, ground: 1 },
-  sun: 0.6,
+  op: { far: 1, main: 0, snow: 0, mid: 0, cloud: 0, ground: 0 },
+  sun: 0,
 };
 
-/** 云海/云雾插画选片：冰川带及以上 → 云海，其余 → 轻雾 */
+/** 云海/云雾选片（保留供未来接真实云层）：冰川带及以上 → 云海，其余 → 轻雾 */
 function cloudSeaKey(
   kind: string | undefined,
   progress: number,
@@ -303,55 +289,59 @@ function cloudSeaKey(
     : "wisp";
 }
 
-/** 依据 surfaceKind / 雪量 / 雾度 / 进度 生成场景插画层（低频：阶段/雪量变化才换层） */
+/** 依据 进度/登顶态 生成场景图层（低频：阶段/雪量变化才换层；d 保留以备未来接入阶段氛围） */
 function buildScene(
-  d: ExplorationDerivedState,
+  _d: ExplorationDerivedState,
   progress: number,
   summitMode: boolean,
 ): SceneState {
-  // 8848.86：峰顶全景（深蓝天空 + 云海 + 远处喜马拉雅群峰 + 峰顶雪脊 + 峰顶人形）
+  // 8848.86：冲顶段渲染图 + 路线终点提示（旧峰顶全景插画已弃用）
   if (summitMode) {
     return {
       mode: "summit",
       plates: {
-        far: "",
-        main: "",
+        far: "/assets/world/everest-view-a.jpg",
+        main: "/assets/world/everest-view-b.jpg",
         snow: "",
-        mid: "",
+        mid: "/assets/world/everest-view-c.jpg",
         cloud: "",
-        ground: "/assets/world/summit-scene.png",
+        ground: "",
       },
-      op: { far: 0, main: 0, snow: 0, mid: 0, cloud: 0, ground: 1 },
-      sun: 0.9,
+      op: { far: 0, main: 0, snow: 0, mid: 1, cloud: 0, ground: 0 },
+      sun: 0,
     };
   }
-  const kind = d.stage.surfaceKind || "barren";
-  const cloudSea =
-    kind === "glacier" || kind === "death" || kind === "snow" || progress >= 0.6;
+  // 真实 DEM 渲染三景硬切换（照片级图叠加会双曝光，不交叉淡化）：
+  // A 远景全景（徒步→BC）→ B 中景山脊（冰瀑→C3）→ C 死亡区冰岩壁（冲顶段）
+  // 同屏只亮一张：op 严格取 0 / 1
+  const band = viewBand(progress);
   return {
     mode: "mnt",
     plates: {
-      far: "/assets/world/far-himalaya.png",
-      main: "/assets/world/everest-main.png",
-      snow: "/assets/world/everest-snowcap.png",
-      mid: "/assets/world/mid-ridge.png",
-      cloud: cloudSea ? CLOUD_SEA : CLOUD_WISP,
-      ground: GROUND_BY_KIND[kind] || GROUND_BY_KIND.barren,
+      far: "/assets/world/everest-view-a.jpg",
+      main: "/assets/world/everest-view-b.jpg",
+      snow: "",
+      mid: "/assets/world/everest-view-c.jpg",
+      // 手绘云海/地面插画与照片级渲染风格冲突，已下架（图层保留供未来接真实云层）
+      cloud: "",
+      ground: "",
     },
     op: {
-      far: 1,
-      main: 1,
-      snow: Math.round(clamp(0.3 + d.snow * 0.35, 0.3, 0.88) * 100) / 100,
-      mid: 1,
-      cloud: cloudSea
-        ? 0.85
-        : Math.round(clamp(0.2 + d.fog * 0.5, 0.18, 0.6) * 100) / 100,
-      ground: 1,
+      far: band === 0 ? 1 : 0,
+      main: band === 1 ? 1 : 0,
+      snow: 0,
+      mid: band === 2 ? 1 : 0,
+      cloud: 0,
+      ground: 0,
     },
-    sun: Math.round(
-      clamp(0.35 + d.snow * 0.55 + progress * 0.2, 0.3, 0.98) * 100,
-    ) / 100,
+    // 渲染图自带光照，内置太阳不再叠加
+    sun: 0,
   };
+}
+
+/** 视图分带（与 buildScene 同阈值）：0=A 远景，1=B 中景，2=C 冲顶 */
+function viewBand(progress: number): 0 | 1 | 2 {
+  return progress < 0.4 ? 0 : progress < 0.66 ? 1 : 2;
 }
 /* 界面文案 / 终点文案的兜底默认值（场景未声明时使用，措辞保持中性） */
 const DEFAULT_UI: ExplorationUi = {
@@ -405,6 +395,7 @@ Page({
     metricsMore: false,
     metricsOpen: false,
     worldMountain: false,
+    worldOcean: false,
     scene: SCENE_DEFAULT as SceneState,
     mntScale: 100,
     ui: DEFAULT_UI as ExplorationUi,
@@ -422,6 +413,8 @@ Page({
     flora: [] as FloraItem[],
     climberLean: 0,
     particles: [] as Particle[],
+    bubbles: [] as Particle[], // 海洋世界：上浮气泡（复用 Particle 结构）
+    rayOpacity: 0, // 海洋世界：表层光柱透明度（随深度衰减）
     route: null as SceneRouteState | null,
 
     // 阶段横幅 / 知识 / 随堂
@@ -495,6 +488,13 @@ Page({
       destination: exploration.destination || DEFAULT_DESTINATION,
       worldMountain:
         (exploration.world && exploration.world.style === "mountain") || false,
+      worldOcean:
+        (exploration.world && exploration.world.style === "ocean") || false,
+      // 海洋世界：一次性生成上浮气泡（低频，不复位）
+      bubbles:
+        (exploration.world && exploration.world.style === "ocean") || false
+          ? buildParticles(10)
+          : [],
     });
   },
 
@@ -684,6 +684,10 @@ Page({
       patch.terrainTop = d.terrainTint[0];
       patch.terrainBottom = d.terrainTint[1];
       patch.climberLean = Math.round(clamp(d.wind * 6, 0, 6));
+      // 海洋世界：表层光柱随深度衰减（只在阶段边界更新，低频）
+      if (this.data.worldOcean) {
+        patch.rayOpacity = Math.round((1 - progress) * 50) / 100;
+      }
     }
 
     // 知识解锁状态变化由 onTapRouteWaypoint 读取 discovered 集合判断。
@@ -733,7 +737,7 @@ Page({
     nextCache.mntScale = mntScale;
     if (cache.mntScale !== mntScale) patch.mntScale = mntScale;
 
-    // 场景插画层：阶段/登顶模式/雪量/云海 变化时才重建（山岳世界专用）
+    // 场景插画层：阶段/登顶模式/雪量/云海/视图分带 变化时才重建（山岳世界专用）
     // 峰顶全景只在真正抵达终点后进入，避免 8,826m 左右提前“登顶”。
     const summitMode = Boolean(this.data.worldMountain && d.isSummit);
     {
@@ -742,6 +746,7 @@ Page({
         summitMode ? "summit" : "mnt",
         Math.round(d.snow * 40),
         cloudSeaKey(d.stage.surfaceKind, progress),
+        this.data.worldMountain && !summitMode ? viewBand(progress) : "-",
       ].join("|");
       nextCache.sceneKey = sKey;
       if (cache.sceneKey !== sKey) {

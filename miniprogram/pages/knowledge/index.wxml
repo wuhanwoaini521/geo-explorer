@@ -1,23 +1,51 @@
 <view class="page">
   <text class="page-title">🧭 地理知识库</text>
-  <text class="page-sub">世界地形地貌 · 地质 · 水文 · 气候（MVP 示例数据）</text>
+  <text class="page-sub">共 {{total}} 条 · 探索中已解锁 {{unlockedCount}} 条</text>
 
-  <view class="cat-row">
-    <view class="cat" wx:for="{{categories}}" wx:key="*this">{{item}}</view>
+  <!-- 搜索 -->
+  <view class="search">
+    <text class="search-ico">🔍</text>
+    <input
+      class="search-input"
+      placeholder="搜索标题 / 关键词"
+      placeholder-class="search-ph"
+      value="{{query}}"
+      confirm-type="search"
+      bindinput="onQueryInput"
+    />
+    <text wx:if="{{query}}" class="search-clear" bindtap="onQueryClear">✕</text>
   </view>
 
-  <view class="list">
+  <!-- 分类筛选 -->
+  <view class="cat-row">
+    <view
+      wx:for="{{categories}}"
+      wx:key="*this"
+      class="cat {{activeCategory === item ? 'cat-active' : ''}}"
+      data-category="{{item}}"
+      bindtap="onCategoryTap"
+    >{{item}}</view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list" wx:if="{{!empty}}">
     <view class="item" wx:for="{{items}}" wx:key="id"
       data-id="{{item.id}}" bindtap="onOpen">
       <text class="item-emoji">{{item.emoji}}</text>
       <view class="item-main">
         <view class="item-row">
           <text class="item-name">{{item.title}}</text>
+          <text wx:if="{{item.unlocked}}" class="item-badge">已解锁</text>
           <text class="item-cat">{{item.category}}</text>
         </view>
         <text class="item-summary">{{item.summary}}</text>
       </view>
       <text class="item-arrow">›</text>
     </view>
+  </view>
+
+  <view class="empty" wx:else>
+    <text class="empty-emoji">🔭</text>
+    <text class="empty-text">没有匹配的知识条目，换个关键词试试</text>
   </view>
 </view>

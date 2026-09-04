@@ -80,3 +80,49 @@ approach and C for drama. Prepared as a single keyframe: **A**.
    between ROCK and SNOW except height‑based blend.
 4. `b`/`c` cameras in the near fields required both dist + lens search; no
    waypoint overlay used in these previews (deferred to Route gate).
+
+---
+
+## Gate 3 — Route Preview (South Col route overlay)
+
+Route render over the same real Copernicus GLO-30 DEM, using the checked-in
+route dataset. See `PROGRESS.md` for the full gate log.
+
+### Route dataset (checked in)
+- `route/waypoints.json` — 8 waypoints, GPS + alt_ref_m (public camp elevations,
+  NOT DEM-derived) + `world` (x, y, z) in terrain space.
+- `route/route-control-points.json` — 289-node polyline, Catmull-Rom smoothed
+  (`smooth_poly`: gaussian on lat/lon, no overshoot), valley-following on glacial
+  segments (BC→C2) + bounded z low-pass (max ±14 m vs ground) so the line hugs
+  terrain without micro-jitter.
+  - Route: 289 nodes, length ~14,300 m, net climb ~3,465 m, z-span 2276→5741.
+  - Max local descent trimmed 73 m → 41 m (real cwm undulation kept).
+
+### Render & compose
+- Renderer: `scripts/terrain/render_everest_route.py` (Blender Workbench,
+  Camera B + orthographic nadir validation camera; raw output gitignored in
+  `.gate3-tmp/raw/`).
+- Compose: `scripts/terrain/compose_everest_route_preview.py` — correct NDC
+  mapping (sx = x·W, sy = (1−y)·H).
+- Validation: `scripts/terrain/validate_everest_route.py` (deterministic
+  plan-map validation) → `preview/everest-route-validation-map.png`.
+
+### Outputs (checked in)
+- `preview/everest-route-preview-b.png` — labeled route (Camera B), orange tube
+  + waypoint/summit markers.
+- `preview/everest-route-validation-nadir.png` — top-down orthographic of the
+  route bbox (route follows cwm floor then SSW up the col).
+- `preview/everest-route-validation-map.png` — plan-view hillshade + waypoint
+  anchors near vraie geography.
+
+### Validation summary
+- Waypoint DEM altitudes bracket public ref altitudes (BC 5250/5364,
+  C2 6403/6400–6560, C3 7234/7162–7200, South Col 7864/7906, SS 8569/8765,
+  Summit 8709/8848.86).
+- Route lies 100% inside terrain footprint; z never below DEM+8 m except the
+  smoothing band (±14 m above); no floating/penetration in Camera B.
+
+### Notes carried over from Gate 2
+- Workbench still can't draw a gradient sky → PIL composited as in Gate 2.
+- Route tube rendered as a separate object so the terrain pass and the route
+  pass can be composed without z-fighting artifacts.

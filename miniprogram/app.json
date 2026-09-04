@@ -9,16 +9,16 @@
     "pages/profile/index"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#0f1c33",
-    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#f6f0dd",
+    "navigationBarTextStyle": "black",
     "navigationBarTitleText": "Geo Explorer",
-    "backgroundColor": "#0a1426",
-    "backgroundTextStyle": "light"
+    "backgroundColor": "#f6f0dd",
+    "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#7d8ba0",
-    "selectedColor": "#38c2a0",
-    "backgroundColor": "#0f1c33",
+    "color": "#94896a",
+    "selectedColor": "#a06a10",
+    "backgroundColor": "#f6f0dd",
     "borderStyle": "black",
     "list": [
       { "pagePath": "pages/home/index", "text": "探索" },

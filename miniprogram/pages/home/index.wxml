@@ -1,8 +1,19 @@
 <view class="page">
   <!-- 顶部品牌 -->
-  <view class="hero" style="background:linear-gradient(160deg, #16324f, #0c1c33);">
-    <text class="hero-title">🌍 Geo Explorer</text>
+  <view class="hero">
+    <text class="hero-eyebrow">GEO · EXPLORER ATLAS</text>
+    <text class="hero-title">Geo Explorer</text>
+    <view class="hero-rule"></view>
     <text class="hero-sub">地理探索 · 沉浸式探索珠穆朗玛、马里亚纳海沟等场景</text>
+
+    <view class="hero-plate">
+      <image class="hero-plate-img" src="/assets/world/everest-hero.jpg" mode="aspectFill"></image>
+      <view class="hero-plate-tag">
+        <text class="hero-plate-tag-t">珠穆朗玛峰 · 8,848.86 m</text>
+        <text class="hero-plate-tag-s">真实高程数据（DEM）地形渲染 · Copernicus GLO-30</text>
+      </view>
+    </view>
+
     <view class="hero-stats">
       <view class="stat">
         <text class="stat-v">{{stats.completed}}</text>
@@ -24,17 +35,25 @@
   <view class="scene-list">
     <view class="scene-card" wx:for="{{scenes}}" wx:key="id"
       data-id="{{item.id}}" bindtap="onOpenScene">
-      <view class="card-left">
-        <text class="card-emoji">{{item.emoji}}</text>
-      </view>
-      <view class="card-main">
-        <view class="card-row">
-          <text class="card-name">{{item.title}}</text>
-          <text class="card-badge">{{item.badge}}</text>
+      <view class="card-head">
+        <view class="card-left">
+          <text class="card-emoji">{{item.emoji}}</text>
         </view>
-        <text class="card-sub">{{item.subtitle}}</text>
-        <text class="card-meta">{{item.meta}}</text>
-        <text class="card-cta">进入探索 →</text>
+        <text class="card-idx">{{index + 1 < 10 ? '0' : ''}}{{index + 1}}</text>
+        <view class="card-main">
+          <view class="card-row">
+            <text class="card-name">{{item.title}}</text>
+            <text class="card-badge">{{item.badge}}</text>
+          </view>
+          <text class="card-sub">{{item.subtitle}}</text>
+          <text class="card-meta">{{item.meta}}</text>
+        </view>
+      </view>
+      <view class="card-foot">
+        <text class="card-cta">进入探索</text>
+        <view class="card-arrow">
+          <text class="card-arrow-ico">→</text>
+        </view>
       </view>
     </view>
   </view>

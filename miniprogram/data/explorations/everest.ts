@@ -428,6 +428,7 @@ export const EVEREST: Exploration = {
   knowledgeNodes: [
     {
       id: "lukla-forest",
+      knowledgeId: "k09", // 对应知识库「什么是季风」
       elevation: 2600,
       emoji: "🌲",
       title: "为什么南坡林带这么高？",
@@ -463,6 +464,7 @@ export const EVEREST: Exploration = {
     },
     {
       id: "lapse-rate",
+      knowledgeId: "k01", // 对应知识库「为什么海拔越高气温越低」
       elevation: 3600,
       emoji: "🌡️",
       title: "海拔每上升 1000 米，气温约降 6℃",
@@ -496,6 +498,7 @@ export const EVEREST: Exploration = {
     },
     {
       id: "alpine-oblue",
+      knowledgeId: "k04", // 对应知识库「山体为什么会垂直分带」
       elevation: 4400,
       emoji: "🪵",
       title: "树木去哪？——「树线」",
@@ -530,6 +533,7 @@ export const EVEREST: Exploration = {
     },
     {
       id: "snowline-kzha",
+      knowledgeId: "k02", // 对应知识库「雪线是什么」
       elevation: 5700,
       emoji: "❄️",
       title: "雪线：从此便是“永久积雪”",
@@ -564,6 +568,7 @@ export const EVEREST: Exploration = {
     },
     {
       id: "khumbu-glacier",
+      knowledgeId: "k08", // 对应知识库「冰川其实在流动」
       elevation: 6300,
       emoji: "🧊",
       title: "冰川不是死的——它在流动",
@@ -598,6 +603,7 @@ export const EVEREST: Exploration = {
     },
     {
       id: "death-zone",
+      knowledgeId: "k07", // 对应知识库「死亡区为何危险」
       elevation: 7950,
       emoji: "🫁",
       title: "为什么要给 8,000m 以上叫「死亡区」",

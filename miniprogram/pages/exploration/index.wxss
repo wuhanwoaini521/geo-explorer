@@ -2,13 +2,13 @@
 page {
   --status-bar-h: var(--status-bar-height, 0px);
   --nav-bar-h: 44px;
-  background: #0b1526;
+  background: #2b2517;
 }
 .page {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: #0b1526;
+  background: #2b2517;
   color: #fff;
   font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
 }
@@ -45,6 +45,58 @@ page {
 .peak-a { left: -4vw; }
 .peak-b { right: -2vw; font-size: 300rpx; color: rgba(255,255,255,0.5); }
 .peak-c { left: 30vw; font-size: 340rpx; color: rgba(255,255,255,0.65); }
+
+/* ---------------- 海洋世界（world.style === 'ocean'） ---------------- */
+.ocean-rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.4s linear;
+}
+.ocean-ray {
+  position: absolute;
+  top: -12vh;
+  width: 14vw;
+  height: 90vh;
+  background: linear-gradient(
+    180deg,
+    rgba(180, 230, 255, 0.28) 0%,
+    rgba(160, 220, 255, 0.1) 55%,
+    rgba(160, 220, 255, 0) 100%
+  );
+  transform-origin: 50% 0;
+  filter: blur(6rpx);
+}
+.ray-a { left: 14vw; transform: rotate(14deg); }
+.ray-b { left: 42vw; transform: rotate(6deg); width: 20vw; }
+.ray-c { left: 72vw; transform: rotate(-10deg); }
+
+.bubbles-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.bubble {
+  position: absolute;
+  bottom: -6vh;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(210, 240, 255, 0.35) 55%,
+    rgba(210, 240, 255, 0.08) 100%
+  );
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  animation-name: rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes rise {
+  0% { transform: translateY(0) scale(0.7); }
+  90% { transform: translateY(-108vh) scale(1.15); }
+  100% { transform: translateY(-115vh) scale(1.2); }
+}
 
 .ground-wrap {
   position: absolute;
@@ -183,7 +235,7 @@ page {
 .metric {
   font-size: 22rpx;
   color: rgba(255,255,255,0.92);
-  background: rgba(8, 16, 32, 0.42);
+  background: rgba(43, 33, 14, 0.45);
   backdrop-filter: blur(8rpx);
   padding: 8rpx 16rpx;
   border-radius: 12rpx;
@@ -240,8 +292,8 @@ page {
 }
 .stage-next {
   font-size: 20rpx;
-  color: #9fe8d2;
-  background: rgba(15, 60, 60, 0.5);
+  color: #ffe19a;
+  background: rgba(64, 49, 17, 0.55);
   padding: 8rpx 16rpx;
   border-radius: 10rpx;
   white-space: nowrap;
@@ -260,23 +312,48 @@ page {
 }
 .progress-track {
   flex: 1;
-  height: 14rpx;
-  border-radius: 7rpx;
-  background: rgba(255,255,255,0.22);
+  height: 16rpx;
+  border-radius: 8rpx;
+  background: rgba(43, 33, 14, 0.5);
+  border: 1rpx solid rgba(255, 232, 179, 0.3);
   overflow: hidden;
 }
 .progress-bar {
+  position: relative;
   height: 100%;
-  border-radius: 7rpx;
-  background: linear-gradient(90deg, #2fb6a0, #7fd4c4);
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, #d9a63a, #f5cf7a);
   transition: width 0.35s ease-out;
+  overflow: hidden;
+}
+/* 流光扫过 */
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -45%;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgba(255, 246, 218, 0.8), transparent);
+  animation: barShine 2.4s ease-in-out infinite;
+}
+@keyframes barShine {
+  0% { left: -45%; }
+  55%, 100% { left: 110%; }
+}
+.progress-ico {
+  font-size: 34rpx;
+  filter: drop-shadow(0 2rpx 6rpx rgba(0, 0, 0, 0.5));
 }
 .progress-pct {
-  font-size: 22rpx;
-  color: rgba(255,255,255,0.9);
-  min-width: 56rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  color: #ffe19a;
+  min-width: 64rpx;
   text-align: right;
+  text-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.5);
 }
+.pct-sign { font-size: 18rpx; font-weight: 600; color: rgba(255, 225, 154, 0.7); }
 
 /* ---------------- 底部操作条 ---------------- */
 .controls {
@@ -299,21 +376,53 @@ page {
   color: #fff;
   line-height: 90rpx;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
 }
 .ctl::after { border: none; }
+.ctl-glyph { display: inline-block; font-size: 26rpx; line-height: 1; }
+.ctl-label { line-height: 1; }
+.ctl-up .ctl-glyph {
+  animation: glyphBob 1.6s ease-in-out infinite;
+}
+@keyframes glyphBob {
+  0%, 100% { transform: translateY(-2rpx); }
+  50% { transform: translateY(-8rpx); }
+}
 .ctl-up {
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  box-shadow: 0 8rpx 20rpx rgba(31, 143, 166, 0.35);
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 5rpx 0 #7a5510;
+  animation: ctlPulse 2.6s ease-in-out infinite;
+}
+/* 呼吸光环：提醒「点我前进」 */
+@keyframes ctlPulse {
+  0%, 100% { box-shadow: 0 5rpx 0 #7a5510, 0 0 0 0 rgba(227, 176, 75, 0.5); }
+  55% { box-shadow: 0 5rpx 0 #7a5510, 0 0 0 16rpx rgba(227, 176, 75, 0); }
 }
 .ctl-down {
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.85);
+  background: rgba(43, 33, 14, 0.5);
+  border: 1rpx solid rgba(255, 232, 179, 0.3);
+  color: rgba(255, 247, 225, 0.85);
 }
+.ctl-down:active { background: rgba(43, 33, 14, 0.7); }
 .ctl:active { opacity: 0.85; transform: scale(0.97); }
 .ctl-center {
   width: 100rpx;
   text-align: center;
   font-size: 40rpx;
+}
+/* 罗盘缓旋：导航氛围 */
+.g-mark {
+  display: inline-block;
+  animation: compassSpin 9s linear infinite;
+  filter: drop-shadow(0 2rpx 8rpx rgba(0, 0, 0, 0.45));
+}
+@keyframes compassSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* ---------------- 知识点提示条 ---------------- */
@@ -325,25 +434,47 @@ page {
   display: flex;
   align-items: center;
   gap: 14rpx;
-  background: rgba(20, 48, 62, 0.92);
+  background: #fffdf4;
   backdrop-filter: blur(10rpx);
   border-radius: 20rpx;
   padding: 20rpx 24rpx;
   z-index: 11;
-  border: 1rpx solid rgba(46, 240, 206, 0.45);
-  animation: hintIn 0.3s ease both;
+  border: 1rpx solid rgba(168, 119, 23, 0.45);
+  animation: hintIn 0.3s ease both, hintGlow 3s ease-in-out 0.4s infinite;
+}
+/* 提示条呼吸金边 */
+@keyframes hintGlow {
+  0%, 100% { box-shadow: 0 6rpx 18rpx rgba(43, 33, 14, 0.25); }
+  50% { box-shadow: 0 6rpx 18rpx rgba(43, 33, 14, 0.25), 0 0 0 6rpx rgba(227, 176, 75, 0.28); }
 }
 @keyframes hintIn {
   from { transform: translateY(20rpx); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
-.hint-ico { font-size: 34rpx; }
+.hint-ico {
+  font-size: 34rpx;
+  animation: icoWiggle 2.4s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+@keyframes icoWiggle {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(12deg); }
+}
 .hint-text {
   flex: 1;
   font-size: 26rpx;
-  color: #eafaff;
+  color: #37311e;
 }
-.hint-arrow { color: #2cf0ce; font-size: 32rpx; }
+.hint-arrow {
+  color: #a06a10;
+  font-size: 32rpx;
+  font-weight: 700;
+  animation: arrowNudge 1.6s ease-in-out infinite;
+}
+@keyframes arrowNudge {
+  0%, 100% { transform: translateX(0); opacity: 0.7; }
+  50% { transform: translateX(8rpx); opacity: 1; }
+}
 
 /* ---------------- 右侧垂直登山线路标（峰顶=0%，山脚=100%） ---------------- */
 .rail {
@@ -370,7 +501,7 @@ page {
   top: 0;
   width: 6rpx;
   margin-left: -3rpx;
-  background: linear-gradient(180deg, #43e0c0, #7fb4ff);
+  background: linear-gradient(180deg, #f0c05e, #d9a63a);
   border-radius: 3rpx;
   transition: height 0.3s linear;
 }
@@ -382,7 +513,7 @@ page {
   margin: -9rpx 0 0 -9rpx;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 0 6rpx rgba(255,255,255,0.22), 0 0 16rpx rgba(120,220,255,0.95);
+  box-shadow: 0 0 0 6rpx rgba(255,255,255,0.22), 0 0 16rpx rgba(255,214,120,0.95);
   transition: top 0.3s linear;
 }
 .rail-node {
@@ -411,9 +542,9 @@ page {
   font-size: 22rpx;
 }
 .rn-found {
-  color: #4ef0d0;
-  background: rgba(30,180,150,0.35);
-  text-shadow: 0 0 8rpx rgba(78,240,208,0.9);
+  color: #ffe19a;
+  background: rgba(168,119,23,0.45);
+  text-shadow: 0 0 8rpx rgba(255,214,120,0.9);
 }
 .rn-near {
   color: #fff;
@@ -446,7 +577,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(6, 12, 24, 0.62);
+  background: rgba(42, 33, 15, 0.55);
   backdrop-filter: blur(8rpx);
 }
 
@@ -455,8 +586,9 @@ page {
   width: 640rpx;
   max-height: 88vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #16233d, #0d1830);
-  border-radius: 32rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  border-radius: 24rpx;
   padding: 48rpx 40rpx;
   display: flex;
   flex-direction: column;
@@ -467,9 +599,9 @@ page {
   from { transform: translateY(40rpx); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
-.intro-ico { font-size: 110rpx; }
-.intro-title { font-size: 40rpx; font-weight: 800; color: #fff; margin-top: 12rpx; }
-.intro-sub { font-size: 26rpx; color: #8ce6cf; margin-top: 8rpx; text-align: center; }
+.intro-ico { font-size: 88rpx; }
+.intro-title { font-size: 40rpx; font-weight: 800; color: #37311e; margin-top: 12rpx; letter-spacing: 2rpx; }
+.intro-sub { font-size: 26rpx; color: #a06a10; margin-top: 8rpx; text-align: center; }
 .intro-meta {
   display: flex;
   gap: 12rpx;
@@ -479,15 +611,15 @@ page {
 }
 .meta-chip {
   font-size: 22rpx;
-  color: #cfe9ff;
-  background: rgba(255,255,255,0.08);
+  color: #6f6547;
+  background: rgba(151,124,66,0.1);
   padding: 8rpx 16rpx;
-  border-radius: 12rpx;
+  border-radius: 10rpx;
 }
 .intro-desc {
   margin-top: 22rpx;
   font-size: 26rpx;
-  color: #c6d4e8;
+  color: #4a4430;
   line-height: 1.7;
   text-align: left;
 }
@@ -497,8 +629,10 @@ page {
   height: 92rpx;
   line-height: 92rpx;
   border-radius: 46rpx;
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #fff;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 6rpx 0 #7a5510;
+  color: #fffdf4;
   font-size: 32rpx;
   font-weight: 700;
   letter-spacing: 2rpx;
@@ -507,7 +641,7 @@ page {
 .intro-hint {
   margin-top: 22rpx;
   font-size: 22rpx;
-  color: #7d8ba0;
+  color: #94896a;
   text-align: center;
 }
 
@@ -520,9 +654,9 @@ page {
   display: flex;
   align-items: center;
   gap: 14rpx;
-  background: rgba(8, 18, 34, 0.7);
+  background: rgba(43, 33, 14, 0.68);
   backdrop-filter: blur(10rpx);
-  border: 1rpx solid rgba(255,255,255,0.16);
+  border: 1rpx solid rgba(255,232,179,0.28);
   border-radius: 40rpx;
   padding: 14rpx 32rpx;
   z-index: 20;
@@ -535,7 +669,7 @@ page {
 .sb-emoji { font-size: 44rpx; }
 .sb-main { display: flex; flex-direction: column; gap: 2rpx; }
 .sb-name { font-size: 28rpx; color: #fff; font-weight: 700; }
-.sb-biome { font-size: 22rpx; color: #8ce6cf; }
+.sb-biome { font-size: 22rpx; color: #f0c05e; }
 
 /* ---------------- 随堂 Quiz ---------------- */
 .quiz-mask {
@@ -545,13 +679,14 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(6, 12, 24, 0.66);
+  background: rgba(42, 33, 15, 0.6);
   backdrop-filter: blur(6rpx);
 }
 .quiz-card {
   width: 620rpx;
-  background: linear-gradient(180deg, #16233d, #0f1c33);
-  border-radius: 28rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  border-radius: 24rpx;
   padding: 36rpx 32rpx 40rpx;
   display: flex;
   flex-direction: column;
@@ -565,22 +700,22 @@ page {
 .quiz-ico { font-size: 52rpx; }
 .quiz-tag {
   font-size: 26rpx;
-  color: #ffd76b;
-  background: rgba(255, 215, 107, 0.14);
+  color: #a06a10;
+  background: rgba(168, 119, 23, 0.1);
   padding: 6rpx 18rpx;
-  border-radius: 12rpx;
+  border-radius: 10rpx;
   letter-spacing: 1rpx;
 }
 .quiz-lead {
   margin-top: 20rpx;
   font-size: 24rpx;
-  color: #8ce6cf;
+  color: #a06a10;
 }
 .quiz-q {
   margin-top: 12rpx;
   font-size: 32rpx;
   font-weight: 700;
-  color: #fff;
+  color: #37311e;
   line-height: 1.5;
 }
 .quiz-options {
@@ -591,17 +726,17 @@ page {
 }
 .quiz-opt {
   padding: 22rpx 24rpx;
-  border-radius: 18rpx;
-  background: rgba(255,255,255,0.07);
-  border: 1rpx solid rgba(255,255,255,0.1);
-  color: #e6eef7;
+  border-radius: 14rpx;
+  background: #faf5e6;
+  border: 1rpx solid rgba(151,124,66,0.18);
+  color: #37311e;
   font-size: 28rpx;
   line-height: 1.5;
   transition: all 0.15s;
 }
-.quiz-opt.sel { border-color: #2cf0ce; background: rgba(46, 240, 206, 0.14); }
-.quiz-opt.right { border-color: #2fd68a; background: rgba(47, 214, 138, 0.2); color: #d9ffe9; }
-.quiz-opt.wrong { border-color: #ff7a6b; background: rgba(255, 122, 107, 0.18); }
+.quiz-opt.sel { border-color: #b57f1f; background: rgba(168, 119, 23, 0.1); }
+.quiz-opt.right { border-color: #6b8f3d; background: rgba(107, 143, 61, 0.14); color: #37311e; }
+.quiz-opt.wrong { border-color: #bf5b3d; background: rgba(191, 91, 61, 0.12); }
 .quiz-result {
   margin-top: 24rpx;
   display: flex;
@@ -611,11 +746,11 @@ page {
 .quiz-verdict {
   font-size: 30rpx;
   font-weight: 700;
-  color: #8ce6cf;
+  color: #5c7a34;
 }
 .quiz-explain {
   font-size: 24rpx;
-  color: #c6d4e8;
+  color: #4a4430;
   line-height: 1.6;
 }
 .quiz-btn {
@@ -623,8 +758,10 @@ page {
   height: 84rpx;
   line-height: 84rpx;
   border-radius: 42rpx;
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #fff;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 5rpx 0 #7a5510;
+  color: #fffdf4;
   font-size: 30rpx;
   font-weight: 600;
 }
@@ -633,13 +770,13 @@ page {
   margin-top: 22rpx;
   text-align: center;
   font-size: 24rpx;
-  color: #7d8ba0;
+  color: #94896a;
   padding: 10rpx;
 }
 
 /* ---------------- 登顶庆祝 ---------------- */
 .celebration {
-  background: linear-gradient(180deg, rgba(20, 44, 96, 0.72), rgba(6, 12, 24, 0.8));
+  background: linear-gradient(180deg, rgba(64, 45, 12, 0.72), rgba(42, 33, 15, 0.85));
   flex-direction: column;
   gap: 12rpx;
   animation: celebrateIn 0.5s ease both;
@@ -669,7 +806,7 @@ page {
 }
 .celebrate-msg {
   font-size: 26rpx;
-  color: #9fd4ff;
+  color: #f5cf7a;
 }
 
 /* ---------------- 登顶总结 ---------------- */
@@ -680,7 +817,7 @@ page {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #16233d, #0d1830);
+  background: #fffdf4;
   border-radius: 32rpx 32rpx 0 0;
   padding: 40rpx 32rpx calc(36rpx + env(safe-area-inset-bottom));
   display: flex;
@@ -695,8 +832,8 @@ page {
 }
 .summit-badge { font-size: 72rpx; }
 .summit-head-text { display: flex; flex-direction: column; gap: 6rpx; }
-.summit-title { font-size: 40rpx; font-weight: 800; color: #fff; }
-.summit-sub { font-size: 24rpx; color: #8ce6cf; }
+.summit-title { font-size: 40rpx; font-weight: 800; color: #37311e; letter-spacing: 1rpx; }
+.summit-sub { font-size: 24rpx; color: #a06a10; }
 
 .summit-stats {
   display: flex;
@@ -708,28 +845,28 @@ page {
   flex-direction: column;
   align-items: center;
   gap: 6rpx;
-  background: rgba(255,255,255,0.05);
+  background: #f4ecd3;
   border-radius: 18rpx;
   padding: 22rpx 8rpx;
 }
-.sstat-val { font-size: 34rpx; font-weight: 800; color: #ffd76b; }
-.sstat-label { font-size: 22rpx; color: #9fb2cc; }
+.sstat-val { font-size: 34rpx; font-weight: 800; color: #a06a10; }
+.sstat-label { font-size: 22rpx; color: #94896a; }
 
 .summit-band { display: flex; flex-direction: column; gap: 12rpx; }
 .summit-band-t {
   font-size: 24rpx;
-  color: #8ce6cf;
+  color: #a06a10;
   letter-spacing: 1rpx;
 }
 .band-chips { display: flex; flex-wrap: wrap; gap: 10rpx; align-items: center; }
 .band-chip {
   font-size: 22rpx;
-  color: #e6eef7;
-  background: rgba(255,255,255,0.08);
+  color: #37311e;
+  background: #f4ecd3;
   padding: 8rpx 16rpx;
-  border-radius: 12rpx;
+  border-radius: 10rpx;
 }
-.band-ratio { font-size: 22rpx; color: #8fa3bf; }
+.band-ratio { font-size: 22rpx; color: #94896a; }
 
 .summit-ach { display: flex; flex-direction: column; gap: 12rpx; }
 .ach-list { display: flex; flex-direction: column; gap: 14rpx; }
@@ -737,16 +874,16 @@ page {
   display: flex;
   align-items: center;
   gap: 18rpx;
-  background: rgba(255,215,107,0.08);
-  border: 1rpx solid rgba(255,215,107,0.22);
+  background: rgba(168,119,23,0.08);
+  border: 1rpx solid rgba(168,119,23,0.24);
   border-radius: 18rpx;
   padding: 18rpx 22rpx;
 }
 .ach-emoji { font-size: 44rpx; }
 .ach-text { display: flex; flex-direction: column; gap: 4rpx; }
-.ach-title { font-size: 28rpx; font-weight: 700; color: #ffe9b0; }
-.ach-desc { font-size: 22rpx; color: #b8c8dc; }
-.ach-empty { font-size: 24rpx; color: #7d8ba0; }
+.ach-title { font-size: 28rpx; font-weight: 700; color: #8f6417; }
+.ach-desc { font-size: 22rpx; color: #6f6547; }
+.ach-empty { font-size: 24rpx; color: #94896a; }
 
 .summit-actions {
   display: flex;
@@ -762,13 +899,15 @@ page {
 }
 .act::after { border: none; }
 .act-primary {
-  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #fff;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 5rpx 0 #7a5510;
+  color: #fffdf4;
 }
 .act-ghost {
-  background: rgba(255,255,255,0.07);
-  color: #cfe9ff;
-  border: 1rpx solid rgba(255,255,255,0.14);
+  background: #fffdf4;
+  color: #6f6547;
+  border: 1rpx solid rgba(151,124,66,0.28);
 }
 /* ---------------- 山岳世界（SVG 分片插画层：world.style === 'mountain'，全部数据驱动） ---------------- */
 .m-sun {
@@ -802,12 +941,16 @@ page {
   width: 100%;
   height: 100%;
 }
-.pl-far { z-index: 2; }
-.pl-peaks {
-  z-index: 3;
-  transform-origin: 50% 72%;
+/* 三景全屏背景：真实 DEM 渲染，硬切换（同屏只挂载一张）。
+   上/下越界 12%：给轻微视差留余量，位移时不露底 */
+.view {
+  will-change: opacity;
+  top: -12%;
+  height: 124%;
 }
-.pl-ridge { z-index: 4; }
+.view-a { z-index: 2; }
+.view-b { z-index: 3; transform-origin: 50% 72%; }
+.view-c { z-index: 4; }
 .pl-cloud { z-index: 5; }
 .pl-ground { z-index: 6; }
 

@@ -2,34 +2,19 @@
   <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
   <view class="layer-sky" style="background:{{skyGradient}}"></view>
 
-  <!-- ===== 山岳世界（world.style === 'mountain'：SVG 分片插画，按层级视差/云海/登顶全景） ===== -->
+  <!-- ===== 山岳世界（world.style === 'mountain'：真实 DEM 渲染三景硬切换，同屏只挂载一张） ===== -->
   <block wx:if="{{worldMountain}}">
-    <!-- 太阳（随视差极缓，随雪量/高度增亮） -->
-    <view class="m-sun" style="transform:translate3d(0,-{{par.sky}}px,0); opacity:{{scene.sun}}"></view>
+    <!-- 视图 A：远景全景（徒步→BC） -->
+    <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a" mode="aspectFill" src="{{scene.plates.far}}" style="transform:translate3d(0,-{{par.far * 0.4}}px,0); opacity:{{scene.op.far}}"></image>
 
-    <!-- 远景喜马拉雅群峰（晨昏雾，视差最缓） -->
-    <image wx:if="{{scene.plates.far}}" class="plate pl-far" mode="aspectFill" src="{{scene.plates.far}}" style="transform:translate3d(0,-{{par.far}}px,0); opacity:{{scene.op.far}}"></image>
+    <!-- 视图 B：中景山脊（冰瀑→C3），随海拔缓推近 -->
+    <image wx:if="{{scene.plates.main && scene.op.main > 0}}" class="plate view view-b" mode="aspectFill" src="{{scene.plates.main}}" style="transform:translate3d(0,-{{par.mid * 0.3}}px,0) scale({{1 + (mntScale - 100) / 260}}); opacity:{{scene.op.main}}"></image>
 
-    <!-- 主峰组：主体 + 雪冠覆盖层（同一视差，随海升渐近缩放） -->
-    <view class="plate pl-peaks" style="transform:translate3d(0,-{{par.mid}}px,0) scale({{mntScale/100}})">
-      <image wx:if="{{scene.plates.main}}" class="pl" mode="aspectFit" src="{{scene.plates.main}}" style="opacity:{{scene.op.main}}"></image>
-      <image wx:if="{{scene.plates.snow}}" class="pl" mode="aspectFit" src="{{scene.plates.snow}}" style="opacity:{{scene.op.snow}}"></image>
-    </view>
+    <!-- 视图 C：死亡区冰岩壁（冲顶段） -->
+    <image wx:if="{{scene.plates.mid && scene.op.mid > 0}}" class="plate view view-c" mode="aspectFill" src="{{scene.plates.mid}}" style="transform:translate3d(0,-{{par.near * 0.3}}px,0); opacity:{{scene.op.mid}}"></image>
 
-    <!-- 中前山脊（近景视差） -->
-    <image wx:if="{{scene.plates.mid}}" class="plate pl-ridge" mode="aspectFit" src="{{scene.plates.mid}}" style="transform:translate3d(0,-{{par.near}}px,0); opacity:{{scene.op.mid}}"></image>
-
-    <!-- 云海 / 云丝带（主峰与前景之间的悬浮层） -->
+    <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
-
-    <!-- 前景地面：自然带插画；登顶模式切为 8848 峰顶雪景全景 -->
-    <image class="plate pl-ground" mode="aspectFit" src="{{scene.plates.ground}}" style="transform:translate3d(0,-{{par.ground}}px,0); opacity:{{scene.op.ground}}"></image>
-
-    <!-- 登山者 SVG 人形插画（头盔/背包/登山杖/随风前倾；登顶全景时淡出） -->
-    <view class="m-climber" style="transform:translate3d(0,-{{par.climber}}px,0) rotate({{0-climberLean}}deg); opacity:{{scene.mode === 'summit' ? 0 : 1}}">
-      <image class="cm-img" mode="aspectFit" src="/assets/world/climber.png"></image>
-      <view class="cm-shadow"></view>
-    </view>
   </block>
 
   <!-- 场景内空间路线：由 route Scene Data 驱动，路线贴在山体画布中而非 HUD。 -->
@@ -60,16 +45,27 @@
 
   <!-- ===== 通用世界（非山岳：Marian 等） ===== -->
   <block wx:else>
-    <view class="ridge far" style="transform:translate3d(0,-{{par.far}}px,0)">
+    <!-- 海洋专属：表层光柱 + 上浮气泡（山脊/山峰不适用于水中） -->
+    <block wx:if="{{worldOcean}}">
+      <view class="ocean-rays" style="opacity:{{rayOpacity}}">
+        <view class="ocean-ray ray-a"></view>
+        <view class="ocean-ray ray-b"></view>
+        <view class="ocean-ray ray-c"></view>
+      </view>
+      <view class="bubbles-layer">
+        <view wx:for="{{bubbles}}" wx:key="id" class="bubble" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration + 3}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
+      </view>
+    </block>
+    <view wx:if="{{!worldOcean}}" class="ridge far" style="transform:translate3d(0,-{{par.far}}px,0)">
       <view class="peak peak-a">▲</view>
       <view class="peak peak-b">◥</view>
     </view>
-    <view class="ridge mid" style="transform:translate3d(0,-{{par.mid}}px,0)">
+    <view wx:if="{{!worldOcean}}" class="ridge mid" style="transform:translate3d(0,-{{par.mid}}px,0)">
       <view class="peak peak-c">△</view>
     </view>
     <view class="ground-wrap" style="transform:translate3d(0,-{{par.ground}}px,0)">
-      <view class="ground-veg" style="opacity:{{vegetation}}; background:{{greenTint}}"></view>
-      <view class="ground-snow" style="opacity:{{snowCover}}"></view>
+      <view wx:if="{{!worldOcean}}" class="ground-veg" style="opacity:{{vegetation}}; background:{{greenTint}}"></view>
+      <view class="ground-snow" style="opacity:{{worldOcean ? 0 : snowCover}}"></view>
       <view class="ground-main" style="background:linear-gradient(180deg,{{terrainTop}} 0%,{{terrainBottom}} 100%)"></view>
       <view class="ground-glare"></view>
     </view>
@@ -77,17 +73,17 @@
       <text wx:for="{{flora}}" wx:key="emoji" class="flora-item" style="left:{{item.left}}%; bottom:{{item.bottom}}vh; font-size:{{item.size}}rpx">{{item.emoji}}</text>
     </view>
     <view class="climber" style="transform:translate3d(0,-{{par.climber}}px,0) rotate({{0-climberLean}}deg)">
-      <text class="hillman">🧗</text>
+      <text class="hillman">{{worldOcean ? '🤿' : '🧗'}}</text>
     </view>
   </block>
 
-  <!-- 风雪粒子（强度=雪量，档位化；山岳与通用世界共用） -->
-  <view class="snow-layer">
+  <!-- 风雪粒子（强度=雪量，档位化；山岳世界仅雪线以上出现，避免盖脸） -->
+  <view wx:if="{{!worldMountain || snowCover >= 0.35}}" class="snow-layer">
     <view wx:for="{{particles}}" wx:key="id" class="snow-flake" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
   </view>
 
-  <!-- 云雾罩 -->
-  <view class="fog" style="opacity:{{fogOpacity}}"></view>
+  <!-- 云雾罩（山岳世界用照片自带氛围，不再叠加） -->
+  <view wx:if="{{!worldMountain}}" class="fog" style="opacity:{{fogOpacity}}"></view>
 
   <!-- ===== 顶部 HUD ===== -->
   <view class="hud-top">
@@ -125,17 +121,24 @@
 
   <!-- 进度条 -->
   <view class="progress-row">
+    <text class="progress-ico">⛰</text>
     <view class="progress-track"><view class="progress-bar" style="width:{{pct}}%"></view></view>
-    <text class="progress-pct">{{pct}}%</text>
+    <text class="progress-pct">{{pct}}<text class="pct-sign">%</text></text>
   </view>
 
   <!-- 底部操作条 -->
   <view class="controls">
-    <button class="ctl ctl-down" bindtap="onStepDown">{{ui.backGlyph}} {{ui.backLabel}}</button>
+    <button class="ctl ctl-down" bindtap="onStepDown">
+      <text class="ctl-glyph down">{{ui.backGlyph}}</text>
+      <text class="ctl-label">{{ui.backLabel}}</text>
+    </button>
     <view class="ctl-center">
       <text class="g-mark">🧭</text>
     </view>
-    <button class="ctl ctl-up" bindtap="onStepUp">{{ui.forwardGlyph}} {{ui.forwardLabel}}</button>
+    <button class="ctl ctl-up" bindtap="onStepUp">
+      <text class="ctl-glyph up">{{ui.forwardGlyph}}</text>
+      <text class="ctl-label">{{ui.forwardLabel}}</text>
+    </button>
   </view>
 
   <!-- 知识提示条 -->
