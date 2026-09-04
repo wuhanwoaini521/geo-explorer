@@ -33,7 +33,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.7.7",
-  "appid": "wxb11931290726eb78",
+  "appid": "",
   "projectname": "geo-explorer",
   "miniprogramRoot": "dist/miniprogram/",
   "condition": {
