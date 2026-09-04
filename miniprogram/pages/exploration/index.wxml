@@ -28,7 +28,7 @@
       wx:key="id"
       class="route-waypoint route-waypoint-{{item.state}}"
       style="{{item.style}}"
-      data-knowledge-id="{{item.knowledgeId}}"
+      data-id="{{item.id}}"
       bindtap="onTapRouteWaypoint"
     >
       <view class="route-waypoint-dot"><text wx:if="{{item.state === 'completed'}}">✓</text></view>
@@ -157,7 +157,7 @@
       wx:key="id"
       class="rail-node rail-node-{{item.state}}"
       style="top:{{item.top}}%"
-      data-knowledge-id="{{item.knowledgeId}}"
+      data-id="{{item.id}}"
       bindtap="onTapRouteWaypoint"
     >
       <text class="rail-elev">{{item.label}}</text>
@@ -191,6 +191,19 @@
     <view class="sb-main">
       <text class="sb-name">{{stageBanner.title}}</text>
       <text class="sb-biome">{{stageBanner.biome}}</text>
+    </view>
+  </view>
+
+  <!-- ===== 途经点介绍卡 ===== -->
+  <view wx:if="{{waypointCard && waypointCard.show}}" class="wpc-mask" catchtouchmove="noop">
+    <view class="wpc-card">
+      <view class="wpc-head">
+        <text class="wpc-name">{{waypointCard.name}}</text>
+        <text wx:if="{{waypointCard.altitudeText}}" class="wpc-alt">{{waypointCard.altitudeText}}</text>
+      </view>
+      <text class="wpc-desc">{{waypointCard.desc}}</text>
+      <text wx:if="{{waypointCard.lockedKnowledge}}" class="wpc-lock">🔒 抵达此处后可解锁相关知识</text>
+      <button class="wpc-btn" bindtap="onWaypointCardClose">继续攀登</button>
     </view>
   </view>
 

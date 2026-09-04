@@ -671,6 +671,70 @@ page {
 .sb-name { font-size: 28rpx; color: #fff; font-weight: 700; }
 .sb-biome { font-size: 22rpx; color: #f0c05e; }
 
+/* ---------------- 途经点介绍卡 ---------------- */
+.wpc-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 33, 15, 0.55);
+  backdrop-filter: blur(6rpx);
+}
+.wpc-card {
+  width: 600rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  border-radius: 24rpx;
+  padding: 34rpx 32rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  box-shadow: 0 16rpx 48rpx rgba(20, 14, 4, 0.3);
+}
+.wpc-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.wpc-name {
+  font-size: 32rpx;
+  font-weight: 800;
+  letter-spacing: 1rpx;
+}
+.wpc-alt {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #a06a10;
+}
+.wpc-desc {
+  font-size: 25rpx;
+  color: #55503a;
+  line-height: 1.75;
+}
+.wpc-lock {
+  font-size: 21rpx;
+  color: #94896a;
+}
+.wpc-btn {
+  margin-top: 6rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 4rpx 0 #7a5510;
+  color: #fffdf4;
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+.wpc-btn::after { border: none; }
+.wpc-btn:active { transform: translateY(3rpx); box-shadow: 0 1rpx 0 #7a5510; }
+
 /* ---------------- 随堂 Quiz ---------------- */
 .quiz-mask {
   position: fixed;

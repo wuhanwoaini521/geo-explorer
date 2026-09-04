@@ -99,6 +99,7 @@ export const EVEREST: Exploration = {
         progress: 0,
         x: 16,
         y: 79,
+        desc: "攀登活动的中枢：帐篷城、物资调度与海拔适应训练都在这里完成，前方就是昆布冰川。",
       },
       {
         id: "khumbu-icefall",
@@ -109,6 +110,7 @@ export const EVEREST: Exploration = {
         x: 27,
         y: 67,
         knowledgeId: "khumbu-glacier",
+        desc: "冰川从山谷倾泻而下的移动冰塔区，攀登者需借铝梯穿越深达数十米的裂隙区。",
       },
       {
         id: "camp-i",
@@ -118,6 +120,7 @@ export const EVEREST: Exploration = {
         progress: 0.3,
         x: 39,
         y: 59,
+        desc: "冰瀑之上的第一站，位于昆布冰川顶端的平缓雪原，通常只作短暂停留。",
       },
       {
         id: "western-cwm-camp-ii",
@@ -127,6 +130,7 @@ export const EVEREST: Exploration = {
         progress: 0.46,
         x: 54,
         y: 52,
+        desc: "珠峰与洛子峰之间的冰雪谷地，阳光反射令谷内温度骤升，是高山适应与补给的枢纽。",
       },
       {
         id: "lhotse-face-camp-iii",
@@ -136,6 +140,7 @@ export const EVEREST: Exploration = {
         progress: 0.64,
         x: 63,
         y: 39,
+        desc: "沿固定绳索攀上洛子峰冰壁，坡度陡哨、冰况多变，技术攀登从这里开始。",
       },
       {
         id: "south-col-camp-iv",
@@ -146,6 +151,7 @@ export const EVEREST: Exploration = {
         x: 76,
         y: 31,
         knowledgeId: "death-zone",
+        desc: "冲顶前的最后营地，位于珠峰与洛子峰之间的鞍部；再向上，就进入死亡区。",
       },
       {
         id: "south-summit",
@@ -155,6 +161,7 @@ export const EVEREST: Exploration = {
         progress: 0.9,
         x: 66,
         y: 19,
+        desc: "冲顶前最后一道凸起，翻过南峰后是暴露的雪脊与断崖，峰顶已在眼前。",
       },
       {
         id: "summit",
@@ -165,6 +172,7 @@ export const EVEREST: Exploration = {
         x: 53,
         y: 9,
         knowledgeId: "summit-height",
+        desc: "地球海拔最高点。2020 年中尼联合测量高程 8,848.86 m。",
       },
     ],
   },

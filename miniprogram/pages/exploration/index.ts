@@ -118,6 +118,7 @@ interface SceneRouteWaypoint {
   name: string;
   shortName: string;
   altitudeText: string;
+  desc?: string;
   style: string;
   state: "completed" | "current" | "upcoming";
   knowledgeId?: string;
@@ -132,6 +133,15 @@ interface SceneRouteState {
   nextName: string;
   completed: boolean;
   rail: RouteRailItem[];
+}
+
+interface WaypointCardState {
+  show: boolean;
+  name: string;
+  altitudeText: string;
+  desc: string;
+  /** 该点关联知识尚未解锁 */
+  lockedKnowledge?: boolean;
 }
 
 interface QuizState {
@@ -237,6 +247,7 @@ function buildRouteState(route: ExplorationRoute, progress: number): SceneRouteS
       altitudeText: point.altitude
         ? `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)}m`
         : "",
+      desc: point.desc,
       style: `left:${point.x}%;top:${point.y}%;`,
       state:
         point.id === currentId
@@ -421,6 +432,7 @@ Page({
     stageBanner: { show: false, title: "", biome: "", emoji: "" } as StageBanner,
     hint: { show: false, text: "" },
     openNode: null as ExplorationKnowledgeNode | null,
+    waypointCard: null as WaypointCardState | null,
     quiz: null as QuizState | null,
 
     // 登顶 / 汇总
@@ -858,22 +870,44 @@ Page({
 
   /* ---------------- 知识节点交互 ---------------- */
 
+  /**
+   * 点击路线途经点：优先展示「名称 + 海拔 + 介绍」卡片；
+   * 若该点关联的知识已解锁，则直接打开知识卡。
+   */
   onTapRouteWaypoint(e: PageEvent) {
-    const knowledgeId = String(
-      (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.knowledgeId) || "",
+    const ex = this.exploration;
+    if (!ex || !ex.route) return;
+    const waypointId = String(
+      (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id) || "",
     );
-    if (!knowledgeId) {
-      wx.showToast({ title: "这是路线地标，继续攀登探索", icon: "none" });
+    const point = ex.route.waypoints.find((p) => p.id === waypointId);
+    if (!point) return;
+    const linkedNode = point.knowledgeId
+      ? ex.knowledgeNodes.find((n) => n.id === point.knowledgeId)
+      : undefined;
+    if (linkedNode && this.discovered.has(linkedNode.id)) {
+      this.setData({ openNode: linkedNode, hint: { show: false, text: "" } });
       return;
     }
-    if (!this.discovered.has(knowledgeId)) {
-      wx.showToast({ title: "抵达此处后可解锁相关知识", icon: "none" });
+    if (!point.desc) {
+      wx.showToast({ title: `${point.name} · 继续攀登探索`, icon: "none" });
       return;
     }
-    const node = this.exploration && this.exploration.knowledgeNodes.find((n) => n.id === knowledgeId);
-    if (node) {
-      this.setData({ openNode: node, hint: { show: false, text: "" } });
-    }
+    this.setData({
+      waypointCard: {
+        show: true,
+        name: point.name,
+        altitudeText: point.altitude
+          ? `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)} ${this.data.ui.axisUnit}`
+          : "",
+        desc: point.desc,
+        lockedKnowledge: Boolean(linkedNode),
+      },
+    });
+  },
+
+  onWaypointCardClose() {
+    this.setData({ waypointCard: null });
   },
 
   onHintTap() {
@@ -1038,6 +1072,7 @@ Page({
       summit: false,
       summaryStats: null,
       openNode: null,
+      waypointCard: null,
       quiz: null,
       hint: { show: false, text: "" },
       stageBanner: { show: false, title: "", biome: "", emoji: "" },
