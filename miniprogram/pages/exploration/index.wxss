@@ -671,6 +671,70 @@ page {
 .sb-name { font-size: 28rpx; color: #fff; font-weight: 700; }
 .sb-biome { font-size: 22rpx; color: #f0c05e; }
 
+/* ---------------- 途经点介绍卡 ---------------- */
+.wpc-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 33, 15, 0.55);
+  backdrop-filter: blur(6rpx);
+}
+.wpc-card {
+  width: 600rpx;
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  border-radius: 24rpx;
+  padding: 34rpx 32rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  box-shadow: 0 16rpx 48rpx rgba(20, 14, 4, 0.3);
+}
+.wpc-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.wpc-name {
+  font-size: 32rpx;
+  font-weight: 800;
+  letter-spacing: 1rpx;
+}
+.wpc-alt {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #a06a10;
+}
+.wpc-desc {
+  font-size: 25rpx;
+  color: #55503a;
+  line-height: 1.75;
+}
+.wpc-lock {
+  font-size: 21rpx;
+  color: #94896a;
+}
+.wpc-btn {
+  margin-top: 6rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 4rpx 0 #7a5510;
+  color: #fffdf4;
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+.wpc-btn::after { border: none; }
+.wpc-btn:active { transform: translateY(3rpx); box-shadow: 0 1rpx 0 #7a5510; }
+
 /* ---------------- 随堂 Quiz ---------------- */
 .quiz-mask {
   position: fixed;
@@ -884,6 +948,44 @@ page {
 .ach-title { font-size: 28rpx; font-weight: 700; color: #8f6417; }
 .ach-desc { font-size: 22rpx; color: #6f6547; }
 .ach-empty { font-size: 24rpx; color: #94896a; }
+
+/* 下一站推荐 */
+.next-stops {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.next-stop {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: rgba(151, 124, 66, 0.08);
+  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  border-radius: 14rpx;
+  padding: 16rpx 18rpx;
+}
+.next-stop:active { background: rgba(151, 124, 66, 0.16); }
+.next-stop-emoji { font-size: 36rpx; }
+.next-stop-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.next-stop-name {
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #37311e;
+}
+.next-stop-sub {
+  font-size: 20rpx;
+  color: #94896a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.next-stop-arrow { color: #b3a986; font-size: 26rpx; }
 
 .summit-actions {
   display: flex;

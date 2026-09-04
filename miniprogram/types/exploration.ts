@@ -187,6 +187,8 @@ export interface ExplorationRouteWaypoint {
   y: number;
   /** 关联的场景知识节点；解锁后可从路线点进入知识卡 */
   knowledgeId?: string;
+  /** 途经点介绍（点击路线点卡片展示，真实地理信息） */
+  desc?: string;
 }
 
 /**

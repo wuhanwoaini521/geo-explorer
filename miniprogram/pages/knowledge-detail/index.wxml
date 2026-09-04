@@ -15,6 +15,18 @@
     <text class="section-body">{{item.content}}</text>
   </view>
 
+  <view class="section" wx:if="{{relatedPlaces.length}}">
+    <text class="section-title">相关地点</text>
+    <view class="place-links">
+      <view class="place-link" wx:for="{{relatedPlaces}}" wx:key="id"
+        data-id="{{item.id}}" bindtap="onOpenPlace">
+        <text class="place-link-emoji">{{item.emoji}}</text>
+        <text class="place-link-name">{{item.name}}</text>
+        <text class="place-link-type">{{item.typeLabel}}</text>
+      </view>
+    </view>
+  </view>
+
   <view class="section note" wx:if="{{item.sources.length}}">
     <text class="section-title">来源</text>
     <text class="section-body source">{{item.sources[0].name}}{{item.sources[0].approximate ? '（近似值）' : ''}}</text>

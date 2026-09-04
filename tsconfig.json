@@ -3,7 +3,9 @@
     "target": "ES2018",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2018"],
+    "lib": [
+      "ES2018"
+    ],
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -15,7 +17,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-    "types": []
+    "types": [
+      "node"
+    ]
   },
-  "include": ["miniprogram/**/*.ts", "tests/**/*.ts"]
+  "include": [
+    "miniprogram/**/*.ts",
+    "tests/**/*.ts"
+  ]
 }

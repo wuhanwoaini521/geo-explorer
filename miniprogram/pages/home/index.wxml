@@ -1,13 +1,12 @@
 <view class="page">
-  <!-- 顶部品牌 -->
+  <!-- ===== Hero ===== -->
   <view class="hero">
     <text class="hero-eyebrow">GEO · EXPLORER ATLAS</text>
-    <text class="hero-title">Geo Explorer</text>
-    <view class="hero-rule"></view>
-    <text class="hero-sub">地理探索 · 沉浸式探索珠穆朗玛、马里亚纳海沟等场景</text>
+    <text class="hero-title">探索地球</text>
+    <text class="hero-sub">从世界之巅到万米深渊，用一次滑动丈量地球。</text>
 
-    <view class="hero-plate">
-      <image class="hero-plate-img" src="/assets/world/everest-hero.jpg" mode="aspectFill"></image>
+    <view class="hero-plate {{heroImageFailed ? 'hero-plate-fallback' : ''}}">
+      <image wx:if="{{!heroImageFailed}}" class="hero-plate-img" src="/assets/world/everest-hero.jpg" mode="aspectFill" binderror="onHeroImageError"></image>
       <view class="hero-plate-tag">
         <text class="hero-plate-tag-t">珠穆朗玛峰 · 8,848.86 m</text>
         <text class="hero-plate-tag-s">真实高程数据（DEM）地形渲染 · Copernicus GLO-30</text>
@@ -24,43 +23,101 @@
         <text class="stat-k">已获知识</text>
       </view>
       <view class="stat">
-        <text class="stat-v">{{scenes.length}}</text>
-        <text class="stat-k">可选场景</text>
+        <text class="stat-v">{{placeCount}}</text>
+        <text class="stat-k">图鉴地点</text>
       </view>
     </view>
   </view>
 
-  <!-- 场景卡片 -->
-  <view class="section-title">选择探索场景</view>
-  <view class="scene-list">
-    <view class="scene-card" wx:for="{{scenes}}" wx:key="id"
-      data-id="{{item.id}}" bindtap="onOpenScene">
-      <view class="card-head">
-        <view class="card-left">
-          <text class="card-emoji">{{item.emoji}}</text>
-        </view>
-        <text class="card-idx">{{index + 1 < 10 ? '0' : ''}}{{index + 1}}</text>
-        <view class="card-main">
-          <view class="card-row">
-            <text class="card-name">{{item.title}}</text>
-            <text class="card-badge">{{item.badge}}</text>
+  <!-- ===== 沉浸探索场景 ===== -->
+  <view class="section">
+    <view class="sec-row">
+      <text class="sec-title">沉浸探索</text>
+      <text class="sec-link" bindtap="onOpenMapTab">全部路线 ›</text>
+    </view>
+    <view class="scene-list">
+      <view class="scene-card" wx:for="{{scenes}}" wx:key="id"
+        data-id="{{item.id}}" bindtap="onOpenScene">
+        <view class="card-head">
+          <view class="card-left">
+            <text class="card-emoji">{{item.emoji}}</text>
           </view>
-          <text class="card-sub">{{item.subtitle}}</text>
-          <text class="card-meta">{{item.meta}}</text>
+          <view class="card-main">
+            <view class="card-row">
+              <text class="card-name">{{item.title}}</text>
+              <text class="card-badge">{{item.badge}}</text>
+            </view>
+            <text class="card-sub">{{item.subtitle}}</text>
+            <text class="card-meta">{{item.meta}}</text>
+          </view>
+          <text class="card-idx">{{index + 1 < 10 ? '0' : ''}}{{index + 1}}</text>
         </view>
-      </view>
-      <view class="card-foot">
-        <text class="card-cta">进入探索</text>
-        <view class="card-arrow">
-          <text class="card-arrow-ico">→</text>
+        <view class="card-foot">
+          <text class="card-cta">进入探索</text>
+          <view class="card-arrow">
+            <text class="card-arrow-ico">→</text>
+          </view>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 设计说明（MVP 期） -->
+  <!-- ===== 精选目的地 ===== -->
+  <view class="section" wx:if="{{featured.length}}">
+    <view class="sec-row">
+      <text class="sec-title">精选目的地</text>
+      <text class="sec-link" bindtap="onOpenAtlas">世界图鉴 ›</text>
+    </view>
+    <scroll-view class="featured-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="featured-row">
+        <view class="featured-card {{item.exploration ? 'featured-ex' : ''}}"
+          wx:for="{{featured}}" wx:key="id"
+          data-id="{{item.id}}" bindtap="onOpenFeatured">
+          <view class="featured-top">
+            <text class="featured-emoji">{{item.emoji}}</text>
+            <text wx:if="{{item.exploration}}" class="featured-badge">可探索</text>
+          </view>
+          <text class="featured-name">{{item.name}}</text>
+          <text class="featured-sub">{{item.shortDescription}}</text>
+          <text class="featured-meta">{{item.typeLabel}} · {{item.explorText}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ===== 按地貌探索 ===== -->
+  <view class="section" wx:if="{{types.length}}">
+    <text class="sec-title">按地貌探索</text>
+    <view class="type-grid">
+      <view class="type-cell" wx:for="{{types}}" wx:key="type"
+        data-type="{{item.type}}" bindtap="onOpenType">
+        <text class="type-emoji">{{item.emoji}}</text>
+        <text class="type-label">{{item.label}}</text>
+        <text class="type-count">{{item.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 你知道吗 ===== -->
+  <view class="section" wx:if="{{discovery}}">
+    <text class="sec-title">你知道吗</text>
+    <view class="dyc">
+      <view class="dyc-head">
+        <text class="dyc-emoji">{{discovery.emoji}}</text>
+        <text class="dyc-tag">地理冷知识 · #{{discovery.index}}</text>
+      </view>
+      <text class="dyc-fact">{{discovery.fact}}</text>
+      <text wx:if="{{discovery.note}}" class="dyc-note">{{discovery.note}}</text>
+      <view class="dyc-foot">
+        <text class="dyc-src">来源 · {{discovery.source.name}}</text>
+        <text class="dyc-shuffle" bindtap="onShuffleDiscovery">换一条 ↻</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 关于 ===== -->
   <view class="about">
-    <text class="about-title">关于本次 Demo</text>
-    <text class="about-text">拖动推进海拔或深度，途中发现知识节点；温度、压力、含氧量等指标随位置实时变化。不同场景玩法一致，更多场景将陆续开放。</text>
+    <text class="about-title">关于 Geo Explorer</text>
+    <text class="about-text">沉浸式地理探索：滑动推进海拔或深度，途中点亮知识节点、回答随堂测验；场景画面由真实卫星高程数据渲染，数字会说话。</text>
   </view>
 </view>

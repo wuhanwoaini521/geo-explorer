@@ -35,7 +35,7 @@ const DATA: Array<Omit<Knowledge, "id"> & { id: string }> = [
       "约 5,000 万年以来，印度板块持续向北挤压欧亚板块，岩层褶皱抬升，形成青藏高原与喜马拉雅山脉，至今仍在缓慢升高。",
     category: "地质",
     emoji: "⛰️",
-    relatedPlaceIds: ["p-himalaya", "p-dqinghai", "p-everest"],
+    relatedPlaceIds: ["p-himalaya", "p-qinghai", "p-everest"],
     relatedLandformIds: ["lf-mountain", "lf-plateau"],
   },
   {
@@ -68,7 +68,7 @@ const DATA: Array<Omit<Knowledge, "id"> & { id: string }> = [
       "河流不断向下侵蚀，同时地壳持续抬升，两者“赛跑”数百万年，便在高原上切出万米级深谷。",
     category: "地形地貌",
     emoji: "🏞️",
-    relatedPlaceIds: ["p-yarulong", "p-colorado"],
+    relatedPlaceIds: ["p-yarlung", "p-colorado"],
     relatedLandformIds: ["lf-canyon"],
   },
   {

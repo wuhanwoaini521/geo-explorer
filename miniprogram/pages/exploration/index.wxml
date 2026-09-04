@@ -1,4 +1,4 @@
-<view wx:if="{{ready}}" class="page" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd" data-debug="climb">
+<view wx:if="{{ready}}" class="page" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd">
   <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
   <view class="layer-sky" style="background:{{skyGradient}}"></view>
 
@@ -28,7 +28,7 @@
       wx:key="id"
       class="route-waypoint route-waypoint-{{item.state}}"
       style="{{item.style}}"
-      data-knowledge-id="{{item.knowledgeId}}"
+      data-id="{{item.id}}"
       bindtap="onTapRouteWaypoint"
     >
       <view class="route-waypoint-dot"><text wx:if="{{item.state === 'completed'}}">✓</text></view>
@@ -157,7 +157,7 @@
       wx:key="id"
       class="rail-node rail-node-{{item.state}}"
       style="top:{{item.top}}%"
-      data-knowledge-id="{{item.knowledgeId}}"
+      data-id="{{item.id}}"
       bindtap="onTapRouteWaypoint"
     >
       <text class="rail-elev">{{item.label}}</text>
@@ -191,6 +191,19 @@
     <view class="sb-main">
       <text class="sb-name">{{stageBanner.title}}</text>
       <text class="sb-biome">{{stageBanner.biome}}</text>
+    </view>
+  </view>
+
+  <!-- ===== 途经点介绍卡 ===== -->
+  <view wx:if="{{waypointCard && waypointCard.show}}" class="wpc-mask" catchtouchmove="noop">
+    <view class="wpc-card">
+      <view class="wpc-head">
+        <text class="wpc-name">{{waypointCard.name}}</text>
+        <text wx:if="{{waypointCard.altitudeText}}" class="wpc-alt">{{waypointCard.altitudeText}}</text>
+      </view>
+      <text class="wpc-desc">{{waypointCard.desc}}</text>
+      <text wx:if="{{waypointCard.lockedKnowledge}}" class="wpc-lock">🔒 抵达此处后可解锁相关知识</text>
+      <button class="wpc-btn" bindtap="onWaypointCardClose">继续攀登</button>
     </view>
   </view>
 
@@ -290,6 +303,21 @@
           </view>
         </view>
         <text wx:else class="ach-empty">继续探索更多自然带与随堂题，解锁成就吧～</text>
+      </view>
+
+      <view class="summit-band" wx:if="{{nextStops.length}}">
+        <text class="summit-band-t">下一站 · 继续探索</text>
+        <view class="next-stops">
+          <view class="next-stop" wx:for="{{nextStops}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="onOpenNextStop">
+            <text class="next-stop-emoji">{{item.emoji}}</text>
+            <view class="next-stop-text">
+              <text class="next-stop-name">{{item.name}}</text>
+              <text class="next-stop-sub">{{item.shortDescription}}</text>
+            </view>
+            <text class="next-stop-arrow">›</text>
+          </view>
+        </view>
       </view>
 
       <view class="summit-actions">

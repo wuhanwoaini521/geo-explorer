@@ -9,6 +9,7 @@
  * 性能：ticker 只推送真正变化的字段（diff）；markers/flora 仅在阶段切换与解锁变化时重建。
  */
 import { EXPLORATIONS, getExplorationById } from "../../data/explorations/index";
+import { PLACES } from "../../data/places";
 import {
   deriveState,
   knowledgeUnlockedOnMove,
@@ -118,6 +119,7 @@ interface SceneRouteWaypoint {
   name: string;
   shortName: string;
   altitudeText: string;
+  desc?: string;
   style: string;
   state: "completed" | "current" | "upcoming";
   knowledgeId?: string;
@@ -132,6 +134,15 @@ interface SceneRouteState {
   nextName: string;
   completed: boolean;
   rail: RouteRailItem[];
+}
+
+interface WaypointCardState {
+  show: boolean;
+  name: string;
+  altitudeText: string;
+  desc: string;
+  /** 该点关联知识尚未解锁 */
+  lockedKnowledge?: boolean;
 }
 
 interface QuizState {
@@ -237,6 +248,7 @@ function buildRouteState(route: ExplorationRoute, progress: number): SceneRouteS
       altitudeText: point.altitude
         ? `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)}m`
         : "",
+      desc: point.desc,
       style: `left:${point.x}%;top:${point.y}%;`,
       state:
         point.id === currentId
@@ -421,12 +433,14 @@ Page({
     stageBanner: { show: false, title: "", biome: "", emoji: "" } as StageBanner,
     hint: { show: false, text: "" },
     openNode: null as ExplorationKnowledgeNode | null,
+    waypointCard: null as WaypointCardState | null,
     quiz: null as QuizState | null,
 
     // 登顶 / 汇总
     celebration: false,
     summit: false,
     summaryStats: null as SummaryStats | null,
+    nextStops: [] as Array<{ id: string; name: string; emoji: string; shortDescription: string }>,
   },
 
   // ---- 内部实例状态（不参与渲染） ----
@@ -443,14 +457,14 @@ Page({
   elapsedSec: 0,
   prevStageIndex: -1,
   frameCache: {} as Record<string, unknown>,
-  ticker: null as number | null,
+  ticker: null as ReturnType<typeof setInterval> | null,
   touching: false,
   lastTouchY: 0,
   celebrated: false,
   particlesCached: null as Particle[] | null,
   partBucket: -1,
-  bannerTimer: null as number | null,
-  celebrationTimer: null as number | null,
+  bannerTimer: null as ReturnType<typeof setTimeout> | null,
+  celebrationTimer: null as ReturnType<typeof setTimeout> | null,
 
   /* ---------------- 生命周期 ---------------- */
 
@@ -469,7 +483,19 @@ Page({
     this.target = exploration.startElevation;
     this.lastElev = exploration.startElevation;
     this.highestReached = exploration.startElevation;
+    // 登顶后的「下一站」推荐：与当前场景地点不同类的精选地点（跨类型激发新探索）
+    const currentPlaceIds = new Set(
+      PLACES.filter((p) => p.explorationId === exploration.id).map((p) => p.id),
+    );
+    const picks = PLACES.filter((p) => p.featured && !currentPlaceIds.has(p.id));
+    const nextStops: Array<{ id: string; name: string; emoji: string; shortDescription: string }> = [];
+    for (const p of picks) {
+      if (nextStops.length >= 2) break;
+      if (nextStops.some((n) => PLACES.find((q) => q.id === n.id)!.type === p.type)) continue;
+      nextStops.push({ id: p.id, name: p.name, emoji: p.emoji, shortDescription: p.shortDescription });
+    }
     this.setData({
+      nextStops,
       ready: true,
       intro: true,
       title: exploration.title,
@@ -849,31 +875,46 @@ Page({
     this.setData({ intro: false });
   },
 
-  /** 调试便捷入口：直达峰顶（非正常玩法） */
-  onJumpToSummit() {
-    const ex = this.exploration;
-    if (!ex) return;
-    this.target = ex.maxElevation;
-  },
-
   /* ---------------- 知识节点交互 ---------------- */
 
+  /**
+   * 点击路线途经点：优先展示「名称 + 海拔 + 介绍」卡片；
+   * 若该点关联的知识已解锁，则直接打开知识卡。
+   */
   onTapRouteWaypoint(e: PageEvent) {
-    const knowledgeId = String(
-      (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.knowledgeId) || "",
+    const ex = this.exploration;
+    if (!ex || !ex.route) return;
+    const waypointId = String(
+      (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id) || "",
     );
-    if (!knowledgeId) {
-      wx.showToast({ title: "这是路线地标，继续攀登探索", icon: "none" });
+    const point = ex.route.waypoints.find((p) => p.id === waypointId);
+    if (!point) return;
+    const linkedNode = point.knowledgeId
+      ? ex.knowledgeNodes.find((n) => n.id === point.knowledgeId)
+      : undefined;
+    if (linkedNode && this.discovered.has(linkedNode.id)) {
+      this.setData({ openNode: linkedNode, hint: { show: false, text: "" } });
       return;
     }
-    if (!this.discovered.has(knowledgeId)) {
-      wx.showToast({ title: "抵达此处后可解锁相关知识", icon: "none" });
+    if (!point.desc) {
+      wx.showToast({ title: `${point.name} · 继续攀登探索`, icon: "none" });
       return;
     }
-    const node = this.exploration && this.exploration.knowledgeNodes.find((n) => n.id === knowledgeId);
-    if (node) {
-      this.setData({ openNode: node, hint: { show: false, text: "" } });
-    }
+    this.setData({
+      waypointCard: {
+        show: true,
+        name: point.name,
+        altitudeText: point.altitude
+          ? `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)} ${this.data.ui.axisUnit}`
+          : "",
+        desc: point.desc,
+        lockedKnowledge: Boolean(linkedNode),
+      },
+    });
+  },
+
+  onWaypointCardClose() {
+    this.setData({ waypointCard: null });
   },
 
   onHintTap() {
@@ -1007,6 +1048,13 @@ Page({
     };
   },
 
+  /** 登顶总结：跳转「下一站」地点详情（发现新的探索目标） */
+  onOpenNextStop(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+  },
+
   onBackHome() {
     wx.switchTab({ url: "/pages/home/index" });
   },
@@ -1038,6 +1086,7 @@ Page({
       summit: false,
       summaryStats: null,
       openNode: null,
+      waypointCard: null,
       quiz: null,
       hint: { show: false, text: "" },
       stageBanner: { show: false, title: "", biome: "", emoji: "" },

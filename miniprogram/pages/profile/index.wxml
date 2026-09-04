@@ -34,6 +34,21 @@
     <text>还没有挑战记录，去「挑战」页试试手气 🧠</text>
   </view>
 
+  <view class="sec-title">我的收藏</view>
+  <view class="record" wx:if="{{!favoritesEmpty}}">
+    <view class="rec" wx:for="{{favoritesList}}" wx:key="id">
+      <text class="rec-emoji">{{item.emoji}}</text>
+      <view class="rec-main" data-id="{{item.id}}" bindtap="onOpenFavorite">
+        <text class="rec-name">{{item.name}}</text>
+        <text class="rec-meta">{{item.typeLabel}} · {{item.shortDescription}}</text>
+      </view>
+      <text class="rec-remove" data-id="{{item.id}}" catchtap="onRemoveFavorite">♥</text>
+    </view>
+  </view>
+  <view class="record empty" wx:else>
+    <text>还没有收藏。在图鉴里点亮 ♡，把想去的地球角落收进怀里</text>
+  </view>
+
   <view class="sec-title">探索记录</view>
   <view class="record" wx:if="{{!empty}}">
     <view class="rec" wx:for="{{records}}" wx:key="id">
