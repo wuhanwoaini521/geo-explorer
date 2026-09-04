@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c0a878"/>
+      <stop offset="1" stop-color="#957b4c"/>
+    </linearGradient>
+    <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8d7446"/>
+      <stop offset="1" stop-color="#5e4d2a"/>
+    </linearGradient>
+    <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f4326"/>
+      <stop offset="1" stop-color="#2e2916"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 高山草甸：起伏沙丘层 -->
+  <path d="M0,620 C100,540 210,600 300,540 C410,470 560,620 660,570 C710,540 740,590 750,620 L750,920 L0,920 Z"
+        fill="url(#m1)"/>
+  <path d="M0,880 C130,740 260,830 420,720 C540,640 660,780 750,700 L750,1334 L0,1334 Z"
+        fill="url(#m2)"/>
+  <!-- 前景草浪 -->
+  <path d="M0,1180 C200,1080 360,1160 520,1100 C640,1050 700,1140 750,1110 L750,1334 L0,1334 Z"
+        fill="url(#m3)"/>
+
+  <!-- 草垛/灌丛剪影 -->
+  <g fill="#4a5a2f">
+    <polygon points="120,640 170,640 145,596"/>
+    <polygon points="300,700 340,700 320,660"/>
+    <polygon points="520,640 560,640 540,600"/>
+    <polygon points="640,620 680,620 660,586"/>
+  </g>
+  <g fill="#2f3a1d">
+    <polygon points="80,880 130,880 105,820"/>
+    <polygon points="420,900 460,900 440,860"/>
+    <polygon points="650,840 700,840 675,790"/>
+  </g>
+  <!-- 小花点 -->
+  <g fill="#e8e2c6">
+    <circle cx="160" cy="640" r="3"/><circle cx="240" cy="680" r="3"/>
+    <circle cx="430" cy="650" r="3"/><circle cx="560" cy="690" r="3"/>
+    <circle cx="360" cy="820" r="4"/><circle cx="520" cy="860" r="4"/>
+  </g>
+  <!-- 岩块 -->
+  <polygon points="250,1180 300,1180 342,1140 300,1120 240,1150" fill="#5c5238"/>
+  <circle cx="590" cy="1220" r="14" fill="#6a5f3f"/>
+</svg>

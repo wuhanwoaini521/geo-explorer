@@ -1,447 +1,444 @@
-/* ============ 探索场景（沉浸式 2.5D 视差） ============ */
+/* ========== 探索页：2.5D 分层视差场景 ========== */
+page {
+  --status-bar-h: var(--status-bar-height, 0px);
+  --nav-bar-h: 44px;
+  background: #0b1526;
+}
 .page {
-  width: 100vw;
-  height: 100vh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  background: #0b1526;
+  color: #fff;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+}
+/* 与微信开发者工具的安全区对齐 */
+.page {
+  padding-top: env(safe-area-inset-top);
 }
 
-.scene {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #1b2b4a;
-}
-
-.layer {
+/* ---------------- 环境图层 ---------------- */
+.layer-sky {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  will-change: transform;
+  inset: 0;
+  transition: background 0.4s linear;
 }
 
-/* ---------- 天空 ---------- */
-.sky {
-  height: 100%;
-  z-index: 1;
-}
-.sun {
-  position: absolute;
-  right: 16%;
-  top: 12%;
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 244, 214, 0.95), rgba(255, 236, 190, 0.25) 70%, transparent);
-}
-.cloud {
-  position: absolute;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.5);
-  filter: blur(6rpx);
-}
-.cloud-a { width: 320rpx; height: 46rpx; left: 8%;  top: 20%; }
-.cloud-b { width: 240rpx; height: 38rpx; left: 60%; top: 30%; }
-.cloud-c { width: 200rpx; height: 30rpx; left: 30%; top: 16%; }
-
-/* ---------- 山体剪影（border 三角）通用 ---------- */
 .ridge {
-  bottom: 0;
-  z-index: 2;
+  position: absolute;
+  left: -10vw;
+  right: -10vw;
+  bottom: 22vh;
+  height: 60vh;
+  opacity: 0.9;
 }
+.ridge.far { opacity: 0.35; }
+.ridge.mid { opacity: 0.55; }
 .peak {
   position: absolute;
-  width: 0;
-  height: 0;
-}
-.far { z-index: 2; }
-.far .peak {
-  border-bottom: 340rpx solid rgba(96, 132, 178, 0.5);
-}
-.far-a {
-  border-left: 300rpx solid transparent;
-  border-right: 440rpx solid transparent;
-  left: -10%;
-  bottom: -10rpx;
-}
-.far-b {
-  border-left: 460rpx solid transparent;
-  border-right: 340rpx solid transparent;
-  left: 28%;
-  bottom: -6rpx;
-}
-.far-c {
-  border-left: 260rpx solid transparent;
-  border-right: 320rpx solid transparent;
-  left: 66%;
-  bottom: -10rpx;
-}
-
-.mid { z-index: 3; }
-.mid .peak {
-  background: #1f3e66;
-}
-.mid-a {
-  border-left: 360rpx solid transparent;
-  border-right: 420rpx solid transparent;
-  left: -6%;
-  bottom: -24rpx;
-}
-.mid-b {
-  border-left: 480rpx solid transparent;
-  border-right: 300rpx solid transparent;
-  left: 30%;
-  bottom: -20rpx;
-}
-.snowcap {
-  position: absolute;
-  left: 44%;
-  bottom: 118rpx;
-  width: 90rpx;
-  height: 48rpx;
-  background: linear-gradient(180deg, #ffffff, rgba(255, 255, 255, 0.55));
-  clip-path: polygon(0% 100%, 50% 20%, 100% 100%);
-}
-
-.near { z-index: 4; }
-.near .peak {
-  background: rgba(56, 74, 96, 0.9);
-}
-.near-a {
-  border-left: 460rpx solid transparent;
-  border-right: 340rpx solid transparent;
-  left: -12%;
-  bottom: -40rpx;
-}
-.near-b {
-  border-left: 380rpx solid transparent;
-  border-right: 480rpx solid transparent;
-  left: 52%;
-  bottom: -36rpx;
-}
-.trees {
-  position: absolute;
-  left: 6%;
-  bottom: 26rpx;
-  font-size: 44rpx;
-  letter-spacing: 20rpx;
+  bottom: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 260rpx;
   line-height: 1;
+  text-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.3);
 }
-.tree { display: inline-block; }
+.peak-a { left: -4vw; }
+.peak-b { right: -2vw; font-size: 300rpx; color: rgba(255,255,255,0.5); }
+.peak-c { left: 30vw; font-size: 340rpx; color: rgba(255,255,255,0.65); }
 
-/* ---------- 云雾遮罩 ---------- */
-.fog {
+.ground-wrap {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 55vh;
-  z-index: 6;
-  background: linear-gradient(180deg, transparent, rgba(220, 230, 244, 0.32));
-  pointer-events: none;
+  height: 24vh;
 }
-
-/* ---------- 地面 ---------- */
-.ground {
+.ground-main {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 34vh;
-  z-index: 5;
-}
-.ground-base {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(70, 92, 110, 0) 0%, #2c3c50 55%, #22303f 100%);
-}
-.ground-snow {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(240,244,248,0.9) 100%);
-  transition: opacity 0.3s ease;
+  inset: 0;
+  transition: background 0.35s linear;
 }
 .ground-veg {
   position: absolute;
+  inset: 0;
+  transition: opacity 0.3s linear;
+}
+.ground-snow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(200,220,255,0.6));
+  transition: opacity 0.3s linear;
+}
+.ground-glare {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 55%);
+}
+
+.flora-layer {
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 42%;
-  border-radius: 30% 30% 0 0;
-  transition: opacity 0.3s ease;
-}
-
-/* ---------- 攀登者 ---------- */
-.climber {
-  position: absolute;
-  left: 12%;
-  bottom: 28vh;
-  z-index: 7;
-  font-size: 56rpx;
-  line-height: 1;
-  filter: drop-shadow(0 0 8rpx rgba(0,0,0,0.25));
-  transition: transform 0.12s linear;
-}
-.climber-body {
-  display: inline-block;
-  animation: bob 1.6s ease-in-out infinite;
-}
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6rpx); }
-}
-
-/* ---------- 飘雪 ---------- */
-.snowfall {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 8;
+  height: 18vh;
   pointer-events: none;
 }
-.flake {
+.flora-item {
   position: absolute;
-  top: -30px;
+  transform: translateY(-4vh);
+  text-shadow: 0 4rpx 8rpx rgba(0,0,0,0.25);
+  pointer-events: none;
+  animation: floraBob 3.6s ease-in-out infinite;
 }
-.flake-core {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 50%;
-  animation: sway ease-in-out infinite alternate;
-}
-@keyframes sway {
-  from { transform: translateX(-24rpx); }
-  to { transform: translateX(26rpx); }
-}
-@keyframes fall {
-  from { transform: translateY(-8vh); }
-  to { transform: translateY(115vh); }
-}
-/* fall 由 flake 自身动画承载：见下方 */
-.flake {
-  animation: fall linear infinite;
+@keyframes floraBob {
+  0%, 100% { transform: translateY(-4vh) rotate(-1deg); }
+  50% { transform: translateY(calc(-4vh - 8rpx)) rotate(1.5deg); }
 }
 
-/* ---------- 右侧海拔刻度 ---------- */
-.alt-rail {
+.climber {
   position: absolute;
-  right: 16rpx;
-  top: 24vh;
-  bottom: 30vh;
-  width: 56rpx;
+  left: 50%;
+  bottom: 16vh;
+  margin-left: -30rpx;
+  transform-origin: 50% 100%;
+  z-index: 6;
+}
+.hillman {
+  font-size: 72rpx;
+  text-shadow: 0 6rpx 12rpx rgba(0,0,0,0.4);
+  transition: transform 0.1s linear;
+}
+
+.snow-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   z-index: 9;
 }
-.rail-line {
+.snow-flake {
   position: absolute;
-  left: 26rpx;
-  top: 0;
-  bottom: 0;
-  width: 4rpx;
-  background: rgba(255, 255, 255, 0.28);
+  top: -20rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 6rpx rgba(255,255,255,0.8);
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
-.rail-summit {
-  position: absolute;
-  top: -6rpx;
-  left: 0;
-  font-size: 20rpx;
-  color: #8ce6cf;
+@keyframes fall {
+  0% { transform: translateY(-5vh); }
+  100% { transform: translateY(110vh); }
 }
-.mark {
+
+.fog {
   position: absolute;
-  left: 0;
-  transform: translateY(-50%);
+  inset: 0;
+  background: linear-gradient(180deg, rgba(200,218,240,0) 0%, rgba(190,208,232,0.5) 100%);
+  transition: opacity 0.4s linear;
+  pointer-events: none;
+  z-index: 8;
+}
+
+/* ---------------- HUD 顶部 ---------------- */
+.hud-top {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 20rpx);
+  left: 28rpx;
+  right: 28rpx;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  z-index: 10;
+}
+.hud-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0,0,0,0.45);
+}
+.elevation-num {
+  font-size: 76rpx;
+  font-weight: 800;
+  letter-spacing: 1rpx;
+  color: #fff;
+}
+.elevation-unit {
+  font-size: 30rpx;
+  color: rgba(255,255,255,0.8);
+}
+.hud-right {
+  flex: 1;
+  margin-left: 20rpx;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
+  gap: 10rpx;
 }
-.mark-dot {
-  width: 30rpx;
-  height: 30rpx;
-  border-radius: 50%;
-  border: 3rpx solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.08);
-  color: #cfe4f6;
+.hud-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10rpx;
+}
+.metric {
   font-size: 22rpx;
-  line-height: 30rpx;
-  text-align: center;
+  color: rgba(255,255,255,0.92);
+  background: rgba(8, 16, 32, 0.42);
+  backdrop-filter: blur(8rpx);
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  white-space: nowrap;
 }
-.mark.found .mark-dot {
-  background: rgba(46, 198, 176, 0.9);
-  border-color: #8ce6cf;
+.hud-km {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.4);
 }
-.mark-elev {
-  font-size: 18rpx;
-  color: rgba(230, 240, 250, 0.85);
-  margin-top: 4rpx;
+
+/* ---------------- 阶段卡 ---------------- */
+.stage-card {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 132rpx);
+  left: 28rpx;
+  right: 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  z-index: 9;
+}
+.stage-emoji {
+  font-size: 64rpx;
+  text-shadow: 0 4rpx 10rpx rgba(0,0,0,0.3);
+}
+.stage-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.stage-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.4);
+}
+.stage-biome {
+  font-size: 22rpx;
+  color: #d9f6eb;
+  text-shadow: 0 1rpx 6rpx rgba(0,0,0,0.4);
+}
+.stage-desc {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-shadow: 0 1rpx 6rpx rgba(0,0,0,0.4);
+}
+.stage-next {
+  font-size: 20rpx;
+  color: #9fe8d2;
+  background: rgba(15, 60, 60, 0.5);
+  padding: 8rpx 16rpx;
+  border-radius: 10rpx;
   white-space: nowrap;
 }
 
-/* ---------- HUD ---------- */
-.hud {
+/* ---------------- 进度条 ---------------- */
+.progress-row {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 15;
-  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 0;
-  background: linear-gradient(180deg, rgba(5, 12, 26, 0.5), transparent);
-}
-.hud-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.hud-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1rpx;
-}
-.hud-chip {
-  font-size: 22rpx;
-  color: #b9d5ef;
-  padding: 8rpx 20rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.1);
-}
-.hud-stage {
+  left: 28rpx;
+  right: 28rpx;
+  bottom: calc(env(safe-area-inset-bottom) + 208rpx);
   display: flex;
   align-items: center;
-  margin-top: 20rpx;
-  gap: 16rpx;
+  gap: 14rpx;
+  z-index: 9;
 }
-.stage-emoji {
-  font-size: 52rpx;
-  line-height: 1;
+.progress-track {
+  flex: 1;
+  height: 14rpx;
+  border-radius: 7rpx;
+  background: rgba(255,255,255,0.22);
+  overflow: hidden;
 }
-.stage-box {
-  display: flex;
-  flex-direction: column;
+.progress-bar {
+  height: 100%;
+  border-radius: 7rpx;
+  background: linear-gradient(90deg, #2fb6a0, #7fd4c4);
+  transition: width 0.35s ease-out;
 }
-.stage-name {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #ffffff;
-}
-.stage-desc {
-  font-size: 20rpx;
-  color: rgba(214, 227, 242, 0.85);
-  margin-top: 2rpx;
-}
-.hud-elev {
-  margin-top: 18rpx;
-  display: flex;
-  align-items: baseline;
-  gap: 10rpx;
-}
-.elev-num {
-  font-size: 88rpx;
-  font-weight: 800;
-  color: #ffffff;
-  line-height: 1;
-  text-shadow: 0 2rpx 18rpx rgba(0,0,0,0.25);
-}
-.elev-unit {
-  font-size: 30rpx;
-  color: #8ce6cf;
-  font-weight: 600;
-}
-.elev-km {
+.progress-pct {
   font-size: 22rpx;
-  color: #cfe2f2;
+  color: rgba(255,255,255,0.9);
+  min-width: 56rpx;
+  text-align: right;
 }
 
-/* ---------- 底部操作 ---------- */
-.dock {
+/* ---------------- 底部操作条 ---------------- */
+.controls {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  z-index: 16;
-  padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 28rpx);
-  background: linear-gradient(180deg, transparent, rgba(8, 14, 30, 0.92));
-}
-.dock-metrics {
-  display: flex;
-  margin-top: 18rpx;
-  gap: 16rpx;
-}
-.metric {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 14rpx 8rpx;
-  border-radius: 18rpx;
-  background: rgba(255, 255, 255, 0.06);
-}
-.metric-v {
-  font-size: 26rpx;
-  font-weight: 700;
-  color: #ffffff;
-}
-.metric-k {
-  font-size: 20rpx;
-  color: rgba(204, 220, 240, 0.85);
-  margin-top: 4rpx;
-}
-.dock-actions {
-  display: flex;
-  margin-top: 20rpx;
-  gap: 20rpx;
-}
-.act {
-  flex: 1;
-  height: 84rpx;
-  border-radius: 42rpx;
+  bottom: calc(env(safe-area-inset-bottom) + 20rpx);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
+  z-index: 9;
+}
+.ctl {
+  width: 220rpx;
+  height: 90rpx;
+  border-radius: 30rpx;
+  border: none;
   font-size: 28rpx;
   font-weight: 600;
+  color: #fff;
+  line-height: 90rpx;
+  padding: 0;
 }
-.act-up {
+.ctl::after { border: none; }
+.ctl-up {
   background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #ffffff;
-  box-shadow: 0 8rpx 24rpx rgba(29, 143, 166, 0.4);
+  box-shadow: 0 8rpx 20rpx rgba(31, 143, 166, 0.35);
 }
-.act-down {
-  background: rgba(255, 255, 255, 0.1);
-  color: #cfe2f2;
+.ctl-down {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
 }
-.act:active { opacity: 0.85; }
+.ctl:active { opacity: 0.85; transform: scale(0.97); }
+.ctl-center {
+  width: 100rpx;
+  text-align: center;
+  font-size: 40rpx;
+}
 
-/* ---------- 发现提示 ---------- */
+/* ---------------- 知识点提示条 ---------------- */
 .hint {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(env(safe-area-inset-bottom) + 270rpx);
-  z-index: 30;
-  padding: 14rpx 30rpx;
-  border-radius: 999rpx;
-  background: rgba(20, 32, 54, 0.85);
-  border: 1rpx solid rgba(140, 230, 207, 0.5);
-  color: #e6f7f1;
-  font-size: 24rpx;
-  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.3);
-  animation: fadeIn 0.3s ease both;
+  left: 28rpx;
+  right: 148rpx;
+  bottom: calc(env(safe-area-inset-bottom) + 132rpx);
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  background: rgba(20, 48, 62, 0.92);
+  backdrop-filter: blur(10rpx);
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  z-index: 11;
+  border: 1rpx solid rgba(46, 240, 206, 0.45);
+  animation: hintIn 0.3s ease both;
 }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateX(-50%) translateY(8rpx); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+@keyframes hintIn {
+  from { transform: translateY(20rpx); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
+.hint-ico { font-size: 34rpx; }
+.hint-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #eafaff;
+}
+.hint-arrow { color: #2cf0ce; font-size: 32rpx; }
 
-/* ---------- 覆盖层（intro / summit / summary） ---------- */
+/* ---------------- 右侧垂直登山线路标（峰顶=0%，山脚=100%） ---------------- */
+.rail {
+  position: absolute;
+  top: 24%;
+  right: 18rpx;
+  bottom: 30%;
+  width: 56rpx;
+  z-index: 8;
+}
+.rail-track {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 6rpx;
+  margin-left: -3rpx;
+  border-radius: 3rpx;
+  background: rgba(255,255,255,0.28);
+}
+.rail-fill {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 6rpx;
+  margin-left: -3rpx;
+  background: linear-gradient(180deg, #43e0c0, #7fb4ff);
+  border-radius: 3rpx;
+  transition: height 0.3s linear;
+}
+.rail-now {
+  position: absolute;
+  left: 50%;
+  width: 18rpx;
+  height: 18rpx;
+  margin: -9rpx 0 0 -9rpx;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 6rpx rgba(255,255,255,0.22), 0 0 16rpx rgba(120,220,255,0.95);
+  transition: top 0.3s linear;
+}
+.rail-node {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150rpx;
+  height: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8rpx;
+}
+.rail-elev {
+  font-size: 18rpx;
+  color: rgba(255,255,255,0.78);
+  white-space: nowrap;
+  text-shadow: 0 1rpx 4rpx rgba(0,0,0,0.5);
+}
+.rn {
+  width: 26rpx;
+  height: 26rpx;
+  line-height: 26rpx;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 22rpx;
+}
+.rn-found {
+  color: #4ef0d0;
+  background: rgba(30,180,150,0.35);
+  text-shadow: 0 0 8rpx rgba(78,240,208,0.9);
+}
+.rn-near {
+  color: #fff;
+  background: rgba(255,255,255,0.28);
+  animation: railBlink 1.2s ease-in-out infinite;
+}
+.rn-ghost {
+  color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.12);
+}
+@keyframes railBlink {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.rail-cap {
+  position: absolute;
+  left: 16rpx;
+  font-size: 18rpx;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 1rpx 4rpx rgba(0,0,0,0.5);
+}
+.rail-cap-top { top: -4rpx; }
+.rail-cap-bottom { bottom: -4rpx; }
+
+/* ============ 覆盖层 ============ *//* ============ 覆盖层 ============ */
 .overlay {
   position: fixed;
   inset: 0;
@@ -449,105 +446,449 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(8, 14, 28, 0.78);
-  backdrop-filter: blur(10rpx);
+  background: rgba(6, 12, 24, 0.62);
+  backdrop-filter: blur(8rpx);
 }
-.overlay-dim { background: rgba(8, 14, 28, 0.55); }
-.card {
-  width: 620rpx;
-  max-width: 88vw;
-  max-height: 78vh;
+
+/* -- 引导 -- */
+.intro-card {
+  width: 640rpx;
+  max-height: 88vh;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 44rpx 40rpx;
+  background: linear-gradient(180deg, #16233d, #0d1830);
   border-radius: 32rpx;
-  background: linear-gradient(180deg, #1b2b4a, #12203c);
-  border: 1rpx solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.5);
-}
-.card-emoji {
-  font-size: 96rpx;
-  text-align: center;
-  margin-bottom: 16rpx;
-}
-.card-title {
-  font-size: 36rpx;
-  font-weight: 800;
-  color: #ffffff;
-  text-align: center;
-}
-.card-sub {
-  font-size: 24rpx;
-  color: #a9c1dc;
-  text-align: center;
-  margin-top: 10rpx;
-  line-height: 1.6;
-}
-.card-fact {
-  margin-top: 18rpx;
-  display: flex;
-  justify-content: space-between;
-  padding: 14rpx 20rpx;
-  border-radius: 14rpx;
-  background: rgba(255, 255, 255, 0.05);
-}
-.card-fact-k { font-size: 22rpx; color: #8fa3bf; }
-.card-fact-v { font-size: 24rpx; color: #eaf3fc; font-weight: 600; }
-
-.summit-title {
-  font-size: 40rpx;
-  font-weight: 800;
-  color: #ffd97a;
-  text-align: center;
-}
-.summit-sub {
-  font-size: 26rpx;
-  color: #eaf6ff;
-  text-align: center;
-  margin-top: 14rpx;
-}
-.summit-line {
-  font-size: 22rpx;
-  color: #a9c1dc;
-  text-align: center;
-  margin-top: 18rpx;
-  line-height: 1.6;
-}
-
-.learned-list {
-  margin: 26rpx 0 10rpx;
+  padding: 48rpx 40rpx;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  align-items: center;
+  animation: sheetIn 0.3s ease both;
 }
-.learned-item {
-  font-size: 24rpx;
-  color: #d7e6f5;
-  line-height: 1.5;
-  border-left: 4rpx solid #2fb6a0;
-  padding-left: 14rpx;
+@keyframes sheetIn {
+  from { transform: translateY(40rpx); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.intro-ico { font-size: 110rpx; }
+.intro-title { font-size: 40rpx; font-weight: 800; color: #fff; margin-top: 12rpx; }
+.intro-sub { font-size: 26rpx; color: #8ce6cf; margin-top: 8rpx; text-align: center; }
+.intro-meta {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 20rpx;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.meta-chip {
+  font-size: 22rpx;
+  color: #cfe9ff;
+  background: rgba(255,255,255,0.08);
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+}
+.intro-desc {
+  margin-top: 22rpx;
+  font-size: 26rpx;
+  color: #c6d4e8;
+  line-height: 1.7;
+  text-align: left;
+}
+.btn-primary {
+  margin-top: 32rpx;
+  width: 100%;
+  height: 92rpx;
+  line-height: 92rpx;
+  border-radius: 46rpx;
+  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+.btn-primary::after { border: none; }
+.intro-hint {
+  margin-top: 22rpx;
+  font-size: 22rpx;
+  color: #7d8ba0;
+  text-align: center;
 }
 
-/* ---------- 按钮 ---------- */
-.btn {
-  height: 92rpx;
-  border-radius: 46rpx;
+/* ---------------- 自然带横幅 ---------------- */
+.stage-banner {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 240rpx);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  background: rgba(8, 18, 34, 0.7);
+  backdrop-filter: blur(10rpx);
+  border: 1rpx solid rgba(255,255,255,0.16);
+  border-radius: 40rpx;
+  padding: 14rpx 32rpx;
+  z-index: 20;
+  animation: bannerIn 0.28s ease both;
+}
+@keyframes bannerIn {
+  from { transform: translateX(-50%) translateY(-16rpx); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+.sb-emoji { font-size: 44rpx; }
+.sb-main { display: flex; flex-direction: column; gap: 2rpx; }
+.sb-name { font-size: 28rpx; color: #fff; font-weight: 700; }
+.sb-biome { font-size: 22rpx; color: #8ce6cf; }
+
+/* ---------------- 随堂 Quiz ---------------- */
+.quiz-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(6, 12, 24, 0.66);
+  backdrop-filter: blur(6rpx);
+}
+.quiz-card {
+  width: 620rpx;
+  background: linear-gradient(180deg, #16233d, #0f1c33);
+  border-radius: 28rpx;
+  padding: 36rpx 32rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  animation: sheetIn 0.26s ease both;
+}
+.quiz-head {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+.quiz-ico { font-size: 52rpx; }
+.quiz-tag {
+  font-size: 26rpx;
+  color: #ffd76b;
+  background: rgba(255, 215, 107, 0.14);
+  padding: 6rpx 18rpx;
+  border-radius: 12rpx;
+  letter-spacing: 1rpx;
+}
+.quiz-lead {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: #8ce6cf;
+}
+.quiz-q {
+  margin-top: 12rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.5;
+}
+.quiz-options {
+  margin-top: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.quiz-opt {
+  padding: 22rpx 24rpx;
+  border-radius: 18rpx;
+  background: rgba(255,255,255,0.07);
+  border: 1rpx solid rgba(255,255,255,0.1);
+  color: #e6eef7;
+  font-size: 28rpx;
+  line-height: 1.5;
+  transition: all 0.15s;
+}
+.quiz-opt.sel { border-color: #2cf0ce; background: rgba(46, 240, 206, 0.14); }
+.quiz-opt.right { border-color: #2fd68a; background: rgba(47, 214, 138, 0.2); color: #d9ffe9; }
+.quiz-opt.wrong { border-color: #ff7a6b; background: rgba(255, 122, 107, 0.18); }
+.quiz-result {
+  margin-top: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.quiz-verdict {
   font-size: 30rpx;
   font-weight: 700;
-  margin-top: 26rpx;
-  letter-spacing: 2rpx;
+  color: #8ce6cf;
 }
-.btn-primary {
+.quiz-explain {
+  font-size: 24rpx;
+  color: #c6d4e8;
+  line-height: 1.6;
+}
+.quiz-btn {
+  margin-top: 28rpx;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 42rpx;
   background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
-  color: #ffffff;
-  box-shadow: 0 10rpx 28rpx rgba(29, 143, 166, 0.4);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
 }
-.btn-ghost {
-  background: rgba(255, 255, 255, 0.08);
-  color: #cfe2f2;
+.quiz-btn::after { border: none; }
+.quiz-skip {
+  margin-top: 22rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #7d8ba0;
+  padding: 10rpx;
 }
-.btn:active { opacity: 0.86; }
+
+/* ---------------- 登顶庆祝 ---------------- */
+.celebration {
+  background: linear-gradient(180deg, rgba(20, 44, 96, 0.72), rgba(6, 12, 24, 0.8));
+  flex-direction: column;
+  gap: 12rpx;
+  animation: celebrateIn 0.5s ease both;
+}
+@keyframes celebrateIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.celebrate-emoji {
+  font-size: 160rpx;
+  animation: bounce 1.1s ease infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-18rpx) scale(1.06); }
+}
+.celebrate-title {
+  font-size: 52rpx;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 4rpx;
+}
+.celebrate-elev {
+  font-size: 40rpx;
+  color: #ffd76b;
+  font-weight: 700;
+}
+.celebrate-msg {
+  font-size: 26rpx;
+  color: #9fd4ff;
+}
+
+/* ---------------- 登顶总结 ---------------- */
+.summit {
+  align-items: flex-end;
+}
+.summit-card {
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #16233d, #0d1830);
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 40rpx 32rpx calc(36rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+  animation: sheetIn 0.32s ease both;
+}
+.summit-head {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.summit-badge { font-size: 72rpx; }
+.summit-head-text { display: flex; flex-direction: column; gap: 6rpx; }
+.summit-title { font-size: 40rpx; font-weight: 800; color: #fff; }
+.summit-sub { font-size: 24rpx; color: #8ce6cf; }
+
+.summit-stats {
+  display: flex;
+  gap: 12rpx;
+}
+.sstat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  background: rgba(255,255,255,0.05);
+  border-radius: 18rpx;
+  padding: 22rpx 8rpx;
+}
+.sstat-val { font-size: 34rpx; font-weight: 800; color: #ffd76b; }
+.sstat-label { font-size: 22rpx; color: #9fb2cc; }
+
+.summit-band { display: flex; flex-direction: column; gap: 12rpx; }
+.summit-band-t {
+  font-size: 24rpx;
+  color: #8ce6cf;
+  letter-spacing: 1rpx;
+}
+.band-chips { display: flex; flex-wrap: wrap; gap: 10rpx; align-items: center; }
+.band-chip {
+  font-size: 22rpx;
+  color: #e6eef7;
+  background: rgba(255,255,255,0.08);
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+}
+.band-ratio { font-size: 22rpx; color: #8fa3bf; }
+
+.summit-ach { display: flex; flex-direction: column; gap: 12rpx; }
+.ach-list { display: flex; flex-direction: column; gap: 14rpx; }
+.ach-item {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  background: rgba(255,215,107,0.08);
+  border: 1rpx solid rgba(255,215,107,0.22);
+  border-radius: 18rpx;
+  padding: 18rpx 22rpx;
+}
+.ach-emoji { font-size: 44rpx; }
+.ach-text { display: flex; flex-direction: column; gap: 4rpx; }
+.ach-title { font-size: 28rpx; font-weight: 700; color: #ffe9b0; }
+.ach-desc { font-size: 22rpx; color: #b8c8dc; }
+.ach-empty { font-size: 24rpx; color: #7d8ba0; }
+
+.summit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+.act {
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.act::after { border: none; }
+.act-primary {
+  background: linear-gradient(135deg, #2fb6a0, #1d8fa6);
+  color: #fff;
+}
+.act-ghost {
+  background: rgba(255,255,255,0.07);
+  color: #cfe9ff;
+  border: 1rpx solid rgba(255,255,255,0.14);
+}
+/* ---------------- 山岳世界（SVG 分片插画层：world.style === 'mountain'，全部数据驱动） ---------------- */
+.m-sun {
+  position: absolute;
+  right: 12vw;
+  top: 10vh;
+  width: 16vmin;
+  height: 16vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 34%, #fff8df 0%, #ffe97a 46%, rgba(255,214,120,0.22) 76%, rgba(255,214,120,0) 82%);
+  box-shadow: 0 0 70rpx 24rpx rgba(255,214,120,0.4);
+  transition: opacity 0.4s linear;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 分片插画：全幅等比（mode:aspectFill），随视差 / 缩放 / 透明度驱动 */
+.plate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.pl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.pl-far { z-index: 2; }
+.pl-peaks {
+  z-index: 3;
+  transform-origin: 50% 72%;
+}
+.pl-ridge { z-index: 4; }
+.pl-cloud { z-index: 5; }
+.pl-ground { z-index: 6; }
+
+/* 登山者：SVG 人形插画（头盔/背包/登山杖）+ 贴地阴影；随风前倾、登顶淡出 */
+.m-climber {
+  position: absolute;
+  left: 50%;
+  bottom: 12vh;
+  width: 160rpx;
+  height: 190rpx;
+  margin-left: -80rpx;
+  z-index: 7;
+  transform-origin: 50% 100%;
+  transition: opacity 0.5s ease, transform 0.2s linear;
+  pointer-events: none;
+}
+.cm-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.cm-shadow {
+  position: absolute;
+  left: 8%;
+  bottom: 2rpx;
+  width: 84%;
+  height: 14rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  filter: blur(2rpx);
+  opacity: 0.7;
+}
+
+/* 指标折叠按钮 */
+.metric-more {
+  color: #ffe9b0;
+  background: rgba(70, 60, 30, 0.42);
+  border: 1rpx solid rgba(255, 233, 176, 0.35);
+}
+
+/* 阶段卡标题行（名称 + 自然带） */
+.stage-line {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+/* ---------------- 山体内攀登路线 ---------------- */
+.scene-route { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.route-segment { position: absolute; height: 7rpx; margin-top: -3.5rpx; border-radius: 8rpx; transform-origin: 0 50%; }
+.route-segment-muted { background: rgba(255,232,179,0.34); box-shadow: 0 1rpx 3rpx rgba(19,31,49,0.52); }
+.route-segment-completed { background: linear-gradient(90deg,#ffd47a,#fff1bd); box-shadow: 0 0 10rpx rgba(255,202,91,0.72); }
+.route-waypoint { position: absolute; z-index: 2; display: flex; align-items: center; gap: 8rpx; transform: translate(-50%,-50%); pointer-events: auto; }
+.route-waypoint-dot { width: 18rpx; height: 18rpx; border: 3rpx solid rgba(255,248,222,0.94); border-radius: 50%; background: rgba(45,61,77,0.76); color: #184f50; font-size: 14rpx; line-height: 18rpx; text-align: center; box-shadow: 0 1rpx 8rpx rgba(9,19,34,0.72); }
+.route-waypoint-label { display: flex; flex-direction: column; gap: 1rpx; padding: 3rpx 7rpx; border-radius: 7rpx; background: rgba(9,21,36,0.48); text-shadow: 0 1rpx 4rpx rgba(0,0,0,0.7); }
+.route-waypoint-name { color: rgba(255,247,225,0.82); font-size: 17rpx; font-weight: 600; white-space: nowrap; }
+.route-waypoint-alt { color: #ffe09a; font-size: 14rpx; }
+.route-waypoint-completed .route-waypoint-dot { background: #ffe19a; border-color: #fff5d5; }
+.route-waypoint-current .route-waypoint-dot { width: 22rpx; height: 22rpx; line-height: 22rpx; border-color: #fff8da; background: #ffc85f; box-shadow: 0 0 0 8rpx rgba(255,197,83,0.26),0 0 16rpx rgba(255,215,122,0.9); }
+.route-waypoint-current .route-waypoint-label { background: rgba(35,37,30,0.76); }
+.route-waypoint-current .route-waypoint-name { color: #fff5cf; }
+.route-waypoint-upcoming { opacity: 0.8; }
+.route-current { position: absolute; z-index: 3; width: 30rpx; height: 30rpx; margin: -15rpx 0 0 -15rpx; border: 2rpx solid rgba(255,243,200,0.92); border-radius: 50%; background: rgba(255,192,75,0.22); box-shadow: 0 0 0 8rpx rgba(255,200,95,0.16),0 0 18rpx rgba(255,209,112,0.92); animation: routePulse 1.7s ease-in-out infinite; }
+.route-current-core { position: absolute; left: 50%; top: 50%; width: 10rpx; height: 10rpx; margin: -5rpx; border-radius: 50%; background: #fff8d7; }
+@keyframes routePulse { 0%,100% { transform: scale(0.86); opacity: .78; } 50% { transform: scale(1.14); opacity: 1; } }
+
+.route-status { position: absolute; top: calc(env(safe-area-inset-top) + 250rpx); left: 28rpx; display: flex; align-items: baseline; gap: 10rpx; max-width: 500rpx; z-index: 10; padding: 8rpx 14rpx; border: 1rpx solid rgba(255,226,151,0.24); border-radius: 14rpx; background: rgba(11,22,37,0.38); backdrop-filter: blur(8rpx); text-shadow: 0 1rpx 5rpx rgba(0,0,0,0.5); }
+.route-status-k { color: rgba(255,255,255,0.62); font-size: 18rpx; }
+.route-status-current { color: #fff0bd; font-size: 21rpx; font-weight: 700; }
+.route-status-next { color: rgba(255,255,255,0.76); font-size: 18rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.summit-route-finish { position: absolute; left: 28rpx; bottom: calc(env(safe-area-inset-bottom) + 220rpx); z-index: 12; padding: 10rpx 16rpx; border: 1rpx solid rgba(255,234,173,.4); border-radius: 14rpx; color: #fff1be; font-size: 21rpx; background: rgba(10,27,52,.52); text-shadow: 0 1rpx 5rpx rgba(0,0,0,.65); }
+
+/* 右侧 Rail 仅作弱化后的路线概览。 */
+.rail { top: 31%; bottom: 33%; width: 76rpx; opacity: .74; }
+.rail-track { width: 4rpx; margin-left: -2rpx; border-radius: 2rpx; background: rgba(255,245,221,0.2); }
+.rail-fill { width: 4rpx; margin-left: -2rpx; border-radius: 2rpx; background: linear-gradient(180deg,#ffd47a,#fff1bd); }
+.rail-node { width: 116rpx; }
+.rail-elev { font-size: 16rpx; color: rgba(255,247,226,0.74); }
+.rn-completed { color: #fff5d4; background: rgba(235,178,69,0.48); }
+.rn-current { color: #fff; background: rgba(255,204,99,0.62); animation: railBlink 1.2s ease-in-out infinite; }
+.rn-upcoming { color: rgba(255,247,226,0.56); background: rgba(255,245,220,0.1); }

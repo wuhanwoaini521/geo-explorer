@@ -1,162 +1,299 @@
-<view class="scene" wx:if="{{ready}}"
-  bind:touchstart="onTouchStart"
-  bind:touchmove="onTouchMove"
-  bind:touchend="onTouchEnd"
-  bind:touchcancel="onTouchEnd">
+<view wx:if="{{ready}}" class="page" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd" data-debug="climb">
+  <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
+  <view class="layer-sky" style="background:{{skyGradient}}"></view>
 
-  <!-- ⛅ 天空层（渐变 + 云，视差最慢） -->
-  <view class="layer sky" style="background:{{skyGradient}}; transform:translateY({{par.sky}}px);">
-    <view class="sun"></view>
-    <view class="cloud cloud-a"></view>
-    <view class="cloud cloud-b"></view>
-    <view class="cloud cloud-c"></view>
+  <!-- ===== 山岳世界（world.style === 'mountain'：SVG 分片插画，按层级视差/云海/登顶全景） ===== -->
+  <block wx:if="{{worldMountain}}">
+    <!-- 太阳（随视差极缓，随雪量/高度增亮） -->
+    <view class="m-sun" style="transform:translate3d(0,-{{par.sky}}px,0); opacity:{{scene.sun}}"></view>
+
+    <!-- 远景喜马拉雅群峰（晨昏雾，视差最缓） -->
+    <image wx:if="{{scene.plates.far}}" class="plate pl-far" mode="aspectFill" src="{{scene.plates.far}}" style="transform:translate3d(0,-{{par.far}}px,0); opacity:{{scene.op.far}}"></image>
+
+    <!-- 主峰组：主体 + 雪冠覆盖层（同一视差，随海升渐近缩放） -->
+    <view class="plate pl-peaks" style="transform:translate3d(0,-{{par.mid}}px,0) scale({{mntScale/100}})">
+      <image wx:if="{{scene.plates.main}}" class="pl" mode="aspectFit" src="{{scene.plates.main}}" style="opacity:{{scene.op.main}}"></image>
+      <image wx:if="{{scene.plates.snow}}" class="pl" mode="aspectFit" src="{{scene.plates.snow}}" style="opacity:{{scene.op.snow}}"></image>
+    </view>
+
+    <!-- 中前山脊（近景视差） -->
+    <image wx:if="{{scene.plates.mid}}" class="plate pl-ridge" mode="aspectFit" src="{{scene.plates.mid}}" style="transform:translate3d(0,-{{par.near}}px,0); opacity:{{scene.op.mid}}"></image>
+
+    <!-- 云海 / 云丝带（主峰与前景之间的悬浮层） -->
+    <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
+
+    <!-- 前景地面：自然带插画；登顶模式切为 8848 峰顶雪景全景 -->
+    <image class="plate pl-ground" mode="aspectFit" src="{{scene.plates.ground}}" style="transform:translate3d(0,-{{par.ground}}px,0); opacity:{{scene.op.ground}}"></image>
+
+    <!-- 登山者 SVG 人形插画（头盔/背包/登山杖/随风前倾；登顶全景时淡出） -->
+    <view class="m-climber" style="transform:translate3d(0,-{{par.climber}}px,0) rotate({{0-climberLean}}deg); opacity:{{scene.mode === 'summit' ? 0 : 1}}">
+      <image class="cm-img" mode="aspectFit" src="/assets/world/climber.png"></image>
+      <view class="cm-shadow"></view>
+    </view>
+  </block>
+
+  <!-- 场景内空间路线：由 route Scene Data 驱动，路线贴在山体画布中而非 HUD。 -->
+  <view wx:if="{{route && scene.mode !== 'summit'}}" class="scene-route" aria-label="{{route.name}}">
+    <view wx:for="{{route.segments}}" wx:key="id" class="route-segment route-segment-muted" style="{{item.style}}"></view>
+    <block wx:for="{{route.segments}}" wx:key="id">
+      <view wx:if="{{item.completed}}" class="route-segment route-segment-completed" style="{{item.completedStyle}}"></view>
+    </block>
+    <view
+      wx:for="{{route.waypoints}}"
+      wx:key="id"
+      class="route-waypoint route-waypoint-{{item.state}}"
+      style="{{item.style}}"
+      data-knowledge-id="{{item.knowledgeId}}"
+      bindtap="onTapRouteWaypoint"
+    >
+      <view class="route-waypoint-dot"><text wx:if="{{item.state === 'completed'}}">✓</text></view>
+      <view class="route-waypoint-label">
+        <text class="route-waypoint-name">{{item.shortName}}</text>
+        <text wx:if="{{item.state === 'current'}}" class="route-waypoint-alt">{{item.altitudeText}}</text>
+      </view>
+    </view>
+    <view class="route-current" style="{{route.currentStyle}}"><view class="route-current-core"></view></view>
+  </view>
+  <view wx:if="{{route && scene.mode === 'summit'}}" class="summit-route-finish">
+    <text>✓ {{route.name}} · 已抵达 {{route.currentName}}</text>
   </view>
 
-  <!-- 🏔 远山（浅色剪影，视差 0.3x） -->
-  <view class="layer ridge far" style="transform:translateY({{par.far}}px);">
-    <view class="peak far-a"></view>
-    <view class="peak far-b"></view>
-    <view class="peak far-c"></view>
+  <!-- ===== 通用世界（非山岳：Marian 等） ===== -->
+  <block wx:else>
+    <view class="ridge far" style="transform:translate3d(0,-{{par.far}}px,0)">
+      <view class="peak peak-a">▲</view>
+      <view class="peak peak-b">◥</view>
+    </view>
+    <view class="ridge mid" style="transform:translate3d(0,-{{par.mid}}px,0)">
+      <view class="peak peak-c">△</view>
+    </view>
+    <view class="ground-wrap" style="transform:translate3d(0,-{{par.ground}}px,0)">
+      <view class="ground-veg" style="opacity:{{vegetation}}; background:{{greenTint}}"></view>
+      <view class="ground-snow" style="opacity:{{snowCover}}"></view>
+      <view class="ground-main" style="background:linear-gradient(180deg,{{terrainTop}} 0%,{{terrainBottom}} 100%)"></view>
+      <view class="ground-glare"></view>
+    </view>
+    <view class="flora-layer" style="transform:translate3d(0,-{{par.near}}px,0)">
+      <text wx:for="{{flora}}" wx:key="emoji" class="flora-item" style="left:{{item.left}}%; bottom:{{item.bottom}}vh; font-size:{{item.size}}rpx">{{item.emoji}}</text>
+    </view>
+    <view class="climber" style="transform:translate3d(0,-{{par.climber}}px,0) rotate({{0-climberLean}}deg)">
+      <text class="hillman">🧗</text>
+    </view>
+  </block>
+
+  <!-- 风雪粒子（强度=雪量，档位化；山岳与通用世界共用） -->
+  <view class="snow-layer">
+    <view wx:for="{{particles}}" wx:key="id" class="snow-flake" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
   </view>
 
-  <!-- 中景山脊（视差 0.55x，含雪顶） -->
-  <view class="layer ridge mid" style="transform:translateY({{par.mid}}px);">
-    <view class="peak mid-a"></view>
-    <view class="peak mid-b"></view>
-    <view class="snowcap" style="opacity:{{snowCover}}"></view>
-  </view>
+  <!-- 云雾罩 -->
+  <view class="fog" style="opacity:{{fogOpacity}}"></view>
 
-  <!-- 近景坡地（视差 0.85x） -->
-  <view class="layer ridge near" style="transform:translateY({{par.near}}px);">
-    <view class="peak near-a"></view>
-    <view class="peak near-b"></view>
-    <!-- 低海拔植物，植被→0 时淡出 -->
-    <view class="trees" wx:if="{{vegetation > 0.25}}" style="opacity:{{vegetation}};">
-      <text class="tree">🌲</text>
-      <text class="tree">🌲</text>
-      <text class="tree">🌳</text>
+  <!-- ===== 顶部 HUD ===== -->
+  <view class="hud-top">
+    <view class="hud-left">
+      <text class="elevation-num">{{elevationText}}</text>
+      <text class="elevation-unit">{{ui.axisUnit}}</text>
+    </view>
+    <view class="hud-right">
+      <view class="hud-metrics">
+        <text wx:for="{{metricsShow}}" wx:key="key" class="metric">{{item.icon}} {{item.value}}{{item.unit}}</text>
+        <text wx:if="{{metricsMore}}" class="metric metric-more" bindtap="onToggleMetrics">{{metricsOpen ? '收起 ▾' : '更多 ▸'}}</text>
+      </view>
+      <text class="hud-km">{{kmStage}}</text>
     </view>
   </view>
 
-  <!-- 云雾遮罩 -->
-  <view class="fog" style="opacity:{{fogOpacity}};"></view>
-
-  <!-- 地面（视差 1.0x） -->
-  <view class="layer ground" style="transform:translateY({{par.ground}}px);">
-    <view class="ground-base"></view>
-    <view class="ground-snow" style="opacity:{{snowCover}};"></view>
-    <view class="ground-veg" style="background:{{greenTint}}; opacity:{{vegetation}};"></view>
-  </view>
-
-  <!-- 🧗 攀登者（视差 1.12x，风大时倾斜） -->
-  <view class="climber" style="transform:translateY({{par.climber}}px) rotate({{climberLean}}deg);">
-    <text class="climber-body">{{progress >= 0.97 ? '🚩' : '🧗'}}</text>
-  </view>
-
-  <!-- 前景飘雪（视差 1.3x，粒子动画） -->
-  <view class="layer snowfall" style="transform:translateY({{par.snow}}px);">
-    <view class="flake" wx:for="{{particles}}" wx:key="id"
-      style="left:{{item.left}}%; animation-duration:{{item.duration}}s; animation-delay:{{item.delay}}s;">
-      <view class="flake-core" style="width:{{item.size}}px; height:{{item.size}}px; opacity:{{item.opacity}};"></view>
-    </view>
-  </view>
-
-  <!-- 📍 右侧海拔刻度 + 知识节点标记 -->
-  <view class="alt-rail">
-    <view class="rail-line"></view>
-    <view wx:for="{{markers}}" wx:key="id"
-      class="mark {{item.found ? 'found' : ''}}"
-      style="top:{{item.top}}%;"
-      data-id="{{item.id}}"
-      bind:tap="onTapMarker">
-      <view class="mark-dot">{{item.found ? item.emoji : '+'}}</view>
-      <text class="mark-elev">{{item.elevationText}}</text>
-    </view>
-    <view class="rail-summit">🏔 峰顶</view>
-  </view>
-
-  <!-- HUD 顶部：场景名 + 环境指标 -->
-  <view class="hud">
-    <view class="hud-row">
-      <text class="hud-title">{{emoji}} {{title}}</text>
-      <view class="hud-chip" bind:tap="onJumpToSummit">直达峰顶</view>
-    </view>
-    <view class="hud-stage">
-      <text class="stage-emoji">{{stageEmoji}}</text>
-      <view class="stage-box">
+  <!-- 阶段信息卡（低打扰：名称 + 自然带宽 + 描述简述） -->
+  <view class="stage-card">
+    <text class="stage-emoji">{{stageEmoji}}</text>
+    <view class="stage-main">
+      <view class="stage-line">
         <text class="stage-name">{{stageName}}</text>
-        <text class="stage-desc">{{stageDescription}}</text>
+        <text class="stage-biome">{{biome}}</text>
+      </view>
+      <text class="stage-desc">{{stageDescription}}</text>
+    </view>
+    <text class="stage-next">{{nextStageName}}</text>
+  </view>
+
+  <view wx:if="{{route}}" class="route-status">
+    <text class="route-status-k">当前位置</text>
+    <text class="route-status-current">{{route.currentName}}</text>
+    <text class="route-status-next">下一站 · {{route.nextName}}</text>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="progress-row">
+    <view class="progress-track"><view class="progress-bar" style="width:{{pct}}%"></view></view>
+    <text class="progress-pct">{{pct}}%</text>
+  </view>
+
+  <!-- 底部操作条 -->
+  <view class="controls">
+    <button class="ctl ctl-down" bindtap="onStepDown">{{ui.backGlyph}} {{ui.backLabel}}</button>
+    <view class="ctl-center">
+      <text class="g-mark">🧭</text>
+    </view>
+    <button class="ctl ctl-up" bindtap="onStepUp">{{ui.forwardGlyph}} {{ui.forwardLabel}}</button>
+  </view>
+
+  <!-- 知识提示条 -->
+  <view wx:if="{{hint.show}}" class="hint" bindtap="onHintTap">
+    <text class="hint-ico">💡</text>
+    <text class="hint-text">{{hint.text}}</text>
+    <text class="hint-arrow">›</text>
+  </view>
+
+  <!-- 右侧 Rail 仅作路线概览；空间位置以山体内路线为准。 -->
+  <view wx:if="{{route}}" class="rail">
+    <view class="rail-track"></view>
+    <view class="rail-fill" style="height:{{progress*100}}%"></view>
+    <view
+      wx:for="{{route.rail}}"
+      wx:key="id"
+      class="rail-node rail-node-{{item.state}}"
+      style="top:{{item.top}}%"
+      data-knowledge-id="{{item.knowledgeId}}"
+      bindtap="onTapRouteWaypoint"
+    >
+      <text class="rail-elev">{{item.label}}</text>
+      <text wx:if="{{item.state === 'completed'}}" class="rn rn-completed">✓</text>
+      <text wx:elif="{{item.state === 'current'}}" class="rn rn-current">◎</text>
+      <text wx:else class="rn rn-upcoming">·</text>
+    </view>
+    <text class="rail-cap rail-cap-top">峰顶</text>
+    <text class="rail-cap rail-cap-bottom">起点</text>
+  </view>
+
+  <!-- ===== 开始引导 ===== -->
+  <view wx:if="{{intro}}" class="overlay intro">
+    <view class="intro-card">
+      <text class="ico">{{emoji}}</text>
+      <text class="intro-title">{{title}}</text>
+      <text class="intro-sub">{{subtitle}}</text>
+      <view class="intro-meta">
+        <text class="meta-chip">📍 {{metaPlace}} · {{metaRegion}}</text>
+        <text class="meta-chip">⏱️ 约 {{estMinutes}} 分钟</text>
+      </view>
+      <view class="intro-desc">{{metaDesc}}</view>
+      <button class="btn-primary" bindtap="onStartClimb">开始探索</button>
+      <view class="intro-hint">{{ui.advanceHint}}</view>
+    </view>
+  </view>
+
+  <!-- ===== 自然带横幅 ===== -->
+  <view wx:if="{{stageBanner.show}}" class="stage-banner">
+    <text class="sb-emoji">{{stageBanner.emoji}}</text>
+    <view class="sb-main">
+      <text class="sb-name">{{stageBanner.title}}</text>
+      <text class="sb-biome">{{stageBanner.biome}}</text>
+    </view>
+  </view>
+
+  <!-- ===== 知识卡（分层） ===== -->
+  <knowledge-popup
+    wx:if="{{openNode}}"
+    visible="{{openNode ? true : false}}"
+    node="{{openNode}}"
+    axis-label="{{ui.axisLabel}}"
+    axis-unit="{{ui.axisUnit}}"
+    bind:close="onPopupClose"
+    bind:continue="onPopupContinue"
+  />
+
+  <!-- ===== 随堂 Quiz（答错不阻断） ===== -->
+  <view wx:if="{{quiz && quiz.show}}" class="quiz-mask" catchtouchmove="noop">
+    <view class="quiz-card">
+      <view class="quiz-head">
+        <text class="quiz-ico">{{quiz.nodeEmoji}}</text>
+        <text class="quiz-tag">随堂测验</text>
+      </view>
+      <text class="quiz-lead">{{quiz.lead}}</text>
+      <text class="quiz-q">{{quiz.question}}</text>
+      <view class="quiz-options">
+        <view
+          wx:for="{{quiz.options}}"
+          wx:key="*this"
+          class="quiz-opt {{quiz.selected === index ? 'sel' : ''}} {{quiz.revealed && quiz.selected === index && quiz.correct ? 'right' : ''}} {{quiz.revealed && quiz.selected === index && !quiz.correct ? 'wrong' : ''}}"
+          data-index="{{index}}"
+          bindtap="onQuizPick"
+        >{{item}}</view>
+      </view>
+      <view wx:if="{{quiz.revealed}}" class="quiz-result">
+        <text class="quiz-verdict">{{quiz.correct ? '✓ 回答正确' : '✗ 答错了也没关系'}}</text>
+        <text class="quiz-explain">{{quiz.explanation}}</text>
+      </view>
+      <button wx:if="{{quiz.revealed}}" class="quiz-btn" bindtap="onQuizContinue">继续探索</button>
+      <view wx:else class="quiz-skip" bindtap="onQuizClose">跳过（不影响进度）</view>
+    </view>
+  </view>
+
+  <!-- ===== 终局庆祝 ===== -->
+  <view wx:if="{{celebration}}" class="overlay celebration">
+    <text class="celebrate-emoji">{{destination.emoji}}</text>
+    <text class="celebrate-title">{{destination.title}}</text>
+    <text class="celebrate-elev">{{destination.tagline}}</text>
+    <text class="celebrate-msg">{{metaPlace}} · {{ui.axisLabel}} {{maxElevationText}} {{ui.axisUnit}}</text>
+  </view>
+
+  <!-- ===== 登顶总结（含成就 + 三个动作） ===== -->
+  <view wx:if="{{summit && summaryStats}}" class="overlay summit">
+    <view class="summit-card">
+      <view class="summit-head">
+        <text class="summit-badge">🏆</text>
+        <view class="summit-head-text">
+          <text class="summit-title">探险完成！</text>
+          <text class="summit-sub">你探索了 {{metaPlace}} · {{ui.extentWord}} {{summaryStats.maxText}} {{ui.axisUnit}}</text>
+        </view>
+      </view>
+
+      <view class="summit-stats">
+        <view class="sstat">
+          <text class="sstat-val">{{summaryStats.durationText}}</text>
+          <text class="sstat-label">用时</text>
+        </view>
+        <view class="sstat">
+          <text class="sstat-val">{{summaryStats.unlocked}}/{{summaryStats.nodeTotal}}</text>
+          <text class="sstat-label">知识点</text>
+        </view>
+        <view class="sstat">
+          <text class="sstat-val">{{summaryStats.quizText}}</text>
+          <text class="sstat-label">随堂</text>
+        </view>
+        <view class="sstat">
+          <text class="sstat-val">{{summaryStats.accuracyText}}</text>
+          <text class="sstat-label">正确率</text>
+        </view>
+      </view>
+
+      <view class="summit-band">
+        <text class="summit-band-t">{{ui.stagesLabel}}</text>
+        <view class="band-chips">
+          <text wx:for="{{summaryStats.stageNames}}" wx:key="*this" class="band-chip">{{item}}</text>
+          <text class="band-ratio">{{summaryStats.stageNames.length}}/{{summaryStats.stageTotal}}</text>
+        </view>
+      </view>
+
+      <view class="summit-ach">
+        <text class="summit-band-t">获得成就</text>
+        <view wx:if="{{summaryStats.achievements.length}}" class="ach-list">
+          <view wx:for="{{summaryStats.achievements}}" wx:key="id" class="ach-item">
+            <text class="ach-emoji">{{item.emoji}}</text>
+            <view class="ach-text">
+              <text class="ach-title">{{item.title}}</text>
+              <text class="ach-desc">{{item.desc}}</text>
+            </view>
+          </view>
+        </view>
+        <text wx:else class="ach-empty">继续探索更多自然带与随堂题，解锁成就吧～</text>
+      </view>
+
+      <view class="summit-actions">
+        <button class="act act-primary" bindtap="onRestart">重新探索</button>
+        <button class="act act-ghost" bindtap="onGoProfile">探索记录</button>
+        <button class="act act-ghost" bindtap="onBackHome">返回首页</button>
       </view>
     </view>
-    <view class="hud-elev">
-      <text class="elev-num">{{elevationText}}</text>
-      <text class="elev-unit">m</text>
-      <text class="elev-km">{{kmStage}}</text>
-    </view>
   </view>
-
-  <!-- 底部：进度 + 操作 -->
-  <view class="dock">
-    <progress-bar progress="{{progress}}" height="{{10}}" caption="{{kmStage}}" />
-    <view class="dock-metrics">
-      <view class="metric"><text class="metric-v">{{temperatureText}}</text><text class="metric-k">气温</text></view>
-      <view class="metric"><text class="metric-v">氧  {{o2Text}}%</text><text class="metric-k">{{airFeel}}</text></view>
-      <view class="metric"><text class="metric-v">{{windText}}</text><text class="metric-k">风力</text></view>
-    </view>
-    <view class="dock-actions">
-      <view class="act act-down" bindtap="onStepDown">▾ 下山</view>
-      <view class="act act-up" bindtap="onStepUp">▲ 上行 360m</view>
-    </view>
-  </view>
-
-  <!-- 发现知识 → 轻提示 -->
-  <view class="hint" wx:if="{{hint.show}}" bindtap="onHintTap">
-    <text>{{hint.text}}</text>
-  </view>
-
-  <!-- 开场卡片 -->
-  <view class="overlay intro" wx:if="{{intro}}">
-    <view class="card">
-      <text class="card-emoji">{{emoji}}</text>
-      <text class="card-title">{{title}}</text>
-      <text class="card-sub">{{subtitle}}</text>
-      <view class="card-fact">
-        <text class="card-fact-k">目标海拔</text>
-        <text class="card-fact-v">{{maxElevation}} m</text>
-      </view>
-      <view class="card-fact">
-        <text class="card-fact-k">攀登方式</text>
-        <text class="card-fact-v">上滑推进 · 途中发现知识节点</text>
-      </view>
-      <view class="btn btn-primary" bindtap="onStartClimb">开始攀登</view>
-    </view>
-  </view>
-
-  <!-- 登顶 -->
-  <view class="overlay summit overlay-dim" wx:if="{{summit}}">
-    <view class="card">
-      <text class="summit-title">🏔 海拔 8848.86 m</text>
-      <text class="summit-sub">You are on top of the world 🌍</text>
-      <text class="summit-line">珠穆朗玛峰 · 世界最高峰· 1953 年首次登顶确认</text>
-      <view class="btn btn-primary" bindtap="onShowSummary">查看本次收获</view>
-      <view class="btn btn-ghost" bindtap="onBackHome">返回首页</view>
-    </view>
-  </view>
-
-  <!-- 结算 -->
-  <view class="overlay summary overlay-dim" wx:if="{{summary}}">
-    <view class="card card-scroll">
-      <text class="card-title">🎒 本次攀登收获</text>
-      <text class="card-sub">完成珠峰探索~ 强解锁 {{summary.learned.length}} 个知识节点</text>
-      <view class="learned-list">
-        <view class="learned-item" wx:for="{{summary.learned}}" wx:key="*this">• {{item}}</view>
-      </view>
-      <view class="btn btn-primary" bindtap="onRestart">再攀一次</view>
-      <view class="btn btn-ghost" bindtap="onBackHome">返回首页</view>
-    </view>
-  </view>
-
-  <!-- 知识卡片 -->
-  <knowledge-popup visible="{{!!openNode}}" node="{{openNode}}"
-    bind:close="onPopupClose" bind:continue="onPopupContinue" />
 </view>

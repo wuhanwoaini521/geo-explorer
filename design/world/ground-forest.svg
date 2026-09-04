@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="b1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f7d55"/>
+      <stop offset="1" stop-color="#3f5a38"/>
+    </linearGradient>
+    <linearGradient id="b2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3c5a3c"/>
+      <stop offset="1" stop-color="#24392a"/>
+    </linearGradient>
+    <linearGradient id="b3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#223926"/>
+      <stop offset="1" stop-color="#101e12"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 后层林地丘 -->
+  <path d="M0,650 C90,560 180,620 290,560 C400,500 510,580 620,540 C700,514 730,540 750,520 L750,900 L0,900 Z"
+        fill="url(#b1)"/>
+  <!-- 中层林坡（茂密） -->
+  <path d="M0,900 C120,780 250,860 380,800 C520,740 640,860 750,780 L750,1334 L0,1334 Z"
+        fill="url(#b2)"/>
+  <!-- 近前景暗坡/巨石 -->
+  <path d="M0,1160 C150,1060 260,1150 420,1080 C560,1020 660,1130 750,1090 L750,1334 L0,1334 Z"
+        fill="url(#b3)"/>
+
+  <!-- 针叶林剪影（深色三角树），分组多排 -->
+  <g fill="#18301f">
+    <polygon points="120,530 190,530 156,410"/>
+    <polygon points="150,520 230,520 190,400"/>
+    <polygon points="320,470 400,470 362,350"/>
+    <polygon points="500,500 570,500 536,390"/>
+    <polygon points="640,440 710,440 676,330"/>
+    <polygon points="250,800 320,800 284,700"/>
+    <polygon points="560,760 640,760 600,670"/>
+    <polygon points="660,660 730,660 694,580"/>
+  </g>
+  <g fill="#0d1f12">
+    <polygon points="90,860 150,860 120,770"/>
+    <polygon points="360,880 420,880 390,790"/>
+    <polygon points="700,860 750,860 726,780"/>
+  </g>
+  <g fill="#2b4a24">
+    <polygon points="60,580 120,580 90,500"/>
+    <polygon points="620,600 680,600 650,520"/>
+  </g>
+
+  <!-- 零散枯木/巨石 -->
+  <circle cx="520" cy="1200" r="34" fill="#26372a"/>
+  <circle cx="570" cy="1170" r="20" fill="#2f4430"/>
+  <polygon points="200,1180 260,1180 230,1120" fill="#1b2c1e"/>
+  <polygon points="300,1260 370,1260 336,1190" fill="#18271a"/>
+</svg>

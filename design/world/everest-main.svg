@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="rock" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#a7b6d6"/>
+      <stop offset="0.45" stop-color="#6d7c9c"/>
+      <stop offset="0.8" stop-color="#45536f"/>
+      <stop offset="1" stop-color="#303b55"/>
+    </linearGradient>
+    <linearGradient id="rockBack" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#8ea2c4"/>
+      <stop offset="1" stop-color="#5a6b8c"/>
+    </linearGradient>
+    <linearGradient id="capGrad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#eaf3fd"/>
+      <stop offset="0.85" stop-color="#bfd8f0"/>
+      <stop offset="1" stop-color="#9dbde0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景暖峰（受光，位于主峰后右） -->
+  <path d="M0,760 L140,696 L246,530 L346,414 L430,350 L470,400 L520,560 L600,660 L668,640 L718,720 L750,700 L750,1334 L0,1334 Z"
+        fill="url(#rockBack)" opacity="0.55"/>
+
+  <!-- 主峰岩体（非对称，主峰偏左，右侧宽肩） -->
+  <path d="M0,980 L34,868 L58,784 L112,660
+           L176,512 L238,398 L330,268 L402,184 L470,108
+           L498,178 L558,330 L600,440 L624,548
+           L668,690 L706,740 L750,810 L750,1334 L0,1334 Z"
+        fill="url(#rock)"/>
+
+  <!-- 主峰岩体暗面（右侧、背光） -->
+  <path d="M470,108 L470,148 L514,244 L562,386 L610,560 L660,760 L706,908 L750,1000 L750,1334 L470,1334 Z"
+        fill="rgba(24,34,56,0.55)"/>
+
+  <!-- 左向受光棱（阳光面高光） -->
+  <path d="M58,784 L190,512 L262,398 L352,276 L420,200 L330,268 L190,512 L112,660 L58,784 Z"
+        fill="rgba(219,238,255,0.28)"/>
+
+  <!-- 峰顶下细小碎裂岩带 -->
+  <path d="M262,398 L330,268 L352,276 L430,332 L470,420 L360,470 L300,420 L262,398 Z" fill="rgba(10,16,30,0.2)"/>
+
+  <!-- 右雪沟（从雪冠淌下的冰谷） -->
+  <path d="M570,560 L620,720 L640,760 L610,760 L560,600 Z" fill="rgba(198,222,248,0.5)"/>
+  <path d="M555,430 L600,620 L608,620 L564,432 Z" fill="rgba(230,242,255,0.35)"/>
+
+  <!-- 主峰雪冠（大面积不规则雪盖，覆盖主对称两侧） -->
+  <path d="M298,246 L402,140 L470,108
+           L524,234 L626,452 L664,572
+           L600,560 L570,470 L512,336 L470,280
+           L430,320 L402,262 L348,300 Z"
+        fill="url(#capGrad)"/>
+
+  <!-- 雪冠上沿褶皱（脊线阴影强调） -->
+  <path d="M298,246 L402,140 L470,108 L524,234 L626,362"
+        fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- 左侧雪坡出口 -->
+  <path d="M190,512 L298,246 L318,270 L340,400 L316,470 Z" fill="rgba(235,245,255,0.5)"/>
+</svg>

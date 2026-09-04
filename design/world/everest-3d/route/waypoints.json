@@ -1,0 +1,122 @@
+[
+  {
+    "index": 0,
+    "id": "base-camp",
+    "label": "南坡大本营",
+    "lat": 27.9997,
+    "lon": 86.8488,
+    "alt_ref_m": 5364,
+    "dem_m": 5249.5,
+    "world": [
+      373.7,
+      -5495.5,
+      2281.3
+    ],
+    "ndc": null
+  },
+  {
+    "index": 1,
+    "id": "khumbu-icefall",
+    "label": "昆布冰瀑",
+    "lat": 27.9945,
+    "lon": 86.863,
+    "alt_ref_m": 5870,
+    "dem_m": 5690.3,
+    "world": [
+      1770.0,
+      -4920.5,
+      2722.0
+    ],
+    "ndc": null
+  },
+  {
+    "index": 2,
+    "id": "camp-i",
+    "label": "C1 营地",
+    "lat": 27.991,
+    "lon": 86.879,
+    "alt_ref_m": 6065,
+    "dem_m": 6031.6,
+    "world": [
+      3343.4,
+      -4533.5,
+      3063.4
+    ],
+    "ndc": null
+  },
+  {
+    "index": 3,
+    "id": "western-cwm-camp-ii",
+    "label": "西库姆 C2",
+    "lat": 27.981,
+    "lon": 86.9,
+    "alt_ref_m": 6500,
+    "dem_m": 6403.3,
+    "world": [
+      5408.4,
+      -3427.8,
+      3435.1
+    ],
+    "ndc": null
+  },
+  {
+    "index": 4,
+    "id": "lhotse-face-camp-iii",
+    "label": "洛子壁 C3",
+    "lat": 27.968,
+    "lon": 86.92,
+    "alt_ref_m": 7200,
+    "dem_m": 7233.5,
+    "world": [
+      7375.1,
+      -1990.3,
+      4265.2
+    ],
+    "ndc": null
+  },
+  {
+    "index": 5,
+    "id": "south-col-camp-iv",
+    "label": "南坳 C4",
+    "lat": 27.975,
+    "lon": 86.9321,
+    "alt_ref_m": 7906,
+    "dem_m": 7864.0,
+    "world": [
+      8565.0,
+      -2764.4,
+      4895.8
+    ],
+    "ndc": null
+  },
+  {
+    "index": 6,
+    "id": "south-summit",
+    "label": "南峰",
+    "lat": 27.985,
+    "lon": 86.9252,
+    "alt_ref_m": 8749,
+    "dem_m": 8569.1,
+    "world": [
+      7886.5,
+      -3870.1,
+      5600.9
+    ],
+    "ndc": null
+  },
+  {
+    "index": 7,
+    "id": "summit",
+    "label": "珠峰峰顶",
+    "lat": 27.9881,
+    "lon": 86.925,
+    "alt_ref_m": 8849,
+    "dem_m": 8709.0,
+    "world": [
+      7866.8,
+      -4212.9,
+      5740.8
+    ],
+    "ndc": null
+  }
+]

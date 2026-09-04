@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="d1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b3a893"/>
+      <stop offset="1" stop-color="#8a8071"/>
+    </linearGradient>
+    <linearGradient id="d2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7f766a"/>
+      <stop offset="1" stop-color="#554d42"/>
+    </linearGradient>
+    <linearGradient id="d3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4b453c"/>
+      <stop offset="1" stop-color="#26221d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 碎石坡 -->
+  <path d="M0,660 C140,570 280,680 430,590 C540,520 640,610 750,540 L750,940 L0,940 Z"
+        fill="url(#d1)"/>
+  <path d="M0,920 C160,780 300,860 470,760 C590,700 700,860 750,820 L750,1334 L0,1334 Z"
+        fill="url(#d2)"/>
+  <path d="M0,1200 C200,1100 340,1220 520,1130 C640,1070 700,1160 750,1140 L750,1334 L0,1334 Z"
+        fill="url(#d3)"/>
+
+  <!-- 巨型岩块堆 -->
+  <g fill="#6b6257">
+    <path d="M140,820 L230,760 L300,840 L250,942 L130,920 Z"/>
+    <path d="M480,760 L560,730 L620,820 L560,880 L460,850 Z"/>
+    <path d="M620,1140 L700,1100 L740,1190 L660,1260 Z" fill="#57503f"/>
+  </g>
+  <!-- 大块砾石 -->
+  <g fill="#382f2a">
+    <polygon points="60,1240 120,1200 170,1260 130,1334 60,1334"/>
+    <polygon points="650,1000 710,980 760,1040"/>
+  </g>
+  <!-- 尘雾渐晕 -->
+  <rect x="0" y="1060" width="750" height="274" fill="rgba(88,86,74,0.14)"/>
+</svg>

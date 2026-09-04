@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#e8f1fc"/>
+      <stop offset="0.85" stop-color="#b9ceea"/>
+      <stop offset="1" stop-color="#8fa7cd"/>
+    </linearGradient>
+  </defs>
+  <!-- 云海：平顶大块云 -->
+  <g fill="url(#sea)">
+    <circle cx="60" cy="700" r="110"/>
+    <circle cx="150" cy="640" r="130"/>
+    <circle cx="260" cy="680" r="130"/>
+    <circle cx="370" cy="610" r="150"/>
+    <circle cx="490" cy="660" r="150"/>
+    <circle cx="620" cy="620" r="140"/>
+    <circle cx="730" cy="680" r="110"/>
+  </g>
+  <!-- 略高的凸泡 -->
+  <g fill="rgba(255,255,255,0.9)">
+    <circle cx="120" cy="600" r="60"/>
+    <circle cx="210" cy="570" r="55"/>
+    <circle cx="300" cy="600" r="50"/>
+    <circle cx="520" cy="580" r="60"/>
+    <circle cx="600" cy="545" r="45"/>
+  </g>
+  <!-- 底部雾漪 -->
+  <g fill="rgba(86,120,170,0.25)">
+    <ellipse cx="180" cy="778" rx="120" ry="26"/>
+    <ellipse cx="420" cy="812" rx="110" ry="22"/>
+    <ellipse cx="600" cy="788" rx="90" ry="18"/>
+  </g>
+</svg>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="f1" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#dbe4f5"/>
+      <stop offset="1" stop-color="#b6c2db"/>
+    </linearGradient>
+    <linearGradient id="f2" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#c6d3ec"/>
+      <stop offset="1" stop-color="#9fb0d0"/>
+    </linearGradient>
+    <linearGradient id="f3" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#b3c4e6"/>
+      <stop offset="1" stop-color="#8fa3ca"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 第三层（最远，最淡） -->
+  <path d="M0,620 L60,500 L150,560 L230,430 L330,520 L410,360 L500,470 L570,350 L660,460 L750,360 L750,660 L0,660 Z" fill="url(#f1)" opacity="0.5"/>
+  <!-- 第二层 -->
+  <path d="M0,660 L110,540 L200,610 L310,480 L420,580 L520,450 L630,560 L750,470 L750,760 L0,760 Z" fill="url(#f2)" opacity="0.6"/>
+  <!-- 第一层（最接近，稍强） -->
+  <path d="M0,760 L160,620 L270,720 L390,560 L520,680 L650,540 L750,640 L750,930 L0,930 Z" fill="url(#f3)" opacity="0.7"/>
+
+  <!-- 远峰雪顶零丁 -->
+  <path d="M410,360 L500,470 L560,430 L470,330 Z" fill="rgba(255,255,255,0.35)"/>
+  <path d="M570,350 L660,480 L625,470 L545,360 Z" fill="rgba(255,255,255,0.30)"/>
+  <path d="M230,430 L330,520 L308,500 L250,440 Z" fill="rgba(255,255,255,0.28)"/>
+</svg>

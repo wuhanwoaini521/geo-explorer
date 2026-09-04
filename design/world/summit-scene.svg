@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1e4a"/>
+      <stop offset="0.4" stop-color="#173c78"/>
+      <stop offset="0.62" stop-color="#2f5c9c"/>
+      <stop offset="1" stop-color="#6c93c2"/>
+    </linearGradient>
+    <linearGradient id="sea2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#e7f2fd"/>
+      <stop offset="0.85" stop-color="#9eb8dd"/>
+      <stop offset="1" stop-color="#5b7db1"/>
+    </linearGradient>
+    <linearGradient id="crest" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#f4fbff"/>
+      <stop offset="0.5" stop-color="#cfe2f6"/>
+      <stop offset="0.8" stop-color="#9db8dd"/>
+      <stop offset="1" stop-color="#7187b0"/>
+    </linearGradient>
+    <linearGradient id="crestDark" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#8fb0d9"/>
+      <stop offset="1" stop-color="#4a6a92"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="rgba(255,255,255,0.95)"/>
+      <stop offset="0.6" stop-color="rgba(255,255,255,0.25)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 天空 -->
+  <rect width="750" height="1334" fill="url(#sky)"/>
+  <!-- 太阳/天光 -->
+  <circle cx="600" cy="330" r="120" fill="url(#halo)" opacity="0.85"/>
+
+  <!-- 远山（云海后方露出的一线喜马拉雅群峰） -->
+  <path d="M0,520 L80,430 L150,500 L230,396 L320,488 L420,420 L520,520 L620,470 L720,470 L750,520 L750,620 L0,620 Z" fill="#274c7e" opacity="0.8"/>
+  <path d="M230,396 L320,488 L300,462 L258,416 Z" fill="rgba(255,255,255,0.55)"/>
+
+  <!-- 云海 -->
+  <g fill="url(#sea2)">
+    <circle cx="60" cy="600" r="150"/>
+    <circle cx="180" cy="540" r="165"/>
+    <circle cx="320" cy="560" r="175"/>
+    <circle cx="470" cy="530" r="170"/>
+    <circle cx="610" cy="580" r="160"/>
+    <circle cx="730" cy="620" r="130"/>
+    <circle cx="380" cy="420" r="60"/>
+    <circle cx="520" cy="430" r="70"/>
+    <circle cx="220" cy="430" r="64"/>
+  </g>
+  <g fill="rgba(255,255,255,0.9)">
+    <circle cx="150" cy="480" r="80"/>
+    <circle cx="280" cy="470" r="90"/>
+    <circle cx="430" cy="455" r="85"/>
+    <circle cx="560" cy="485" r="80"/>
+    <circle cx="680" cy="510" r="70"/>
+  </g>
+
+  <!-- 脚下峰顶雪脊（狭窄雪脊，一侧悬垂、一侧陡落云海） -->
+  <path d="M-40,1334 L20,1180 L120,1120 L200,1160 L300,1030 L380,980
+           L470,900 L560,960 L640,1000 L750,1120 L750,1334 Z"
+        fill="url(#crest)"/>
+  <!-- 脊上明亮顶线 -->
+  <path d="M-40,1250 L120,1090 L240,1140 L380,1005 L470,900 L640,970 L750,1120"
+        fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="8" stroke-linecap="round"/>
+  <!-- 脊背阴影（右侧近悬崖） -->
+  <path d="M360,1030 L470,900 L560,960 L520,1040 L400,1080 Z" fill="rgba(80,110,160,0.35)"/>
+  <!-- 右下黑色岩桩 -->
+  <path d="M620,1334 L680,1160 L720,1140 L750,1240 L750,1334 Z" fill="#22334f"/>
+
+  <!-- 峰顶小人（登顶瞬间，立于雪脊之巅）+ 红旗 -->
+  <g>
+    <ellipse cx="470" cy="930" rx="30" ry="7" fill="rgba(20,40,75,0.45)"/>
+    <!-- 腿（深蓝） -->
+    <path d="M466,902 L464,934 L482,934 L484,906 Z" fill="#3a4a63"/>
+    <!-- 身体（红色羽绒服） -->
+    <path d="M468,884 L488,918 L490,902 L466,900 Z" fill="#ef5a44"/>
+    <!-- 躯干侧影补 -->
+    <path d="M462,896 L470,884 L478,910 L466,912 Z" fill="#e0523d"/>
+    <!-- 前臂（垂侧） -->
+    <path d="M470,892 L466,918" stroke="#c13f2e" stroke-width="8" stroke-linecap="round"/>
+    <!-- 后臂（上扬） -->
+    <path d="M488,878 L496,848" stroke="#c13f2e" stroke-width="8" stroke-linecap="round"/>
+    <!-- 头 + 头盔 -->
+    <circle cx="479" cy="866" r="13" fill="#29415f"/>
+    <path d="M470,864 A13,11 0 0 1 490,864" fill="none" stroke="#1a2436" stroke-width="2"/>
+  </g>
+  <g>
+    <line x1="512" y1="906" x2="512" y2="792" stroke="#9a4b3a" stroke-width="6" stroke-linecap="round"/>
+    <path d="M512,794 L580,812 L512,872 Z" fill="#f04a3e"/>
+    <path d="M512,812 L580,812 L512,824 Z" fill="#ffd75e" opacity="0.9"/>
+  </g>
+</svg>

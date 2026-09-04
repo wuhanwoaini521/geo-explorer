@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="s1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6fbff"/>
+      <stop offset="1" stop-color="#bcd5ee"/>
+    </linearGradient>
+    <linearGradient id="s2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9e9f7"/>
+      <stop offset="1" stop-color="#a7c3e0"/>
+    </linearGradient>
+    <linearGradient id="s3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#aecbe6"/>
+      <stop offset="1" stop-color="#7d9cc4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 积雪坡：多层次白/冰蓝 -->
+  <path d="M0,640 C140,560 280,660 430,570 C540,510 650,620 750,550 L750,960 L0,960 Z"
+        fill="url(#s1)"/>
+  <path d="M0,940 C160,820 310,900 470,810 C590,730 700,860 750,820 L750,1334 L0,1334 Z"
+        fill="url(#s2)"/>
+  <path d="M0,1200 C200,1060 360,1220 540,1140 C660,1080 700,1190 750,1160 L750,1334 L0,1334 Z"
+        fill="url(#s3)"/>
+
+  <!-- 雪面微起伏（片层高光/阴影交错) -->
+  <g fill="rgba(255,255,255,0.5)">
+    <path d="M140,860 C220,820 300,900 380,860 C440,830 520,900 620,880"/>
+    <path d="M80,1120 C200,1060 340,1180 480,1120 C620,1060 720,1140 760,1120"/>
+  </g>
+  <!-- 雪堆根部冰蓝阴影 -->
+  <g fill="rgba(120,158,205,0.5)">
+    <path d="M120,1040 C200,1000 280,1020 360,990"/>
+    <path d="M430,1240 C520,1180 620,1200 700,1220"/>
+  </g>
+  <!-- 少量裸露岩石/冰晶 -->
+  <g fill="#4d6887">
+    <polygon points="110,680 170,700 150,760 90,730"/>
+    <polygon points="620,760 680,780 660,840 600,810"/>
+    <polygon points="420,1280 490,1260 520,1330 460,1340"/>
+  </g>
+  <!-- 冰裂缝（细蓝线） -->
+  <g fill="none" stroke="#5b84ba" stroke-width="3" stroke-linecap="round" opacity="0.6">
+    <path d="M200,1150 q30,-30 80,-18"/>
+    <path d="M450,1180 q50,-50 130,-40"/>
+  </g>
+</svg>

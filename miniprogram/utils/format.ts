@@ -49,3 +49,12 @@ export function progressPercent(
   clamp((elevation - start) / Math.max(1, max - start), 0, 1) * 100,
  );
 }
+
+/** 秒 → 人性化时长，如 "6 分 12 秒"；不足 1 分钟 -> "45 秒" */
+export function formatDuration(totalSeconds: number): string {
+ const sec = Math.max(0, Math.round(totalSeconds));
+ if (sec < 60) return `${sec} 秒`;
+ const m = Math.floor(sec / 60);
+ const s = sec % 60;
+ return s === 0 ? `${m} 分` : `${m} 分 ${s} 秒`;
+}

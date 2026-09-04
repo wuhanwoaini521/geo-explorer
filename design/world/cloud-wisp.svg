@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <radialGradient id="w" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="rgba(255,255,255,0.95)"/>
+      <stop offset="0.7" stop-color="rgba(255,255,255,0.55)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <radialGradient id="s" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="rgba(176,205,240,0.9)"/>
+      <stop offset="0.75" stop-color="rgba(176,205,240,0.35)"/>
+      <stop offset="1" stop-color="rgba(176,205,240,0)"/>
+    </radialGradient>
+  </defs>
+  <!-- 一缕卷云 -->
+  <ellipse cx="470" cy="240" rx="150" ry="26" fill="url(#w)"/>
+  <ellipse cx="430" cy="232" rx="90" ry="22" fill="url(#s)"/>
+  <!-- 第二缕 -->
+  <ellipse cx="640" cy="150" rx="70" ry="15" fill="url(#w)" opacity="0.7"/>
+  <ellipse cx="230" cy="330" rx="80" ry="14" fill="url(#s)" opacity="0.5"/>
+</svg>

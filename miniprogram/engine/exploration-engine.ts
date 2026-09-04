@@ -1,16 +1,22 @@
 /**
  * Exploration Engine —— 沉浸式探索的核心纯逻辑。
  *
- * 一切“海拔 → 环境 / 进度 / 知识”的推导都发生在这里；
+ * 一切"海拔 → 环境 / 进度 / 知识"的推导都发生在这里；
  * 页面 / 组件只负责把 Engine 的输出画出来。
  * 不依赖 wx / DOM，保证 Node 环境可单测，且未来新增场景（富士山、撒哈拉、马里亚纳…）
  * 只增加数据文件即可复用同一套引擎（设计文档 §6.7）。
+ *
+ * 引擎绝不写入场景专属业务判断：
+ * 所有 "自然带的形态差异"（天空 / 积雪 / 云雾 / 风力 / 地面色彩 / 点缀）
+ * 一律由场景数据 ExplorationStage 表达，引擎只做推导与插值。
  */
 import type {
+  EnvironmentMetric,
   Exploration,
   ExplorationDerivedState,
   ExplorationKnowledgeNode,
   ExplorationStage,
+  MetricSpec,
 } from "../types/exploration";
 import { clamp } from "../utils/format";
 
@@ -20,6 +26,8 @@ export const STANDARD_LAPSE_C_PER_KM = 6.5;
 export const PRESSURE_SCALE_HEIGHT_M = 8000;
 /** 海平面标准气压（hPa） */
 export const SEA_LEVEL_PRESSURE_HPA = 1013.25;
+/** 植被完全消失的缺省海拔（m） */
+export const DEFAULT_VEGETATION_TOP_M = 5200;
 
 /* ------------------------------------------------------------------ */
 /* 基础数值工具                                                          */
@@ -45,6 +53,7 @@ export function locateStageIndex(
   stages: ExplorationStage[],
   elevation: number,
 ): number {
+  if (!stages.length) return 0;
   let index = 0;
   for (let i = 0; i < stages.length; i++) {
     if (stages[i].elevation <= elevation) index = i;
@@ -54,7 +63,6 @@ export function locateStageIndex(
 
 /**
  * 阶段字段在相邻两阶段间的插值比例 t（0-1）。
- * elevation 处于 stages[idx].elevation 与 stages[idx+1].elevation 之间时，t 为该区间内的比例
  */
 export function stageBlend(
   stages: ExplorationStage[],
@@ -96,7 +104,7 @@ export function temperatureAt(
   return exploration.baseTemperatureC - exploration.lapseRateCPer1000 * rise;
 }
 
-/** 相对海平面的气压比（≈含氧量比）：p/p0 = e^(−h / H) */
+/** 相对海平面的气压比（≈含氧量比）：p/p0 = e^(−h / H)，H 为标高（场景可配置或缺省 8000m） */
 export function pressureRatioAt(
   elevation: number,
   scaleHeightM = PRESSURE_SCALE_HEIGHT_M,
@@ -104,18 +112,32 @@ export function pressureRatioAt(
   return clamp01(Math.exp(-elevation / scaleHeightM));
 }
 
-/** 植被覆盖度 0-1（海拔升高线性减少，之后保持 0） */
+/** 当前实际气压（hPa）：从场景海平面气压与标高推算 */
+export function pressureAt(
+  exploration: Exploration,
+  elevation: number,
+): number {
+  const ratio = pressureRatioAt(
+    elevation,
+    exploration.pressureScaleHeightM || PRESSURE_SCALE_HEIGHT_M,
+  );
+  return (
+    (exploration.seaLevelPressureHpa || SEA_LEVEL_PRESSURE_HPA) * ratio
+  );
+}
+
+/** 植被覆盖度 0-1（海拔升高线性减少，之后保持 0；顶点由场景数据控制） */
 export function vegetationAt(
   elevation: number,
   start = 0,
-  vanishAt = 5200,
+  topM = DEFAULT_VEGETATION_TOP_M,
 ): number {
-  const range = Math.max(1, vanishAt - start);
+  const range = Math.max(1, topM - start);
   return clamp01(1 - (elevation - start) / range);
 }
 
 /* --------------------------------------------------------- */
-/* 颜色插值（天空渐变，阶段 palette 之间过渡）                         */
+/* 颜色插值（天空渐变 / 地面主色，阶段 palette / terrainTint 过渡）    */
 /* --------------------------------------------------------- */
 
 interface Rgb {
@@ -145,7 +167,7 @@ function mixRgb(a: Rgb, b: Rgb, t: number): Rgb {
 }
 
 /** 插值色（hex 字符串 0-1 比例） */
-function mixHex(a: string, b: string, t: number): string {
+export function mixHex(a: string, b: string, t: number): string {
   return rgbToHex(mixRgb(hexToRgb(a), hexToRgb(b), clamp01(t)));
 }
 
@@ -169,6 +191,23 @@ export function skyGradient(
   ];
 }
 
+/** 在地面 terrainTint（相邻阶段）间插值得到两色地面主体 */
+export function terrainGradient(
+  stages: ExplorationStage[],
+  elevation: number,
+  fallback: [string, string] = ["#6a7c8f", "#2c3c50"],
+): [string, string] {
+  const idx = locateStageIndex(stages, elevation);
+  const a = stages[idx];
+  const b = stages[idx + 1];
+  const t = b
+    ? clamp01((elevation - a.elevation) / (b.elevation - a.elevation))
+    : 1;
+  const pa = a.terrainTint || fallback;
+  const pb = (b && b.terrainTint) || pa;
+  return [mixHex(pa[0], pb[0], t), mixHex(pa[1], pb[1], t)];
+}
+
 /* -------------------------------------------- */
 /* 知识节点                                      */
 /* -------------------------------------------- */
@@ -179,8 +218,8 @@ export function nodeCovered(nodeElevation: number, elevation: number): boolean {
 }
 
 /**
- * 计算本次“行进”新解锁的知识节点（升序）。
- * direction<0（下山）不触发新节点。
+ * 计算本次"行进"新解锁的知识节点（升序）。
+ * direction<0（下行）不触发新节点。
  */
 export function knowledgeUnlockedOnMove(
   nodes: ExplorationKnowledgeNode[],
@@ -193,7 +232,7 @@ export function knowledgeUnlockedOnMove(
     .sort((a, b) => a.elevation - b.elevation);
 }
 
-/** 海拔阈值附近（即将出现）的节点 —— 用于地图上“种草”待发现标记 */
+/** 海拔阈值附近（即将出现）的节点 —— 用于"种草"待发现标记 */
 export function pendingNodesNear(
   nodes: ExplorationKnowledgeNode[],
   elevation: number,
@@ -206,9 +245,75 @@ export function pendingNodesNear(
     .sort((a, b) => a.elevation - b.elevation);
 }
 
-/* ------------------------------------------- */
-/* 主推导入口                                   */
-/* ------------------------------------------- */
+/** 取某节点的随堂题（未配置返回 null） */
+export function quizForNode(
+  node: ExplorationKnowledgeNode,
+): ExplorationKnowledgeNode["quiz"] | null {
+  return node.quiz ?? null;
+}
+
+/* ------------------------------------------------------------ */
+/* 通用环境指标（Metric）：曲线插值与格式化，无场景专属分支           */
+/* ------------------------------------------------------------ */
+
+/**
+ * 逐步折线线性插值：在“点位数组”上按坐标轴取数。
+ * 超出首尾时钳制到端点；空数组返回 0。
+ */
+export function curveValue(
+  points: Array<[number, number]>,
+  axis: number,
+): number {
+  if (!points.length) return 0;
+  if (points.length === 1) return points[0][1];
+  if (axis <= points[0][0]) return points[0][1];
+  const last = points[points.length - 1];
+  if (axis >= last[0]) return last[1];
+  for (let i = 1; i < points.length; i++) {
+    const [x0, y0] = points[i - 1];
+    const [x1, y1] = points[i];
+    if (axis <= x1) {
+      const t = x1 === x0 ? 0 : (axis - x0) / (x1 - x0);
+      return y0 + (y1 - y0) * t;
+    }
+  }
+  return last[1];
+}
+
+/** 单个指标在某处的原始数值（constValue 优先，否则走曲线） */
+export function metricValueAt(spec: MetricSpec, axis: number): number {
+  if (spec.constValue !== undefined) return spec.constValue;
+  return curveValue(spec.curve || [], axis);
+}
+
+/**
+ * 由“场景声明的指标配置”推导某一纵轴处的一组已格式化指标。
+ * 命名/含义完全由场景数据决定；引擎只做纯计算。
+ */
+export function deriveMetrics(
+  specs: MetricSpec[] | undefined,
+  axis: number,
+): EnvironmentMetric[] {
+  if (!specs) return [];
+  return specs.map((spec) => {
+    const raw = metricValueAt(spec, axis);
+    const digits = spec.digits ?? 0;
+    const value = spec.percent
+      ? String(Number((raw * 100).toFixed(2)))
+      : raw.toFixed(digits);
+    return {
+      key: spec.key,
+      label: spec.label,
+      icon: spec.icon,
+      value,
+      unit: spec.percent ? "%" : spec.unit,
+    };
+  });
+}
+
+/* ------------------------------------------------------------ */
+/* 主推导入口                                                   */
+/* ------------------------------------------------------------ */
 
 /**
  * 根据海拔推导完整环境状态。UI 只消费返回值。
@@ -247,13 +352,24 @@ export function deriveState(
     nextStage,
     stageProgress: t,
     temperatureC: temperatureAt(exploration, exact),
-    pressureRatio: pressureRatioAt(exact),
+    pressureHpa: pressureAt(exploration, exact),
+    pressureRatio: pressureRatioAt(
+      exact,
+      exploration.pressureScaleHeightM || PRESSURE_SCALE_HEIGHT_M,
+    ),
     snow: lerpStageField(exploration.stages, exact, "snow"),
     fog: lerpStageField(exploration.stages, exact, "fog"),
     wind: lerpStageField(exploration.stages, exact, "wind"),
-    vegetation: vegetationAt(exact, exploration.startElevation, 5200),
+    vegetation: vegetationAt(
+      exact,
+      exploration.startElevation,
+      exploration.vegetationTopM || DEFAULT_VEGETATION_TOP_M,
+    ),
     sky: skyGradient(exploration.stages, exact),
+    flora: stage.flora || [],
+    terrainTint: terrainGradient(exploration.stages, exact),
     isSummit: exact >= exploration.maxElevation,
+    metrics: deriveMetrics(exploration.metrics, exact),
     discovered: discoveredNodes,
     pending: predicted,
   };

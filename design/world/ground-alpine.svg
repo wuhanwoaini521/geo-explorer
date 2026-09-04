@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="a1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a5a98f"/>
+      <stop offset="1" stop-color="#7c816a"/>
+    </linearGradient>
+    <linearGradient id="a2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#757a63"/>
+      <stop offset="1" stop-color="#4e523f"/>
+    </linearGradient>
+    <linearGradient id="a3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4e3a"/>
+      <stop offset="1" stop-color="#2c2f22"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 山麓高草+乱石（低矮植被） -->
+  <path d="M0,640 C110,560 220,620 330,560 C430,504 520,600 630,528 C700,488 740,520 750,520 L750,900 L0,900 Z"
+        fill="url(#a1)"/>
+  <path d="M0,880 C150,760 280,850 430,760 C540,690 660,820 750,760 L750,1334 L0,1334 Z"
+        fill="url(#a2)"/>
+  <path d="M0,1180 C160,1080 300,1180 460,1100 C600,1030 700,1150 750,1120 L750,1334 L0,1334 Z"
+        fill="url(#a3)"/>
+
+  <!-- 裸露基岩 -->
+  <g fill="#5c6254">
+    <polygon points="110,660 200,700 230,770 130,780 90,720"/>
+    <polygon points="520,640 600,680 590,760 510,730"/>
+    <polygon points="330,940 420,980 460,1090 330,1080"/>
+  </g>
+  <!-- 枯草柱 -->
+  <g fill="#7d7a50">
+    <polygon points="430,600 470,600 448,520"/>
+    <polygon points="660,580 700,580 680,510"/>
+    <polygon points="180,900 210,900 196,830"/>
+  </g>
+  <!-- 碎石 -->
+  <g fill="#3a3f30">
+    <circle cx="140" cy="1280" r="24"/>
+    <circle cx="210" cy="1240" r="16"/>
+    <circle cx="600" cy="1220" r="20"/>
+    <polygon points="420,1320 480,1280 500,1320 470,1360" fill="#33382a"/>
+  </g>
+</svg>

@@ -1,8 +1,57 @@
 <view class="page">
-  <view class="placeholder">
-    <text class="placeholder-emoji">🗺️</text>
-    <text class="placeholder-title">地图模块开发中</text>
-    <text class="placeholder-text">{{note}}</text>
-    <view class="placeholder-tag">Coming Soon</view>
+  <!-- 页头 -->
+  <view class="head">
+    <text class="head-title">🗺️ 探索地图</text>
+    <text class="head-sub">选择一个目的地，开始你的地理之旅</text>
+  </view>
+
+  <!-- 已开放路线 -->
+  <view class="section">
+    <view class="section-title">已开放路线</view>
+    <view class="open-card" wx:for="{{open}}" wx:key="id">
+      <view class="open-top">
+        <text class="open-emoji">{{item.emoji}}</text>
+        <view class="open-top-text">
+          <text class="open-title">{{item.title}}</text>
+          <text class="open-sub">{{item.subtitle}}</text>
+        </view>
+        <text wx:if="{{item.completed}}" class="open-done">🏁 已完成</text>
+      </view>
+      <view class="open-meta">
+        <text class="open-chip">📍 {{item.place}} · {{item.region}}</text>
+        <text class="open-chip">{{item.axisGlyph}} {{item.elevText}}</text>
+        <text class="open-chip">⏱️ 约 {{item.estMin}} 分钟</text>
+      </view>
+      <text class="open-desc">{{item.desc}}</text>
+      <view class="open-progress">
+        <view class="open-track">
+          <view class="open-bar" style="width:{{item.progress}}%"></view>
+        </view>
+        <text class="open-pct">{{item.progress}}%</text>
+      </view>
+      <text class="open-reached">{{item.reachedText}}</text>
+      <button class="open-btn" data-id="{{item.id}}" bindtap="onGo">进入探索 ›</button>
+    </view>
+  </view>
+
+  <!-- 即将开放 -->
+  <view class="section">
+    <view class="sec-title">即将开放</view>
+    <view class="coming-grid">
+      <view class="coming-card" wx:for="{{coming}}" wx:key="id" bindtap="onComing">
+        <view class="coming-head">
+          <text class="coming-emoji">{{item.emoji}}</text>
+          <text class="coming-tag">✨ 设计路线中</text>
+        </view>
+        <text class="coming-title">{{item.title}}</text>
+        <text class="coming-region">{{item.region}}</text>
+        <text class="coming-basis">{{item.basis}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="foot-tip">
+    <text>🚧 更多场景（富士山、撒哈拉、马里亚纳海沟…）正在制作中，敬请期待</text>
   </view>
 </view>

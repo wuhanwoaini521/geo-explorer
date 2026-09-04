@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="cap" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#ecf4fe"/>
+      <stop offset="0.9" stop-color="#c2d9f0"/>
+      <stop offset="1" stop-color="#9fc0e4"/>
+    </linearGradient>
+  </defs>
+  <!-- 与 everest-main 雪冠完全一致的轮廓（额外略微加宽，防贴合缝隙） -->
+  <path d="M292,252 L402,136 L470,108
+           L524,234 L632,456 L668,574
+           L600,560 L570,470 L512,336 L470,280
+           L430,320 L402,262 L348,300 L292,300 Z"
+        fill="url(#cap)" opacity="0.96"/>
+  <path d="M298,246 L402,140 L470,108 L524,234 L636,392"
+        fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="6" stroke-linecap="round"/>
+</svg>

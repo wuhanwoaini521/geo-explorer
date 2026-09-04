@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="rb" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#97a4bc"/>
+      <stop offset="0.6" stop-color="#66738e"/>
+      <stop offset="1" stop-color="#44506a"/>
+    </linearGradient>
+    <linearGradient id="rf" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#b0bdd4"/>
+      <stop offset="0.55" stop-color="#7d8ba6"/>
+      <stop offset="1" stop-color="#55627c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 后层山脊（暗一点，远离） -->
+  <path d="M0,840 L70,690 L150,760 L230,620 L330,720 L440,570 L540,690 L640,560 L750,680 L750,1334 L0,1334 Z"
+        fill="url(#rb)" opacity="0.85"/>
+  <!-- 前层山脊（受光略亮） -->
+  <path d="M0,920 L90,780 L190,860 L300,720 L420,840 L520,720 L640,820 L750,760 L750,1334 L0,1334 Z"
+        fill="url(#rf)"/>
+
+  <!-- 山脊雪帽 -->
+  <path d="M230,620 L330,720 L308,662 L252,636 Z" fill="rgba(244,249,255,0.7)"/>
+  <path d="M440,570 L540,690 L505,640 L462,588 Z" fill="rgba(244,249,255,0.6)"/>
+  <path d="M640,560 L750,680 L712,646 L660,568 Z" fill="rgba(244,249,255,0.5)"/>
+</svg>

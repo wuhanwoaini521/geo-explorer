@@ -1,24 +1,31 @@
 <view wx:if="{{visible && node}}" class="popup-mask" bindtap="noop" catchtouchmove="noop">
   <view class="popup-sheet">
+    <!-- 头：类型标签 + 分类 + 海拔 -->
     <view class="popup-head">
       <text class="popup-emoji">{{node.emoji}}</text>
       <view class="popup-head-text">
+        <view class="popup-cat-row">
+          <text class="popup-cat" wx:if="{{node.category}}">{{node.category}}</text>
+          <text class="popup-elev">📍 {{axisLabel}} {{node.elevation}} {{axisUnit}}</text>
+        </view>
         <text class="popup-title">{{node.title}}</text>
-        <text class="popup-elev">📍 海拔 {{node.elevation}} m</text>
       </view>
       <view class="popup-close" bindtap="onClose">
         <text>✕</text>
       </view>
     </view>
 
+    <!-- 第一层：一句话事实 + 主动展开入口 -->
     <view class="popup-summary">{{node.summary}}</view>
 
-    <view wx:if="{{!expanded}}" class="btn-expand" bindtap="onToggleExpand">
-      <text>展开解释</text>
-      <text class="btn-expand-arrow">▾</text>
+    <view wx:if="{{!expanded}}" class="popup-btn-expand" bindtap="onToggleExpand">
+      <text>查看详情</text>
+      <text class="popup-expand-arrow">▾</text>
     </view>
 
+    <!-- 第二层（用户主动展开）：完整知识 -->
     <block wx:if="{{expanded}}">
+      <view class="popup-subtitle">背景解释</view>
       <view class="popup-detail">{{node.detail}}</view>
 
       <view wx:if="{{node.facts && node.facts.length}}" class="popup-facts">
@@ -26,12 +33,30 @@
         <view class="fact" wx:for="{{node.facts}}" wx:key="label">
           <text class="fact-label">{{item.label}}</text>
           <text class="fact-value">{{item.value}}</text>
+          <text wx:if="{{item.source}}" class="fact-src">
+            <text wx:if="{{item.source.approximate}}" class="tag-approx">近似值</text>
+            （{{item.source.name}}）
+          </text>
         </view>
       </view>
 
-      <view wx:if="{{node.sources && node.sources.length}}" class="popup-source">
-        <text class="popup-source-flag">来源</text>
-        <text class="popup-source-text">{{node.sources[0].name}}</text>
+      <view wx:if="{{node.sources && node.sources.length}}" class="popup-sources">
+        <view class="popup-facts-title">数据来源</view>
+        <view class="popup-src-item" wx:for="{{node.sources}}" wx:key="name">
+          <text class="popup-src-bullet">•</text>
+          <view class="popup-src-main">
+            <text class="popup-src-name">{{item.name}}</text>
+            <view class="popup-src-tags">
+              <text wx:if="{{item.approximate}}" class="tag-approx">近似值</text>
+              <text wx:if="{{item.verifiedAt}}" class="tag-verified">校验 {{item.verifiedAt}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{node.knowledgeId}}" class="popup-btn-lib" data-kid="{{node.knowledgeId}}" bindtap="onOpenLibrary">
+        <text>在知识库完整收录</text>
+        <text class="popup-expand-arrow">→</text>
       </view>
     </block>
 

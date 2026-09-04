@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="jk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6b4a"/>
+      <stop offset="1" stop-color="#d7412c"/>
+    </linearGradient>
+    <linearGradient id="pant" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a5680"/>
+      <stop offset="1" stop-color="#233a5c"/>
+    </linearGradient>
+    <linearGradient id="pack" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2e8a9e"/>
+      <stop offset="1" stop-color="#1c5568"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 登山者插画：面向左侧（面朝主峰/上坡），背登山包、拿登山杖借力、围巾后摆 -->
+  <g transform="translate(-110,150) scale(2.5)">
+    <!-- 影子 -->
+    <ellipse cx="148" cy="412" rx="86" ry="14" fill="rgba(15,32,55,0.36)"/>
+
+    <!-- 登山杖（斜握前指） -->
+    <line x1="232" y1="120" x2="86" y2="318" stroke="#7d8aa5" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="86" cy="320" r="9" fill="#4c587a"/>
+
+    <!-- 后腿 -->
+    <path d="M176,206 L196,300 L200,390 L168,392 L152,300 Z" fill="url(#pant)"/>
+    <!-- 前腿 -->
+    <path d="M120,206 L106,318 L86,404 L122,412 L138,320 Z" fill="url(#pant)"/>
+    <!-- 靴底 -->
+    <ellipse cx="112" cy="408" rx="24" ry="8" fill="#111c30" transform="rotate(6 112 408)"/>
+    <ellipse cx="184" cy="392" rx="22" ry="8" fill="#111c30" transform="rotate(6 184 392)"/>
+
+    <!-- 躯干（红色羽绒服，前倾向左，右背光） -->
+    <path d="M96,178 L208,196 L232,116 L150,128 Z" fill="url(#jk)"/>
+    <path d="M96,178 L140,196 L154,120 L150,128 Z" fill="rgba(255,255,255,0.18)"/>
+    <path d="M118,166 L222,150 M112,190 L222,186" stroke="rgba(120,30,22,0.4)" stroke-width="4" fill="none"/>
+
+    <!-- 背包（后背） -->
+    <path d="M196,132 L258,142 L262,240 L192,250 Z" fill="url(#pack)" stroke="rgba(255,255,255,0.16)" stroke-width="3"/>
+    <path d="M190,118 L252,128 L252,146 L190,140 Z" fill="#2a7a8f"/>
+    <!-- 侧挂保温杯 -->
+    <rect x="238" y="196" width="22" height="46" rx="8" fill="#000000" opacity="0"/>
+    <!-- 手臂（持杖前摆） -->
+    <path d="M112,178 C150,238 176,238 220,266" stroke="#d7412c" stroke-width="30" stroke-linecap="round" fill="none" opacity="0.92"/>
+    <circle cx="220" cy="266" r="17" fill="#c83720"/>
+
+    <!-- 头 + 头盔 -->
+    <circle cx="128" cy="120" r="44" fill="#e9a571"/>
+    <path d="M84,126 C120,62 150,58 176,96 C160,116 150,124 140,132 C128,96 116,102 100,118 Z" fill="#c53a26"/>
+    <path d="M96,132 A42,40 0 0 1 148,96 C136,120 122,126 108,138 Z" fill="#18243d"/>
+    <!-- 呼吸面罩 -->
+    <path d="M118,128 C140,110 164,128 156,146 C150,156 130,158 118,144 Z" fill="#eef3f8"/>
+    <path d="M120,140 L150,134" stroke="#8ea2bd" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- 围巾（随风后扬） -->
+    <path d="M236,160 C282,172 300,196 288,226 C270,238 262,226 242,224 C240,204 238,182 236,160 Z" fill="#ffca3a"/>
+  </g>
+</svg>

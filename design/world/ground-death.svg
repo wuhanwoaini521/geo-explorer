@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="x1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fa7bd"/>
+      <stop offset="1" stop-color="#5a7392"/>
+    </linearGradient>
+    <linearGradient id="x2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b7390"/>
+      <stop offset="1" stop-color="#33496b"/>
+    </linearGradient>
+    <linearGradient id="x3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f4567"/>
+      <stop offset="1" stop-color="#16233d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 死亡地带：暗岩 + 枯雪冰坡 -->
+  <path d="M0,680 C150,590 300,700 460,620 C580,560 690,650 750,580 L750,960 L0,960 Z"
+        fill="url(#x1)"/>
+  <path d="M0,1000 C170,860 320,1030 500,950 C620,890 700,1020 750,970 L750,1334 L0,1334 Z"
+        fill="url(#x2)"/>
+  <path d="M0,1220 C200,1150 320,1255 500,1190 C640,1130 720,1220 750,1200 L750,1334 L0,1334 Z"
+        fill="url(#x3)"/>
+
+  <!-- 冷色裂缝 -->
+  <g fill="#20344f">
+    <path d="M240,1100 520,1060 560,1080 600,1070 640,1120 520,1110 240,1150 Z"/>
+    <path d="M100,1290 480,1260 520,1310 420,1334 120,1334 Z"/>
+  </g>
+  <!-- 冰灰岩壁及岩石棱 -->
+  <g fill="#3a5570">
+    <path d="M60,1000 L160,940 L220,1030 L100,1090 Z"/>
+    <path d="M540,860 L620,900 L600,1010 L520,960 Z"/>
+  </g>
+  <!-- 枯雪残片 -->
+  <g fill="rgba(220,236,252,0.35)">
+    <ellipse cx="420" cy="760" rx="60" ry="24"/>
+    <ellipse cx="640" cy="680" rx="40" ry="16"/>
+  </g>
+  <!-- 极端表面微小颗粒感 -->
+  <g fill="rgba(160,190,215,0.2)">
+    <polygon points="320,1240 340,1230 350,1250 330,1260"/>
+    <polygon points="460,1280 480,1270 490,1290 468,1300"/>
+  </g>
+</svg>

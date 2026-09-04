@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8f2fb"/>
+      <stop offset="1" stop-color="#9db8db"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bcd3ec"/>
+      <stop offset="1" stop-color="#6e8cb6"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#86a9d0"/>
+      <stop offset="1" stop-color="#43638f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 冰川表层（蓝白冰坡 + 多重起伏） -->
+  <path d="M0,660 C140,570 300,700 460,610 C580,540 680,650 750,600 L750,960 L0,960 Z"
+        fill="url(#g1)"/>
+  <path d="M0,960 C160,820 320,980 470,900 C600,820 700,960 750,920 L750,1334 L0,1334 Z"
+        fill="url(#g2)"/>
+  <path d="M0,1230 C220,1100 380,1250 540,1170 C680,1100 720,1230 750,1200 L750,1334 L0,1334 Z"
+        fill="url(#g3)"/>
+
+  <!-- 冰塔（seracs） -->
+  <g fill="#cfe4f7">
+    <path d="M80,760 L120,790 L110,880 L70,870 Z"/>
+    <path d="M615,700 L655,730 L640,840 L600,820 Z"/>
+  </g>
+  <!-- 冰川裂隙（深蓝锯齿） -->
+  <g fill="#33548a">
+    <path d="M120,1000 320,980 340,1010 620,950 640,980 700,960 L718,1000 640,1010 520,1030 240,1050 120,1040 Z"/>
+    <path d="M40,1160 220,1120 300,1150 560,1100 650,1130 690,1130 750,1140 700,1160 440,1130 280,1170 80,1190 Z"/>
+  </g>
+  <!-- 冰面块毯斑 -->
+  <g fill="rgba(255,255,255,0.4)">
+    <rect x="140" y="1080" width="20" height="34" rx="4"/>
+    <rect x="180" y="1110" width="14" height="30" rx="4"/>
+    <rect x="260" y="1160" width="22" height="30" rx="4"/>
+    <rect x="600" y="1080" width="16" height="34" rx="4"/>
+    <rect x="640" y="1130" width="20" height="26" rx="4"/>
+  </g>
+  <!-- 雪飘尘影 -->
+  <g fill="rgba(255,255,255,0.3)">
+    <circle cx="340" cy="1200" r="5"/>
+    <circle cx="360" cy="1230" r="4"/>
+    <circle cx="500" cy="1300" r="5"/>
+  </g>
+</svg>

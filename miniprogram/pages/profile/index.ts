@@ -5,6 +5,7 @@ import {
   getExplorationStats,
   getRecords,
 } from "../../services/exploration-store";
+import { EXPLORATIONS } from "../../data/explorations/index";
 import type { ExplorationRecord } from "../../services/exploration-store";
 
 interface RecordItem {
@@ -14,6 +15,7 @@ interface RecordItem {
   completed: boolean;
   reachElevation: number;
   maxElevation: number;
+  unitText: string;
   knowledgeCount: number;
   pct: number;
 }
@@ -26,16 +28,20 @@ Page({
   },
 
   onShow() {
-    const records: RecordItem[] = getRecords().map((r: ExplorationRecord) => ({
-      id: r.id,
-      emoji: r.emoji,
-      title: r.title,
-      completed: r.completed,
-      reachElevation: r.reachElevation,
-      maxElevation: r.maxElevation,
-      knowledgeCount: r.knowledgeIds.length,
-      pct: Math.round((r.reachElevation / r.maxElevation) * 100),
-    }));
+    const records: RecordItem[] = getRecords().map((r: ExplorationRecord) => {
+      const ex = EXPLORATIONS.find((e) => e.id === r.id);
+      return {
+        id: r.id,
+        emoji: r.emoji,
+        title: r.title,
+        completed: r.completed,
+        reachElevation: r.reachElevation,
+        maxElevation: r.maxElevation,
+        unitText: ex?.ui?.axisUnit ?? "m",
+        knowledgeCount: r.knowledgeIds.length,
+        pct: Math.round((r.reachElevation / r.maxElevation) * 100),
+      };
+    });
     this.setData({
       stats: getExplorationStats(),
       records,

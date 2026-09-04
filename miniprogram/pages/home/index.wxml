@@ -2,7 +2,7 @@
   <!-- 顶部品牌 -->
   <view class="hero" style="background:linear-gradient(160deg, #16324f, #0c1c33);">
     <text class="hero-title">🌍 Geo Explorer</text>
-    <text class="hero-sub">地理探索 · 沉浸式攀登珠穆朗玛峰</text>
+    <text class="hero-sub">地理探索 · 沉浸式探索珠穆朗玛、马里亚纳海沟等场景</text>
     <view class="hero-stats">
       <view class="stat">
         <text class="stat-v">{{stats.completed}}</text>
@@ -42,6 +42,6 @@
   <!-- 设计说明（MVP 期） -->
   <view class="about">
     <text class="about-title">关于本次 Demo</text>
-    <text class="about-text">拖动上滑推进海拔，途中发现知识节点；天气、温度、氧含量随海拔实时变化。当前仅珠峰场景，更多场景将陆续开放。</text>
+    <text class="about-text">拖动推进海拔或深度，途中发现知识节点；温度、压力、含氧量等指标随位置实时变化。不同场景玩法一致，更多场景将陆续开放。</text>
   </view>
 </view>
