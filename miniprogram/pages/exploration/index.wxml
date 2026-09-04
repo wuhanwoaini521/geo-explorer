@@ -1,0 +1,162 @@
+<view class="scene" wx:if="{{ready}}"
+  bind:touchstart="onTouchStart"
+  bind:touchmove="onTouchMove"
+  bind:touchend="onTouchEnd"
+  bind:touchcancel="onTouchEnd">
+
+  <!-- ⛅ 天空层（渐变 + 云，视差最慢） -->
+  <view class="layer sky" style="background:{{skyGradient}}; transform:translateY({{par.sky}}px);">
+    <view class="sun"></view>
+    <view class="cloud cloud-a"></view>
+    <view class="cloud cloud-b"></view>
+    <view class="cloud cloud-c"></view>
+  </view>
+
+  <!-- 🏔 远山（浅色剪影，视差 0.3x） -->
+  <view class="layer ridge far" style="transform:translateY({{par.far}}px);">
+    <view class="peak far-a"></view>
+    <view class="peak far-b"></view>
+    <view class="peak far-c"></view>
+  </view>
+
+  <!-- 中景山脊（视差 0.55x，含雪顶） -->
+  <view class="layer ridge mid" style="transform:translateY({{par.mid}}px);">
+    <view class="peak mid-a"></view>
+    <view class="peak mid-b"></view>
+    <view class="snowcap" style="opacity:{{snowCover}}"></view>
+  </view>
+
+  <!-- 近景坡地（视差 0.85x） -->
+  <view class="layer ridge near" style="transform:translateY({{par.near}}px);">
+    <view class="peak near-a"></view>
+    <view class="peak near-b"></view>
+    <!-- 低海拔植物，植被→0 时淡出 -->
+    <view class="trees" wx:if="{{vegetation > 0.25}}" style="opacity:{{vegetation}};">
+      <text class="tree">🌲</text>
+      <text class="tree">🌲</text>
+      <text class="tree">🌳</text>
+    </view>
+  </view>
+
+  <!-- 云雾遮罩 -->
+  <view class="fog" style="opacity:{{fogOpacity}};"></view>
+
+  <!-- 地面（视差 1.0x） -->
+  <view class="layer ground" style="transform:translateY({{par.ground}}px);">
+    <view class="ground-base"></view>
+    <view class="ground-snow" style="opacity:{{snowCover}};"></view>
+    <view class="ground-veg" style="background:{{greenTint}}; opacity:{{vegetation}};"></view>
+  </view>
+
+  <!-- 🧗 攀登者（视差 1.12x，风大时倾斜） -->
+  <view class="climber" style="transform:translateY({{par.climber}}px) rotate({{climberLean}}deg);">
+    <text class="climber-body">{{progress >= 0.97 ? '🚩' : '🧗'}}</text>
+  </view>
+
+  <!-- 前景飘雪（视差 1.3x，粒子动画） -->
+  <view class="layer snowfall" style="transform:translateY({{par.snow}}px);">
+    <view class="flake" wx:for="{{particles}}" wx:key="id"
+      style="left:{{item.left}}%; animation-duration:{{item.duration}}s; animation-delay:{{item.delay}}s;">
+      <view class="flake-core" style="width:{{item.size}}px; height:{{item.size}}px; opacity:{{item.opacity}};"></view>
+    </view>
+  </view>
+
+  <!-- 📍 右侧海拔刻度 + 知识节点标记 -->
+  <view class="alt-rail">
+    <view class="rail-line"></view>
+    <view wx:for="{{markers}}" wx:key="id"
+      class="mark {{item.found ? 'found' : ''}}"
+      style="top:{{item.top}}%;"
+      data-id="{{item.id}}"
+      bind:tap="onTapMarker">
+      <view class="mark-dot">{{item.found ? item.emoji : '+'}}</view>
+      <text class="mark-elev">{{item.elevationText}}</text>
+    </view>
+    <view class="rail-summit">🏔 峰顶</view>
+  </view>
+
+  <!-- HUD 顶部：场景名 + 环境指标 -->
+  <view class="hud">
+    <view class="hud-row">
+      <text class="hud-title">{{emoji}} {{title}}</text>
+      <view class="hud-chip" bind:tap="onJumpToSummit">直达峰顶</view>
+    </view>
+    <view class="hud-stage">
+      <text class="stage-emoji">{{stageEmoji}}</text>
+      <view class="stage-box">
+        <text class="stage-name">{{stageName}}</text>
+        <text class="stage-desc">{{stageDescription}}</text>
+      </view>
+    </view>
+    <view class="hud-elev">
+      <text class="elev-num">{{elevationText}}</text>
+      <text class="elev-unit">m</text>
+      <text class="elev-km">{{kmStage}}</text>
+    </view>
+  </view>
+
+  <!-- 底部：进度 + 操作 -->
+  <view class="dock">
+    <progress-bar progress="{{progress}}" height="{{10}}" caption="{{kmStage}}" />
+    <view class="dock-metrics">
+      <view class="metric"><text class="metric-v">{{temperatureText}}</text><text class="metric-k">气温</text></view>
+      <view class="metric"><text class="metric-v">氧  {{o2Text}}%</text><text class="metric-k">{{airFeel}}</text></view>
+      <view class="metric"><text class="metric-v">{{windText}}</text><text class="metric-k">风力</text></view>
+    </view>
+    <view class="dock-actions">
+      <view class="act act-down" bindtap="onStepDown">▾ 下山</view>
+      <view class="act act-up" bindtap="onStepUp">▲ 上行 360m</view>
+    </view>
+  </view>
+
+  <!-- 发现知识 → 轻提示 -->
+  <view class="hint" wx:if="{{hint.show}}" bindtap="onHintTap">
+    <text>{{hint.text}}</text>
+  </view>
+
+  <!-- 开场卡片 -->
+  <view class="overlay intro" wx:if="{{intro}}">
+    <view class="card">
+      <text class="card-emoji">{{emoji}}</text>
+      <text class="card-title">{{title}}</text>
+      <text class="card-sub">{{subtitle}}</text>
+      <view class="card-fact">
+        <text class="card-fact-k">目标海拔</text>
+        <text class="card-fact-v">{{maxElevation}} m</text>
+      </view>
+      <view class="card-fact">
+        <text class="card-fact-k">攀登方式</text>
+        <text class="card-fact-v">上滑推进 · 途中发现知识节点</text>
+      </view>
+      <view class="btn btn-primary" bindtap="onStartClimb">开始攀登</view>
+    </view>
+  </view>
+
+  <!-- 登顶 -->
+  <view class="overlay summit overlay-dim" wx:if="{{summit}}">
+    <view class="card">
+      <text class="summit-title">🏔 海拔 8848.86 m</text>
+      <text class="summit-sub">You are on top of the world 🌍</text>
+      <text class="summit-line">珠穆朗玛峰 · 世界最高峰· 1953 年首次登顶确认</text>
+      <view class="btn btn-primary" bindtap="onShowSummary">查看本次收获</view>
+      <view class="btn btn-ghost" bindtap="onBackHome">返回首页</view>
+    </view>
+  </view>
+
+  <!-- 结算 -->
+  <view class="overlay summary overlay-dim" wx:if="{{summary}}">
+    <view class="card card-scroll">
+      <text class="card-title">🎒 本次攀登收获</text>
+      <text class="card-sub">完成珠峰探索~ 强解锁 {{summary.learned.length}} 个知识节点</text>
+      <view class="learned-list">
+        <view class="learned-item" wx:for="{{summary.learned}}" wx:key="*this">• {{item}}</view>
+      </view>
+      <view class="btn btn-primary" bindtap="onRestart">再攀一次</view>
+      <view class="btn btn-ghost" bindtap="onBackHome">返回首页</view>
+    </view>
+  </view>
+
+  <!-- 知识卡片 -->
+  <knowledge-popup visible="{{!!openNode}}" node="{{openNode}}"
+    bind:close="onPopupClose" bind:continue="onPopupContinue" />
+</view>

@@ -1,0 +1,8 @@
+<view class="page">
+  <view class="placeholder">
+    <text class="placeholder-emoji">🗺️</text>
+    <text class="placeholder-title">地图模块开发中</text>
+    <text class="placeholder-text">{{note}}</text>
+    <view class="placeholder-tag">Coming Soon</view>
+  </view>
+</view>

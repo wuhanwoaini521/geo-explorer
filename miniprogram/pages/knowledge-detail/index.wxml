@@ -1,0 +1,22 @@
+<view class="page" wx:if="{{item}}">
+  <view class="head">
+    <text class="head-emoji">{{item.emoji}}</text>
+    <text class="head-title">{{item.title}}</text>
+    <text class="head-cat">{{item.category}}</text>
+  </view>
+
+  <view class="section">
+    <text class="section-title">一句话</text>
+    <text class="section-body">{{item.summary}}</text>
+  </view>
+
+  <view class="section">
+    <text class="section-title">详解</text>
+    <text class="section-body">{{item.content}}</text>
+  </view>
+
+  <view class="section note" wx:if="{{item.sources.length}}">
+    <text class="section-title">来源</text>
+    <text class="section-body source">{{item.sources[0].name}}{{item.sources[0].approximate ? '（近似值）' : ''}}</text>
+  </view>
+</view>

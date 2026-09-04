@@ -1,0 +1,9 @@
+{
+  "desc": "Geo Explorer 小程序的索引配置，默认全部收录",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}
