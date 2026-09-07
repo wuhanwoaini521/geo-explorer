@@ -182,12 +182,17 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(inst.hudElevation).toBe(5364);
   });
 
-  it("查看路线占位：仅 toast（Gate 4+ 视觉延后）", () => {
+  it("查看路线：真实全景 sheet（不再仅 toast）", () => {
     wxCalls.showToast = [];
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "everest" });
     inst.onViewRoute();
-    expect(wxCalls.showToast.length).toBe(1);
+    expect(wxCalls.showToast.length).toBe(0);
+    const ov = inst.data.routeOverview;
+    expect(ov && ov.show).toBe(true);
+    expect(ov.totalKmText).toMatch(/km/);
+    expect(ov.stages.length).toBeGreaterThanOrEqual(7);
+    expect(ov.milestones.length).toBeGreaterThanOrEqual(8);
   });
 });
 

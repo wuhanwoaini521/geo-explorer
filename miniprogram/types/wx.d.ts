@@ -102,6 +102,11 @@ declare interface WxApi {
     duration?: number;
     mask?: boolean;
   }): void;
+  setClipboardData(opts: {
+    data: string;
+    success?: () => void;
+    fail?: (e: unknown) => void;
+  }): void;
   showLoading(opts: { title: string; mask?: boolean }): void;
   hideLoading(): void;
   showModal(opts: {

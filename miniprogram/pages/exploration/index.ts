@@ -181,6 +181,37 @@ interface WaypointCardState {
   lockedKnowledge?: boolean;
 }
 
+/** 路线全景（Gate 3 on 按钮 → 真实数据 sheet；替代“敬请期待”占位） */
+interface RouteOverviewState {
+  show: boolean;
+  name: string;
+  intro: string;
+  totalKmText: string;
+  ascentText: string;
+  descentText: string;
+  startName: string;
+  startElevText: string;
+  endName: string;
+  endElevText: string;
+  pointCount: number;
+  stages: Array<{
+    index: number;
+    name: string;
+    emoji: string;
+    intro: string;
+    kmText: string;
+    rangeText: string;
+  }>;
+  milestones: Array<{
+    name: string;
+    kindLabel: string;
+    kmText: string;
+    elevText: string;
+    isSummit: boolean;
+  }>;
+  provenance: string[];
+}
+
 interface QuizState {
   show: boolean;
   nodeId: string;
@@ -563,6 +594,7 @@ Page({
     hint: { show: false, text: "" },
     openNode: null as ExplorationKnowledgeNode | null,
     waypointCard: null as WaypointCardState | null,
+    routeOverview: null as RouteOverviewState | null,
     quiz: null as QuizState | null,
 
     // 登顶 / 汇总
@@ -1165,9 +1197,75 @@ Page({
     this.persistProgress();
   },
 
-  /** Gate 3：路线全景入口（渲染/相机场景延后至 Gate 4+，先只占位） */
+  /** Gate 4+：真实路线全景 —— 全部由 routeIndex + stageMap 计算（无“敬请期待”占位） */
   onViewRoute() {
-    wx.showToast({ title: "路线全景 · 敬请期待", icon: "none" });
+    const core = this.expeditionCore;
+    if (!core || !core.routeIndex || core.stageMap.length === 0) {
+      wx.showToast({ title: "该场景暂无真实路线全景", icon: "none" });
+      return;
+    }
+    const idx = core.routeIndex;
+    const totalM = idx.totalDistanceM || 0;
+    const km = (m: number) =>
+      m >= 1000 ? `${formatNumber(m / 1000, 1)} km` : `${Math.round(m)} m`;
+    const elev = (m: number) => `${formatNumber(m, 0)} m`;
+    const ms = idx.milestones;
+    const first = ms[0];
+    const last = ms[ms.length - 1];
+    const kindLabel = (k: string): string => {
+      const map: Record<string, string> = {
+        camp: "营地",
+        landmark: "地标",
+        danger: "危险段",
+        knowledge: "知识",
+        summit: "峰顶",
+        waypoint: "途经点",
+      };
+      return map[k] ?? "途经点";
+    };
+    const stage = core.stageMap as Array<{
+      id: string;
+      name: string;
+      emoji: string;
+      intro: string;
+      fromDistanceM: number;
+      toDistanceM: number;
+    }>;
+    this.setData({
+      routeOverview: {
+        show: true,
+        name: idx.name,
+        intro: `全程 ${km(totalM)}（含起伏 ${km(idx.total3dDistanceM)}）· 累计爬升 ${elev(idx.ascentM)} · 累计下降 ${elev(idx.descentM)}`,
+        totalKmText: km(totalM),
+        ascentText: elev(idx.ascentM),
+        descentText: elev(idx.descentM),
+        startName: first?.name ?? "起点",
+        startElevText: first ? elev(first.refM) : "",
+        endName: last?.name ?? "终点",
+        endElevText: last ? elev(last.refM) : "",
+        pointCount: idx.pointCount,
+        stages: stage.map((s, i) => ({
+          index: i + 1,
+          name: s.name,
+          emoji: s.emoji,
+          intro: s.intro,
+          kmText: km((s.toDistanceM - s.fromDistanceM) || 0),
+          rangeText: `${km(s.fromDistanceM)} → ${km(s.toDistanceM)}`,
+        })),
+        milestones: ms.map((m) => ({
+          name: m.name,
+          kindLabel: kindLabel(m.kind),
+          kmText: km(m.distanceM),
+          elevText: m.refM ? elev(m.refM) : "",
+          isSummit: m.kind === "summit",
+        })),
+        provenance: (idx.sourceLabel || []).slice(0, 6),
+      },
+    });
+  },
+
+  onCloseRouteOverview() {
+    this.setData({ routeOverview: null });
   },
 
   /** 阶段切换：首次途经记录 + 短暂横幅 */
@@ -1686,6 +1784,7 @@ Page({
       summaryStats: null,
       openNode: null,
       waypointCard: null,
+      routeOverview: null,
       quiz: null,
       hint: { show: false, text: "" },
       stageBanner: { show: false, title: "", biome: "", emoji: "" },

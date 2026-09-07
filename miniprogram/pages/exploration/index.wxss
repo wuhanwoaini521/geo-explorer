@@ -1545,3 +1545,91 @@ page {
   background: rgba(120, 170, 255, 0.18);
 }
 .exp-summit-act:active { opacity: 0.8; }
+
+/* ===== 路线全景 rou-*（替代“敬请期待”占位的真实数据全景 sheet） ===== */
+.rou-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 26, 14, 0.52);
+}
+.rou-card {
+  width: 90vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #fffdf3;
+  border-radius: 22rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(31, 26, 14, 0.35);
+}
+.rou-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx 8rpx;
+}
+.rou-title { font-size: 32rpx; font-weight: 700; color: #2a2b20; }
+.rou-close { padding: 8rpx 16rpx; font-size: 30rpx; color: #94896a; }
+.rou-intro {
+  padding: 2rpx 28rpx 16rpx;
+  font-size: 23rpx;
+  color: #6a5f47;
+  line-height: 1.55;
+}
+.rou-stats {
+  display: flex;
+  margin: 0 28rpx 14rpx;
+  padding: 18rpx 8rpx;
+  border-radius: 16rpx;
+  background: #f6ead1;
+}
+.rou-stat { flex: 1; text-align: center; }
+.rou-stat-v { display: block; font-size: 28rpx; font-weight: 700; color: #a06a10; }
+.rou-stat-k { display: block; margin-top: 2rpx; font-size: 20rpx; color: #94896a; }
+.rou-ends {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 28rpx 10rpx;
+}
+.rou-end { font-size: 22rpx; color: #4a4230; }
+.rou-end-right { color: #a06a10; font-weight: 600; }
+.rou-scroll { flex: 1; min-height: 0; padding: 0 28rpx; }
+.rou-sec-title {
+  display: block;
+  margin: 18rpx 0 10rpx;
+  font-size: 23rpx;
+  font-weight: 600;
+  color: #3a3a2e;
+  border-bottom: 1rpx solid #eee2c6;
+  padding-bottom: 8rpx;
+}
+.rou-item {
+  display: flex;
+  gap: 14rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f2ead4;
+}
+.rou-item.summit { background: rgba(160, 106, 16, 0.06); }
+.rou-item-emoji { font-size: 26rpx; }
+.rou-dot { font-size: 14rpx; color: #b98a3a; padding-top: 8rpx; }
+.rou-item-main { flex: 1; min-width: 0; }
+.rou-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12rpx; }
+.rou-item-name { font-size: 25rpx; font-weight: 600; color: #2a2b20; }
+.rou-item-km { font-size: 20rpx; color: #a06a10; white-space: nowrap; }
+.rou-item-range { display: block; font-size: 20rpx; color: #94896a; margin-top: 2rpx; }
+.rou-item-intro { display: block; font-size: 21rpx; color: #6a5f47; line-height: 1.5; margin-top: 4rpx; }
+.rou-psrc { display: block; font-size: 20rpx; color: #94896a; line-height: 1.6; }
+.rou-btn {
+  margin: 16rpx 28rpx 24rpx;
+  font-size: 26rpx;
+  line-height: 2.6;
+  border-radius: 999rpx;
+  color: #fffdf3;
+  background: linear-gradient(135deg, #b27c1d, #8a5e12);
+}
+.rou-btn::after { border: none; }
+.rou-btn:active { transform: translateY(3rpx); }

@@ -7,6 +7,7 @@
     "pages/exploration/index",
     "pages/place/index",
     "pages/quiz/index",
+    "pages/credits/index",
     "pages/profile/index"
   ],
   "window": {

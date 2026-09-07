@@ -317,6 +317,71 @@
     </view>
   </view>
 
+  <!-- ===== 路线全景（可真·数据，替代“敬请期待”） ===== -->
+  <view wx:if="{{routeOverview && routeOverview.show}}" class="rou-mask" catchtouchmove="noop">
+    <view class="rou-card">
+      <view class="rou-head">
+        <text class="rou-title">🗺 {{routeOverview.name}}</text>
+        <text class="rou-close" bindtap="onCloseRouteOverview">✕</text>
+      </view>
+      <text class="rou-intro">{{routeOverview.intro}}</text>
+
+      <view class="rou-stats">
+        <view class="rou-stat">
+          <text class="rou-stat-v">{{routeOverview.totalKmText}}</text>
+          <text class="rou-stat-k">全程</text>
+        </view>
+        <view class="rou-stat">
+          <text class="rou-stat-v">{{routeOverview.ascentText}}</text>
+          <text class="rou-stat-k">爬升</text>
+        </view>
+        <view class="rou-stat">
+          <text class="rou-stat-v">{{routeOverview.descentText}}</text>
+          <text class="rou-stat-k">下降</text>
+        </view>
+      </view>
+
+      <view class="rou-ends">
+        <text class="rou-end">🚩 {{routeOverview.startName}} {{routeOverview.startElevText}}</text>
+        <text class="rou-end rou-end-right">🏔 {{routeOverview.endName}} {{routeOverview.endElevText}}</text>
+      </view>
+
+      <scroll-view class="rou-scroll" scroll-y>
+        <view class="rou-sec-title">路线阶段（{{routeOverview.stages.length}}）</view>
+        <view class="rou-item" wx:for="{{routeOverview.stages}}" wx:key="index">
+          <text class="rou-item-emoji">{{item.emoji}}</text>
+          <view class="rou-item-main">
+            <view class="rou-item-head">
+              <text class="rou-item-name">{{item.index}}. {{item.name}}</text>
+              <text class="rou-item-km">{{item.kmText}}</text>
+            </view>
+            <text class="rou-item-range">{{item.rangeText}}</text>
+            <text class="rou-item-intro">{{item.intro}}</text>
+          </view>
+        </view>
+
+        <view class="rou-sec-title">里程碑（{{routeOverview.milestones.length}}）</view>
+        <view class="rou-item {{item.isSummit ? 'summit' : ''}}" wx:for="{{routeOverview.milestones}}" wx:key="name">
+          <text class="rou-dot">●</text>
+          <view class="rou-item-main">
+            <view class="rou-item-head">
+              <text class="rou-item-name">{{item.name}}</text>
+              <text class="rou-item-km">{{item.kmText}}</text>
+            </view>
+            <text class="rou-item-range">{{item.kindLabel}} · {{item.elevText}}</text>
+          </view>
+        </view>
+
+        <view wx:if="{{routeOverview.provenance.length}}" class="rou-ears">
+          <text class="rou-sec-title">数据来源</text>
+          <text class="rou-psrc" wx:for="{{routeOverview.provenance}}" wx:key="*this">· {{item}}</text>
+        </view>
+      </scroll-view>
+
+      <button class="rou-btn" bindtap="onCloseRouteOverview">继续探索</button>
+    </view>
+  </view>
+
   <!-- ===== 途经点介绍卡 ===== -->
   <view wx:if="{{waypointCard && waypointCard.show}}" class="wpc-mask" catchtouchmove="noop">
     <view class="wpc-card">
