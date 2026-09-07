@@ -4,14 +4,14 @@
 
   <!-- ===== 山岳世界（world.style === 'mountain'：真实 DEM 渲染三景硬切换，同屏只挂载一张） ===== -->
   <block wx:if="{{worldMountain}}">
-    <!-- 视图 A：远景全景（徒步→BC） -->
-    <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a" mode="aspectFill" src="{{scene.plates.far}}" style="transform:translate3d(0,-{{par.far * 0.4}}px,0); opacity:{{scene.op.far}}"></image>
+    <!-- 视图 A：远景全景（徒步→BC）：下锚缩放至 DEM 山体带，天空不再占用主体 -->
+    <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a" mode="aspectFill" src="{{scene.plates.far}}" style="transform:translate3d(0,-{{par.far * 0.25}}px,0) scale({{viewZoom.a}}); opacity:{{scene.op.far}}"></image>
 
-    <!-- 视图 B：中景山脊（冰瀑→C3），随海拔缓推近 -->
-    <image wx:if="{{scene.plates.main && scene.op.main > 0}}" class="plate view view-b" mode="aspectFill" src="{{scene.plates.main}}" style="transform:translate3d(0,-{{par.mid * 0.3}}px,0) scale({{1 + (mntScale - 100) / 260}}); opacity:{{scene.op.main}}"></image>
+    <!-- 视图 B：中景山脊（冰瀑→C3），随海拔缓推进（缩放=裁剪基准 × 渐进） -->
+    <image wx:if="{{scene.plates.main && scene.op.main > 0}}" class="plate view view-b" mode="aspectFill" src="{{scene.plates.main}}" style="transform:translate3d(0,-{{par.mid * 0.15}}px,0) scale({{viewZoom.b * (1 + (mntScale - 100) / 260)}}); opacity:{{scene.op.main}}"></image>
 
     <!-- 视图 C：死亡区冰岩壁（冲顶段） -->
-    <image wx:if="{{scene.plates.mid && scene.op.mid > 0}}" class="plate view view-c" mode="aspectFill" src="{{scene.plates.mid}}" style="transform:translate3d(0,-{{par.near * 0.3}}px,0); opacity:{{scene.op.mid}}"></image>
+    <image wx:if="{{scene.plates.mid && scene.op.mid > 0}}" class="plate view view-c" mode="aspectFill" src="{{scene.plates.mid}}" style="transform:translate3d(0,-{{par.near * 0.15}}px,0) scale({{viewZoom.c}}); opacity:{{scene.op.mid}}"></image>
 
     <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
@@ -77,8 +77,8 @@
     </view>
   </block>
 
-  <!-- 风雪粒子（强度=雪量，档位化；山岳世界仅雪线以上出现，避免盖脸） -->
-  <view wx:if="{{!worldMountain || snowCover >= 0.35}}" class="snow-layer">
+  <!-- 风雪粒子（强度=雪量，档位化；山岳世界 DEM 照片自带雪景，不再叠加粒子避免盖脸） -->
+  <view wx:if="{{!worldMountain}}" class="snow-layer">
     <view wx:for="{{particles}}" wx:key="id" class="snow-flake" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
   </view>
 
@@ -87,81 +87,73 @@
 
   <!-- ===== 路线模式 HUD（Gate 3：Expedition 附件 → 真实路线驱动；地形优先 + 底部 30% 暗色限流 UI） ===== -->
   <block wx:if="{{routeMode}}">
-    <!-- 顶部：登山标题（不显示参考海拔大数字，避免与 REFERENCE 位置混淆） -->
-    <view class="exp-top">
-      <text class="exp-top-title">{{title}}</text>
-      <text class="exp-top-meta">南坡攀登 · {{metaRegion}}</text>
+    <!-- 顶部：登山标题（沉浸页：基于真实状态栏 + 胶囊定位的安全区） -->
+    <view class="exp-top" style="top:{{capTop}}px">
+      <text class="exp-top-title">{{metaPlace}}</text>
+      <text class="exp-top-meta" wx:if="{{routeSub}}">{{routeSub}}</text>
     </view>
 
-    <!-- 底部 30% 面板：真实路线进度驱动 -->
+    <!-- 底部 30% 面板：真实路线进度驱动（Mockup 层级：位置/海拔 → 距顶峰 → 环境 → 进度 → 下一站） -->
     <view class="exp-sheet {{expDeathZone ? 'exp-death' : ''}}">
-      <!-- 当前位置：参考海拔（REFERENCE 标记） + 营/站名称 -->
+      <!-- 位置 + 海拔（隐藏 REFERENCE 徽标，避免干扰） -->
       <view class="exp-pos">
         <view class="exp-pos-l">
           <text class="exp-elev">{{expedition.currentElevText}}</text>
           <text class="exp-elev-unit">m</text>
-          <text class="exp-tag">REFERENCE</text>
         </view>
-        <text class="exp-pos-name">当前位置 · {{expedition.currentName}}</text>
+        <text class="exp-pos-name">{{expedition.currentName}}</text>
       </view>
 
-      <!-- 距顶峰：垂直参考高差 + 剩余路线（两行独立、文案明确） -->
+      <!-- 距顶峰（单行高差，简化） -->
       <view class="exp-goal">
         <view class="exp-goal-row">
-          <text class="exp-goal-k">距顶峰 · 垂直参考差</text>
+          <text class="exp-goal-k">距顶峰</text>
           <text class="exp-goal-v">{{expedition.remainingVerticalText}} m</text>
         </view>
-        <view class="exp-goal-row">
-          <text class="exp-goal-k">剩余路线</text>
-          <text class="exp-goal-v">{{expedition.remainingRouteText}} · 已完成 {{expedition.distanceText}}</text>
-        </view>
       </view>
 
-      <!-- 真实路线进度条（里程轴，含前后刻度） -->
-      <view class="exp-route">
-        <view class="exp-route-track">
-          <view class="exp-route-fill" style="width:{{expedition.pct}}%"></view>
-          <view class="exp-route-tick exp-route-tick-prev"></view>
-          <view class="exp-route-tick exp-route-tick-next"></view>
-        </view>
-        <view class="exp-route-meta">
-          <text class="exp-route-label">路线进度 · {{expedition.distanceText}}</text>
-          <text class="exp-route-pct">{{expedition.pct}}%</text>
-        </view>
-      </view>
-
-      <!-- 上一站 / 下一站（精确里程） -->
-      <view class="exp-step">
-        <text class="exp-step-prev">◀ 上一站 {{expedition.prevName}}</text>
-        <text class="exp-step-next">下一站 {{expedition.nextName}} · 距 {{expedition.nextGapText}} ▶</text>
-      </view>
-
-      <!-- 七段阶段 + 环境三指标（MODEL / REFERENCE 小标记） -->
+      <!-- 阶段 + 环境三指标（MODEL / REFERENCE 徽标隐藏） -->
       <view class="exp-core">
         <view class="exp-stage">
           <text class="exp-stage-emoji">{{expedition.stageEmoji}}</text>
           <view class="exp-stage-txt">
             <text class="exp-stage-name">{{expedition.stageName}}</text>
-            <text class="exp-stage-next">下一段 · {{expedition.nextStageName}}</text>
           </view>
         </view>
         <view class="exp-env">
           <view class="exp-env-item">
             <text class="exp-env-k">气压</text>
             <text class="exp-env-v">{{expedition.pressText}}</text>
-            <text class="exp-env-tag">MODEL</text>
           </view>
           <view class="exp-env-item">
             <text class="exp-env-k">氧气</text>
             <text class="exp-env-v">{{expedition.oxygenText}}</text>
-            <text class="exp-env-tag">MODEL</text>
           </view>
           <view class="exp-env-item">
             <text class="exp-env-k">气温</text>
             <text class="exp-env-v">{{expedition.tempText}}</text>
-            <text class="exp-env-tag">REFERENCE</text>
           </view>
         </view>
+      </view>
+
+      <!-- 真实进度（Base Camp ━━━●━━━ Summit + 实际 %，锚点即里程） -->
+      <view class="exp-route">
+        <view class="exp-route-track">
+          <view class="exp-route-fill" style="width:{{expedition.pct}}%"></view>
+          <view class="exp-route-marker" style="left:{{expedition.pct}}%"></view>
+        </view>
+        <view class="exp-route-meta">
+          <text class="exp-route-label">Base Camp</text>
+          <text class="exp-route-pct">{{expedition.pct}}%</text>
+          <text class="exp-route-label">Summit</text>
+        </view>
+      </view>
+
+      <!-- 下一站（终点不展示） -->
+      <view wx:if="{{expedition.nextName}}" class="exp-step">
+        <text class="exp-step-k">下一站</text>
+        <text class="exp-step-name">{{expedition.nextName}}</text>
+        <text class="exp-step-gap">距 {{expedition.nextGapText}} ▶</text>
       </view>
 
       <text class="exp-intro">{{expedition.stageIntro}}</text>

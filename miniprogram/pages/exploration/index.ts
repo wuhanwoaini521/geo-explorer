@@ -501,6 +501,13 @@ Page({
     worldOcean: false,
     scene: SCENE_DEFAULT as SceneState,
     mntScale: 100,
+    // Gate 3.2 构图：垂向缩放系数（把照片底部 DEM 山体带映射为整屏主体，下锚缩放）
+    viewZoom: { a: 4.55, b: 2.3, c: 1.12 },
+    // 顶部安全区（沉浸页：真实状态栏 + 胶囊几何驱动）
+    capTop: 20,
+    capH: 32,
+    capBottom: 52,
+    routeSub: "",
     ui: DEFAULT_UI as ExplorationUi,
     destination: DEFAULT_DESTINATION as ExplorationDestination,
 
@@ -571,6 +578,7 @@ Page({
   /* ---------------- 生命周期 ---------------- */
 
   onLoad(query: Record<string, string>) {
+    this.refreshSafeArea();
     const id = (query && query.id) || "";
     const fallback = EXPLORATIONS[0];
     // Gate 3：优先取“真实路线”的 Expedition 场景（Everest V2），否则回落旧探索（海拔轴）
@@ -631,6 +639,7 @@ Page({
       ),
       metaPlace: exploration.meta.placeLabel,
       metaRegion: exploration.meta.region,
+      routeSub: "Mount Everest · South Col Route",
       estMinutes: exploration.estimatedMinutes,
       metaDesc: exploration.meta.description,
       ui: { ...DEFAULT_UI, ...(exploration.ui || {}) },
@@ -653,6 +662,8 @@ Page({
   },
 
   onReady() {
+    // 胶囊几何在页面挂载后补齐（沉浸页顶部安全区）
+    this.refreshSafeArea();
     this.startTicker();
   },
 
@@ -691,6 +702,45 @@ Page({
     if (this.ticker !== null) {
       clearInterval(this.ticker);
       this.ticker = null;
+    }
+  },
+
+  /** 沉浸页顶部安全区：优先取真实状态栏 + 胶囊几何；缺失时回退默认 20px */
+  refreshSafeArea() {
+    const has = (fn: string) =>
+      typeof (wx as unknown as Record<string, unknown>)[fn] === "function";
+    const win: { statusBarHeight?: number } = has("getWindowInfo")
+      ? ((wx as unknown as Record<string, () => { statusBarHeight?: number }>)[
+          "getWindowInfo"
+        ] as () => { statusBarHeight?: number })()
+      : has("getSystemInfoSync")
+        ? ((wx as unknown as Record<string, () => { statusBarHeight?: number }>)[
+            "getSystemInfoSync"
+          ] as () => { statusBarHeight?: number })()
+        : {};
+    const statusBarH = win.statusBarHeight ?? 20;
+    let cap = { top: Math.round(statusBarH), h: 32 };
+    if (has("getMenuButtonBoundingClientRect")) {
+      const rect = (
+        wx as unknown as Record<
+          string,
+          () => { top?: number; height?: number } | undefined
+        >
+      )[`getMenuButtonBoundingClientRect`]();
+      if (rect && rect.top != null) {
+        cap = {
+          top: Math.round(rect.top),
+          h: Math.round(rect.height ?? 32),
+        };
+      }
+    }
+    const bottom = cap.top + cap.h;
+    if (
+      this.data.capTop !== cap.top ||
+      this.data.capH !== cap.h ||
+      this.data.capBottom !== bottom
+    ) {
+      this.setData({ capTop: cap.top, capH: cap.h, capBottom: bottom });
     }
   },
 

@@ -1049,9 +1049,10 @@ page {
   will-change: opacity;
   top: -12%;
   height: 124%;
+  transform-origin: 50% 100%;
 }
 .view-a { z-index: 2; }
-.view-b { z-index: 3; transform-origin: 50% 72%; }
+.view-b { z-index: 3; }
 .view-c { z-index: 4; }
 .pl-cloud { z-index: 5; }
 .pl-ground { z-index: 6; }
@@ -1180,7 +1181,7 @@ page {
   bottom: 0;
   height: 34vh;
   box-sizing: border-box;
-  padding: 16rpx 26rpx calc(env(safe-area-inset-bottom) + 16rpx);
+  padding: 14rpx 26rpx calc(env(safe-area-inset-bottom) + 14rpx);
   display: flex;
   flex-direction: column;
   gap: 10rpx;
@@ -1208,16 +1209,6 @@ page {
   font-variant-numeric: tabular-nums;
 }
 .exp-elev-unit { font-size: 24rpx; color: rgba(255,255,255,0.7); margin-left: 4rpx; }
-.exp-tag {
-  font-size: 15rpx;
-  font-weight: 700;
-  letter-spacing: 1rpx;
-  color: #ffd98a;
-  border: 1rpx solid rgba(255, 217, 138, 0.5);
-  border-radius: 8rpx;
-  padding: 2rpx 8rpx;
-  margin-left: 8rpx;
-}
 .exp-pos-name {
   font-size: 24rpx;
   color: rgba(255,255,255,0.82);
@@ -1242,7 +1233,7 @@ page {
 .exp-goal-v { font-size: 24rpx; font-weight: 700; color: #ffe9b8; font-variant-numeric: tabular-nums; }
 
 /* 路线进度条 */
-.exp-route { display: flex; flex-direction: column; gap: 6rpx; }
+.exp-route { display: flex; flex-direction: column; gap: 4rpx; }
 .exp-route-track {
   position: relative;
   height: 10rpx;
@@ -1258,29 +1249,37 @@ page {
   border-radius: 8rpx;
   background: linear-gradient(90deg, #6fb7ff, #ffe08a);
 }
-.exp-route-tick {
+.exp-route-marker {
   position: absolute;
-  top: -4rpx;
-  width: 4rpx;
+  top: 50%;
+  width: 18rpx;
   height: 18rpx;
-  border-radius: 2rpx;
-  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 3rpx solid #e3b04b;
+  box-shadow: 0 0 8rpx rgba(255, 210, 120, 0.9);
 }
-.exp-route-tick-prev { display: none; }
-.exp-route-tick-next { right: 2%; }
 .exp-route-meta { display: flex; justify-content: space-between; align-items: baseline; }
-.exp-route-label { font-size: 18rpx; color: rgba(255,255,255,0.55); }
-.exp-route-pct { font-size: 24rpx; font-weight: 800; color: #ffe3a0; font-variant-numeric: tabular-nums; }
+.exp-route-label { font-size: 17rpx; color: rgba(255,255,255,0.6); }
+.exp-route-pct { font-size: 22rpx; font-weight: 800; color: #ffe3a0; font-variant-numeric: tabular-nums; }
 
-/* 上一站 / 下一站 */
+/* 下一站（一行） */
 .exp-step {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 10rpx;
+  gap: 8rpx;
 }
-.exp-step-prev { font-size: 19rpx; color: rgba(255,255,255,0.58); }
-.exp-step-next { font-size: 19rpx; color: #bcd8ff; }
+.exp-step-k { font-size: 18rpx; color: rgba(255,255,255,0.55); }
+.exp-step-name {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #d9e8ff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.exp-step-gap { font-size: 17rpx; color: rgba(255,255,255,0.5); margin-left: auto; }
 
 /* 阶段 + 环境三指标 */
 .exp-core {
@@ -1308,13 +1307,6 @@ page {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.exp-stage-next {
-  font-size: 16rpx;
-  color: rgba(255,255,255,0.55);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .exp-env {
   flex: 1 1 42%;
   display: flex;
@@ -1337,11 +1329,6 @@ page {
   font-weight: 700;
   color: #ffe9b8;
   font-variant-numeric: tabular-nums;
-}
-.exp-env-tag {
-  font-size: 12rpx;
-  letter-spacing: 0.5rpx;
-  color: rgba(160, 200, 255, 0.8);
 }
 
 /* 阶段简介（一行省略号） */
