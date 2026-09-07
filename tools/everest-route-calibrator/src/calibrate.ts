@@ -87,7 +87,7 @@ export interface CalibrationReportV1Out {
     metadataSource: string;
     unknown?: string[];
   };
-  camera: {
+  camera?: {
     status: "solved" | "preliminary";
     position: { x: number; y: number; z: number };
     yawDeg: number;
@@ -450,6 +450,82 @@ export function buildReportData(opts: {
   };
 
   return { report, status, route };
+}
+
+/* ------------------------------------------------------------------ */
+/* REPRESENTATIVE 兜底报告（§47：无法保证精确投影 → 诚实不画路线）      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 生成 REPRESENTATIVE 报告（routeOverlay 强制 false）。
+ * 无任何 landmark 求解：camera 省略、route/waypoints 为空、reprojection 全 0 只作占位。
+ * “坐标 guess”只体现在 metadata（EXIF/已知拍摄点），不冒充 camera 解。
+ */
+export function representativeReport(scene: SceneDef): {
+  report: CalibrationReportV1Out;
+  status: string;
+  route: ProjectedPoint[];
+} {
+  const media = sceneMedia(scene);
+  const derivative = { width: scene.width, height: scene.height };
+  // 原图（已知）与派生图对角线
+  const originalDiag = scene.id === "live-a" ? Math.hypot(5848, 4387) : Math.hypot(scene.width, scene.height);
+  const liveGP: { lat: number; lon: number; alt: number } | null =
+    scene.id === "live-a" ? { lat: 27.998912, lon: 86.856634, alt: 5545 } : null;
+  const limitations = [
+    "未执行任何 landmark 求解：status=REPRESENTATIVE，routeOverlay 强制为 false（禁止画“看着像”的假路线）。",
+    liveGP
+      ? "真实珠峰照片：Kala Patthar 视角（5848×4387，CC BY-SA 4.0）；camera GPS 取自原图 EXIF。TERRAIN 模式提供准确科学地形路线。"
+      : "该场景尚未收录可求解照片/相机元数据；TERRAIN 模式提供准确科学地形路线。",
+    "yaw/pitch/roll/焦距/内参 未校准：camera 解省略；reprojection 全 0 仅为 schema 占位，不作任何精度声明。",
+    "待人工视觉核签 + viewer 标点求解后可升级为 CALIBRATED/VERIFIED。",
+  ];
+  const report: CalibrationReportV1Out = {
+    schemaVersion: 1,
+    sceneId: scene.id,
+    assetId: scene.id === "live-a" ? "live-a-kala-patthar" : scene.id,
+    status: "REPRESENTATIVE",
+    media,
+    metadata: {
+      imageWidth: scene.id === "live-a" ? 5848 : scene.width,
+      imageHeight: scene.id === "live-a" ? 4387 : scene.height,
+      cameraLat: liveGP?.lat,
+      cameraLon: liveGP?.lon,
+      cameraAltitudeM: liveGP?.alt,
+      metadataSource:
+        scene.id === "live-a"
+          ? "WikimediaCommons(FILE)·相机 EXIF(SONY ILCE-6000)·Kala Patthar 拍摄点 GPS"
+          : "unknown",
+      unknown: ["yaw", "pitch", "roll", "focalLength", "intrinsics", "实际拍摄海拔精度"],
+    },
+    imageTransform: {
+      sourceWidth: derivative.width,
+      sourceHeight: derivative.height,
+      cropX: 0,
+      cropY: 0,
+      cropWidth: derivative.width,
+      cropHeight: derivative.height,
+      outputWidth: derivative.width,
+      outputHeight: derivative.height,
+    },
+    landmarks: [],
+    reprojection: {
+      medianPx: 0,
+      meanPx: 0,
+      maxPx: 0,
+      maxValidationPx: 0,
+      medianDiagPct: 0,
+      maxValidationDiagPct: 0,
+      imageDiagonalPx: originalDiag,
+      pass: false,
+    },
+    route: [],
+    waypoints: [],
+    summary: { visibleCount: 0, occludedCount: 0, outOfFrameCount: 0 },
+    limitations,
+    generatedAt: new Date().toISOString(),
+  };
+  return { report, status: "REPRESENTATIVE", route: [] };
 }
 
 /** CLI 组装：load 静态数据 → buildReportData → 写 JSON + MD */

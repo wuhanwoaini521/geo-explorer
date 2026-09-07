@@ -16,7 +16,8 @@ import {
   classifyVisibility,
   type DemGrid,
 } from "../tools/everest-route-calibrator/src/math/occlusion.js";
-import { statusFromStats } from "../tools/everest-route-calibrator/src/calibrate.js";
+import { statusFromStats, representativeReport } from "../tools/everest-route-calibrator/src/calibrate.js";
+import { routeOverlayAllowed } from "../miniprogram/engine/calibration-validate.js";
 const W = 1080;
 const H = 1920;
 const CX = W / 2;
@@ -117,5 +118,30 @@ describe("校准工具 DEM 遮挡", () => {
     );
     expect(out[0]).toBe("VISIBLE");
     expect(out[1]).toBe("OCCLUDED");
+  });
+});
+describe("REPRESENTATIVE 兜底报告（§5/§47）", () => {
+  const scene = { id: "live-a", width: 1080, height: 1920 } as Parameters<
+    typeof representativeReport
+  >[0];
+  const built = representativeReport(scene);
+  const rep = built.report;
+
+  it("状态固定 REPRESENTATIVE，route 空，camera 省略", () => {
+    expect(rep.status).toBe("REPRESENTATIVE");
+    expect(rep.route.length).toBe(0);
+    expect(rep.waypoints.length).toBe(0);
+    expect((rep as { camera?: unknown }).camera).toBeUndefined();
+    expect(rep.landmarks.length).toBe(0);
+    expect(rep.reprojection.pass).toBe(false);
+  });
+
+  it("诚实声明：limitations 说清未求解，且相应地 REPRESENTATIVE 不放行 overlay", () => {
+    expect(rep.limitations.length).toBeGreaterThanOrEqual(1);
+    expect(rep.limitations.join("; ")).toContain("routeOverlay");
+  });
+
+  it("REPRESENTATIVE 的 routeOverlay 必须为 false（与 calibration-validate 一致）", () => {
+    expect(routeOverlayAllowed(rep.status)).toBe(false);
   });
 });

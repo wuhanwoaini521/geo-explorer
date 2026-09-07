@@ -10,7 +10,7 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { assembleReport } from "./node.js";
+import { assembleReport, writeRepresentative } from "./node.js";
 import type { PixelInput } from "./calibrate.js";
 import { SCENES, sceneById } from "./scenes.js";
 import type { DemGrid } from "./math/occlusion.js";
@@ -21,6 +21,7 @@ function usage(): void {
 用法:
   node dist/cli.js solve --scene <id> --pixels <file.json> [--dem <raw.raw>] [--out <dir>]
   node dist/cli.js solve --scene live-a --pixels design/world/everest-live/pixels/live-a.json
+  node dist/cli.js representative --scene live-a    # REPRESENTATIVE 兜底（routeOverlay=false）
 
 必需:
   --scene <id>   live-a | live-b | live-c | live-d
@@ -92,6 +93,23 @@ function run(argv: string[]): void {
     return i >= 0 && argv[i + 1] ? argv[i + 1] : undefined;
   };
   const sceneId = arg("--scene") ?? "live-a";
+  const scene = sceneById(sceneId);
+  if (!scene) {
+    console.error(`未知 scene ${sceneId}（可用：${SCENES.map((s) => s.id).join(", ")}）`);
+    process.exitCode = 2;
+    return;
+  }
+  const outDir = arg("--out");
+  // REPRESENTATIVE 兜底：不求解、不画路线（§47）
+  if (argv.includes("--representative") || argv.includes("representative")) {
+    const result = writeRepresentative({ scene, outDir });
+    console.log("");
+    console.log(`✔ 场景        ${scene.id}`);
+    console.log(`  状态        ${result.status}`);
+    console.log(`  输出        ${result.wrote.join(", ")}`);
+    console.log(`  状态机断言  REPRESENTATIVE: routeOverlay=false`);
+    return;
+  }
   const pixelsPath = arg("--pixels");
   if (!pixelsPath) {
     console.error("缺少 --pixels <file.json>");
@@ -99,20 +117,13 @@ function run(argv: string[]): void {
     process.exitCode = 2;
     return;
   }
-  const scene = sceneById(sceneId);
-  if (!scene) {
-    console.error(`未知 scene ${sceneId}（可用：${SCENES.map((s) => s.id).join(", ")}）`);
-    process.exitCode = 2;
-    return;
-  }
   if (!scene.cameraGuesses) {
-    console.warn(`场景 ${sceneId} 没有相机 guess —— 该场景还不能求解（仅能生成 REPRESENTATIVE 报告）。`);
+    console.warn(`场景 ${sceneId} 没有相机 guess —— 该场景还不能求解（仅能生成 REPRESENSENTATIVE 报告）。`);
   }
   const pixels = loadPixels(resolve(pixelsPath));
   const demRaw = arg("--dem");
   const dem = demRaw ? loadDem(resolve(demRaw)) : null;
 
-  const outDir = arg("--out");
   const result = assembleReport({
     scene,
     pixels,

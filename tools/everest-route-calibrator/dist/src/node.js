@@ -4,7 +4,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { buildReportData, renderMarkdown } from "./calibrate.js";
+import { buildReportData, representativeReport, renderMarkdown } from "./calibrate.js";
 /** 加载南坡路线密集点（world 系，来自 south-col.json） */
 export function loadRoute() {
     const p = join(process.cwd(), "miniprogram/data/routes/everest/south-col.json");
@@ -59,4 +59,17 @@ export function assembleReport(opts) {
     writeFileSync(key, JSON.stringify(report, null, 2) + "\n", "utf8");
     writeFileSync(mdKey, renderMarkdown(report, scene), "utf8");
     return { key, wrote: [key, mdKey], status, route };
+}
+/** REPRESENTATIVE 兜底报告：写 JSON + MD（不求解，route 为空）。 */
+export function writeRepresentative(opts) {
+    const { scene } = opts;
+    const built = representativeReport(scene);
+    const outRoot = opts.outDir ?? "design/world/everest-live/calibration";
+    const outAbs = resolve(process.cwd(), outRoot);
+    mkdirSync(outAbs, { recursive: true });
+    const key = join(outAbs, `${scene.id}.json`);
+    const mdKey = key.replace(/\.json$/, ".md");
+    writeFileSync(key, JSON.stringify(built.report, null, 2) + "\n", "utf8");
+    writeFileSync(mdKey, renderMarkdown(built.report, scene), "utf8");
+    return { key, wrote: [key, mdKey], status: built.status };
 }

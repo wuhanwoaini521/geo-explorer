@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "live-a",
+  "assetId": "live-a-kala-patthar",
+  "status": "REPRESENTATIVE",
+  "media": {
+    "source": "https://commons.wikimedia.org/wiki/File:Mount_Everest_from_Kala_Patthar.jpg",
+    "author": "Matheus Hobold Sovernigo",
+    "license": "CC BY-SA 4.0",
+    "localAsset": "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+    "dimensions": "1080×1920 (derivative of 5848×4387)"
+  },
+  "metadata": {
+    "imageWidth": 5848,
+    "imageHeight": 4387,
+    "cameraLat": 27.998912,
+    "cameraLon": 86.856634,
+    "cameraAltitudeM": 5545,
+    "metadataSource": "WikimediaCommons(FILE)·相机 EXIF(SONY ILCE-6000)·Kala Patthar 拍摄点 GPS",
+    "unknown": [
+      "yaw",
+      "pitch",
+      "roll",
+      "focalLength",
+      "intrinsics",
+      "实际拍摄海拔精度"
+    ]
+  },
+  "imageTransform": {
+    "sourceWidth": 1080,
+    "sourceHeight": 1920,
+    "cropX": 0,
+    "cropY": 0,
+    "cropWidth": 1080,
+    "cropHeight": 1920,
+    "outputWidth": 1080,
+    "outputHeight": 1920
+  },
+  "landmarks": [],
+  "reprojection": {
+    "medianPx": 0,
+    "meanPx": 0,
+    "maxPx": 0,
+    "maxValidationPx": 0,
+    "medianDiagPct": 0,
+    "maxValidationDiagPct": 0,
+    "imageDiagonalPx": 7310.600043772058,
+    "pass": false
+  },
+  "route": [],
+  "waypoints": [],
+  "summary": {
+    "visibleCount": 0,
+    "occludedCount": 0,
+    "outOfFrameCount": 0
+  },
+  "limitations": [
+    "未执行任何 landmark 求解：status=REPRESENTATIVE，routeOverlay 强制为 false（禁止画“看着像”的假路线）。",
+    "真实珠峰照片：Kala Patthar 视角（5848×4387，CC BY-SA 4.0）；camera GPS 取自原图 EXIF。TERRAIN 模式提供准确科学地形路线。",
+    "yaw/pitch/roll/焦距/内参 未校准：camera 解省略；reprojection 全 0 仅为 schema 占位，不作任何精度声明。",
+    "待人工视觉核签 + viewer 标点求解后可升级为 CALIBRATED/VERIFIED。"
+  ],
+  "generatedAt": "2026-09-07T16:03:54.257Z"
+}
