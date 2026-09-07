@@ -29,7 +29,10 @@ describe("EVEREST_EXPEDITION 结构", () => {
     const st = exp.stageMap;
     expect(st).toHaveLength(7);
     expect(st[0].fromDistanceM).toBe(0);
-    expect(st[st.length - 1].toDistanceM).toBeCloseTo(exp.routeIndex.totalDistanceM, 1);
+    expect(st[st.length - 1].toDistanceM).toBeCloseTo(
+      exp.routeIndex.totalDistanceM,
+      1,
+    );
     for (let i = 1; i < st.length; i++) {
       expect(st[i].fromDistanceM).toBeCloseTo(st[i - 1].toDistanceM, 2);
       expect(st[i].fromDistanceM).toBeGreaterThan(st[i - 1].fromDistanceM);
@@ -51,7 +54,9 @@ describe("EVEREST_EXPEDITION 结构", () => {
     expect(stageIndexAtDistance(st, 0)).toBe(0);
     const mid = st[3].fromDistanceM;
     expect(stageIndexAtDistance(st, mid)).toBeGreaterThan(0);
-    expect(stageIndexAtDistance(st, exp.routeIndex.totalDistanceM)).toBe(st.length - 1);
+    expect(stageIndexAtDistance(st, exp.routeIndex.totalDistanceM)).toBe(
+      st.length - 1,
+    );
   });
 
   it("相机段覆盖 [0,1] 且不重叠", () => {
@@ -59,7 +64,20 @@ describe("EVEREST_EXPEDITION 结构", () => {
     expect(segs[0].fromProgress).toBe(0);
     expect(segs[segs.length - 1].toProgress).toBe(1);
     for (let i = 1; i < segs.length; i++) {
-      expect(segs[i].fromProgress).toBeGreaterThanOrEqual(segs[i - 1].toProgress);
+      expect(segs[i].fromProgress).toBeGreaterThanOrEqual(
+        segs[i - 1].toProgress,
+      );
+    }
+  });
+
+  it("Dual Visual Mode（Gate 3.3A）：默认 LIVE，兜底 TERRAIN，4 Hero 场景", () => {
+    const vm = exp.visualMode;
+    expect(vm.defaultMode).toBe("LIVE");
+    expect(vm.fallback).toBe("TERRAIN");
+    expect(vm.liveScenes).toHaveLength(4);
+    for (const sc of vm.liveScenes) {
+      expect(sc.stageIds.length).toBeGreaterThan(0);
+      expect(sc.id).toMatch(/^live-[a-d]$/);
     }
   });
 });

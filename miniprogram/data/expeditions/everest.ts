@@ -13,6 +13,7 @@ import type {
   CameraConfig,
   ExpeditionAttachment,
   ExpeditionStageDef,
+  ExpeditionVisualModeConfig,
   MediaManifest,
 } from "../../types/expedition";
 import type { DataSource } from "../../types/exploration";
@@ -36,7 +37,11 @@ const STAGE_DEFS: ExpeditionStageDef[] = [
       "从南坡大本营（5,364 m）起步，沿昆布冰川上缘推进。一出发就将面对整条路线最危险的昆布冰瀑。",
     routeStyle: "route-a",
     from: { kind: "start" },
-    to: { kind: "milestone", milestoneId: "khumbu-icefall", label: "到达冰瀑起点" },
+    to: {
+      kind: "milestone",
+      milestoneId: "khumbu-icefall",
+      label: "到达冰瀑起点",
+    },
   },
   {
     id: "khumbu-icefall",
@@ -45,7 +50,11 @@ const STAGE_DEFS: ExpeditionStageDef[] = [
     intro:
       "昆布冰川最破碎的一段：冰塔、深裂隙、随时可能崩溃的冰柱。绝大多数登山者都选择趁夜里气温最低时快速通过（危险度与通过策略为公开登山科普的概括，非即时间点数据）。",
     routeStyle: "danger-line",
-    from: { kind: "milestone", milestoneId: "khumbu-icefall", label: "昆布冰瀑" },
+    from: {
+      kind: "milestone",
+      milestoneId: "khumbu-icefall",
+      label: "昆布冰瀑",
+    },
     to: { kind: "milestone", milestoneId: "camp-i", label: "C1 营地" },
   },
   {
@@ -55,7 +64,11 @@ const STAGE_DEFS: ExpeditionStageDef[] = [
     intro:
       "相对平缓但开阔的雪原（Western Cwm，英国登山者称之为“The Valley of Silence”——寂静之谷），雪山脊影跳动，在烈日下煎熬与大风中行进到 C2。",
     from: { kind: "milestone", milestoneId: "camp-i", label: "C1 营地" },
-    to: { kind: "milestone", milestoneId: "western-cwm-camp-ii", label: "C2 营地" },
+    to: {
+      kind: "milestone",
+      milestoneId: "western-cwm-camp-ii",
+      label: "C2 营地",
+    },
   },
   {
     id: "lhotse-face",
@@ -63,8 +76,16 @@ const STAGE_DEFS: ExpeditionStageDef[] = [
     emoji: "⛰️",
     intro:
       "沿着洛子峰冰壁（Lhotse Face）连续陡峭雪坡攀爬，途经 C3 后直上抵南坳（C4，7,906 m）。",
-    from: { kind: "milestone", milestoneId: "western-cwm-camp-ii", label: "C2 营地" },
-    to: { kind: "milestone", milestoneId: "south-col-camp-iv", label: "南坳 C4" },
+    from: {
+      kind: "milestone",
+      milestoneId: "western-cwm-camp-ii",
+      label: "C2 营地",
+    },
+    to: {
+      kind: "milestone",
+      milestoneId: "south-col-camp-iv",
+      label: "南坳 C4",
+    },
   },
   {
     id: "south-col",
@@ -72,8 +93,16 @@ const STAGE_DEFS: ExpeditionStageDef[] = [
     emoji: "⛺",
     intro:
       "位于世界屋脊边缘的“挡风营地”——南坳（C4），与洛子峰隔脊相望；登顶前的最后一晚通常留在这里。",
-    from: { kind: "milestone", milestoneId: "south-col-camp-iv", label: "南坳 C4" },
-    to: { kind: "cross-ref-m", crossRefM: 8000, label: "越过 8000 m（进入死亡区）" },
+    from: {
+      kind: "milestone",
+      milestoneId: "south-col-camp-iv",
+      label: "南坳 C4",
+    },
+    to: {
+      kind: "cross-ref-m",
+      crossRefM: 8000,
+      label: "越过 8000 m（进入死亡区）",
+    },
   },
   {
     id: "death-zone",
@@ -82,7 +111,11 @@ const STAGE_DEFS: ExpeditionStageDef[] = [
     intro:
       "海拔 8000 m 以上的“死亡区”：大气含氧量不足海平面三分之一。人体机能在稀氧下开始崩溃，休息、补给与意志都难以为继，每一步都在与身体反目成仇。",
     from: { kind: "cross-ref-m", crossRefM: 8000, label: "8000 m" },
-    to: { kind: "milestone", milestoneId: "south-summit", label: "南峰（8,749 m）" },
+    to: {
+      kind: "milestone",
+      milestoneId: "south-summit",
+      label: "南峰（8,749 m）",
+    },
   },
   {
     id: "summit-push",
@@ -103,14 +136,34 @@ const stageMap = buildStageMap(STAGE_DEFS, routeIndex);
 
 const camera: CameraConfig = {
   segments: [
-    { id: "camera-a", fromProgress: 0, toProgress: 0.4, asset: "everest-view-a", scale: 1 },
-    { id: "camera-b", fromProgress: 0.4, toProgress: 0.66, asset: "everest-view-b", scale: 1 },
-    { id: "camera-c", fromProgress: 0.66, toProgress: 1, asset: "everest-view-c", scale: 1 },
+    {
+      id: "camera-a",
+      fromProgress: 0,
+      toProgress: 0.4,
+      asset: "everest-view-a",
+      scale: 1,
+    },
+    {
+      id: "camera-b",
+      fromProgress: 0.4,
+      toProgress: 0.66,
+      asset: "everest-view-b",
+      scale: 1,
+    },
+    {
+      id: "camera-c",
+      fromProgress: 0.66,
+      toProgress: 1,
+      asset: "everest-view-c",
+      scale: 1,
+    },
   ],
 };
 
 /* ------------------------------------------------------------------ */
 /* 媒体清单（Gate 6 前为空；schema 已锁定，validateMediaManifest 校验）   */
+/*  Gate 3.3B 起：LIVE 影像候选经 design/world/everest-live/media-review */
+/*  确认后以 approved 资产进入本清单，并在 visualMode.liveScenes 引用。   */
 /* ------------------------------------------------------------------ */
 
 const media: MediaManifest = {
@@ -118,7 +171,59 @@ const media: MediaManifest = {
   id: "everest-media",
   sceneId: "everest",
   assets: [],
-  notes: "Gate 6 前为空清单；历史图片（everest-*）进入正式清单前需在 media-review 中标注审查。",
+  notes:
+    "Gate 6 前为空清单；LIVE 实景影像在 Gate 3.3B 候选 review 通过（reviewStatus=approved）后逐条登记；未批准的影像绝不进入本清单。",
+};
+
+/* ------------------------------------------------------------------ */
+/* Dual Visual Mode（Gate 3.3A）：LIVE 实景 / TERRAIN 科学地形          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 4 个 LIVE Hero Scene（§5/§6）。
+ *
+ * 覆盖范围用 StageMap 阶段 id 声明（不手写 progress）：
+ *   为 7 段 → 4 场景的分段；全部路由由 stageMap 派生，任何进度方向只此一处。
+ * 本 Gate 不绑定影影像（Gate 3.3B 候选 review 后填 assetId），因此页面在
+ * LIVE 模式遇未见收录时，会按 fallback 策略落到 TERRAIN（§11/§24）——
+ * 当前阶段这是正确状态：绝不假图填坑。
+ */
+const liveScenes: ExpeditionVisualModeConfig["liveScenes"] = [
+  {
+    id: "live-a",
+    label: "Base Camp · Approach",
+    // StageMap：approach（大本营）→ khumbu-icefall（昆布冰瀑）→ C1
+    stageIds: ["approach", "khumbu-icefall"],
+    routeOverlay: "full-route", // §18 LIVE-A：全景路线 overview
+    // assetId / crop / anchors 待 Gate 3.3B 绑定正式影像后补齐
+  },
+  {
+    id: "live-b",
+    label: "Western Cwm · Camp II",
+    // StageMap：western-cwm（西库姆冰谷，C1 → C2）
+    stageIds: ["western-cwm"],
+    routeOverlay: "nearby", // §18 LIVE-B：只画当前附近路线
+  },
+  {
+    id: "live-c",
+    label: "Death Zone · Summit Push",
+    // StageMap：lhotse-face（洛子壁）→ south-col（南坳 C4）→ death-zone（死亡区）
+    stageIds: ["lhotse-face", "south-col", "death-zone"],
+    routeOverlay: "current-next", // §18 LIVE-C：只画 current → next waypoint
+  },
+  {
+    id: "live-d",
+    label: "Summit",
+    // StageMap：summit-push（冲顶段）
+    stageIds: ["summit-push"],
+    routeOverlay: "none", // §18 LIVE-D：不画路线，只标 SUMMIT
+  },
+];
+
+const visualMode: ExpeditionVisualModeConfig = {
+  defaultMode: "LIVE", // §23：默认实景；用户切换后仅在会话内记住，离开后回到默认
+  fallback: "TERRAIN", // §24：LIVE 不可用（无图/未批准/资产无效）一律回退科学地形，页面不空白
+  liveScenes,
 };
 
 /* ------------------------------------------------------------------ */
@@ -175,6 +280,8 @@ export const EVEREST_EXPEDITION: EverestExpedition = {
   media,
   elevationPolicy,
   sources,
+  /* Gate 3.3A：Dual Visual Mode（LIVE/TERRAIN） */
+  visualMode,
 };
 
 /** 供校验层便捷调用 */
