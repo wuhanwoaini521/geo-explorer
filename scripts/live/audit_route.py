@@ -27,9 +27,13 @@ OUT = ROOT / "design/world/everest-live/route-audit.md"
 
 
 def main() -> int:
-    d = json.loads(ROUTE.read_text(encoding="utf-8"))
+    try:
+        d = json.loads(ROUTE.read_text(encoding="utf-8"))
+        wps = json.loads(WAYPOINTS.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"[route-audit] 读取失败: {exc}")
+        return 2
     pts = d["points"]
-    wps = json.loads(WAYPOINTS.read_text(encoding="utf-8"))
     n = len(pts)
     issues: list[str] = []
     warnings: list[str] = []
@@ -78,7 +82,9 @@ def main() -> int:
 
     # 4) waypoint projection onto polyline (world x/y)
     def project_on(px: float, py: float) -> tuple[float, float]:
-        best_i, best_t, best_d = -1, 0.0, float("inf")
+        best_i = -1
+        best_t = 0.0
+        best_d = 1e18
         for i in range(n - 1):
             x0, y0 = pts[i]["x"], pts[i]["y"]
             x1, y1 = pts[i + 1]["x"], pts[i + 1]["y"]
@@ -89,6 +95,8 @@ def main() -> int:
             dd = math.hypot(px - cx, py - cy)
             if dd < best_d:
                 best_i, best_t, best_d = i, t, dd
+        if best_i < 0:
+            return 0.0, 0.0
         dist_m = cum[best_i] + best_t * (cum[best_i + 1] - cum[best_i])
         return dist_m, best_d
 
