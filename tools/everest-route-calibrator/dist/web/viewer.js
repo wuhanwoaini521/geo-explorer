@@ -2,24 +2,32 @@
  * 浏览器标注器：载入 live 实景 → 点地标 → 求解 → 验证 → 投影 route。
  * 复用纯核心（camera-math / occlusion / calibrate.buildReportData），
  * 全部本地处理；报告结构与 CLI/node assembleReport 完全同源。
+ *
+ * 引导模式：用初始相机 guess 把每个地标投影成空心引导圈（预测位置）。
+ * 人工只需在照片里把每个山峰点一下：接近引导圈即自动吸附到圈上。
+ * 吸附不是"自动校准"——只是把人工点击对准到猜测位置，真正的解
+ * 仍由 solver 对全部标点求（加上 DEM 遮挡与 LOO 验证）。
  */
 import { SCENES, sceneById, LANDMARKS } from "../src/scenes.js";
-import { buildReportData, } from "/home/hans/Code/self-github/geo-explorer/tools/everest-route-calibrator/src/calibrate.js";
+import { buildReportData, guessGuideMarks, } from "../src/calibrate.js";
 const NATIVE_W = 1080;
 const NATIVE_H = 1920;
+/** 点击距引导圈多少 px 内 吸附到引导点（照片 1080 宽，110px 相当宽松） */
+const SNAP_PX = 130;
 const ROUTE_URL = "/miniprogram/data/routes/everest/south-col.json";
 const WAYPOINTS_URL = "/design/world/everest-3d/route/waypoints.json";
 const DEM_META_URL = "/design/world/everest-live/dem/occlusion-30m.raw.json";
 function el(id) {
     return document.getElementById(id);
 }
-const img = el("image");
+const photo = el("photo");
 const canvas = el("overlay");
 const ctx = canvas.getContext("2d");
 const state = {
     scene: SCENES[0],
     marks: [],
     activeLandmarkId: "everest-summit",
+    guides: [],
     route: [],
     waypoints: [],
     dem: null,
@@ -31,6 +39,9 @@ async function fetchJson(path) {
     if (!r.ok)
         throw new Error(`GET ${path} → ${r.status}`);
     return (await r.json());
+}
+function guidePx(g) {
+    return { x: g.u * NATIVE_W, y: g.v * NATIVE_H };
 }
 async function boot() {
     // 场景选择
@@ -59,6 +70,7 @@ async function boot() {
             for (const b of Array.from(catalog.querySelectorAll(".chip"))) {
                 b.classList.toggle("on", b.dataset.id === l.id);
             }
+            drawScene();
         });
         catalog.appendChild(btn);
     }
@@ -96,35 +108,82 @@ async function boot() {
         console.warn("DEM 未加载（全部按 VISIBLE 处理）", e);
         state.dem = null;
     }
-    el("run").addEventListener("click", runSolve);
+    el("run-btn").addEventListener("click", runSolve);
+    el("auto-marks-btn").addEventListener("click", autoMarks);
     el("export-btn").addEventListener("click", exportPixels);
     el("export-report-btn").addEventListener("click", exportReport);
     el("show-route").addEventListener("change", drawScene);
-    el("show-wm").addEventListener("change", drawScene);
+    el("show-wpts").addEventListener("change", drawScene);
     const first = sceneById(sel.value) ?? SCENES[0];
     await loadScene(first);
+}
+/**
+ * ⚡ 预标记：把初始 guess 能投影到的所有地标一次性放进标注列表。
+ * 引导点可能略偏（EXIF GPS / 焦距有误差），人工只需“瞄一眼”后
+ * 逐个微调：在对应圈的准确峰顶再单击一次即可覆盖为真实位置。
+ */
+function autoMarks() {
+    if (state.marks.length > 0) {
+        if (!window.confirm("已有点标（可能来自求解微调）——将先清空现有标注，再按引导重新预标记。继续？"))
+            return;
+        state.marks = [];
+    }
+    for (const g of state.guides) {
+        const inFrame = g.u >= 0 && g.u <= 1 && g.v >= 0 && g.v <= 1;
+        if (!inFrame)
+            continue;
+        state.marks.push({
+            landmarkId: g.landmarkId,
+            name: g.nameEn,
+            u: g.u,
+            v: g.v,
+        });
+    }
+    if (state.marks.length < 3) {
+        report("按 guess 只能投影出少（应能 ≥6 个）；改用左侧目录手工选点。");
+    }
+    renderMarkList();
+    drawScene();
 }
 async function loadScene(scene) {
     state.scene = scene;
     state.marks = [];
     state.reportRoute = [];
     state.waypointPixels = [];
-    document.body.classList.toggle("loading"); // live 状态指示
-    img.onload = () => {
+    state.guides = guessGuideMarks(scene);
+    document.body.classList.toggle("loading");
+    photo.onload = () => {
         el("loading").style.display = "none";
         canvas.style.display = "block";
         drawScene();
     };
-    img.src = `/${scene.assetPath}`;
+    photo.src = `/${scene.assetPath}`;
     drawScene();
 }
 function drawScene() {
     canvas.width = NATIVE_W;
     canvas.height = NATIVE_H;
     ctx.clearRect(0, 0, NATIVE_W, NATIVE_H);
+    // 引导圈（guess 投影位，空心圈；命中即吸附）
+    for (const g of state.guides) {
+        const px = guidePx(g);
+        if (px.x < -60 || px.x > NATIVE_W + 60 || px.y < -60 || px.y > NATIVE_H + 60)
+            continue;
+        const active = g.landmarkId === state.activeLandmarkId;
+        ctx.strokeStyle = active ? "rgba(255,210,63,0.95)" : "rgba(120,220,255,0.55)";
+        ctx.lineWidth = active ? 3 : 2;
+        ctx.setLineDash(active ? [0] : [4, 4]);
+        ctx.beginPath();
+        ctx.arc(px.x, px.y, active ? 14 : 10, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.font = "11px sans-serif";
+        ctx.fillText(g.nameEn, px.x + 14, px.y - 8);
+    }
     // 标注点 + 名字
     for (const m of state.marks) {
-        ctx.fillStyle = "#ffd23f";
+        ctx.fillStyle = "#ff7d23";
         ctx.beginPath();
         ctx.arc(m.u * NATIVE_W, m.v * NATIVE_H, 9, 0, Math.PI * 2);
         ctx.fill();
@@ -140,7 +199,7 @@ function drawScene() {
         drawRouteOverlay();
     }
     // waypoints 圆点
-    if (el("show-wm").checked) {
+    if (el("show-wpts").checked) {
         for (const w of state.waypointPixels) {
             if (w.u < 0 || w.u > 1 || w.v < 0 || w.v > 1)
                 continue;
@@ -159,21 +218,32 @@ function drawRouteOverlay() {
         const b = route[i];
         if (a.visibility === "OUT_OF_FRAME" || b.visibility === "OUT_OF_FRAME")
             continue;
-        ctx.strokeStyle = a.visibility === "OCCLUDED" ? "rgba(190,70,70,0.9)" : "rgba(36,120,255,0.95)";
+        ctx.strokeStyle = a.visibility === "OCCLUDED" ? "rgba(230,96,96,0.9)" : "rgba(36,120,255,0.95)";
         ctx.beginPath();
         ctx.moveTo(a.u * NATIVE_W, a.v * NATIVE_H);
         ctx.lineTo(b.u * NATIVE_W, b.v * NATIVE_H);
         ctx.stroke();
     }
 }
-/** 主图单击 → 给当前地标落点 */
+/** 主图单击 → 给当前地标落点（贴近引导圈时自动吸附） */
 canvas.addEventListener("pointerdown", (e) => {
     const rect = canvas.getBoundingClientRect();
+    const px = { x: (e.clientX - rect.left) / rect.width * NATIVE_W, y: (e.clientY - rect.top) / rect.height * NATIVE_H };
+    let u = px.x / NATIVE_W;
+    let v = px.y / NATIVE_H;
+    const guide = state.guides.find((g) => g.landmarkId === state.activeLandmarkId);
+    if (guide) {
+        const gp = guidePx(guide);
+        if (Math.hypot(px.x - gp.x, px.y - gp.y) < SNAP_PX) {
+            u = guide.u;
+            v = guide.v;
+        }
+    }
     state.marks.push({
         landmarkId: state.activeLandmarkId,
         name: state.activeLandmarkId,
-        u: (e.clientX - rect.left) / rect.width,
-        v: (e.clientY - rect.top) / rect.height,
+        u,
+        v,
     });
     renderMarkList();
     drawScene();
@@ -200,7 +270,7 @@ function runSolve() {
     if (!state.scene)
         return;
     if (state.marks.length < 3) {
-        report("请至少标注 3 个地标点（推荐 5+）：先用左边目录选中地标，再在主图上单击。");
+        report("请至少标注 3 个地标点（推荐 6+ 校准 + 2 验证）：\n· 直接点“⚡ 预标记”按 guess 全量落点；\n· 或先选左侧地标，再在主图上单击其峰顶（带引导圈）；\n· 关键确认：珠峰 / 洛子 / 努子 / 普马里 四个主峰点必须对准真实山尖。");
         return;
     }
     const pixels = state.marks.map((m) => ({ landmarkId: m.landmarkId, u: m.u, v: m.v }));
@@ -224,11 +294,11 @@ function runSolve() {
 function fmtReport(b) {
     const r = b.report;
     const overlay = r.status === "VERIFIED" || r.status === "CALIBRATED"
-        ? "✓ 可开 routeOverlay（route[] 以本项目为 truth）"
+        ? "✅ 可开 routeOverlay（route[] 以本项目为 truth）"
         : "✗ REPRESENTATIVE → routeOverlay=false";
     return [
         `状态: ${r.status}`,
-        `重投影: median ${r.reprojection.medianPx.toFixed(2)}px · max ${r.reprojection.maxPx.toFixed(2)}px`,
+        `重新投影: median ${r.reprojection.medianPx.toFixed(2)}px · max ${r.reprojection.maxPx.toFixed(2)}px`,
         `LOO 验证最差: ${r.reprojection.maxValidationPx.toFixed(2)}px (diag ${r.reprojection.maxValidationDiagPct.toFixed(3)}%)`,
         `route: VISIBLE ${r.summary.visibleCount} / OCCLUDED ${r.summary.occludedCount} / OUT ${r.summary.outOfFrameCount}`,
         overlay,
@@ -250,7 +320,6 @@ function exportReport() {
         report("先运行求解，再导出报告。");
         return;
     }
-    // 用 buildReportData 重算一次拿完整 report JSON（确定性）
     const built = buildReportData({
         scene: state.scene,
         pixels: state.marks.map((m) => ({ landmarkId: m.landmarkId, u: m.u, v: m.v })),

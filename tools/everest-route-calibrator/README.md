@@ -11,12 +11,17 @@ pixels.json（web/viewer 点出 0..1 坐标）
           → node.assembleReport 落盘 <scene>.json + .md
 ```
 
-## 快速开始（10 分钟 LIVE-A 标注流程）
+## 快速开始（10 分钟 DIST-A 标注流程）
 
 ```bash
-# 1) 起本地静态服务器（整个仓库根作为站点根）
+# 0) 用一个命令起全部（编译 viewer.ts → 起端口 8787）
+npm run everest:viewer
+#    → 浏览器打开 http://localhost:8787/tools/everest-route-calibrator/web/
+#      等价手动：npm --prefix tools/everest-route-calibrator run build
+#                && node tools/everest-route-calibrator/server.mjs
+
+# 1) （可选）手工起本地静态服务器（仓库根即站点根）
 node tools/everest-route-calibrator/server.mjs
-#    → 打开 http://localhost:8787/tools/everest-route-calibrator/web/
 
 # 2) 浏览器里：
 #    - 左边"地标目录"选中一个地标（Everest Summit 等）
@@ -33,7 +38,17 @@ node tools/everest-route-calibrator/dist/src/cli.js solve \
 ```
 
 材料来自 Wikimedia Commons（Kala Patthar 遥望珠峰，CC BY-SA 4.0，SONY ILCE-6000 28mm 等效，5848×4387 原图裁剪为 1080×1920 肖像）。
-珠峰顶 / Lhotse / Nuptse / Pumori / 南坳等官方地标坐标见 `design/world/everest-live/coordinate-system.md`。
+材料来自 Wikimedia Commons（Kala Patthar 遥望珠峰，CC BY-SA 4.0，SONY ILCE-6000 28mm 等效，5848×4387 原图裁剪为 1080×1920 肖像）。
+珠峰顶 / Lhotse / Nuptse / Pumori / 南坳 / **西肩**（`everest-west-shoulder`）等官方地标坐标见 `design/world/everest-live/coordinate-system.md`。
+
+## Phase-2/一键引导（人工只点几个像素）
+
+live-a 的相机初始值取 **EXIF 真实 GPS**（27.9989129,86.856634），初始俯角定珠峰中上方；
+viewer 会用 guess 把每条地标投影成**空心引导圈**（纯函数 `guessGuideMarks`），
+`⚡ 预标记` 一键把圈位放入标点列表，单击峰真时距圈 <130px 自动吸附。
+人工只需“缘点确认”，`▶ 求解并投影` 走与 CLI 同源的 `buildReportData`（solver 真值 + DEM 遮挡 + LOO 阈值）。
+浏览器操作手册：`design/world/everest-live/live-a-viewer-guide.md`。
+server.mjs 会把 `src/*.js`/`web/viewer.js` 从 `dist/` 回退，因此 `npm run everest:viewer` 一键即可运行。
 
 ## CLI 子命令
 

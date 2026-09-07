@@ -12,6 +12,7 @@
     <div class="row">
       <select id="scene-select"></select>
       <button id="run-btn">▶ 求解并投影</button>
+      <button id="auto-marks-btn" title="把初始相机 guess 能投影到的每条地标一次性放入列表；然后人工逐次在真实峰顶单击，靠近引导圈自动吸附">⚡ 预标记</button>
       <button id="export-btn">↓ 导出 pixels.json</button>
       <button id="export-report-btn">↓ 导出 report.json</button>
       <label class="hint"><input type="checkbox" id="show-route" checked /> 叠加路线</label>
@@ -30,8 +31,8 @@
       <section>
         <h2>① 选地标（点击图内像素）</h2>
         <div id="catalog"></div>
-        <p class="hint">先在下面点亮一个地标，再在主图上单击落点；
-          或直接点“最近地标”从 guess 投影自动吸附。</p>
+        <p class="hint">先点 “⚡ 预标记” 一键放下全部引导圈；然后逐个核验：
+          选亮左侧地标 → 在主图上其真实峰顶单击（靠近空心引导圈会自动吸附）。</p>
       </section>
       <section>
         <h2>② 标注点列表</h2>

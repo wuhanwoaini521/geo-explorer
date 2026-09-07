@@ -251,6 +251,56 @@ export function projectWaypoints(
 }
 
 /* ------------------------------------------------------------------ */
+/* 引导标点：把 LANDMARKS 按初始相机 guess 投影 → 供 viewer 吸附         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 用场景的初始相机 guess 把全部地标投影成屏幕引导点（归一化 0..1；摄像头后 → null）。
+ * 纯函数：不触发求解，只做“猜一个海拔在哪儿”的引导，吸附后仍需 solver 真值。
+ */
+export function guessGuideMarks(scene: SceneDef): Array<{
+  landmarkId: string;
+  nameEn: string;
+  u: number;
+  v: number;
+  elevationM: number;
+}> {
+  const guess = scene.cameraGuesses;
+  if (!guess) return [];
+  const intr = { f: guess.focalPx, cx: scene.width / 2, cy: scene.height / 2 };
+  const pose: CameraPose = {
+    position: geodToWorld({
+      lat: guess.lat,
+      lon: guess.lon,
+      elevationM: guess.elevationM,
+    }),
+    yawDeg: guess.yawDeg,
+    pitchDeg: guess.pitchDeg,
+    rollDeg: guess.rollDeg,
+  };
+  const out: Array<{
+    landmarkId: string;
+    nameEn: string;
+    u: number;
+    v: number;
+    elevationM: number;
+  }> = [];
+  for (const l of LANDMARKS) {
+    const world = geodToWorld({ lat: l.lat, lon: l.lon, elevationM: l.elevationM });
+    const shot = projectWorldToPixel(world, pose, intr);
+    if (!shot || !shot.inFront) continue;
+    out.push({
+      landmarkId: l.id,
+      nameEn: l.nameEn,
+      u: (shot.u - intr.cx) / scene.width + 0.5,
+      v: (shot.v - intr.cy) / scene.height + 0.5,
+      elevationM: l.elevationM,
+    });
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
 /* 报告装配                                                            */
 /* ------------------------------------------------------------------ */
 

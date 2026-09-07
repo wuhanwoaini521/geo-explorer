@@ -72,6 +72,15 @@ export const LANDMARKS: Landmark[] = [
     note: "",
   },
   {
+    id: "everest-west-shoulder",
+    nameZh: "珠峰西肩",
+    nameEn: "Everest West Shoulder",
+    lat: 27.9953,
+    lon: 86.8786,
+    elevationM: 7400,
+    note: "非官方峰；威斯岭（West Ridge）反身坡（约74xx m），共视线可辨→辅助定位",
+  },
+  {
     id: "pumori",
     nameZh: "普马里",
     nameEn: "Pumori",
@@ -151,14 +160,14 @@ export const SCENES: SceneDef[] = [
     width: 1080,
     height: 1920,
     cameraGuesses: {
-      lat: 27.9837,
-      lon: 86.787,
+      lat: 27.9989129,
+      lon: 86.856634,
       elevationM: 5545,
-      yawDeg: 88,
-      pitchDeg: -15,
+      yawDeg: 100,
+      pitchDeg: 30,
       rollDeg: 0,
-      focalPx: 840, // 5848 宽原作帧：28/36*5848=4544.4；本衍生物为 1080 宽 → 840
-      note: "拍于 Kala Patthar；初始指向珠峰山体，随后由用户标点 + solver 校正",
+      focalPx: 840, // EXIF GPS(27.9989129/86.856634)·Kala Patthar 东北缘取景；引导点仅吸附，真解由 solver
+      note: "拍片点取相机 EXIF GPS（可能含 ±百米 UTM 误差）；初始俯角让主峰进中上部，引导点仅供吸附，真实解由 solver 定",
     },
     freedom: "6d",
     note: "Kala Patthar 遥望珠峰（↑审查标记 summit 位于上偏右）。",

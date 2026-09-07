@@ -8,7 +8,8 @@
     "build": "npm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs && node scripts/check-requires.mjs",
     "clean": "node scripts/clean.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "everest:viewer": "npm --prefix tools/everest-route-calibrator run build && node tools/everest-route-calibrator/server.mjs"
   },
   "keywords": [
     "wechat",
