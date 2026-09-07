@@ -5,8 +5,8 @@
   "description": "🌍 Geo Explorer —— 地理探索微信小程序（MVP：攀登珠穆朗玛峰 Demo）",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "npm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
-    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs && node scripts/check-requires.mjs",
+    "clean": "node scripts/clean.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

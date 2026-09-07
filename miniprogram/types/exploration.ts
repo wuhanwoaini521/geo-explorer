@@ -19,6 +19,8 @@ export interface ExplorationWorld {
   style: string;
 }
 
+import type { EvidenceType } from "./expedition";
+
 /** 数据来源（内容真实性，见设计文档 §29） */
 export interface DataSource {
  /** 来源名称，如 "国家测绘局 / Wikipedia" */
@@ -29,6 +31,8 @@ export interface DataSource {
  verifiedAt?: string;
  /** 该数值是否为“公开近似值/建模推导”（非精确实测） */
  approximate?: boolean;
+ /** V2 证据强度（可选，向后兼容）：实测 / 数据集 / 引用 / 建模 / 示意 */
+ evidence?: EvidenceType;
 }
 
 /** 探索路线上的知识节点 */
