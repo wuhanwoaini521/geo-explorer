@@ -2,8 +2,8 @@
 node_modules/
 npm-debug.log*
 
-# build output (WeChat DevTools loads dist/miniprogram)
-dist/
+# 调试产物 dist/miniprogram —— 微信开发者工具加载它；现随仓库提交（跨机预览无需本地 build）。
+# 重新生成：npm run build（raw 原图不入仓，见 design/world/everest-live/raw/ 的 gitignore）
 
 # Local Blender Portable and raw Copernicus DEM caches (reproducible from SOURCE.md)
 tools/blender/

@@ -1,0 +1,57 @@
+"use strict";
+/**
+ * 通用格式化与数值辅助（纯函数，可单测，无 wx 依赖）。
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.clamp = clamp;
+exports.formatNumber = formatNumber;
+exports.formatElevation = formatElevation;
+exports.formatTemperature = formatTemperature;
+exports.formatPercent = formatPercent;
+exports.progressPercent = progressPercent;
+exports.formatDuration = formatDuration;
+/** 将数值钳制到 [min, max]。 */
+function clamp(value, min, max) {
+    if (Number.isNaN(value))
+        return min;
+    return Math.min(max, Math.max(min, value));
+}
+/** 千分位格式化：123456.7 -> "123,456.7" */
+function formatNumber(value, digits = 0) {
+    const fixed = value.toFixed(digits);
+    const [int, frac] = fixed.split(".");
+    const withSep = int.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return frac === undefined ? withSep : `${withSep}.${frac}`;
+}
+/** 以米为单位的海拔 → 人性化字符串，如 8848.86 -> "8,848.86 m"；≥10000 自动转 km 显示。 */
+function formatElevation(meters) {
+    if (meters >= 10000) {
+        return `${stripDotZero(formatNumber(meters / 1000, 1))} km`;
+    }
+    return `${stripDotZero(formatNumber(meters, meters >= 1000 ? 1 : 0))} m`;
+}
+/** 温度 → 字符串，如 -12 -> "-12°C" */
+function formatTemperature(celsius) {
+    return `${celsius.toFixed(celsius % 1 === 0 ? 0 : 1)}°C`;
+}
+/** 0-1 比值 → 百分比，如 0.331 -> "33.1%" */
+function formatPercent(ratio, digits = 1) {
+    return `${stripDotZero(formatNumber(ratio * 100, digits))}%`;
+}
+/** 去掉格式化结果末尾的 ".0"（如 "12.0" -> "12"），避免整数也带小数点。 */
+function stripDotZero(s) {
+    return s.includes(".") && s.endsWith(".0") ? s.slice(0, -2) : s;
+}
+/** 海拔 → “当前海拔 / 总海拔” 进度百分比（0-100 整数） */
+function progressPercent(elevation, start, max) {
+    return Math.round(clamp((elevation - start) / Math.max(1, max - start), 0, 1) * 100);
+}
+/** 秒 → 人性化时长，如 "6 分 12 秒"；不足 1 分钟 -> "45 秒" */
+function formatDuration(totalSeconds) {
+    const sec = Math.max(0, Math.round(totalSeconds));
+    if (sec < 60)
+        return `${sec} 秒`;
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return s === 0 ? `${m} 分` : `${m} 分 ${s} 秒`;
+}

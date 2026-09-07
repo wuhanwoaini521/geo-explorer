@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/map/index",
+    "pages/knowledge/index",
+    "pages/knowledge-detail/index",
+    "pages/exploration/index",
+    "pages/place/index",
+    "pages/quiz/index",
+    "pages/profile/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#f6f0dd",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "Geo Explorer",
+    "backgroundColor": "#f6f0dd",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#94896a",
+    "selectedColor": "#a06a10",
+    "backgroundColor": "#f6f0dd",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "探索" },
+      { "pagePath": "pages/map/index", "text": "地图" },
+      { "pagePath": "pages/knowledge/index", "text": "知识" },
+      { "pagePath": "pages/quiz/index", "text": "挑战" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,68 @@
+<view class="page">
+  <view class="me">
+    <text class="me-avatar">🧗</text>
+    <text class="me-name">Geo 探索者</text>
+    <text class="me-note">数据存于本地 · 后续接入账号同步</text>
+  </view>
+
+  <view class="stats">
+    <view class="st">
+      <text class="st-v">{{stats.completed}}</text>
+      <text class="st-k">完成探索</text>
+    </view>
+    <view class="st">
+      <text class="st-v">{{stats.totalFound}}</text>
+      <text class="st-k">已获知识</text>
+    </view>
+    <view class="st">
+      <text class="st-v">{{quiz.totalPlays}}</text>
+      <text class="st-k">挑战次数</text>
+    </view>
+  </view>
+
+  <view class="sec-title">挑战成绩</view>
+  <view class="record" wx:if="{{!quizEmpty}}">
+    <view class="rec" wx:for="{{quiz.levels}}" wx:key="difficulty">
+      <text class="rec-emoji quiz-stars">{{item.stars}}</text>
+      <view class="rec-main">
+        <text class="rec-name">难度 {{item.difficulty}} 最佳</text>
+        <text class="rec-meta">{{item.bestText}} · 挑战 {{item.plays}} 次</text>
+      </view>
+    </view>
+  </view>
+  <view class="record empty" wx:else>
+    <text>还没有挑战记录，去「挑战」页试试手气 🧠</text>
+  </view>
+
+  <view class="sec-title">我的收藏</view>
+  <view class="record" wx:if="{{!favoritesEmpty}}">
+    <view class="rec" wx:for="{{favoritesList}}" wx:key="id">
+      <text class="rec-emoji">{{item.emoji}}</text>
+      <view class="rec-main" data-id="{{item.id}}" bindtap="onOpenFavorite">
+        <text class="rec-name">{{item.name}}</text>
+        <text class="rec-meta">{{item.typeLabel}} · {{item.shortDescription}}</text>
+      </view>
+      <text class="rec-remove" data-id="{{item.id}}" catchtap="onRemoveFavorite">♥</text>
+    </view>
+  </view>
+  <view class="record empty" wx:else>
+    <text>还没有收藏。在图鉴里点亮 ♡，把想去的地球角落收进怀里</text>
+  </view>
+
+  <view class="sec-title">探索记录</view>
+  <view class="record" wx:if="{{!empty}}">
+    <view class="rec" wx:for="{{records}}" wx:key="id">
+      <text class="rec-emoji">{{item.emoji}}</text>
+      <view class="rec-main">
+        <text class="rec-name">{{item.title}}{{item.completed ? ' · 已完成' : ''}}</text>
+        <text class="rec-meta">达到 {{item.reachElevation}} {{item.unitText}} / {{item.maxElevation}} {{item.unitText}} · 知识 {{item.knowledgeCount}} 条</text>
+      </view>
+      <text class="rec-pct">{{item.pct}}%</text>
+    </view>
+  </view>
+  <view class="record empty" wx:else>
+    <text>还没有探索记录，去首页开始第一段旅程吧 🏔</text>
+  </view>
+
+  <view class="btn" bindtap="onClear">清空本地记录</view>
+</view>

@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "usingComponents": {
+    "progress-bar": "/components/progress-bar/index",
+    "knowledge-popup": "/components/knowledge-popup/index"
+  }
+}

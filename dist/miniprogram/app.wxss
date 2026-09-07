@@ -1,0 +1,148 @@
+/**
+ * 全局样式 —— Geo Explorer 视觉基调 v2（暖纸 / 古地图）。
+ * 淡黄纸底 + 墨色文字 + 琥珀金主色；克制的编辑排版，弱化装饰性光晕。
+ */
+page {
+  background: #f6f0dd;
+  color: #37311e;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+view,
+text,
+button,
+image {
+  box-sizing: border-box;
+}
+
+/* 按钮重置 */
+button {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  line-height: inherit;
+  color: inherit;
+}
+button::after {
+  border: none;
+}
+
+/* Hepler */
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+.gap-s {
+  gap: 12rpx;
+}
+.gap-m {
+  gap: 20rpx;
+}
+.text-dim {
+  color: #6f6547;
+}
+.text-muted {
+  color: #94896a;
+}
+.text-accent {
+  color: #a06a10;
+}
+.text-xl {
+  font-size: 40rpx;
+  font-weight: 600;
+}
+.text-lg {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+.text-sm {
+  font-size: 22rpx;
+}
+.text-xs {
+  font-size: 20rpx;
+}
+.caption {
+  font-size: 20rpx;
+  color: #94896a;
+  letter-spacing: 1rpx;
+}
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mt-s { margin-top: 16rpx; }
+.mt-m { margin-top: 28rpx; }
+.mt-l { margin-top: 48rpx; }
+.mb-s { margin-bottom: 16rpx; }
+.mb-m { margin-bottom: 28rpx; }
+
+/* 通用卡片 */
+.panel {
+  background: #fffdf4;
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+  border-radius: 20rpx;
+  padding: 28rpx;
+}
+
+/* 主按钮：硬投影 + 墨色描边，可按压回弹 */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 44rpx;
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  border: 2rpx solid #7a5510;
+  box-shadow: 0 6rpx 0 #7a5510;
+  color: #fffdf4;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+.btn-primary:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 #7a5510;
+  opacity: 0.94;
+}
+.btn-ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 44rpx;
+  border-radius: 44rpx;
+  border: 2rpx solid rgba(122, 86, 14, 0.4);
+  background: #fffdf4;
+  box-shadow: 0 4rpx 0 rgba(122, 86, 14, 0.18);
+  color: #37311e;
+  font-size: 30rpx;
+  letter-spacing: 2rpx;
+}
+.btn-ghost:active {
+  transform: translateY(3rpx);
+  box-shadow: 0 1rpx 0 rgba(122, 86, 14, 0.18);
+}
+
+/* 淡入 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(24rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn 0.42s ease both;
+}

@@ -1,0 +1,11 @@
+<view class="progress">
+  <view class="progress-track" style="height: {{height}}rpx;">
+    <view class="progress-fill" style="width: {{progress * 100}}%;">
+      <view class="progress-dot" />
+    </view>
+  </view>
+  <view class="progress-meta" wx:if="{{showPct || caption}}">
+    <text class="progress-pct" wx:if="{{showPct}}">{{pctText}}</text>
+    <text class="progress-caption" wx:if="{{caption}}">{{caption}}</text>
+  </view>
+</view>
