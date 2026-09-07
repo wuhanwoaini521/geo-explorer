@@ -960,7 +960,11 @@ Page({
     ) {
       if (this.visMountedSrc !== "") {
         this.visMountedSrc = "";
-        this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null });
+        this.setData({
+          visLiveSrc: "",
+          visLiveReady: false,
+          liveOverlay: null,
+        });
       }
       return;
     }

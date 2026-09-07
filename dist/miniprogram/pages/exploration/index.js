@@ -1,4 +1,3 @@
-
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 🏔️ 探索页 —— 沉浸式探索场景（MVP 完整闭环）。
@@ -119,7 +118,11 @@ function buildRouteState(route, progress) {
             const visualDy = dy * ROUTE_CANVAS_ASPECT;
             const length = Math.sqrt(dx * dx + visualDy * visualDy);
             const angle = (Math.atan2(visualDy, dx) * 180) / Math.PI;
-            const ratio = (0, format_1.clamp)((progress - from.progress) / (to.progress - from.progress), 0, 1);
+            const ratio = (0, format_1.clamp)(
+                (progress - from.progress) / (to.progress - from.progress),
+                0,
+                1,
+            );
             const base = `left:${from.x}%;top:${from.y}%;width:${length.toFixed(2)}%;transform:rotate(${angle.toFixed(2)}deg);`;
             return {
                 id: `${from.id}-${to.id}`,
@@ -137,22 +140,24 @@ function buildRouteState(route, progress) {
                 : "",
             desc: point.desc,
             style: `left:${point.x}%;top:${point.y}%;`,
-            state: point.id === currentId
-                ? "current"
-                : point.progress < progress
-                    ? "completed"
-                    : "upcoming",
+            state:
+                point.id === currentId
+                    ? "current"
+                    : point.progress < progress
+                      ? "completed"
+                      : "upcoming",
             knowledgeId: point.knowledgeId,
         })),
         rail: points.map((point) => ({
             id: point.id,
             label: point.shortName || point.name,
             top: Math.round((1 - point.progress) * 1000) / 10,
-            state: point.id === currentId
-                ? "current"
-                : point.progress < progress
-                    ? "completed"
-                    : "upcoming",
+            state:
+                point.id === currentId
+                    ? "current"
+                    : point.progress < progress
+                      ? "completed"
+                      : "upcoming",
             knowledgeId: point.knowledgeId,
         })),
     };
@@ -292,7 +297,15 @@ Page({
         destination: DEFAULT_DESTINATION,
         // 环境图层
         skyGradient: "",
-        par: { sky: 0, far: 0, mid: 0, near: 0, ground: 0, climber: 0, snow: 0 },
+        par: {
+            sky: 0,
+            far: 0,
+            mid: 0,
+            near: 0,
+            ground: 0,
+            climber: 0,
+            snow: 0,
+        },
         fogOpacity: 0,
         snowCover: 0,
         vegetation: 1,
@@ -374,7 +387,11 @@ Page({
         const fallback = index_1.EXPLORATIONS[0];
         // Gate 3：优先取“真实路线”的 Expedition 场景（Everest V2），否则回落旧探索（海拔轴）
         const expedition = (0, index_2.getExpeditionById)(id);
-        const exploration = expedition || (0, index_1.getExplorationById)(id) || fallback || undefined;
+        const exploration =
+            expedition ||
+            (0, index_1.getExplorationById)(id) ||
+            fallback ||
+            undefined;
         if (!exploration) {
             wx.showToast({ title: "场景不存在", icon: "none" });
             wx.switchTab({ url: "/pages/home/index" });
@@ -383,29 +400,52 @@ Page({
         this.routeMode = Boolean(expedition);
         this.expeditionCore = expedition
             ? {
-                routeIndex: expedition.routeIndex,
-                stageMap: expedition.stageMap,
-                maxElevation: expedition.maxElevation,
-            }
+                  routeIndex: expedition.routeIndex,
+                  stageMap: expedition.stageMap,
+                  maxElevation: expedition.maxElevation,
+              }
             : null;
         this.exploration = exploration;
         // Gate 3.3C：Dual Visual Mode 会话初始化（无视觉配置的旧场景如 Mariana 保持 TERRAIN）
-        this.visualConfig = (_a = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) !== null && _a !== void 0 ? _a : null;
-        this.visualMedia = (_b = expedition === null || expedition === void 0 ? void 0 : expedition.media) !== null && _b !== void 0 ? _b : null;
-        this.visMode = (_e = (_c = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) === null || _c === void 0 ? void 0 : _c.defaultMode) !== null && _e !== void 0 ? _e : "TERRAIN";
+        this.visualConfig =
+            (_a =
+                expedition === null || expedition === void 0
+                    ? void 0
+                    : expedition.visualMode) !== null && _a !== void 0
+                ? _a
+                : null;
+        this.visualMedia =
+            (_b =
+                expedition === null || expedition === void 0
+                    ? void 0
+                    : expedition.media) !== null && _b !== void 0
+                ? _b
+                : null;
+        this.visMode =
+            (_e =
+                (_c =
+                    expedition === null || expedition === void 0
+                        ? void 0
+                        : expedition.visualMode) === null || _c === void 0
+                    ? void 0
+                    : _c.defaultMode) !== null && _e !== void 0
+                ? _e
+                : "TERRAIN";
         this.visMountedSrc = "";
         this.visBroken = false;
         this.visFallbackWarned = {};
         if (this.routeMode && this.expeditionCore) {
             // Relay：初始在路线起点（南坡大本营），轴域 = 0…1 progress
-            const initial = (0, expedition_driver_1.driveAtProgress)(this.expeditionCore, 0);
+            const initial = (0, expedition_driver_1.driveAtProgress)(
+                this.expeditionCore,
+                0,
+            );
             this.current = 0;
             this.target = 0;
             this.lastElev = initial.refM; // 知识解锁基线 = 实际起点参考海拔（避免首帧整批解锁）
             this.hudElevation = initial.refM;
             this.highestReached = initial.refM;
-        }
-        else {
+        } else {
             this.current = exploration.startElevation;
             this.target = exploration.startElevation;
             this.lastElev = exploration.startElevation;
@@ -413,13 +453,24 @@ Page({
             this.highestReached = exploration.startElevation;
         }
         // 登顶后的「下一站」推荐：与当前场景地点不同类的精选地点（跨类型激发新探索）
-        const currentPlaceIds = new Set(places_1.PLACES.filter((p) => p.explorationId === exploration.id).map((p) => p.id));
-        const picks = places_1.PLACES.filter((p) => p.featured && !currentPlaceIds.has(p.id));
+        const currentPlaceIds = new Set(
+            places_1.PLACES.filter(
+                (p) => p.explorationId === exploration.id,
+            ).map((p) => p.id),
+        );
+        const picks = places_1.PLACES.filter(
+            (p) => p.featured && !currentPlaceIds.has(p.id),
+        );
         const nextStops = [];
         for (const p of picks) {
-            if (nextStops.length >= 2)
-                break;
-            if (nextStops.some((n) => places_1.PLACES.find((q) => q.id === n.id).type === p.type))
+            if (nextStops.length >= 2) break;
+            if (
+                nextStops.some(
+                    (n) =>
+                        places_1.PLACES.find((q) => q.id === n.id).type ===
+                        p.type,
+                )
+            )
                 continue;
             nextStops.push({
                 id: p.id,
@@ -436,7 +487,10 @@ Page({
             subtitle: exploration.subtitle,
             emoji: exploration.emoji,
             maxElevation: exploration.maxElevation,
-            maxElevationText: (0, format_1.formatNumber)(exploration.maxElevation, exploration.maxElevation % 1 === 0 ? 0 : 2),
+            maxElevationText: (0, format_1.formatNumber)(
+                exploration.maxElevation,
+                exploration.maxElevation % 1 === 0 ? 0 : 2,
+            ),
             metaPlace: exploration.meta.placeLabel,
             metaRegion: exploration.meta.region,
             routeSub: "Mount Everest · South Col Route",
@@ -450,12 +504,18 @@ Page({
             expedition: emptyExpeditionView(),
             expDeathZone: false,
             expSummit: null,
-            worldMountain: (exploration.world && exploration.world.style === "mountain") || false,
-            worldOcean: (exploration.world && exploration.world.style === "ocean") || false,
+            worldMountain:
+                (exploration.world && exploration.world.style === "mountain") ||
+                false,
+            worldOcean:
+                (exploration.world && exploration.world.style === "ocean") ||
+                false,
             // 海洋世界：一次性生成上浮气泡（低频，不复位）
-            bubbles: (exploration.world && exploration.world.style === "ocean") || false
-                ? buildParticles(10)
-                : [],
+            bubbles:
+                (exploration.world && exploration.world.style === "ocean") ||
+                false
+                    ? buildParticles(10)
+                    : [],
         });
     },
     onReady() {
@@ -465,8 +525,7 @@ Page({
     },
     onShow() {
         // 从知识库详情页返回时继续渲染
-        if (this.ticker === null && this.exploration)
-            this.startTicker();
+        if (this.ticker === null && this.exploration) this.startTicker();
     },
     onHide() {
         // 后台停止渲染，省电；并落盘进度
@@ -487,8 +546,7 @@ Page({
     },
     /* ---------------- 引擎节拍 ---------------- */
     startTicker() {
-        if (this.ticker !== null)
-            return;
+        if (this.ticker !== null) return;
         this.ticker = setInterval(() => this.tickFrame(), TICK_MS);
     },
     stopTicker() {
@@ -508,9 +566,10 @@ Page({
         const win = has("getWindowInfo")
             ? wx["getWindowInfo"]()
             : has("getSystemInfoSync")
-                ? wx["getSystemInfoSync"]()
-                : {};
-        const statusBarH = (_a = win.statusBarHeight) !== null && _a !== void 0 ? _a : 20;
+              ? wx["getSystemInfoSync"]()
+              : {};
+        const statusBarH =
+            (_a = win.statusBarHeight) !== null && _a !== void 0 ? _a : 20;
         let cap = { top: Math.round(statusBarH), h: 32 };
         if (has("getMenuButtonBoundingClientRect")) {
             // SAFETY: 同样先验证方法存在；返回对象字段可选，取不到即回退默认胶囊高。
@@ -518,21 +577,24 @@ Page({
             if (rect && rect.top != null) {
                 cap = {
                     top: Math.round(rect.top),
-                    h: Math.round((_b = rect.height) !== null && _b !== void 0 ? _b : 32),
+                    h: Math.round(
+                        (_b = rect.height) !== null && _b !== void 0 ? _b : 32,
+                    ),
                 };
             }
         }
         const bottom = cap.top + cap.h;
-        if (this.data.capTop !== cap.top ||
+        if (
+            this.data.capTop !== cap.top ||
             this.data.capH !== cap.h ||
-            this.data.capBottom !== bottom) {
+            this.data.capBottom !== bottom
+        ) {
             this.setData({ capTop: cap.top, capH: cap.h, capBottom: bottom });
         }
     },
     tickFrame() {
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         const relay = this.routeMode && this.expeditionCore;
         // 平滑追向目标（真实路线：轴域 0-1 progress；旧海拔轴：m）
         this.current += (this.target - this.current) * MOTION_GAIN;
@@ -540,15 +602,18 @@ Page({
         if (Math.abs(this.target - this.current) < eps) {
             this.current = this.target;
         }
-        this.current = (0, format_1.clamp)(this.current, relay ? 0 : ex.startElevation, relay ? 1 : ex.maxElevation);
+        this.current = (0, format_1.clamp)(
+            this.current,
+            relay ? 0 : ex.startElevation,
+            relay ? 1 : ex.maxElevation,
+        );
         // 计时（从开始攀登计）
         if (this.startedAt > 0) {
             this.elapsedSec = (Date.now() - this.startedAt) / 1000;
         }
         if (relay) {
             this.tickExpeditionFrame();
-        }
-        else {
+        } else {
             this.tickLegacyFrame(ex);
         }
     },
@@ -557,15 +622,26 @@ Page({
         this.highestReached = Math.max(this.highestReached, this.current);
         this.hudElevation = this.current;
         // 上行穿越 → 解锁知识节点
-        const unlocked = (0, exploration_engine_1.knowledgeUnlockedOnMove)(ex.knowledgeNodes, this.lastElev, this.current);
+        const unlocked = (0, exploration_engine_1.knowledgeUnlockedOnMove)(
+            ex.knowledgeNodes,
+            this.lastElev,
+            this.current,
+        );
         if (unlocked.length) {
             unlocked.forEach((n) => this.discovered.add(n.id));
             this.setData({
-                hint: { show: true, text: `发现「${unlocked[0].title}」，点击查看` },
+                hint: {
+                    show: true,
+                    text: `发现「${unlocked[0].title}」，点击查看`,
+                },
             });
         }
         this.lastElev = this.current;
-        const derived = (0, exploration_engine_1.deriveState)(ex, this.current, Array.from(this.discovered));
+        const derived = (0, exploration_engine_1.deriveState)(
+            ex,
+            this.current,
+            Array.from(this.discovered),
+        );
         this.renderFrame(ex, derived);
         this.syncStageTransition(ex, derived.stageIndex);
         // 登顶
@@ -578,22 +654,35 @@ Page({
     tickExpeditionFrame() {
         const core = this.expeditionCore;
         const ex = this.exploration;
-        if (!core || !ex)
-            return;
-        const drive = (0, expedition_driver_1.driveAtProgress)(core, this.current);
+        if (!core || !ex) return;
+        const drive = (0, expedition_driver_1.driveAtProgress)(
+            core,
+            this.current,
+        );
         // 知识解锁：参考海拔作为穿越观测轴（起点=BC 实际参考海拔，首帧不会整批解锁）
-        const unlocked = (0, exploration_engine_1.knowledgeUnlockedOnMove)(ex.knowledgeNodes, this.lastElev, drive.refM);
+        const unlocked = (0, exploration_engine_1.knowledgeUnlockedOnMove)(
+            ex.knowledgeNodes,
+            this.lastElev,
+            drive.refM,
+        );
         if (unlocked.length) {
             unlocked.forEach((n) => this.discovered.add(n.id));
             this.setData({
-                hint: { show: true, text: `发现「${unlocked[0].title}」，点击查看` },
+                hint: {
+                    show: true,
+                    text: `发现「${unlocked[0].title}」，点击查看`,
+                },
             });
         }
         this.lastElev = drive.refM;
         this.hudElevation = drive.refM;
         this.highestReached = Math.max(this.highestReached, drive.refM);
         // 外观环境：以“模型海拔”（reference-anchored）驱动引擎推导；视觉 progress 用真路实际进度
-        const derived = (0, exploration_engine_1.deriveState)(ex, drive.modelM, Array.from(this.discovered));
+        const derived = (0, exploration_engine_1.deriveState)(
+            ex,
+            drive.modelM,
+            Array.from(this.discovered),
+        );
         this.renderFrame(ex, derived, drive.progress);
         // 驾驶HUD（全新）
         this.renderExpeditionView(drive);
@@ -609,15 +698,12 @@ Page({
     },
     /** 七大阶段消费：仅记录首次进入 + 短横幅（克制，不弹大层） */
     syncExpeditionStage(stageIndex) {
-        if (stageIndex === this.prevExpoStageIndex)
-            return;
+        if (stageIndex === this.prevExpoStageIndex) return;
         this.prevExpoStageIndex = stageIndex;
         const core = this.expeditionCore;
-        if (!core)
-            return;
+        if (!core) return;
         const stage = core.stageMap[stageIndex];
-        if (!stage)
-            return;
+        if (!stage) return;
         if (this.visitedStageIds.indexOf(stage.id) === -1) {
             this.visitedStageIds.push(stage.id);
         }
@@ -633,25 +719,34 @@ Page({
     /** 每帧由真实路线 stageIndex 派生视觉呈现（不建立第二套进度；切换不动 current/target） */
     syncVisualMode(drive) {
         // 无视觉配置（Mariana 等）或已发生解码失败：一律走 DEM（TERRAIN），不 blank
-        if (!this.visualMedia ||
+        if (
+            !this.visualMedia ||
             !this.visualConfig ||
             !this.expeditionCore ||
-            this.visBroken) {
+            this.visBroken
+        ) {
             if (this.visMountedSrc !== "") {
                 this.visMountedSrc = "";
-                this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null });
+                this.setData({
+                    visLiveSrc: "",
+                    visLiveReady: false,
+                    liveOverlay: null,
+                });
             }
             return;
         }
-        const presentation = (0, expedition_visual_1.resolveExpeditionVisual)({
-            config: this.visualConfig,
-            stageMap: this.expeditionCore.stageMap,
-            media: this.visualMedia,
-        }, {
-            mode: this.visMode,
-            stageIndex: drive.stageIndex,
-            progress: drive.progress,
-        });
+        const presentation = (0, expedition_visual_1.resolveExpeditionVisual)(
+            {
+                config: this.visualConfig,
+                stageMap: this.expeditionCore.stageMap,
+                media: this.visualMedia,
+            },
+            {
+                mode: this.visMode,
+                stageIndex: drive.stageIndex,
+                progress: drive.progress,
+            },
+        );
         if (presentation.kind === "LIVE") {
             const image = presentation.image || "";
             if (image !== this.visMountedSrc) {
@@ -664,36 +759,57 @@ Page({
                 });
             }
             // §8：LIVE 上的路线 overlay（折线/起终点/当前点）——完全由 resolve 结果驱动
-            const range = (0, expedition_visual_1.liveSceneProgressRange)(presentation.scene, this.expeditionCore.stageMap);
-            const localProgress = range && range.to > range.from
-                ? (drive.progress - range.from) / (range.to - range.from)
-                : 0.5;
+            const range = (0, expedition_visual_1.liveSceneProgressRange)(
+                presentation.scene,
+                this.expeditionCore.stageMap,
+            );
+            const localProgress =
+                range && range.to > range.from
+                    ? (drive.progress - range.from) / (range.to - range.from)
+                    : 0.5;
             this.setData({
-                liveOverlay: (0, expedition_visual_1.buildLiveRouteOverlay)(presentation.anchors, presentation.routeOverlay, localProgress),
+                liveOverlay: (0, expedition_visual_1.buildLiveRouteOverlay)(
+                    presentation.anchors,
+                    presentation.routeOverlay,
+                    localProgress,
+                ),
             });
             return;
         }
         // TERRAIN：仅对「非用户选择 / 非未绑定场景」的兜底输出一次 warn（B/C/D 静默）
-        if (presentation.reason &&
+        if (
+            presentation.reason &&
             presentation.reason !== "user-selected" &&
-            presentation.reason !== "no-live-assets") {
+            presentation.reason !== "no-live-assets"
+        ) {
             const key = `${presentation.stageIndex}:${presentation.reason}`;
             if (!this.visFallbackWarned[key]) {
                 this.visFallbackWarned[key] = true;
-                console.warn((0, expedition_visual_1.visualFallbackWarning)(presentation.reason, String(presentation.stageIndex)));
+                console.warn(
+                    (0, expedition_visual_1.visualFallbackWarning)(
+                        presentation.reason,
+                        String(presentation.stageIndex),
+                    ),
+                );
             }
         }
         if (this.visMountedSrc !== "") {
             this.visMountedSrc = "";
-            this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null });
+            this.setData({
+                visLiveSrc: "",
+                visLiveReady: false,
+                liveOverlay: null,
+            });
         }
     },
     /** LIVE / TERRAIN 切换（会话记住）：绝不改动 current/target/progress */
     onToggleVisualMode(e) {
-        const mode = String((e.currentTarget &&
-            e.currentTarget.dataset &&
-            e.currentTarget.dataset.mode) ||
-            "");
+        const mode = String(
+            (e.currentTarget &&
+                e.currentTarget.dataset &&
+                e.currentTarget.dataset.mode) ||
+                "",
+        );
         const next = mode === "LIVE" ? "LIVE" : "TERRAIN";
         this.visMode = next;
         this.setData({
@@ -703,24 +819,30 @@ Page({
             liveOverlay: null,
         });
         if (next === "LIVE" && this.expeditionCore) {
-            const drive = (0, expedition_driver_1.driveAtProgress)(this.expeditionCore, this.current);
+            const drive = (0, expedition_driver_1.driveAtProgress)(
+                this.expeditionCore,
+                this.current,
+            );
             this.syncVisualMode(drive);
         }
     },
     /** LIVE 图片解码成功 → 淡入（装载期间 DEM 底色保持，无白屏） */
     onLiveImageLoad() {
-        if (this.visMountedSrc === "" || this.visBroken)
-            return;
+        if (this.visMountedSrc === "" || this.visBroken) return;
         this.setData({ visLiveReady: true });
     },
     /** §24：LIVE 图片解码失败 → 会话内回退 TERRAIN（不白屏、不反复重试坏资产） */
     onLiveImageError() {
-        if (this.visBroken)
-            return;
+        if (this.visBroken) return;
         this.visBroken = true;
         this.visMode = "TERRAIN";
         this.visMountedSrc = "";
-        console.warn((0, expedition_visual_1.visualFallbackWarning)("load-failed", "live-image"));
+        console.warn(
+            (0, expedition_visual_1.visualFallbackWarning)(
+                "load-failed",
+                "live-image",
+            ),
+        );
         this.setData({
             visMode: "TERRAIN",
             visLiveSrc: "",
@@ -731,21 +853,29 @@ Page({
     /** Gate 3：真实路线HUD（差分推送；死亡区/峰顶附独立 flag 供样式切换） */
     renderExpeditionView(drive) {
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         const v = {
             pct: Math.round(drive.progress * 100),
             progress: Math.round(drive.progress * 1000) / 1000,
-            distanceText: (0, expedition_driver_1.formatDistanceM)(drive.distanceM),
-            remainingRouteText: (0, expedition_driver_1.formatRouteKm)(drive.remainingRouteM),
-            remainingVerticalText: (0, format_1.formatNumber)(drive.remainingVerticalM, 0),
+            distanceText: (0, expedition_driver_1.formatDistanceM)(
+                drive.distanceM,
+            ),
+            remainingRouteText: (0, expedition_driver_1.formatRouteKm)(
+                drive.remainingRouteM,
+            ),
+            remainingVerticalText: (0, format_1.formatNumber)(
+                drive.remainingVerticalM,
+                0,
+            ),
             currentName: drive.current ? drive.current.name : "",
             currentElevText: drive.atSummit
                 ? (0, format_1.formatNumber)(drive.summitRefM, 2)
                 : (0, format_1.formatNumber)(drive.refM, 0),
             prevName: drive.prev ? drive.prev.name : "—",
             nextName: drive.next ? drive.next.name : "已抵达峰顶",
-            nextGapText: drive.next ? (0, expedition_driver_1.formatDistanceM)(drive.nextGapM) : "—",
+            nextGapText: drive.next
+                ? (0, expedition_driver_1.formatDistanceM)(drive.nextGapM)
+                : "—",
             stageName: drive.stage ? drive.stage.name : "",
             stageEmoji: drive.stage ? drive.stage.emoji : "",
             stageIntro: drive.stage ? drive.stage.intro : "",
@@ -757,8 +887,13 @@ Page({
             pressText: `${(0, format_1.formatNumber)((0, exploration_engine_1.pressureAt)(ex, drive.modelM), 0)} hPa`,
             oxygenText: drive.deathZone
                 ? OXYGEN_DEATH_TEXT
-                : (0, format_1.formatPercent)((0, exploration_engine_1.pressureRatioAt)(drive.modelM), 1),
-            tempText: (0, format_1.formatTemperature)((0, exploration_engine_1.temperatureAt)(ex, drive.modelM)),
+                : (0, format_1.formatPercent)(
+                      (0, exploration_engine_1.pressureRatioAt)(drive.modelM),
+                      1,
+                  ),
+            tempText: (0, format_1.formatTemperature)(
+                (0, exploration_engine_1.temperatureAt)(ex, drive.modelM),
+            ),
         };
         const sig = [
             v.pct,
@@ -817,8 +952,7 @@ Page({
     },
     /** 阶段切换：首次途经记录 + 短暂横幅 */
     syncStageTransition(ex, stageIndex) {
-        if (stageIndex === this.prevStageIndex)
-            return;
+        if (stageIndex === this.prevStageIndex) return;
         this.prevStageIndex = stageIndex;
         const stage = ex.stages[stageIndex];
         if (stage && this.visitedStageIds.indexOf(stage.id) === -1) {
@@ -829,8 +963,7 @@ Page({
         }
     },
     showStageBanner(stage) {
-        if (this.bannerTimer !== null)
-            clearTimeout(this.bannerTimer);
+        if (this.bannerTimer !== null) clearTimeout(this.bannerTimer);
         this.setData({
             stageBanner: {
                 show: true,
@@ -849,7 +982,14 @@ Page({
     /** 引擎输出 → 差分 setData：高频运动字段每帧只推变化值，低频业务/环境只在切阶段或值变化时推 */
     renderFrame(ex, d, progressOverride) {
         // 真实路线模式：视觉 progress 直接用真实里程轴（而不是由海拔推导）
-        const progress = progressOverride !== null && progressOverride !== void 0 ? progressOverride : (0, exploration_engine_1.progressFor)(d.elevation, ex.startElevation, ex.maxElevation);
+        const progress =
+            progressOverride !== null && progressOverride !== void 0
+                ? progressOverride
+                : (0, exploration_engine_1.progressFor)(
+                      d.elevation,
+                      ex.startElevation,
+                      ex.maxElevation,
+                  );
         const cache = this.frameCache;
         const pct = Math.round(progress * 100);
         const nextCache = {};
@@ -862,9 +1002,10 @@ Page({
             patch.elevationText = nextCache.elevationText;
         }
         // 高频：海拔小字 8.8 km · 距峰顶 123 m（文案来自场景 ui.remainingLabel）
-        const km = elevationM >= 1000
-            ? `${(elevationM / 1000).toFixed(1)} km`
-            : `${(0, format_1.formatNumber)(elevationM, 0)} m`;
+        const km =
+            elevationM >= 1000
+                ? `${(elevationM / 1000).toFixed(1)} km`
+                : `${(0, format_1.formatNumber)(elevationM, 0)} m`;
         nextCache.kmStage = `${km} ${ui.remainingLabel} ${(0, format_1.formatNumber)(Math.max(0, ex.maxElevation - elevationM), 0)} m`;
         if (cache.kmStage !== nextCache.kmStage) {
             patch.kmStage = nextCache.kmStage;
@@ -899,7 +1040,9 @@ Page({
             patch.greenTint = `rgba(${Math.round(88 + d.vegetation * 58)},${Math.round(148 + d.vegetation * 26)},${Math.round(76 + d.vegetation * 18)},${(0.3 + d.vegetation * 0.6).toFixed(2)})`;
             patch.terrainTop = d.terrainTint[0];
             patch.terrainBottom = d.terrainTint[1];
-            patch.climberLean = Math.round((0, format_1.clamp)(d.wind * 6, 0, 6));
+            patch.climberLean = Math.round(
+                (0, format_1.clamp)(d.wind * 6, 0, 6),
+            );
             // 海洋世界：表层光柱随深度衰减（只在阶段边界更新，低频）
             if (this.data.worldOcean) {
                 patch.rayOpacity = Math.round((1 - progress) * 50) / 100;
@@ -947,8 +1090,7 @@ Page({
             ? Math.round((100 + progress * 46) * 10) / 10
             : 100;
         nextCache.mntScale = mntScale;
-        if (cache.mntScale !== mntScale)
-            patch.mntScale = mntScale;
+        if (cache.mntScale !== mntScale) patch.mntScale = mntScale;
         // 场景插画层：阶段/登顶模式/雪量/云海/视图分带 变化时才重建（山岳世界专用）
         // 峰顶全景只在真正抵达终点后进入，避免 8,826m 左右提前“登顶”。
         const summitMode = Boolean(this.data.worldMountain && d.isSummit);
@@ -958,7 +1100,9 @@ Page({
                 summitMode ? "summit" : "mnt",
                 Math.round(d.snow * 40),
                 cloudSeaKey(d.stage.surfaceKind, progress),
-                this.data.worldMountain && !summitMode ? viewBand(progress) : "-",
+                this.data.worldMountain && !summitMode
+                    ? viewBand(progress)
+                    : "-",
             ].join("|");
             nextCache.sceneKey = sKey;
             if (cache.sceneKey !== sKey) {
@@ -968,69 +1112,82 @@ Page({
             }
         }
         // 雪花粒子（档位变化才重建）
-        const bucket = Math.min(MAX_SNOWFLAKES, Math.ceil((d.snow * MAX_SNOWFLAKES) / SNOWFLAKE_COUNT_STEP) *
-            SNOWFLAKE_COUNT_STEP);
+        const bucket = Math.min(
+            MAX_SNOWFLAKES,
+            Math.ceil((d.snow * MAX_SNOWFLAKES) / SNOWFLAKE_COUNT_STEP) *
+                SNOWFLAKE_COUNT_STEP,
+        );
         if (bucket !== this.partBucket || !this.particlesCached) {
             this.particlesCached = buildParticles(bucket);
             this.partBucket = bucket;
             patch.particles = this.particlesCached;
         }
         this.frameCache = nextCache;
-        if (Object.keys(patch).length > 0)
-            this.setData(patch);
+        if (Object.keys(patch).length > 0) this.setData(patch);
     },
     /* ---------------- 交互：滑动 / 步进 ---------------- */
     busy() {
-        return Boolean(this.data.intro ||
-            this.data.summit ||
-            this.data.celebration ||
-            (this.data.quiz && this.data.quiz.show));
+        return Boolean(
+            this.data.intro ||
+                this.data.summit ||
+                this.data.celebration ||
+                (this.data.quiz && this.data.quiz.show),
+        );
     },
     onTouchStart(e) {
-        if (this.busy())
-            return;
+        if (this.busy()) return;
         const t = e.touches && e.touches[0];
-        if (!t)
-            return;
+        if (!t) return;
         this.touching = true;
         this.lastTouchY = t.clientY;
     },
     onTouchMove(e) {
-        if (!this.touching)
-            return;
+        if (!this.touching) return;
         const t = e.touches && e.touches[0];
-        if (!t)
-            return;
+        if (!t) return;
         const dy = this.lastTouchY - t.clientY; // 上滑 → 前进
         this.lastTouchY = t.clientY;
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         if (this.routeMode && this.expeditionCore) {
             // 真实路线：拖动像素 → 路线里程 → progress（1px ≈ 9m 里程）
             const total = this.expeditionCore.routeIndex.totalDistanceM;
-            this.target = (0, format_1.clamp)(this.target + (dy * METERS_PER_PX) / total, 0, 1);
+            this.target = (0, format_1.clamp)(
+                this.target + (dy * METERS_PER_PX) / total,
+                0,
+                1,
+            );
             return;
         }
-        this.target = (0, format_1.clamp)(this.target + dy * METERS_PER_PX, ex.startElevation, ex.maxElevation);
+        this.target = (0, format_1.clamp)(
+            this.target + dy * METERS_PER_PX,
+            ex.startElevation,
+            ex.maxElevation,
+        );
     },
     onTouchEnd() {
         this.touching = false;
     },
     onStepUp() {
-        if (this.busy())
-            return;
+        if (this.busy()) return;
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         if (this.routeMode && this.expeditionCore) {
             const total = this.expeditionCore.routeIndex.totalDistanceM;
-            this.target = (0, format_1.clamp)(this.target + ROUTE_STEP_METERS / total, 0, 1);
+            this.target = (0, format_1.clamp)(
+                this.target + ROUTE_STEP_METERS / total,
+                0,
+                1,
+            );
             return;
         }
-        this.target = (0, format_1.clamp)(this.target + STEP_METERS, ex.startElevation, ex.maxElevation);
+        this.target = (0, format_1.clamp)(
+            this.target + STEP_METERS,
+            ex.startElevation,
+            ex.maxElevation,
+        );
     },
-    noop() { },
+    noop() {},
     onToggleMetrics() {
         const open = !this.data.metricsOpen;
         const all = this.data.metrics;
@@ -1041,21 +1198,26 @@ Page({
         });
     },
     onStepDown() {
-        if (this.busy())
-            return;
+        if (this.busy()) return;
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         if (this.routeMode && this.expeditionCore) {
             const total = this.expeditionCore.routeIndex.totalDistanceM;
-            this.target = (0, format_1.clamp)(this.target - ROUTE_STEP_METERS / total, 0, 1);
+            this.target = (0, format_1.clamp)(
+                this.target - ROUTE_STEP_METERS / total,
+                0,
+                1,
+            );
             return;
         }
-        this.target = (0, format_1.clamp)(this.target - STEP_METERS, ex.startElevation, ex.maxElevation);
+        this.target = (0, format_1.clamp)(
+            this.target - STEP_METERS,
+            ex.startElevation,
+            ex.maxElevation,
+        );
     },
     onStartClimb() {
-        if (!this.startedAt)
-            this.startedAt = Date.now();
+        if (!this.startedAt) this.startedAt = Date.now();
         this.setData({ intro: false });
     },
     /* ---------------- 知识节点交互 ---------------- */
@@ -1065,24 +1227,30 @@ Page({
      */
     onTapRouteWaypoint(e) {
         const ex = this.exploration;
-        if (!ex || !ex.route)
-            return;
-        const waypointId = String((e.currentTarget &&
-            e.currentTarget.dataset &&
-            e.currentTarget.dataset.id) ||
-            "");
+        if (!ex || !ex.route) return;
+        const waypointId = String(
+            (e.currentTarget &&
+                e.currentTarget.dataset &&
+                e.currentTarget.dataset.id) ||
+                "",
+        );
         const point = ex.route.waypoints.find((p) => p.id === waypointId);
-        if (!point)
-            return;
+        if (!point) return;
         const linkedNode = point.knowledgeId
             ? ex.knowledgeNodes.find((n) => n.id === point.knowledgeId)
             : undefined;
         if (linkedNode && this.discovered.has(linkedNode.id)) {
-            this.setData({ openNode: linkedNode, hint: { show: false, text: "" } });
+            this.setData({
+                openNode: linkedNode,
+                hint: { show: false, text: "" },
+            });
             return;
         }
         if (!point.desc) {
-            wx.showToast({ title: `${point.name} · 继续攀登探索`, icon: "none" });
+            wx.showToast({
+                title: `${point.name} · 继续攀登探索`,
+                icon: "none",
+            });
             return;
         }
         this.setData({
@@ -1102,8 +1270,7 @@ Page({
     },
     onHintTap() {
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         const last = ex.knowledgeNodes
             .filter((n) => this.discovered.has(n.id))
             .pop();
@@ -1123,8 +1290,7 @@ Page({
     /* ---------------- 随堂 Quiz ---------------- */
     openQuiz(node) {
         const q = (0, exploration_engine_1.quizForNode)(node);
-        if (!q)
-            return this.setData({ openNode: null });
+        if (!q) return this.setData({ openNode: null });
         this.quizDone.add(node.id);
         this.setData({
             openNode: null,
@@ -1144,17 +1310,20 @@ Page({
     },
     onQuizPick(e) {
         const q = this.data.quiz;
-        if (!q || q.revealed)
-            return;
-        const index = Number((e.currentTarget &&
-            e.currentTarget.dataset &&
-            e.currentTarget.dataset.index) ||
-            -1);
-        if (index < 0 || index >= q.options.length)
-            return;
-        const node = this.exploration &&
+        if (!q || q.revealed) return;
+        const index = Number(
+            (e.currentTarget &&
+                e.currentTarget.dataset &&
+                e.currentTarget.dataset.index) ||
+                -1,
+        );
+        if (index < 0 || index >= q.options.length) return;
+        const node =
+            this.exploration &&
             this.exploration.knowledgeNodes.find((n) => n.id === q.nodeId);
-        const correct = Boolean(node && node.quiz && node.quiz.answerIndex === index);
+        const correct = Boolean(
+            node && node.quiz && node.quiz.answerIndex === index,
+        );
         this.answers.push({ quizId: q.nodeId, correct });
         this.setData({
             quiz: { ...q, selected: index, correct, revealed: true },
@@ -1229,9 +1398,18 @@ Page({
     /** 登顶总结：跳转「下一站」地点详情（发现新的探索目标） */
     onOpenNextStop(e) {
         var _a, _b, _c;
-        const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
-        if (!id)
-            return;
+        const id = String(
+            (_c =
+                (_b =
+                    (_a = e.currentTarget) === null || _a === void 0
+                        ? void 0
+                        : _a.dataset) === null || _b === void 0
+                    ? void 0
+                    : _b.id) !== null && _c !== void 0
+                ? _c
+                : "",
+        );
+        if (!id) return;
         wx.navigateTo({ url: `/pages/place/index?id=${id}` });
     },
     onBackHome() {
@@ -1242,17 +1420,18 @@ Page({
     },
     onRestart() {
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         if (this.routeMode && this.expeditionCore) {
-            const initial = (0, expedition_driver_1.driveAtProgress)(this.expeditionCore, 0);
+            const initial = (0, expedition_driver_1.driveAtProgress)(
+                this.expeditionCore,
+                0,
+            );
             this.current = 0;
             this.target = 0;
             this.lastElev = initial.refM;
             this.hudElevation = initial.refM;
             this.highestReached = initial.refM;
-        }
-        else {
+        } else {
             this.current = ex.startElevation;
             this.target = ex.startElevation;
             this.lastElev = ex.startElevation;
@@ -1288,8 +1467,7 @@ Page({
     /* ---------------- 持久化 ---------------- */
     persistProgress() {
         const ex = this.exploration;
-        if (!ex)
-            return;
+        if (!ex) return;
         const stats = this.buildStats();
         (0, exploration_store_1.saveExplorationRecord)({
             exploration: ex,

@@ -1,6 +1,8 @@
-
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EVEREST_STAGE_MAP = exports.EVEREST_ROUTE_INDEX = exports.EVEREST_EXPEDITION = void 0;
+exports.EVEREST_STAGE_MAP =
+    exports.EVEREST_ROUTE_INDEX =
+    exports.EVEREST_EXPEDITION =
+        void 0;
 const everest_1 = require("../explorations/everest");
 const route_index_1 = require("../../engine/route-index");
 const expedition_stages_1 = require("../../engine/expedition-stages");
@@ -145,14 +147,18 @@ const media = {
         {
             id: "live-a-kala-patthar",
             title: "Mount Everest from Kala Patthar",
-            description: "Mount Everest, Khumbu Glacier and surrounding mountains seen with clear sky from Kala Patthar (≈5,545 m), 2019-04-24.",
+            description:
+                "Mount Everest, Khumbu Glacier and surrounding mountains seen with clear sky from Kala Patthar (≈5,545 m), 2019-04-24.",
             kind: "photograph",
-            localPath: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+            localPath:
+                "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
             license: "CC BY-SA 4.0",
             licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
             credit: "Matheus Hobold Sovernigo",
-            sourceUrl: "https://commons.wikimedia.org/wiki/File:Mount_Everest_from_Kala_Patthar.jpg",
-            attribution: "Matheus Hobold Sovernigo — Wikimedia Commons · CC BY-SA 4.0",
+            sourceUrl:
+                "https://commons.wikimedia.org/wiki/File:Mount_Everest_from_Kala_Patthar.jpg",
+            attribution:
+                "Matheus Hobold Sovernigo — Wikimedia Commons · CC BY-SA 4.0",
             capturedAt: "2019-04-24",
             originalResolution: "5848\u00d74387",
             dimensions: { width: 1080, height: 1920 },

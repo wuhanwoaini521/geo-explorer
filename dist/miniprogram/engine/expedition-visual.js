@@ -1,4 +1,3 @@
-
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_LIVE_TRANSITION = exports.DEFAULT_LIVE_CROP = void 0;
 exports.liveSceneForStageIndex = liveSceneForStageIndex;
@@ -30,7 +29,9 @@ function stageIndexMap(stageMap) {
 /** 命中某 stageIndex 所属的 LIVE 场景（未命中返回 undefined → 兜底 TERRAIN） */
 function liveSceneForStageIndex(config, stageMap, stageIndex) {
     const idx = stageIndexMap(stageMap);
-    return config.liveScenes.find((sc) => sc.stageIds.some((sid) => idx.get(sid) === stageIndex));
+    return config.liveScenes.find((sc) =>
+        sc.stageIds.some((sid) => idx.get(sid) === stageIndex),
+    );
 }
 /** 场景覆盖的 progress 区间 —— 完全由 stageMap 派生（不手写任何进度） */
 function liveSceneProgressRange(scene, stageMap) {
@@ -38,8 +39,7 @@ function liveSceneProgressRange(scene, stageMap) {
     const idxs = scene.stageIds
         .map((sid) => idx.get(sid))
         .filter((n) => n !== undefined);
-    if (idxs.length === 0)
-        return null;
+    if (idxs.length === 0) return null;
     const lo = Math.min(...idxs);
     const hi = Math.max(...idxs);
     return {
@@ -57,13 +57,10 @@ function visualFallbackWarning(reason, sceneId) {
 }
 /** 仅当 manifest 中该资产为 approved 且带 localPath 时视为「可正式渲染」影像（§11） */
 function approvedLiveImage(deps, scene) {
-    if (!scene.assetId)
-        return null;
+    if (!scene.assetId) return null;
     const asset = deps.media.assets.find((a) => a.id === scene.assetId);
-    if (!asset || !asset.localPath)
-        return null;
-    if (asset.reviewStatus !== "approved")
-        return null;
+    if (!asset || !asset.localPath) return null;
+    if (asset.reviewStatus !== "approved") return null;
     return { asset, image: asset.localPath };
 }
 /**
@@ -75,7 +72,11 @@ function approvedLiveImage(deps, scene) {
  */
 function resolveExpeditionVisual(deps, input) {
     var _a, _b, _c;
-    const scene = liveSceneForStageIndex(deps.config, deps.stageMap, input.stageIndex);
+    const scene = liveSceneForStageIndex(
+        deps.config,
+        deps.stageMap,
+        input.stageIndex,
+    );
     // 用户主动选择 TERRAIN —— 非兜底，直接返回
     if (input.mode !== "LIVE") {
         return {
@@ -104,19 +105,23 @@ function resolveExpeditionVisual(deps, input) {
         scene,
         stageIndex: input.stageIndex,
         image: img.image,
-        crop: (_a = scene.crop) !== null && _a !== void 0 ? _a : exports.DEFAULT_LIVE_CROP,
+        crop:
+            (_a = scene.crop) !== null && _a !== void 0
+                ? _a
+                : exports.DEFAULT_LIVE_CROP,
         routeOverlay: scene.routeOverlay,
         anchors: (_b = scene.anchors) !== null && _b !== void 0 ? _b : null,
-        transition: (_c = scene.transition) !== null && _c !== void 0 ? _c : { ...exports.DEFAULT_LIVE_TRANSITION },
+        transition:
+            (_c = scene.transition) !== null && _c !== void 0
+                ? _c
+                : { ...exports.DEFAULT_LIVE_TRANSITION },
     };
 }
 const OVERLAY_W = 9;
 const OVERLAY_H = 16;
 function clamp01(v) {
-    if (v <= 0)
-        return 0;
-    if (v >= 1)
-        return 1;
+    if (v <= 0) return 0;
+    if (v >= 1) return 1;
     return v;
 }
 /** 点位（归一化 0-1）→ 画布逻辑坐标（9×16 单位） */
@@ -129,11 +134,11 @@ function ptToPct(ax, ay) {
 /** 由点序构造折线几何（按 anchors.points 的 key 顺序；少于 2 点返回 null） */
 function buildLiveRouteOverlay(anchors, overlayMode, localProgress) {
     var _a;
-    if (!anchors)
-        return null;
-    const keys = Object.keys((_a = anchors.points) !== null && _a !== void 0 ? _a : {});
-    if (keys.length < 2)
-        return null;
+    if (!anchors) return null;
+    const keys = Object.keys(
+        (_a = anchors.points) !== null && _a !== void 0 ? _a : {},
+    );
+    if (keys.length < 2) return null;
     const pts = keys.map((k) => ({
         key: k,
         a: anchors.points[k],
@@ -187,14 +192,13 @@ function buildLiveRouteOverlay(anchors, overlayMode, localProgress) {
         let label = "";
         if (i === 0) {
             label = overlayMode === "full-route" ? "大本营" : "起点";
-        }
-        else if (i === pts.length - 1) {
+        } else if (i === pts.length - 1) {
             label =
                 overlayMode === "full-route"
                     ? "峰顶"
                     : p.key === "summit"
-                        ? "峰顶"
-                        : "";
+                      ? "峰顶"
+                      : "";
         }
         return { key: p.key, x, y, label };
     });

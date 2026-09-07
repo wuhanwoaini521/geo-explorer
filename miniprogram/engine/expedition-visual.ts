@@ -306,11 +306,7 @@ export function buildLiveRouteOverlay(
    label = overlayMode === "full-route" ? "大本营" : "起点";
   } else if (i === pts.length - 1) {
    label =
-    overlayMode === "full-route"
-     ? "峰顶"
-     : p.key === "summit"
-       ? "峰顶"
-       : "";
+    overlayMode === "full-route" ? "峰顶" : p.key === "summit" ? "峰顶" : "";
   }
   return { key: p.key, x, y, label };
  });
@@ -321,6 +317,6 @@ export function buildLiveRouteOverlay(
   segments,
   origins,
   marker,
-   schematic: true, // 非 EXACT 一律示意；命中 EXACT 后可置 false
+  schematic: true, // 非 EXACT 一律示意；命中 EXACT 后可置 false
  };
 }

@@ -313,7 +313,11 @@ describe("buildLiveRouteOverlay（锚点 → 渲染几何）", () => {
 
   it("页面级：LIVE-A 阶段 dig workspace 骨架段存在", () => {
     const exp = everest();
-    const ov = buildLiveRouteOverlay(exp.visualMode.liveScenes[0].anchors, "full-route", 0.5);
+    const ov = buildLiveRouteOverlay(
+      exp.visualMode.liveScenes[0].anchors,
+      "full-route",
+      0.5,
+    );
     expect(ov).not.toBeNull();
     if (!ov) return;
     expect(ov.segments.length).toBe(3); // 4 锚点 → 3 段
