@@ -10,6 +10,7 @@
  */
 
 import type { DataSource } from "./exploration";
+import type { RuntimeSceneCalibration } from "./calibration";
 
 /* ------------------------------------------------------------------ */
 /* ExpeditionType：探索的移动/视角类型                                  */
@@ -486,7 +487,10 @@ export type ExpeditionVisualPresentation =
         image: string;
         crop: LiveCrop;
         routeOverlay: LiveRouteOverlayMode;
+        /** 已废弃的 CURATED 锚点（§41）：生产数据不再附带；仅 dev/review 可能提供 */
         anchors: LiveOverlayAnchors | null;
+        /** 运行时校准视图（§31）—— route 描线唯一真相源；无/REPRESENTATIVE → 不画路线 */
+        calibration: RuntimeSceneCalibration | null;
         transition?: LiveSceneTransition;
      }
    | {

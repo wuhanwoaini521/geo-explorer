@@ -31,9 +31,10 @@ import {
   type ExpeditionDriveState,
 } from "../../engine/expedition-driver";
 import {
-  buildLiveRouteOverlay,
+  liveSceneInfo,
   liveSceneProgressRange,
   resolveExpeditionVisual,
+  resolveLiveOverlay,
   visualFallbackWarning,
 } from "../../engine/expedition-visual";
 import type { LiveOverlayUi } from "../../engine/expedition-visual";
@@ -585,6 +586,8 @@ Page({
     visLiveSrc: "",
     visLiveReady: false,
     liveOverlay: null as LiveOverlayUi | null,
+    // §40：LIVE 实景数据说明一行（选中称·代表视角等；无则空）
+    liveInfo: "",
   },
 
   // ---- 内部实例状态（不参与渲染） ----
@@ -964,6 +967,7 @@ Page({
           visLiveSrc: "",
           visLiveReady: false,
           liveOverlay: null,
+          liveInfo: "",
         });
       }
       return;
@@ -989,9 +993,11 @@ Page({
           visLiveSrc: image,
           visLiveReady: false,
           liveOverlay: null,
+          liveInfo: "",
         });
       }
-      // §8：LIVE 上的路线 overlay（折线/起终点/当前点）——完全由 resolve 结果驱动
+      // §5/§31/§41：LIVE 上的路线 overlay 正式走 calibration route[]（REPRESENTATIVE
+      // 一律不画）；旧 CURATED anchors 仅 dev/review 预览可能触发，生产数据已不携带。
       const range = liveSceneProgressRange(
         presentation.scene,
         this.expeditionCore.stageMap,
@@ -1001,11 +1007,9 @@ Page({
           ? (drive.progress - range.from) / (range.to - range.from)
           : 0.5;
       this.setData({
-        liveOverlay: buildLiveRouteOverlay(
-          presentation.anchors,
-          presentation.routeOverlay,
-          localProgress,
-        ),
+        liveOverlay: resolveLiveOverlay(presentation, localProgress),
+        // §40：实景说明一行（“真实珠峰影像 · 代表性视角”等）
+        liveInfo: liveSceneInfo(presentation) ?? "",
       });
       return;
     }
@@ -1028,7 +1032,7 @@ Page({
     }
     if (this.visMountedSrc !== "") {
       this.visMountedSrc = "";
-      this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null });
+      this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null, liveInfo: "" });
     }
   },
 
@@ -1047,6 +1051,7 @@ Page({
       visLiveSrc: "",
       visLiveReady: false,
       liveOverlay: null,
+      liveInfo: "",
     });
     if (next === "LIVE" && this.expeditionCore) {
       const drive = driveAtProgress(this.expeditionCore, this.current);
@@ -1072,6 +1077,7 @@ Page({
       visLiveSrc: "",
       visLiveReady: false,
       liveOverlay: null,
+      liveInfo: "",
     });
   },
 

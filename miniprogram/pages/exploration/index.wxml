@@ -26,8 +26,11 @@
         <text class="live-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
       </view>
       <view class="live-route-dot" style="left:{{liveOverlay.marker.x}}%;top:{{liveOverlay.marker.y}}%"></view>
-      <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">路线示意 · 待视觉校准</view>
+      <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">示意路线</view>
     </view>
+
+    <!-- §40：LIVE 实景数据说明一行（代表性视角 / 校准投影等） -->
+    <view wx:if="{{visLiveSrc && liveInfo}}" class="live-info-chip">{{liveInfo}}</view>
   </block>
 
   <!-- 场景内空间路线：由 route Scene Data 驱动，路线贴在山体画布中而非 HUD。 -->

@@ -1133,6 +1133,18 @@ page {
   letter-spacing: 1rpx;
   z-index: 9;
 }
+.live-info-chip {
+  position: absolute;
+  right: calc(16rpx + env(safe-area-inset-right));
+  bottom: calc(168rpx + env(safe-area-inset-bottom));
+  padding: 4rpx 12rpx;
+  border-radius: 18rpx;
+  font-size: 18rpx;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(10, 30, 60, 0.7);
+  letter-spacing: 1rpx;
+  z-index: 9;
+}
 
 /* Gate 3.3C：LIVE / TERRAIN(DEM) 切换（右上角、低打扰胶囊） */
 .vis-toggle {

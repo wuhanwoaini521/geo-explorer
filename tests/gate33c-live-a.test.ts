@@ -17,7 +17,9 @@ import { describe, expect, it, beforeAll } from "vitest";
 import {
   buildLiveRouteOverlay,
   liveSceneForStageIndex,
+  liveSceneInfo,
   resolveExpeditionVisual,
+  resolveLiveOverlay,
 } from "../miniprogram/engine/expedition-visual";
 import { getExpeditionById } from "../miniprogram/data/expeditions/index";
 
@@ -139,9 +141,9 @@ describe("Gate 3.3C LIVE / TERRAIN 解析", () => {
     if (p.kind === "LIVE") {
       expect(p.image).toBe(HERO_IMG);
       expect(p.scene.id).toBe("live-a");
-      // CURATED 示意锚点（待视觉校准）；点数>1 才可能画折线
-      expect(p.anchors?.projectionType).toBe("CURATED");
-      expect(Object.keys(p.anchors?.points ?? {}).length).toBeGreaterThan(1);
+      // §41：生产不再带手画 CURATED 示意锚点；正式 overlay 由校准决定，REPRESENTATIVE → 不画
+      expect(p.anchors).toBeNull();
+      expect(p.calibration?.status).toBe("REPRESENTATIVE");
       expect(p.routeOverlay).toBe("full-route");
     }
   });
@@ -311,15 +313,67 @@ describe("buildLiveRouteOverlay（锚点 → 渲染几何）", () => {
     ).toBeNull();
   });
 
-  it("页面级：LIVE-A 阶段 dig workspace 骨架段存在", () => {
+  it("页面级：LIVE-A 生产数据不再带 anchors（§5）+ 校准 REPRESENTATIVE → 无 overlay", () => {
     const exp = everest();
-    const ov = buildLiveRouteOverlay(
-      exp.visualMode.liveScenes[0].anchors,
-      "full-route",
+    // 生产数据：不携带手画 CURATED 锚点（§41 删除假路线），正式 overlay 只能来自校准
+    expect(exp.visualMode.liveScenes[0].anchors).toBeUndefined();
+    const p = resolveExpeditionVisual(
+      { config: exp.visualMode, stageMap: exp.stageMap, media: exp.media },
+      { mode: "LIVE", stageIndex: 0 },
+    );
+    expect(p.kind).toBe("LIVE");
+    if (p.kind === "LIVE") {
+      // REPRESENTATIVE → 不带任何折线 overlay（§5/§40/#31），只留真实照片 + HUD
+      expect(resolveLiveOverlay(p, 0.5)).toBeNull();
+      expect(liveSceneInfo(p)).toContain("代表性视角");
+    }
+  });
+});
+
+/* ---------------- §31 runtime overlay 决策：校准为唯一数据源 ---------------- */
+describe("resolveLiveOverlay（校准驱动的正式 overlay）", () => {
+  const base = (status: "VERIFIED" | "CALIBRATED" | "REPRESENTATIVE") => ({
+    kind: "LIVE" as const,
+    scene: { id: "live-a", label: "x", stageIds: [], routeOverlay: "full-route" as const },
+    stageIndex: 0,
+    image: "/assets/expeditions/everest/live/live-a.webp",
+    crop: { focusX: 0.5, focusY: 0.5, scale: 1 },
+    routeOverlay: "full-route" as const,
+    anchors: null,
+    calibration: {
+      sceneId: "live-a",
+      assetId: "live-a-kala-patthar",
+      status,
+      route: [
+        { routeIndex: 0, u: 0.3, v: 0.7, visibility: "VISIBLE" as const },
+        { routeIndex: 1, u: 0.5, v: 0.4, visibility: "VISIBLE" as const },
+        { routeIndex: 2, u: 0.5, v: 0.1, visibility: "OCCLUDED" as const },
+      ],
+      waypoints: [],
+      info: { status, medianPx: 0, maxValidationPx: 0, note: "..." },
+    },
+  });
+
+  it("CALIBRATED + route[]≥2 → 画出折线（schematic=false，OCCLUDED 尾段不参与）", () => {
+    const ov = resolveLiveOverlay(
+      base("CALIBRATED") as Parameters<typeof resolveLiveOverlay>[0],
       0.5,
     );
     expect(ov).not.toBeNull();
     if (!ov) return;
-    expect(ov.segments.length).toBe(3); // 4 锚点 → 3 段
+    expect(ov.segments.length).toBeGreaterThan(0);
+    expect(ov.schematic).toBe(false);
+    // OCCLUDED 点不参与 marker 插值：最后一个可见点 y≈0.4*16/16*100 → 40
+    expect(ov.marker.y).toBeGreaterThan(0);
+    expect(ov.marker.y).toBeLessThan(50);
+  });
+
+  it("REPRESENTATIVE → 不画任何折线（§5/§40）", () => {
+    expect(
+      resolveLiveOverlay(
+        base("REPRESENTATIVE") as Parameters<typeof resolveLiveOverlay>[0],
+        0.5,
+      ),
+    ).toBeNull();
   });
 });

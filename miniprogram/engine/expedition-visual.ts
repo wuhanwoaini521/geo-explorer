@@ -27,6 +27,9 @@ import type {
  MediaManifest,
  VisualFallbackReason,
 } from "../types/expedition";
+import { calibrationForScene } from "../data/calibrations/everest/index";
+import { buildCalibratedLiveOverlay } from "./route-calibration";
+import { routeOverlayAllowed } from "./calibration-validate";
 
 /** 场景尚未绑定 crop 时的兜底焦点（§12：绝不随机裁剪珠峰主体） */
 export const DEFAULT_LIVE_CROP: LiveCrop = {
@@ -178,6 +181,8 @@ export function resolveExpeditionVisual(
   crop: scene.crop ?? DEFAULT_LIVE_CROP,
   routeOverlay: scene.routeOverlay,
   anchors: scene.anchors ?? null,
+  // §31：生产路由的正式来源。REPRESENTATIVE/无校准 → 不画路线（§5/§41）
+  calibration: calibrationForScene(scene.id),
   transition: scene.transition ?? { ...DEFAULT_LIVE_TRANSITION },
  };
 }
@@ -320,3 +325,54 @@ export function buildLiveRouteOverlay(
   schematic: true, // 非 EXACT 一律示意；命中 EXACT 后可置 false
  };
 }
+
+/* ------------------------------------------------------------------ */
+/* LIVE 正式 overlay（§5/§31/§41）：优先校准 route[]，否则不画            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 页面级统一决策：LIVE 呈现 → 可渲染 overlay。
+ *
+ * 优先级/诚实性（§5/§31/§41）：
+ *   1. 有校准且 status ∈ {VERIFIED, CALIBRATED} → buildCalibratedLiveOverlay
+ *      （route[] 预投影，OCCLUDED 段不画，schematic=false）；
+ *   2. REPRESENTATIVE / UNAVAILABLE / 缺校准 → null（不画任何“看着像”的路线），
+ *      只保留真实照片 + HUD（§40）；
+ *   3. 仅当外部数据仍显式携带 CURATED anchors（dev/review 预览）时兜底 buildLiveRouteOverlay ——
+ *      生产数据已不携带 anchors（§41 删除假路线），此分支驻留仅供审核预览。
+ */
+export function resolveLiveOverlay(
+ presentation: Extract<ExpeditionVisualPresentation, { kind: "LIVE" }>,
+ localProgress: number,
+): LiveOverlayUi | null {
+ const cal = presentation.calibration;
+ if (cal) {
+  // 正式路线 overlay 的唯一门禁（§5）：非 VERIFIED/CALIBRATED 一律不画
+  if (!routeOverlayAllowed(cal.status)) return null;
+  return buildCalibratedLiveOverlay(cal, presentation.routeOverlay, localProgress);
+ }
+ if (presentation.anchors) {
+  return buildLiveRouteOverlay(
+   presentation.anchors,
+   presentation.routeOverlay,
+   localProgress,
+  );
+ }
+ return null;
+}
+
+/** §40：实景 info 一行文案（不写“精准路线”除非 VIEWED/已实调）。 */
+export function liveSceneInfo(
+ presentation: Extract<ExpeditionVisualPresentation, { kind: "LIVE" }>,
+): string | null {
+ const cal = presentation.calibration;
+ if (cal) {
+  const s = cal.info.status;
+  if (s === "VERIFIED") return "真实珠峰影像 · 路线：已验证投影";
+  if (s === "CALIBRATED") return "真实珠峰影像 · 路线：校准投影";
+  if (s === "REPRESENTATIVE") return "真实珠峰影像 · 代表性视角";
+  return "真实珠峰影像 · 视觉参考";
+ }
+ return presentation.image ? "真实珠峰影像" : null;
+}
+

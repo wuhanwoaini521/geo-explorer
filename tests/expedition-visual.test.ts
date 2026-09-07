@@ -14,6 +14,7 @@ import {
   type VisualResolveDeps,
 } from "../miniprogram/engine/expedition-visual";
 import { validateVisualMode } from "../miniprogram/engine/validate-expedition";
+import { routeOverlayAllowed } from "../miniprogram/engine/calibration-validate";
 import type {
   ExpeditionVisualModeConfig,
   MediaManifest,
@@ -119,9 +120,10 @@ describe("resolveExpeditionVisual：LIVE / TERRAIN / fallback（§24）", () => 
       expect(p.image).toBe(
         "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
       );
-      // 铺面路线锚点当前为 CURATED 示意（象检中转体后才能校准）；
-      expect(p.anchors?.projectionType).toBe("CURATED");
-      expect(Object.keys(p.anchors?.points ?? {}).length).toBeGreaterThan(1);
+      // §41：生产数据已移除手画 CURATED 锚点；route 只来自落地校准（本场景 REPRESENTATIVE → 不画）
+      expect(p.anchors).toBeNull();
+      expect(p.calibration?.status).toBe("REPRESENTATIVE");
+      expect(routeOverlayAllowed(p.calibration!.status)).toBe(false);
     }
   });
 
