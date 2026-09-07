@@ -161,18 +161,43 @@ const camera: CameraConfig = {
 };
 
 /* ------------------------------------------------------------------ */
-/* 媒体清单（Gate 6 前为空；schema 已锁定，validateMediaManifest 校验）   */
-/*  Gate 3.3B 起：LIVE 影像候选经 design/world/everest-live/media-review */
-/*  确认后以 approved 资产进入本清单，并在 visualMode.liveScenes 引用。   */
+/* 媒体清单（schema 已锁定，validateMediaManifest 校验）                  */
+/*  Gate 3.3C：LIVE-A（Kala Patthar 正式实拍）以 approved 资产登记；     */
+/*  B/C/D 未确认前保持未绑定；页面 LIVE 遇未收录一律 fallback 回 TERRAIN。*/
 /* ------------------------------------------------------------------ */
 
 const media: MediaManifest = {
   schemaVersion: 1,
   id: "everest-media",
   sceneId: "everest",
-  assets: [],
+  assets: [
+    {
+      id: "live-a-kala-patthar",
+      title: "Mount Everest from Kala Patthar",
+      description:
+        "Mount Everest, Khumbu Glacier and surrounding mountains seen with clear sky from Kala Patthar (≈5,545 m), 2019-04-24.",
+      kind: "photograph",
+      localPath: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+      license: "CC BY-SA 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      credit: "Matheus Hobold Sovernigo",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Mount_Everest_from_Kala_Patthar.jpg",
+      attribution:
+        "Matheus Hobold Sovernigo — Wikimedia Commons · CC BY-SA 4.0",
+      capturedAt: "2019-04-24",
+      originalResolution: "5848\u00d74387",
+      dimensions: { width: 1080, height: 1920 },
+      /* 运行时派生 sha256（quality=80；原始 sha256 见 design/world/everest-live/raw/） */
+      hash: "15008117ff5f1715d3f0b7cb23b4613c9c78e90ff5cf2ee65e3d488bcbf695aa",
+      geographicRole: "Representative real-world image",
+      overlayProjection: "CURATED",
+      reviewStatus: "approved",
+      tags: ["everest", "live", "kala-patthar"],
+    },
+  ],
   notes:
-    "Gate 6 前为空清单；LIVE 实景影像在 Gate 3.3B 候选 review 通过（reviewStatus=approved）后逐条登记；未批准的影像绝不进入本清单。",
+    "Gate 3.3C：LIVE-A（Kala Patthar，CC BY-SA 4.0）正式登记为 approved；B/C/D 未绑定前页面 LIVE 按 fallback 回退 TERRAIN。",
 };
 
 /* ------------------------------------------------------------------ */
@@ -184,9 +209,9 @@ const media: MediaManifest = {
  *
  * 覆盖范围用 StageMap 阶段 id 声明（不手写 progress）：
  *   为 7 段 → 4 场景的分段；全部路由由 stageMap 派生，任何进度方向只此一处。
- * 本 Gate 不绑定影影像（Gate 3.3B 候选 review 后填 assetId），因此页面在
- * LIVE 模式遇未见收录时，会按 fallback 策略落到 TERRAIN（§11/§24）——
- * 当前阶段这是正确状态：绝不假图填坑。
+ * Gate 3.3C：liveScenes[0]（LIVE-A）已绑定 approved 实拍（Kala Patthar）。
+ * B/C/D 在影像不确定前保持未绑定——页面在 LIVE 模式遇未绑定场景时
+ * 会按 fallback 策略落到 TERRAIN（§11/§24）：绝不假图填坑。
  */
 const liveScenes: ExpeditionVisualModeConfig["liveScenes"] = [
   {
@@ -195,7 +220,16 @@ const liveScenes: ExpeditionVisualModeConfig["liveScenes"] = [
     // StageMap：approach（大本营）→ khumbu-icefall（昆布冰瀑）→ C1
     stageIds: ["approach", "khumbu-icefall"],
     routeOverlay: "full-route", // §18 LIVE-A：全景路线 overview
-    // assetId / crop / anchors 待 Gate 3.3B 绑定正式影像后补齐
+    // Gate 3.3C：MediaManifest 是出处的唯一真相，此处只做引用；
+    // 竖屏焦点/缩放在此指定，禁止页面 object-fit 随机重裁（§5/§12）。
+    assetId: "live-a-kala-patthar",
+    crop: { focusX: 0.5, focusY: 0.38, scale: 1 },
+    /* §18：人工视觉签核前不要硬摆 CURATED 锚点；显式标 NOT_AVAILABLE */
+    anchors: {
+      projectionType: "NOT_AVAILABLE",
+      points: {},
+      note: "待人工视觉签核后补 CURATED 锚点（峰尖/冰川走向）",
+    },
   },
   {
     id: "live-b",

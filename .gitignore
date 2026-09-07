@@ -10,6 +10,9 @@ tools/blender/
 .terrain-py/
 design/world/everest-3d/source/
 design/world/everest-3d/work/
+
+# RAW live media originals (derivatives committed at miniprogram/assets)
+design/world/everest-live/raw/
 design/world/everest-3d/blender/*.blend1
 
 # Gate temp working dirs / probes
@@ -33,3 +36,5 @@ images/
 .vscode/
 *.swp
 project.private.config.json
+# py tool caches
+.ruff_cache/

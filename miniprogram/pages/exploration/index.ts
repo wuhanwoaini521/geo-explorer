@@ -8,7 +8,10 @@
  *
  * 性能：ticker 只推送真正变化的字段（diff）；markers/flora 仅在阶段切换与解锁变化时重建。
  */
-import { EXPLORATIONS, getExplorationById } from "../../data/explorations/index";
+import {
+  EXPLORATIONS,
+  getExplorationById,
+} from "../../data/explorations/index";
 import { getExpeditionById } from "../../data/expeditions/index";
 import { PLACES } from "../../data/places";
 import {
@@ -27,7 +30,16 @@ import {
   type ExpeditionCore,
   type ExpeditionDriveState,
 } from "../../engine/expedition-driver";
+import {
+  resolveExpeditionVisual,
+  visualFallbackWarning,
+} from "../../engine/expedition-visual";
 import { saveExplorationRecord } from "../../services/exploration-store";
+import type {
+  MediaManifest,
+  ExpeditionVisualMode,
+  ExpeditionVisualModeConfig,
+} from "../../types/expedition";
 import type {
   EnvironmentMetric,
   Exploration,
@@ -187,7 +199,12 @@ interface SummaryStats {
   stageNames: string[];
   stageTotal: number;
   maxText: string;
-  achievements: Array<{ id: string; emoji: string; title: string; desc: string }>;
+  achievements: Array<{
+    id: string;
+    emoji: string;
+    title: string;
+    desc: string;
+  }>;
 }
 
 interface StageBanner {
@@ -300,7 +317,10 @@ function buildFlora(emojis: string[]): FloraItem[] {
 }
 
 /** 路线位置由 Scene Data 的 progress 与坐标推导，页面不识别场景 id。 */
-function buildRouteState(route: ExplorationRoute, progress: number): SceneRouteState {
+function buildRouteState(
+  route: ExplorationRoute,
+  progress: number,
+): SceneRouteState {
   const position = routePositionAt(route, progress);
   const current = currentRouteWaypoint(route, progress);
   const next = nextRouteWaypoint(route, progress);
@@ -386,7 +406,9 @@ function cloudSeaKey(
   kind: string | undefined,
   progress: number,
 ): "sea" | "wisp" {
-  return kind === "glacier" || kind === "death" || kind === "snow" ||
+  return kind === "glacier" ||
+    kind === "death" ||
+    kind === "snow" ||
     progress >= 0.6
     ? "sea"
     : "wisp";
@@ -528,7 +550,12 @@ Page({
     route: null as SceneRouteState | null,
 
     // 阶段横幅 / 知识 / 随堂
-    stageBanner: { show: false, title: "", biome: "", emoji: "" } as StageBanner,
+    stageBanner: {
+      show: false,
+      title: "",
+      biome: "",
+      emoji: "",
+    } as StageBanner,
     hint: { show: false, text: "" },
     openNode: null as ExplorationKnowledgeNode | null,
     waypointCard: null as WaypointCardState | null,
@@ -538,19 +565,35 @@ Page({
     celebration: false,
     summit: false,
     summaryStats: null as SummaryStats | null,
-    nextStops: [] as Array<{ id: string; name: string; emoji: string; shortDescription: string }>,
+    nextStops: [] as Array<{
+      id: string;
+      name: string;
+      emoji: string;
+      shortDescription: string;
+    }>,
 
     // Relay模式（Expedition 附件存在时启用）：真实路线 HUD
     routeMode: false,
     expedition: emptyExpeditionView(),
     expDeathZone: false,
     expSummit: null as ExpeditionSummitView | null,
+    // Gate 3.3C：LIVE 实景 / TERRAIN 科学地形 视觉层（WXML 消费）
+    visMode: "LIVE" as ExpeditionVisualMode,
+    visLiveSrc: "",
+    visLiveReady: false,
   },
 
   // ---- 内部实例状态（不参与渲染） ----
   exploration: null as Exploration | null,
   routeMode: false,
   expeditionCore: null as ExpeditionCore | null,
+  // Gate 3.3C：Dual Visual Mode 会话状态（不含渲染字段）
+  visualConfig: null as ExpeditionVisualModeConfig | null,
+  visualMedia: null as MediaManifest | null,
+  visMode: "LIVE" as ExpeditionVisualMode,
+  visMountedSrc: "" as string,
+  visBroken: false,
+  visFallbackWarned: {} as Record<string, boolean>,
   /** 当前 HUD 展示高程（Relay=refM，旧轴=current）公共字段，渲染层读取 */
   hudElevation: 0,
   current: 0,
@@ -599,6 +642,13 @@ Page({
         }
       : null;
     this.exploration = exploration;
+    // Gate 3.3C：Dual Visual Mode 会话初始化（无视觉配置的旧场景如 Mariana 保持 TERRAIN）
+    this.visualConfig = expedition?.visualMode ?? null;
+    this.visualMedia = expedition?.media ?? null;
+    this.visMode = expedition?.visualMode?.defaultMode ?? "TERRAIN";
+    this.visMountedSrc = "";
+    this.visBroken = false;
+    this.visFallbackWarned = {};
     if (this.routeMode && this.expeditionCore) {
       // Relay：初始在路线起点（南坡大本营），轴域 = 0…1 progress
       const initial = driveAtProgress(this.expeditionCore, 0);
@@ -618,12 +668,29 @@ Page({
     const currentPlaceIds = new Set(
       PLACES.filter((p) => p.explorationId === exploration.id).map((p) => p.id),
     );
-    const picks = PLACES.filter((p) => p.featured && !currentPlaceIds.has(p.id));
-    const nextStops: Array<{ id: string; name: string; emoji: string; shortDescription: string }> = [];
+    const picks = PLACES.filter(
+      (p) => p.featured && !currentPlaceIds.has(p.id),
+    );
+    const nextStops: Array<{
+      id: string;
+      name: string;
+      emoji: string;
+      shortDescription: string;
+    }> = [];
     for (const p of picks) {
       if (nextStops.length >= 2) break;
-      if (nextStops.some((n) => PLACES.find((q) => q.id === n.id)!.type === p.type)) continue;
-      nextStops.push({ id: p.id, name: p.name, emoji: p.emoji, shortDescription: p.shortDescription });
+      if (
+        nextStops.some(
+          (n) => PLACES.find((q) => q.id === n.id)!.type === p.type,
+        )
+      )
+        continue;
+      nextStops.push({
+        id: p.id,
+        name: p.name,
+        emoji: p.emoji,
+        shortDescription: p.shortDescription,
+      });
     }
     this.setData({
       nextStops,
@@ -646,6 +713,7 @@ Page({
       destination: exploration.destination || DEFAULT_DESTINATION,
       // Relay 模式：路由 HUD 初始态
       routeMode: this.routeMode,
+      visMode: this.visMode, // Gate 3.3C：LIVE/TERRAIN 初始模式（默认 LIVE）
       expedition: emptyExpeditionView(),
       expDeathZone: false,
       expSummit: null,
@@ -705,22 +773,34 @@ Page({
     }
   },
 
-  /** 沉浸页顶部安全区：优先取真实状态栏 + 胶囊几何；缺失时回退默认 20px */
+  /** 沉浸页顶部安全区：优先取真实状态栏 + 胶囊几何；缺失时段回退默认 20px */
   refreshSafeArea() {
+    // SAFETY: wx 官方类型只暴露本页用到的子集，这里按方法名访问运行时 API；
+    // 每次取用前都有 typeof 非函数守卫，取不到时回退默认值，不会 NPE。
     const has = (fn: string) =>
       typeof (wx as unknown as Record<string, unknown>)[fn] === "function";
+    // SAFETY: 同上 —— win 只在其公开方法存在时才断言为窗口信息对象；
+    // 字段可选 + 默认 20px，任何运行时不满足都安全回退。
     const win: { statusBarHeight?: number } = has("getWindowInfo")
-      ? ((wx as unknown as Record<string, () => { statusBarHeight?: number }>)[
-          "getWindowInfo"
-        ] as () => { statusBarHeight?: number })()
+      ? (
+          (wx as unknown as Record<string, () => { statusBarHeight?: number }>)[
+            "getWindowInfo"
+          ] as () => { statusBarHeight?: number }
+        )()
       : has("getSystemInfoSync")
-        ? ((wx as unknown as Record<string, () => { statusBarHeight?: number }>)[
-            "getSystemInfoSync"
-          ] as () => { statusBarHeight?: number })()
+        ? (
+            (
+              wx as unknown as Record<
+                string,
+                () => { statusBarHeight?: number }
+              >
+            )["getSystemInfoSync"] as () => { statusBarHeight?: number }
+          )()
         : {};
     const statusBarH = win.statusBarHeight ?? 20;
     let cap = { top: Math.round(statusBarH), h: 32 };
     if (has("getMenuButtonBoundingClientRect")) {
+      // SAFETY: 同样先验证方法存在；返回对象字段可选，取不到即回退默认胶囊高。
       const rect = (
         wx as unknown as Record<
           string,
@@ -831,6 +911,8 @@ Page({
     this.renderFrame(ex, derived, drive.progress);
     // 驾驶HUD（全新）
     this.renderExpeditionView(drive);
+    // Gate 3.3C：LIVE 实景 / TERRAIN 科学地形 视觉层（由同一 stageIndex 驱动）
+    this.syncVisualMode(drive);
     // 七大阶段（按真实里程）：进站记录 + 克制横幅
     this.syncExpeditionStage(drive.stageIndex);
 
@@ -859,6 +941,100 @@ Page({
         emoji: stage.emoji,
       } as Exploration["stages"][number]);
     }
+  },
+
+  /* ---------------- Gate 3.3C：Dual Visual Mode（LIVE 实景 / TERRAIN 科学地形） ---------------- */
+
+  /** 每帧由真实路线 stageIndex 派生视觉呈现（不建立第二套进度；切换不动 current/target） */
+  syncVisualMode(drive: ExpeditionDriveState) {
+    // 无视觉配置（Mariana 等）或已发生解码失败：一律走 DEM（TERRAIN），不 blank
+    if (
+      !this.visualMedia ||
+      !this.visualConfig ||
+      !this.expeditionCore ||
+      this.visBroken
+    ) {
+      if (this.visMountedSrc !== "") {
+        this.visMountedSrc = "";
+        this.setData({ visLiveSrc: "", visLiveReady: false });
+      }
+      return;
+    }
+    const presentation = resolveExpeditionVisual(
+      {
+        config: this.visualConfig,
+        stageMap: this.expeditionCore.stageMap,
+        media: this.visualMedia,
+      },
+      {
+        mode: this.visMode,
+        stageIndex: drive.stageIndex,
+        progress: drive.progress,
+      },
+    );
+    if (presentation.kind === "LIVE") {
+      const image = presentation.image || "";
+      if (image !== this.visMountedSrc) {
+        // 换资产/换场景：重新装载；期间 DEM 底色保持可见（加载完成后再淡入）
+        this.visMountedSrc = image;
+        this.setData({ visLiveSrc: image, visLiveReady: false });
+      }
+      return;
+    }
+    // TERRAIN：仅对「非用户选择 / 非未绑定场景」的兜底输出一次 warn（B/C/D 静默）
+    if (
+      presentation.reason &&
+      presentation.reason !== "user-selected" &&
+      presentation.reason !== "no-live-assets"
+    ) {
+      const key = `${presentation.stageIndex}:${presentation.reason}`;
+      if (!this.visFallbackWarned[key]) {
+        this.visFallbackWarned[key] = true;
+        console.warn(
+          visualFallbackWarning(
+            presentation.reason,
+            String(presentation.stageIndex),
+          ),
+        );
+      }
+    }
+    if (this.visMountedSrc !== "") {
+      this.visMountedSrc = "";
+      this.setData({ visLiveSrc: "", visLiveReady: false });
+    }
+  },
+
+  /** LIVE / TERRAIN 切换（会话记住）：绝不改动 current/target/progress */
+  onToggleVisualMode(e: PageEvent) {
+    const mode = String(
+      (e.currentTarget &&
+        e.currentTarget.dataset &&
+        e.currentTarget.dataset.mode) ||
+        "",
+    );
+    const next: ExpeditionVisualMode = mode === "LIVE" ? "LIVE" : "TERRAIN";
+    this.visMode = next;
+    this.setData({ visMode: next, visLiveSrc: "", visLiveReady: false });
+    if (next === "LIVE" && this.expeditionCore) {
+      const drive = driveAtProgress(this.expeditionCore, this.current);
+      this.syncVisualMode(drive);
+    }
+  },
+
+  /** LIVE 图片解码成功 → 淡入（装载期间 DEM 底色保持，无白屏） */
+  onLiveImageLoad() {
+    if (this.visMountedSrc === "" || this.visBroken) return;
+    this.setData({ visLiveReady: true });
+  },
+
+  /** §24：LIVE 图片解码失败 → 会话内回退 TERRAIN（不白屏、不反复重试坏资产） */
+  onLiveImageError() {
+    if (this.visBroken) return;
+    this.visBroken = true;
+    this.visMode = "TERRAIN";
+    this.visMountedSrc = "";
+    console.warn(visualFallbackWarning("load-failed", "live-image"));
+    this.setData({ visMode: "TERRAIN", visLiveSrc: "", visLiveReady: false });
   },
 
   /** Gate 3：真实路线HUD（差分推送；死亡区/峰顶附独立 flag 供样式切换） */
@@ -893,11 +1069,27 @@ Page({
       tempText: formatTemperature(temperatureAt(ex, drive.modelM)),
     };
     const sig = [
-      v.pct, v.progress, v.distanceText, v.remainingRouteText,
-      v.remainingVerticalText, v.currentName, v.currentElevText,
-      v.prevName, v.nextName, v.nextGapText, v.stageName, v.stageEmoji,
-      v.stageIntro.slice(0, 160), v.nextStageName, v.latText, v.lonText,
-      v.deathZone, v.atSummit, v.pressText, v.oxygenText, v.tempText,
+      v.pct,
+      v.progress,
+      v.distanceText,
+      v.remainingRouteText,
+      v.remainingVerticalText,
+      v.currentName,
+      v.currentElevText,
+      v.prevName,
+      v.nextName,
+      v.nextGapText,
+      v.stageName,
+      v.stageEmoji,
+      v.stageIntro.slice(0, 160),
+      v.nextStageName,
+      v.latText,
+      v.lonText,
+      v.deathZone,
+      v.atSummit,
+      v.pressText,
+      v.oxygenText,
+      v.tempText,
     ].join("|");
     const cache = this.frameCache;
     // 阶段 intro 极长，只参与签名不参与 diff 主串长度（由 stageName 渐变识别）
@@ -1033,8 +1225,7 @@ Page({
       patch.greenTint = `rgba(${Math.round(88 + d.vegetation * 58)},${Math.round(
         148 + d.vegetation * 26,
       )},${Math.round(76 + d.vegetation * 18)},${(
-        0.3 +
-        d.vegetation * 0.6
+        0.3 + d.vegetation * 0.6
       ).toFixed(2)})`;
       patch.terrainTop = d.terrainTint[0];
       patch.terrainBottom = d.terrainTint[1];
@@ -1157,11 +1348,7 @@ Page({
     if (this.routeMode && this.expeditionCore) {
       // 真实路线：拖动像素 → 路线里程 → progress（1px ≈ 9m 里程）
       const total = this.expeditionCore.routeIndex.totalDistanceM;
-      this.target = clamp(
-        this.target + (dy * METERS_PER_PX) / total,
-        0,
-        1,
-      );
+      this.target = clamp(this.target + (dy * METERS_PER_PX) / total, 0, 1);
       return;
     }
     this.target = clamp(
@@ -1234,7 +1421,10 @@ Page({
     const ex = this.exploration;
     if (!ex || !ex.route) return;
     const waypointId = String(
-      (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id) || "",
+      (e.currentTarget &&
+        e.currentTarget.dataset &&
+        e.currentTarget.dataset.id) ||
+        "",
     );
     const point = ex.route.waypoints.find((p) => p.id === waypointId);
     if (!point) return;
@@ -1312,7 +1502,12 @@ Page({
   onQuizPick(e: PageEvent) {
     const q = this.data.quiz;
     if (!q || q.revealed) return;
-    const index = Number((e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.index) || -1);
+    const index = Number(
+      (e.currentTarget &&
+        e.currentTarget.dataset &&
+        e.currentTarget.dataset.index) ||
+        -1,
+    );
     if (index < 0 || index >= q.options.length) return;
     const node =
       this.exploration &&

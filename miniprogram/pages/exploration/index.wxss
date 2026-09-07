@@ -1057,6 +1057,44 @@ page {
 .pl-cloud { z-index: 5; }
 .pl-ground { z-index: 6; }
 
+/* Gate 3.3C：LIVE 实景层（Kala Patthar 等）——DEM 三景之上、HUD/顶部之下；
+   默认透明，bindload 成功后淡入；binderror 由页面回退 DEM（WXML wx:if 移除） */
+.view-live {
+  z-index: 6;
+  opacity: 0;
+  will-change: opacity;
+  transition: opacity 0.5s ease;
+}
+.view-live-on { opacity: 1; }
+
+/* Gate 3.3C：LIVE / TERRAIN(DEM) 切换（右上角、低打扰胶囊） */
+.vis-toggle {
+  position: absolute;
+  right: calc(16rpx + env(safe-area-inset-right));
+  display: flex;
+  gap: 2rpx;
+  padding: 4rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.26);
+  border-radius: 26rpx;
+  background: rgba(10, 20, 40, 0.42);
+  backdrop-filter: blur(10rpx);
+  z-index: 36;
+  pointer-events: auto;
+}
+.vis-toggle-item {
+  padding: 8rpx 18rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.78);
+  border-radius: 22rpx;
+  letter-spacing: 1rpx;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.vis-toggle-item.vis-on {
+  color: #0b1625;
+  background: linear-gradient(180deg, #ffd978, #ffbe45);
+  font-weight: 700;
+}
+
 /* 登山者：SVG 人形插画（头盔/背包/登山杖）+ 贴地阴影；随风前倾、登顶淡出 */
 .m-climber {
   position: absolute;

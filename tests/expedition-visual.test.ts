@@ -108,13 +108,33 @@ describe("resolveExpeditionVisual：LIVE / TERRAIN / fallback（§24）", () => 
     if (p.kind === "TERRAIN") expect(p.reason).toBe("user-selected");
   });
 
-  it("模式=LIVE 但现清单为空 → no-live-assets 兜底（当前正式状态）", () => {
+  it("Gate 3.3C：LIVE-A 已绑定 approved → 实际返回可渲染 LIVE", () => {
     const p = resolveExpeditionVisual(
       { config: exp.visualMode, stageMap: exp.stageMap, media: exp.media },
       { mode: "LIVE", stageIndex: 0 },
     );
-    expect(p.kind).toBe("TERRAIN");
-    if (p.kind === "TERRAIN") expect(p.reason).toBe("no-live-assets");
+    expect(p.kind).toBe("LIVE");
+    if (p.kind === "LIVE") {
+      expect(p.scene.id).toBe("live-a");
+      expect(p.image).toBe(
+        "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+      );
+      // 人工视觉签核前：锚点为 NOT_AVAILABLE（§18 不硬摆假锚点）
+      expect(p.anchors?.projectionType).toBe("NOT_AVAILABLE");
+    }
+  });
+
+  it("Gate 3.3C：B/C/D 未绑定 → LIVE 请求按 fallback 回 TERRAIN（no-live-assets）", () => {
+    for (let i = 0; i < exp.stageMap.length; i++) {
+      const scene = liveSceneForStageIndex(exp.visualMode, exp.stageMap, i);
+      if (!scene || scene.id === "live-a") continue;
+      const p = resolveExpeditionVisual(
+        { config: exp.visualMode, stageMap: exp.stageMap, media: exp.media },
+        { mode: "LIVE", stageIndex: i },
+      );
+      expect(p.kind).toBe("TERRAIN");
+      if (p.kind === "TERRAIN") expect(p.reason).toBe("no-live-assets");
+    }
   });
 
   it("绑定 approved → 返回可渲染 LIVE（图片/降级 crop/过渡默认）", () => {

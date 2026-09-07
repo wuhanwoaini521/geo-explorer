@@ -15,6 +15,9 @@
 
     <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
+
+    <!-- Gate 3.3C：LIVE 实景层（Kala Patthar；z 在 DEM 三景之上；加载成功前 DEM 底色保持可见，无白屏） -->
+    <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
   </block>
 
   <!-- 场景内空间路线：由 route Scene Data 驱动，路线贴在山体画布中而非 HUD。 -->
@@ -91,6 +94,12 @@
     <view class="exp-top" style="top:{{capTop}}px">
       <text class="exp-top-title">{{metaPlace}}</text>
       <text class="exp-top-meta" wx:if="{{routeSub}}">{{routeSub}}</text>
+    </view>
+
+    <!-- Gate 3.3C：LIVE 实景 / TERRAIN（DEM）切换（右上角低打扰；不动进度） -->
+    <view class="vis-toggle" style="top:{{capTop}}px">
+      <text class="vis-toggle-item {{visMode === 'LIVE' ? 'vis-on' : ''}}" data-mode="LIVE" bindtap="onToggleVisualMode">实景</text>
+      <text class="vis-toggle-item {{visMode === 'TERRAIN' ? 'vis-on' : ''}}" data-mode="TERRAIN" bindtap="onToggleVisualMode">DEM</text>
     </view>
 
     <!-- 底部 30% 面板：真实路线进度驱动（Mockup 层级：位置/海拔 → 距顶峰 → 环境 → 进度 → 下一站） -->

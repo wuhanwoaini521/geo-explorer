@@ -1,8 +1,8 @@
-# Everest LIVE — 实景素材管线（Gate 3.3A 只写计划；Gate 3.3B 执行）
+# Everest LIVE — 实景素材管线（Gate 3.3A 计划 → 3.3B 流程 → 3.3C LIVE-A 绑定）
 
-> 本目录是 **LIVE（实景）媒体资产的权威计划**。当前（Gate 3.3A）**还没有任何素材入库** ——
-> 本 Gate 明确不搜索、不下载，只把「候选 → 审查 → 收录 → 绑定」的流程与字段定死，
-> 使下一步 Gate 3.3B 可以机械执行，不产生歧义。
+> 本目录是 **LIVE（实景）媒体资产的权威计划与过程记录**。Gate 3.3C 已把第一条 LIVE 端到端接好：
+> **`live-a-kala-patthar`（Kala Patthar 实拍）已 approved 并绑定 `liveScenes[0]`**，
+> 探索页 LIVE/TERRAIN 双模式可切换；B/C/D 仍空，运行时自动兜底 TERRAIN，不白屏。
 
 ## 0. 为什么需要本目录
 
@@ -65,20 +65,22 @@ reviewStatus:  review  → human check → approved / rejected
 
 ## 4. 文件与命名约定
 
-- `miniprogram/assets/expeditions/everest/live/live-<scene>.webp` 本地派生，仓库内（微信能 p）。
+- `miniprogram/assets/expeditions/everest/live/live-<scene>.jpg` 本地派生（**3.3C 实测选用 JPG q80**；webp 亦可，同尺寸、同裁剪规则），仓库内（微信能 p）。
 - 原始大图（远超 1920）**不放在仓库**：放 `design/world/everest-live/raw/`（gitignored），保证产物可复现。
-- portrait 派生管线：`origin → 裁切 + 缩放到 1080×1920 → webp`；`review` 里记录 `focus`，允许后续替换。
+- portrait 派生管线：`origin → 裁切 + 缩放到 1080×1920`；`review` 里记录 `focus`，允许后续替换（见 `scripts/live/derive_live_a.py`，可复现并记录 sha256）。
 - `MediaAsset.kind = "photograph"`；若最终采用渲染则 `"render"`，但必须 `credit` 注明。
 
-## 5. 交付检查（3.3B 完成时）
+## 5. 交付检查（Gate 3.3C：仅 LIVE-A 一条）
 
-- [ ] `media.assets` 出现 4 条 `approved`（live-a…live-d 各一）并各自 `license/sourceUrl`；
-- [ ] `visualMode.liveScenes[*].assetId` 一一对应；
-- [ ] `validateVisualMode` 通过（0 error）；
-- [ ] `npx vitest run tests/expedition-visual.test.ts` 看到 live-* 用 `approved` 资产返回 `LIVE` 分支；
-- [ ] 本地测试真机/开发者工具加载无 `403`/空图。
+- [x] `media.assets` 出现 `approved`（**当前：live-a 一条已就绪**；live-b/c/d 待后续）并各自 `license/sourceUrl`；
+- [x] `visualMode.liveScenes[0].assetId` → `live-a-kala-patthar`；
+- [x] `validateVisualMode` 通过（0 error）；
+- [x] `npx vitest run tests/expedition-visual.test.ts tests/gate33-live-a.test.ts` 看到 live-a 用 `approved` 资产返回 `LIVE` 分支，B/C/D 回 `TERRAIN`；
+- [ ] ~~本地测试真机~~（等待微信开发者工具人工视觉签核）
 
-## 6. 当前（Gate 3.3A）未动
+## 6. 当前（Gate 3.3C）状态
 
-- `miniprogram/pages/**`、`.wxml/.wxss` 均未触碰（架构只到数据 + 纯逻辑）。
-- `media.assets` 保持空，页面 LIVE 模式全部走 `no-live-assets` 兜底到 TERRAIN —— 这是**预期正确状态**。
+- `miniprogram/pages/exploration/*` 已接入 Dual Visual Mode：`syncVisualMode`（纯函数驱动）+ LIVE 图片层 + LIVE/TERRAIN 切换 pill；
+- **LIVE-A**（`/assets/expeditions/everest/live/live-a-kala-patthar.jpg`，1080×1920，sha256 见 manifest）已入 `media.assets` 并置 `reviewStatus: approved`，`overlayProjection: CURATED`、`geographicRole: Representative real-world image`；
+- **B/C/D** 未收录：页面 LIVE 请求对它们（stageIndex 分别落入 live-b / live-c / live-d 区）走 `no-live-assets` 兜底到 TERRAIN（DEM）—— 预期正确状态；
+- anchors 显式 `NOT_AVAILABLE`，待人工视觉签核后补（不对未验证的画面硬摆锚点）。
