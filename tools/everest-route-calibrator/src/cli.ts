@@ -3,7 +3,7 @@
  *
  *   node src/cli.ts --help
  *   node dist/cli.js solve --scene live-a --pixels design/world/everest-live/pixels/live-a.json
- *     [--dem design/world/everest-live/dem/occlusion-60m.raw.json]
+ *     [--dem design/world/everest-live/dem/occlusion-30m.raw]
  *
  * pixels.json 结构：[{ landmarkId: "everest-summit", u: 0..1, v: 0..1 }, …]
  * 由 web/viewer 直接导出；也允许手工编写（CLI 全本地、无浏览器依赖）。

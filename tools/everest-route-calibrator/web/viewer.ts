@@ -29,7 +29,7 @@ const NATIVE_W = 1080;
 const NATIVE_H = 1920;
 const ROUTE_URL = "/miniprogram/data/routes/everest/south-col.json";
 const WAYPOINTS_URL = "/design/world/everest-3d/route/waypoints.json";
-const DEM_META_URL = "/design/world/everest-live/dem/occlusion-60m.raw.json";
+const DEM_META_URL = "/design/world/everest-live/dem/occlusion-30m.raw.json";
 
 function el<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;

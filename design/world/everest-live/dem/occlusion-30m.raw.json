@@ -1,0 +1,28 @@
+{
+  "schema": "occlusion-grid/v1",
+  "bbox_wgs84": {
+    "west": 86.75,
+    "south": 27.9,
+    "east": 87.0,
+    "north": 28.1
+  },
+  "grid_axes": {
+    "rows_axis": "north\u2192south",
+    "cols_axis": "west\u2192east"
+  },
+  "rows": 737,
+  "cols": 819,
+  "step": 30.0,
+  "originX": -9326.8,
+  "originY": -16571.3,
+  "originZ": 2976.22,
+  "rawUrl": "/design/world/everest-live/dem/occlusion-30m.raw",
+  "elevation_range_m": [
+    4277.2,
+    8737.8
+  ],
+  "base_elev_m": 2976.22,
+  "source": "Copernicus DEM GLO-30 (ESA/Copernicus, 2020) tiles N27/N28_E086",
+  "license": "Copernicus Programme datasets \u2014 free to use",
+  "regenerate": "python3 scripts/live/build_occlusion_dem.py --out design/world/everest-live/dem"
+}

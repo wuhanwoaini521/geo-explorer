@@ -1,0 +1,4 @@
+# Copernicus DEM 二进制网格不入仓（~2.6 MB Float32）。与 design/world/everest-3d 的 .raw 原则一致：
+# 只提交元数据 .raw.json + 生成脚本 scripts/live/build_occlusion_dem.py，本地一行命令重新生成：
+#   python3 scripts/live/build_occlusion_dem.py --out design/world/everest-live/dem
+*.raw
