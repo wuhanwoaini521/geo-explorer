@@ -119,8 +119,9 @@ describe("resolveExpeditionVisual：LIVE / TERRAIN / fallback（§24）", () => 
       expect(p.image).toBe(
         "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
       );
-      // 人工视觉签核前：锚点为 NOT_AVAILABLE（§18 不硬摆假锚点）
-      expect(p.anchors?.projectionType).toBe("NOT_AVAILABLE");
+      // 铺面路线锚点当前为 CURATED 示意（象检中转体后才能校准）；
+      expect(p.anchors?.projectionType).toBe("CURATED");
+      expect(Object.keys(p.anchors?.points ?? {}).length).toBeGreaterThan(1);
     }
   });
 

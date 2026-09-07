@@ -1,4 +1,4 @@
-"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EVEREST_STAGE_MAP = exports.EVEREST_ROUTE_INDEX = exports.EVEREST_EXPEDITION = void 0;
 const everest_1 = require("../explorations/everest");
@@ -189,11 +189,18 @@ const liveScenes = [
         // 竖屏焦点/缩放在此指定，禁止页面 object-fit 随机重裁（§5/§12）。
         assetId: "live-a-kala-patthar",
         crop: { focusX: 0.5, focusY: 0.38, scale: 1 },
-        /* §18：人工视觉签核前不要硬摆 CURATED 锚点；显式标 NOT_AVAILABLE */
+        /* §18：视觉核签前不冒充高精度投影——标注为 CURATED 示意折线（待人工校准）。
+           位置基于 Kala Patthar 经典构图（大本营→昆布冰瀑→洛子肩→珠峰顶）GC 预估；
+           人工核签后编辑 points 即可，无需改代码。 */
         anchors: {
-            projectionType: "NOT_AVAILABLE",
-            points: {},
-            note: "待人工视觉签核后补 CURATED 锚点（峰尖/冰川走向）",
+            projectionType: "CURATED",
+            points: {
+                "base-camp": { x: 0.38, y: 0.6 },
+                "khumbu-icefall": { x: 0.52, y: 0.42 },
+                "lhotse-face": { x: 0.6, y: 0.26 },
+                summit: { x: 0.5, y: 0.1 },
+            },
+            note: "示意路线（Kala Patthar 构图预估），待人工视觉核签后校准；非 EXACT 测量。",
         },
     },
     {

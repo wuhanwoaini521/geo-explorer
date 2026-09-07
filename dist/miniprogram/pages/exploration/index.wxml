@@ -18,6 +18,16 @@
 
     <!-- Gate 3.3C：LIVE 实景层（Kala Patthar；z 在 DEM 三景之上；加载成功前 DEM 底色保持可见，无白屏） -->
     <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
+
+    <!-- Gate 3.3C：LIVE 照片之上——由 resolve 产物渲染路线折线（大本营→洛子肩→峰顶）+ 当前点 + 起终点标 -->
+    <view wx:if="{{visLiveSrc && liveOverlay}}" class="live-route">
+      <view wx:for="{{liveOverlay.segments}}" wx:key="index" class="live-route-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
+      <view wx:for="{{liveOverlay.origins}}" wx:key="key" class="live-route-anchor" style="left:{{item.x}}%;top:{{item.y}}%;opacity:{{item.label ? 1 : 0}}">
+        <text class="live-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
+      </view>
+      <view class="live-route-dot" style="left:{{liveOverlay.marker.x}}%;top:{{liveOverlay.marker.y}}%"></view>
+      <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">路线示意 · 待视觉校准</view>
+    </view>
   </block>
 
   <!-- 场景内空间路线：由 route Scene Data 驱动，路线贴在山体画布中而非 HUD。 -->

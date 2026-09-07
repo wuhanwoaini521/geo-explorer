@@ -1,4 +1,4 @@
-"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 🏔️ 探索页 —— 沉浸式探索场景（MVP 完整闭环）。
@@ -327,9 +327,10 @@ Page({
         expDeathZone: false,
         expSummit: null,
         // Gate 3.3C：LIVE 实景 / TERRAIN 科学地形 视觉层（WXML 消费）
-        visMode: "LIVE",
+        visVisMode: "LIVE",
         visLiveSrc: "",
         visLiveReady: false,
+        liveOverlay: null,
     },
     // ---- 内部实例状态（不参与渲染） ----
     exploration: null,
@@ -638,7 +639,7 @@ Page({
             this.visBroken) {
             if (this.visMountedSrc !== "") {
                 this.visMountedSrc = "";
-                this.setData({ visLiveSrc: "", visLiveReady: false });
+                this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null });
             }
             return;
         }
@@ -656,8 +657,20 @@ Page({
             if (image !== this.visMountedSrc) {
                 // 换资产/换场景：重新装载；期间 DEM 底色保持可见（加载完成后再淡入）
                 this.visMountedSrc = image;
-                this.setData({ visLiveSrc: image, visLiveReady: false });
+                this.setData({
+                    visLiveSrc: image,
+                    visLiveReady: false,
+                    liveOverlay: null,
+                });
             }
+            // §8：LIVE 上的路线 overlay（折线/起终点/当前点）——完全由 resolve 结果驱动
+            const range = (0, expedition_visual_1.liveSceneProgressRange)(presentation.scene, this.expeditionCore.stageMap);
+            const localProgress = range && range.to > range.from
+                ? (drive.progress - range.from) / (range.to - range.from)
+                : 0.5;
+            this.setData({
+                liveOverlay: (0, expedition_visual_1.buildLiveRouteOverlay)(presentation.anchors, presentation.routeOverlay, localProgress),
+            });
             return;
         }
         // TERRAIN：仅对「非用户选择 / 非未绑定场景」的兜底输出一次 warn（B/C/D 静默）
@@ -672,7 +685,7 @@ Page({
         }
         if (this.visMountedSrc !== "") {
             this.visMountedSrc = "";
-            this.setData({ visLiveSrc: "", visLiveReady: false });
+            this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null });
         }
     },
     /** LIVE / TERRAIN 切换（会话记住）：绝不改动 current/target/progress */
@@ -683,7 +696,12 @@ Page({
             "");
         const next = mode === "LIVE" ? "LIVE" : "TERRAIN";
         this.visMode = next;
-        this.setData({ visMode: next, visLiveSrc: "", visLiveReady: false });
+        this.setData({
+            visMode: next,
+            visLiveSrc: "",
+            visLiveReady: false,
+            liveOverlay: null,
+        });
         if (next === "LIVE" && this.expeditionCore) {
             const drive = (0, expedition_driver_1.driveAtProgress)(this.expeditionCore, this.current);
             this.syncVisualMode(drive);
@@ -703,7 +721,12 @@ Page({
         this.visMode = "TERRAIN";
         this.visMountedSrc = "";
         console.warn((0, expedition_visual_1.visualFallbackWarning)("load-failed", "live-image"));
-        this.setData({ visMode: "TERRAIN", visLiveSrc: "", visLiveReady: false });
+        this.setData({
+            visMode: "TERRAIN",
+            visLiveSrc: "",
+            visLiveReady: false,
+            liveOverlay: null,
+        });
     },
     /** Gate 3：真实路线HUD（差分推送；死亡区/峰顶附独立 flag 供样式切换） */
     renderExpeditionView(drive) {

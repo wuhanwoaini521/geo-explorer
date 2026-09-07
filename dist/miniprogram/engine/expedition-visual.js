@@ -1,10 +1,11 @@
-"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_LIVE_TRANSITION = exports.DEFAULT_LIVE_CROP = void 0;
 exports.liveSceneForStageIndex = liveSceneForStageIndex;
 exports.liveSceneProgressRange = liveSceneProgressRange;
 exports.visualFallbackWarning = visualFallbackWarning;
 exports.resolveExpeditionVisual = resolveExpeditionVisual;
+exports.buildLiveRouteOverlay = buildLiveRouteOverlay;
 /** 场景尚未绑定 crop 时的兜底焦点（§12：绝不随机裁剪珠峰主体） */
 exports.DEFAULT_LIVE_CROP = {
     focusX: 0.5,
@@ -107,5 +108,102 @@ function resolveExpeditionVisual(deps, input) {
         routeOverlay: scene.routeOverlay,
         anchors: (_b = scene.anchors) !== null && _b !== void 0 ? _b : null,
         transition: (_c = scene.transition) !== null && _c !== void 0 ? _c : { ...exports.DEFAULT_LIVE_TRANSITION },
+    };
+}
+const OVERLAY_W = 9;
+const OVERLAY_H = 16;
+function clamp01(v) {
+    if (v <= 0)
+        return 0;
+    if (v >= 1)
+        return 1;
+    return v;
+}
+/** 点位（归一化 0-1）→ 画布逻辑坐标（9×16 单位） */
+function toUnits(ax, ay) {
+    return { ux: ax * OVERLAY_W, uy: ay * OVERLAY_H };
+}
+function ptToPct(ax, ay) {
+    return { x: ax * 100, y: ay * 100 };
+}
+/** 由点序构造折线几何（按 anchors.points 的 key 顺序；少于 2 点返回 null） */
+function buildLiveRouteOverlay(anchors, overlayMode, localProgress) {
+    var _a;
+    if (!anchors)
+        return null;
+    const keys = Object.keys((_a = anchors.points) !== null && _a !== void 0 ? _a : {});
+    if (keys.length < 2)
+        return null;
+    const pts = keys.map((k) => ({
+        key: k,
+        a: anchors.points[k],
+        u: toUnits(anchors.points[k].x, anchors.points[k].y),
+    }));
+    // nearby/current-next：只展示与当前最近的一段（MVP 简化为连续折线 + 点缀）
+    const segments = [];
+    let totalUnits = 0;
+    const segUnits = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i].u;
+        const p1 = pts[i + 1].u;
+        const dx = p1.ux - p0.ux;
+        const dy = p1.uy - p0.uy;
+        const len = Math.hypot(dx, dy);
+        segUnits.push(len);
+        totalUnits += len;
+        const mx = p0.ux + dx / 2;
+        const my = p0.uy + dy / 2;
+        const pct = ptToPct(mx / OVERLAY_W, my / OVERLAY_H);
+        segments.push({
+            x: pct.x,
+            y: pct.y,
+            // 长度占画布宽的比例（单位空间中 x 轴即宽）
+            lengthX: (len / OVERLAY_W) * 100,
+            rotateDeg: (Math.atan2(dy, dx) * 180) / Math.PI,
+        });
+    }
+    // 当前点：沿累计折线按局部 progress 插值（安全求即使用 0/1）
+    let marker = { x: 0, y: 0 };
+    if (totalUnits > 0) {
+        const t = clamp01(localProgress) * totalUnits;
+        let acc = 0;
+        let mx = pts[0].u.ux;
+        let my = pts[0].u.uy;
+        for (let i = 0; i < segUnits.length; i++) {
+            if (acc + segUnits[i] >= t) {
+                const segT = segUnits[i] === 0 ? 0 : (t - acc) / segUnits[i];
+                const p0 = pts[i].u;
+                const p1 = pts[i + 1].u;
+                mx = p0.ux + (p1.ux - p0.ux) * segT;
+                my = p0.uy + (p1.uy - p0.uy) * segT;
+                break;
+            }
+            acc += segUnits[i];
+        }
+        marker = { x: (mx / OVERLAY_W) * 100, y: (my / OVERLAY_H) * 100 };
+    }
+    const origins = pts.map((p, i) => {
+        const { x, y } = ptToPct(p.a.x, p.a.y);
+        let label = "";
+        if (i === 0) {
+            label = overlayMode === "full-route" ? "大本营" : "起点";
+        }
+        else if (i === pts.length - 1) {
+            label =
+                overlayMode === "full-route"
+                    ? "峰顶"
+                    : p.key === "summit"
+                        ? "峰顶"
+                        : "";
+        }
+        return { key: p.key, x, y, label };
+    });
+    return {
+        widthUnits: OVERLAY_W,
+        heightUnits: OVERLAY_H,
+        segments,
+        origins,
+        marker,
+        schematic: true, // 非 EXACT 一律示意；命中 EXACT 后可置 false
     };
 }

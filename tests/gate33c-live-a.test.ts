@@ -15,6 +15,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { describe, expect, it, beforeAll } from "vitest";
 import {
+  buildLiveRouteOverlay,
   liveSceneForStageIndex,
   resolveExpeditionVisual,
 } from "../miniprogram/engine/expedition-visual";
@@ -138,7 +139,10 @@ describe("Gate 3.3C LIVE / TERRAIN 解析", () => {
     if (p.kind === "LIVE") {
       expect(p.image).toBe(HERO_IMG);
       expect(p.scene.id).toBe("live-a");
-      expect(p.anchors?.projectionType).toBe("NOT_AVAILABLE");
+      // CURATED 示意锚点（待视觉校准）；点数>1 才可能画折线
+      expect(p.anchors?.projectionType).toBe("CURATED");
+      expect(Object.keys(p.anchors?.points ?? {}).length).toBeGreaterThan(1);
+      expect(p.routeOverlay).toBe("full-route");
     }
   });
 
@@ -256,5 +260,62 @@ describe("Mariana（无 V2 附件）保持旧模式", () => {
     const d = inst.data as Record<string, any>;
     expect(d.routeMode).toBe(false);
     expect(d.expedition.currentName).toBe("");
+  });
+});
+
+/* ---------------- LIVE overlay 折线几何（纯函数） ---------------- */
+describe("buildLiveRouteOverlay（锚点 → 渲染几何）", () => {
+  const anchors = {
+    projectionType: "CURATED" as const,
+    points: {
+      "base-camp": { x: 0, y: 1 },
+      iceslope: { x: 1, y: 0.5 },
+    },
+  };
+
+  it("两点 → 一条线段（水平 +45°，起点/终点标）", () => {
+    const ov = buildLiveRouteOverlay(anchors, "full-route", 0.5);
+    expect(ov).not.toBeNull();
+    if (!ov) return;
+    expect(ov.segments).toHaveLength(1);
+    expect(ov.origins.map((o) => o.label)).toEqual(["大本营", "峰顶"]);
+    expect(ov.schematic).toBe(true);
+    // 中点应在 (9/2%, (1+0.5)/2*100%?) → 只验证范围与正负坐标
+    const s = ov.segments[0];
+    expect(s.x).toBeGreaterThan(0);
+    expect(s.y).toBeGreaterThan(0);
+    expect(s.lengthX).toBeGreaterThan(0);
+  });
+
+  it("进度从盒子底部 → 峰顶：marker 沿折线移动（0 在起点、1 在终点）", () => {
+    const ov0 = buildLiveRouteOverlay(anchors, "full-route", 0);
+    const ov1 = buildLiveRouteOverlay(anchors, "full-route", 1);
+    expect(ov0).not.toBeNull();
+    expect(ov1).not.toBeNull();
+    if (!ov0 || !ov1) return;
+    // marker 应落在起点锚点(0,1) 与终点锚点(1,0.5) 的归一坐标附近
+    expect(ov0.marker.x).toBeCloseTo(0, 1);
+    expect(ov0.marker.y).toBeCloseTo(100, 1);
+    expect(ov1.marker.x).toBeCloseTo(100, 1);
+    expect(ov1.marker.y).toBeCloseTo(50, 1);
+  });
+
+  it("anchors 缺失 / 点数<2 → null（不画无据折线）", () => {
+    expect(buildLiveRouteOverlay(null, "full-route", 0.5)).toBeNull();
+    expect(
+      buildLiveRouteOverlay(
+        { projectionType: "CURATED" as const, points: {} },
+        "full-route",
+        0.5,
+      ),
+    ).toBeNull();
+  });
+
+  it("页面级：LIVE-A 阶段 dig workspace 骨架段存在", () => {
+    const exp = everest();
+    const ov = buildLiveRouteOverlay(exp.visualMode.liveScenes[0].anchors, "full-route", 0.5);
+    expect(ov).not.toBeNull();
+    if (!ov) return;
+    expect(ov.segments.length).toBe(3); // 4 锚点 → 3 段
   });
 });
