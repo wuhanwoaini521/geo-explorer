@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Everest · 珠峰实景校准器</title>
+  <link rel="stylesheet" href="viewer.css" />
+</head>
+<body>
+  <header>
+    <h1>Everest Route Calibrator <span class="tag">实景标注 → 求解 → 验证 → 投影</span></h1>
+    <div class="row">
+      <select id="scene-select"></select>
+      <button id="run-btn">▶ 求解并投影</button>
+      <button id="export-btn">↓ 导出 pixels.json</button>
+      <button id="export-report-btn">↓ 导出 report.json</button>
+      <label class="hint"><input type="checkbox" id="show-route" checked /> 叠加路线</label>
+      <label class="hint"><input type="checkbox" id="show-wpts" checked /> waypoints</label>
+    </div>
+  </header>
+
+  <main>
+    <section id="stage">
+      <img id="photo" class="hidden" alt="live 实景" />
+      <canvas id="overlay"></canvas>
+      <div id="loading">载入场景图片…</div>
+    </section>
+
+    <aside>
+      <section>
+        <h2>① 选地标（点击图内像素）</h2>
+        <div id="catalog"></div>
+        <p class="hint">先在下面点亮一个地标，再在主图上单击落点；
+          或直接点“最近地标”从 guess 投影自动吸附。</p>
+      </section>
+      <section>
+        <h2>② 标注点列表</h2>
+        <ul id="marks"></ul>
+      </section>
+      <section>
+        <h2>求解输出</h2>
+        <pre id="result">（尚未运行）</pre>
+      </section>
+    </aside>
+  </main>
+
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>

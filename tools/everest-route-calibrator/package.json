@@ -1,0 +1,16 @@
+{
+  "name": "everest-route-calibrator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Everest LIVE 实景照片路线校准工具（独立于小程序；求解全在本地，无网络依赖）",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "viewer": "node server.mjs",
+    "solve": "node dist/src/cli.js solve",
+    "route": "node dist/src/cli.js route",
+    "report": "node dist/src/cli.js report"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,74 @@
+/**
+ * Node 专属壳层：数据加载 + 报告落盘。
+ * calibrate.ts（纯）负责求解；本模块只做 fs 相关装卸，浏览器 viewer 不 import 它。
+ */
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { buildReportData, renderMarkdown, type RoutePoint } from "./calibrate.js";
+import type { SceneDef } from "./scenes.js";
+import type { DemGrid } from "./math/occlusion.js";
+import type { PixelInput } from "./calibrate.js";
+
+/** 加载南坡路线密集点（world 系，来自 south-col.json） */
+export function loadRoute(): RoutePoint[] {
+  const p = join(process.cwd(), "miniprogram/data/routes/everest/south-col.json");
+  let data: { points?: Array<{ x?: number; y?: number; z?: number }> };
+  try {
+    data = JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return [];
+  }
+  const arr = data.points ?? [];
+  return arr
+    .filter((r) => r && typeof r.x === "number" && typeof r.y === "number" && typeof r.z === "number")
+    .map((r, idx) => ({
+      routeIndex: idx,
+      world: { x: r.x!, y: r.y!, z: r.z! },
+    }));
+}
+
+/** 场景 waypoint 候选列表（全局渲染惯例 8 里程碑） */
+export function loadWaypointList(): Array<{ id: string; world: [number, number, number] }> {
+  const p = join(process.cwd(), "design/world/everest-3d/route/waypoints.json");
+  let data: Array<{ id: string; world?: [number, number, number] }>;
+  try {
+    data = JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return [];
+  }
+  return data
+    .filter((w) => w && w.id && Array.isArray(w.world) && w.world.length === 3)
+    .map((w) => ({ id: w.id, world: w.world as [number, number, number] }));
+}
+
+/** 组装 + 落盘 CalibrationReportV1（JSON + MD）。 */
+export function assembleReport(opts: {
+  scene: SceneDef;
+  pixels: PixelInput[];
+  dem: DemGrid | null;
+  extraLimitations?: string[];
+  /** 输出目录（默认 design/world/everest-live/calibration） */
+  outDir?: string;
+}): { key: string; wrote: string[]; status: string; route: Array<{ visibility: string; u: number; v: number }> } {
+  const { scene, pixels, dem, outDir } = opts;
+  const built = buildReportData({
+    scene,
+    pixels,
+    dem,
+    route: loadRoute(),
+    waypoints: loadWaypointList(),
+    extraLimitations: opts.extraLimitations,
+  });
+  const report = built.report;
+  const status = built.status;
+  const route = built.route;
+
+  const outRoot = outDir ?? "design/world/everest-live/calibration";
+  const outAbs = resolve(process.cwd(), outRoot);
+  mkdirSync(outAbs, { recursive: true });
+  const key = join(outAbs, `${scene.id}.json`);
+  const mdKey = key.replace(/\.json$/, ".md");
+  writeFileSync(key, JSON.stringify(report, null, 2) + "\n", "utf8");
+  writeFileSync(mdKey, renderMarkdown(report, scene), "utf8");
+  return { key, wrote: [key, mdKey], status, route };
+}
