@@ -86,6 +86,10 @@ Page({
         favorites_store_1.favorites.toggle(id);
         this.onShow();
     },
+    /** 数据来源与许可页 */
+    onOpenCredits() {
+        wx.navigateTo({ url: "/pages/credits/index" });
+    },
     onClear() {
         wx.showModal({
             title: "清空探索记录",

@@ -33,11 +33,12 @@ import {
 import {
   liveSceneInfo,
   liveSceneProgressRange,
+  presentationCropUi,
   resolveExpeditionVisual,
   resolveLiveOverlay,
   visualFallbackWarning,
 } from "../../engine/expedition-visual";
-import type { LiveOverlayUi } from "../../engine/expedition-visual";
+import type { LiveCropUi, LiveOverlayUi } from "../../engine/expedition-visual";
 import { saveExplorationRecord } from "../../services/exploration-store";
 import type {
   MediaManifest,
@@ -564,6 +565,9 @@ Page({
     capTop: 20,
     capH: 32,
     capBottom: 52,
+    // Gate 3.3C.1 P0：胶囊右侧留白（px）——从右缘到「胶囊左缘 - 8px」
+    // 使 实景/DEM 切换器 整体位于原生胶囊左侧，绝不与其重叠；缺几何时默认 96。
+    capRight: 96,
     routeSub: "",
     ui: DEFAULT_UI as ExplorationUi,
     destination: DEFAULT_DESTINATION as ExplorationDestination,
@@ -613,13 +617,17 @@ Page({
     expedition: emptyExpeditionView(),
     expDeathZone: false,
     expSummit: null as ExpeditionSummitView | null,
-    // Gate 3.3C：LIVE 实景 / TERRAIN 科学地形 视觉层（WXML 消费）
-    visVisMode: "LIVE" as ExpeditionVisualMode,
+    // Gate 3.3C.1：Dual Visual Mode —— requested（会话）/ active（实际渲染）分离
+    visMode: "LIVE" as ExpeditionVisualMode, // 用户会话内请求（默认 LIVE）
+    visActive: "TERRAIN" as ExpeditionVisualMode, // 实际渲染层（toggle 高亮；兜底时诚实显示 DEM）
+    visLiveFallback: false, // LIVE 不可用 → 已兑底 TERRAIN（UI 不得虚假点亮“实景”）
     visLiveSrc: "",
     visLiveReady: false,
     liveOverlay: null as LiveOverlayUi | null,
     // §40：LIVE 实景数据说明一行（选中称·代表视角等；无则空）
     liveInfo: "",
+    // §12/§13：crop → object-position/zoom（渲染层消费点；由 presentationCropUi 产出）
+    liveCropUi: { focusX: 50, focusY: 38, zoom: 1 } as LiveCropUi,
   },
 
   // ---- 内部实例状态（不参与渲染） ----
@@ -630,6 +638,8 @@ Page({
   visualConfig: null as ExpeditionVisualModeConfig | null,
   visualMedia: null as MediaManifest | null,
   visMode: "LIVE" as ExpeditionVisualMode,
+  /** 会话内是否已对“实景暂不可用”说明过一次（避免每帧重写同一 setData） */
+  visLiveNoted: false,
   visMountedSrc: "" as string,
   visBroken: false,
   visFallbackWarned: {} as Record<string, boolean>,
@@ -687,6 +697,7 @@ Page({
     this.visMode = expedition?.visualMode?.defaultMode ?? "TERRAIN";
     this.visMountedSrc = "";
     this.visBroken = false;
+    this.visLiveNoted = false;
     this.visFallbackWarned = {};
     if (this.routeMode && this.expeditionCore) {
       // Relay：初始在路线起点（南坡大本营），轴域 = 0…1 progress
@@ -752,7 +763,11 @@ Page({
       destination: exploration.destination || DEFAULT_DESTINATION,
       // Relay 模式：路由 HUD 初始态
       routeMode: this.routeMode,
-      visMode: this.visMode, // Gate 3.3C：LIVE/TERRAIN 初始模式（默认 LIVE）
+      // Gate 3.3C.1：请求 = 默认模式；首帧 sync 会把 active 纠正为实际渲染
+      visMode: this.visMode,
+      visActive: this.visMode,
+      visLiveFallback: false,
+      liveCropUi: { focusX: 50, focusY: 38, zoom: 1 },
       expedition: emptyExpeditionView(),
       expDeathZone: false,
       expSummit: null,
@@ -820,46 +835,70 @@ Page({
       typeof (wx as unknown as Record<string, unknown>)[fn] === "function";
     // SAFETY: 同上 —— win 只在其公开方法存在时才断言为窗口信息对象；
     // 字段可选 + 默认 20px，任何运行时不满足都安全回退。
-    const win: { statusBarHeight?: number } = has("getWindowInfo")
+    const win: { statusBarHeight?: number; windowWidth?: number } = has(
+      "getWindowInfo",
+    )
       ? (
-          (wx as unknown as Record<string, () => { statusBarHeight?: number }>)[
-            "getWindowInfo"
-          ] as () => { statusBarHeight?: number }
+          (
+            wx as unknown as Record<
+              string,
+              () => { statusBarHeight?: number; windowWidth?: number }
+            >
+          )["getWindowInfo"] as () => {
+            statusBarHeight?: number;
+            windowWidth?: number;
+          }
         )()
       : has("getSystemInfoSync")
         ? (
             (
               wx as unknown as Record<
                 string,
-                () => { statusBarHeight?: number }
+                () => { statusBarHeight?: number; windowWidth?: number }
               >
-            )["getSystemInfoSync"] as () => { statusBarHeight?: number }
+            )["getSystemInfoSync"] as () => {
+              statusBarHeight?: number;
+              windowWidth?: number;
+            }
           )()
         : {};
     const statusBarH = win.statusBarHeight ?? 20;
-    let cap = { top: Math.round(statusBarH), h: 32 };
+    let cap = { top: Math.round(statusBarH), h: 32, left: 0 };
     if (has("getMenuButtonBoundingClientRect")) {
       // SAFETY: 同样先验证方法存在；返回对象字段可选，取不到即回退默认胶囊高。
       const rect = (
         wx as unknown as Record<
           string,
-          () => { top?: number; height?: number } | undefined
+          () => { top?: number; height?: number; left?: number } | undefined
         >
       )[`getMenuButtonBoundingClientRect`]();
       if (rect && rect.top != null) {
         cap = {
           top: Math.round(rect.top),
           h: Math.round(rect.height ?? 32),
+          left: Math.round(rect.left ?? 0),
         };
       }
     }
     const bottom = cap.top + cap.h;
+    // Gate 3.3C.1 P0：切换器置于胶囊左缘外侧 8px；无几何时默认 96。
+    const winW = win.windowWidth ?? 375;
+    const capRight = Math.max(
+      12,
+      Math.round(winW - (cap.left > 0 ? cap.left : winW - 96)) + 8,
+    );
     if (
       this.data.capTop !== cap.top ||
       this.data.capH !== cap.h ||
-      this.data.capBottom !== bottom
+      this.data.capBottom !== bottom ||
+      this.data.capRight !== capRight
     ) {
-      this.setData({ capTop: cap.top, capH: cap.h, capBottom: bottom });
+      this.setData({
+        capTop: cap.top,
+        capH: cap.h,
+        capBottom: bottom,
+        capRight,
+      });
     }
   },
 
@@ -993,15 +1032,15 @@ Page({
       !this.expeditionCore ||
       this.visBroken
     ) {
-      if (this.visMountedSrc !== "") {
-        this.visMountedSrc = "";
-        this.setData({
-          visLiveSrc: "",
-          visLiveReady: false,
-          liveOverlay: null,
-          liveInfo: "",
-        });
-      }
+      // 无视觉配置/已解码失败：只停 LIVE，active 诚实置回 TERRAIN
+      this.visMountedSrc = "";
+      this.setData({
+        visActive: "TERRAIN",
+        visLiveFallback: false,
+        visLiveSrc: "",
+        visLiveReady: false,
+        liveOverlay: null,
+      });
       return;
     }
     const presentation = resolveExpeditionVisual(
@@ -1019,13 +1058,14 @@ Page({
     if (presentation.kind === "LIVE") {
       const image = presentation.image || "";
       if (image !== this.visMountedSrc) {
-        // 换资产/换场景：重新装载；期间 DEM 底色保持可见（加载完成后再淡入）
+        // 换资产/换场景：重新装载；播放 DEM 底色保持可见（加载完成后再淡入）
         this.visMountedSrc = image;
         this.setData({
           visLiveSrc: image,
           visLiveReady: false,
           liveOverlay: null,
           liveInfo: "",
+          liveCropUi: presentationCropUi(presentation.crop),
         });
       }
       // §5/§31/§41：LIVE 上的路线 overlay 正式走 calibration route[]（REPRESENTATIVE
@@ -1039,9 +1079,12 @@ Page({
           ? (drive.progress - range.from) / (range.to - range.from)
           : 0.5;
       this.setData({
+        visActive: "LIVE",
+        visLiveFallback: false,
         liveOverlay: resolveLiveOverlay(presentation, localProgress),
         // §40：实景说明一行（“真实珠峰影像 · 代表性视角”等）
         liveInfo: liveSceneInfo(presentation) ?? "",
+        liveCropUi: presentationCropUi(presentation.crop),
       });
       return;
     }
@@ -1062,10 +1105,37 @@ Page({
         );
       }
     }
-    if (this.visMountedSrc !== "") {
-      this.visMountedSrc = "";
-      this.setData({ visLiveSrc: "", visLiveReady: false, liveOverlay: null, liveInfo: "" });
+    // TERRAIN：诚实表现——只会实际渲染画面上无 LIVE 时，把 toggle 的“自信”交给 visActive。
+    // 用户正请求 LIVE（B/C/D 无图 / 解码失败）→ 亮出“实景暂不可用 · 已回退本地影像”一次。
+    const requestedLive = this.visMode === "LIVE";
+    if (this.visMountedSrc === "" && this.data.visActive === "TERRAIN") {
+      if (requestedLive && !this.visLiveNoted) {
+        this.visLiveNoted = true;
+        this.setData({
+          visActive: "TERRAIN",
+          visLiveFallback: true,
+          liveInfo: "实景暂不可用 · 已回退本地影像",
+        });
+      } else if (!requestedLive && this.data.visLiveFallback) {
+        this.visLiveNoted = false;
+        this.setData({
+          visActive: "TERRAIN",
+          visLiveFallback: false,
+          liveInfo: "",
+        });
+      }
+      return;
     }
+    this.visMountedSrc = "";
+    this.visLiveNoted = requestedLive;
+    this.setData({
+      visActive: "TERRAIN",
+      visLiveFallback: requestedLive,
+      visLiveSrc: "",
+      visLiveReady: false,
+      liveOverlay: null,
+      liveInfo: requestedLive ? "实景暂不可用 · 已回退本地影像" : "",
+    });
   },
 
   /** LIVE / TERRAIN 切换（会话记住）：绝不改动 current/target/progress */
@@ -1078,8 +1148,12 @@ Page({
     );
     const next: ExpeditionVisualMode = mode === "LIVE" ? "LIVE" : "TERRAIN";
     this.visMode = next;
+    this.visLiveNoted = false; // 切换后肯定重新进入“真实可用”状态，允许重新提示
     this.setData({
       visMode: next,
+      visActive: next === "LIVE" ? "LIVE" : "TERRAIN",
+      visLiveFallback: false,
+      liveCropUi: { focusX: 50, focusY: 38, zoom: 1 },
       visLiveSrc: "",
       visLiveReady: false,
       liveOverlay: null,
@@ -1097,19 +1171,22 @@ Page({
     this.setData({ visLiveReady: true });
   },
 
-  /** §24：LIVE 图片解码失败 → 会话内回退 TERRAIN（不白屏、不反复重试坏资产） */
+  /** §42：LIVE 图片解码失败 → 会话内回退（不白屏、不反复重试坏资产），并如实反映到 toggle */
   onLiveImageError() {
     if (this.visBroken) return;
     this.visBroken = true;
     this.visMode = "TERRAIN";
     this.visMountedSrc = "";
+    this.visLiveNoted = true;
     console.warn(visualFallbackWarning("load-failed", "live-image"));
     this.setData({
       visMode: "TERRAIN",
+      visActive: "TERRAIN",
+      visLiveFallback: true,
       visLiveSrc: "",
       visLiveReady: false,
       liveOverlay: null,
-      liveInfo: "",
+      liveInfo: "实景暂不可用 · 已回退本地影像",
     });
   },
 
@@ -1249,7 +1326,7 @@ Page({
           name: s.name,
           emoji: s.emoji,
           intro: s.intro,
-          kmText: km((s.toDistanceM - s.fromDistanceM) || 0),
+          kmText: km(s.toDistanceM - s.fromDistanceM || 0),
           rangeText: `${km(s.fromDistanceM)} → ${km(s.toDistanceM)}`,
         })),
         milestones: ms.map((m) => ({

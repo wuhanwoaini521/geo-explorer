@@ -16,8 +16,12 @@
     <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
 
-    <!-- Gate 3.3C：LIVE 实景层（Kala Patthar；z 在 DEM 三景之上；加载成功前 DEM 底色保持可见，无白屏） -->
-    <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
+    <!-- Gate 3.3C.1 P0：LIVE 不可用（visLiveFallback）→ 有意的本地珠峰实拍 cover 全屏铺实
+         (assets/world/everest-hero.jpg)，杜绝空白渐变 / 毛刺残片；实景·不可用由顶部胶囊 + 底部说明共同表态 -->
+    <image wx:if="{{routeMode && visLiveFallback}}" class="plate view view-fallback" mode="aspectFill" src="/assets/world/everest-hero.jpg"></image>
+
+    <!-- Gate 3.3C.1：LIVE 实景层（crop 由数据层 → presentationCropUi 消费：object-position 焦点 + zoom 缩放） -->
+    <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" style="object-position:{{liveCropUi.focusX}}% {{liveCropUi.focusY}}%; transform: scale({{liveCropUi.zoom}});" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
 
     <!-- Gate 3.3C：LIVE 照片之上——由 resolve 产物渲染路线折线（大本营→洛子肩→峰顶）+ 当前点 + 起终点标 -->
     <view wx:if="{{visLiveSrc && liveOverlay}}" class="live-route">
@@ -29,8 +33,8 @@
       <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">示意路线</view>
     </view>
 
-    <!-- §40：LIVE 实景数据说明一行（代表性视角 / 校准投影等） -->
-    <view wx:if="{{visLiveSrc && liveInfo}}" class="live-info-chip">{{liveInfo}}</view>
+    <!-- §40：LIVE 实景数据说明一行（代表性视角 / “实时暂不可用” 等）——置于顶部切换下方，常显不藏 -->
+    <view wx:if="{{liveInfo}}" class="live-info-chip" style="top:{{capTop + 46}}px; right:{{capRight}}px">{{liveInfo}}</view>
   </block>
 
   <!-- 场景内空间路线：由 route Scene Data 驱动，路线贴在山体画布中而非 HUD。 -->
@@ -109,10 +113,10 @@
       <text class="exp-top-meta" wx:if="{{routeSub}}">{{routeSub}}</text>
     </view>
 
-    <!-- Gate 3.3C：LIVE 实景 / TERRAIN（DEM）切换（右上角低打扰；不动进度） -->
-    <view class="vis-toggle" style="top:{{capTop}}px">
-      <text class="vis-toggle-item {{visMode === 'LIVE' ? 'vis-on' : ''}}" data-mode="LIVE" bindtap="onToggleVisualMode">实景</text>
-      <text class="vis-toggle-item {{visMode === 'TERRAIN' ? 'vis-on' : ''}}" data-mode="TERRAIN" bindtap="onToggleVisualMode">DEM</text>
+    <!-- Gate 3.3C.1：LIVE 实景 / TERRAIN（DEM）切换（右上角低打扰；right 由 capRight 驱动，清开原生胶囊） -->
+    <view class="vis-toggle" style="top:{{capTop}}px; right:{{capRight}}px">
+      <text class="vis-toggle-item {{visActive === 'LIVE' ? 'vis-on' : ''}} {{visLiveFallback ? 'vis-unavailable' : ''}}" data-mode="LIVE" bindtap="onToggleVisualMode">{{visLiveFallback ? '实景·不可用' : '实景'}}</text>
+      <text class="vis-toggle-item {{visActive === 'TERRAIN' ? 'vis-on' : ''}}" data-mode="TERRAIN" bindtap="onToggleVisualMode">DEM</text>
     </view>
 
     <!-- 底部 30% 面板：真实路线进度驱动（Mockup 层级：位置/海拔 → 距顶峰 → 环境 → 进度 → 下一站） -->
@@ -178,26 +182,26 @@
         <text class="exp-step-gap">距 {{expedition.nextGapText}} ▶</text>
       </view>
 
-      <text class="exp-intro">{{expedition.stageIntro}}</text>
-
       <!-- 死亡区克制提示（配色/文案/降低对比度；不弹窗不震屏） -->
       <view wx:if="{{expDeathZone}}" class="exp-death-strip">
-        <text>死亡区 · 8000 m 以上 · 含氧不足海面 1/3 · 克制通过</text>
+        <text>死亡区 · 8000 m 以上 · 含氧不足海面 1/3</text>
       </view>
 
       <!-- 底部操作：下撤 / 查看路线（Gate 4+ 渲染路线全景）/ 攀登 -->
       <view class="exp-actions">
-        <button class="exp-ctl exp-ctl-down" bindtap="onStepDown">▼ 下撤</button>
-        <button class="exp-ctl exp-ctl-route" bindtap="onViewRoute">🗺 查看路线</button>
-        <button class="exp-ctl exp-ctl-up" bindtap="onStepUp">▲ 攀登</button>
+        <button class="exp-ctl exp-ctl-down" bindtap="onStepDown">下撤</button>
+        <button class="exp-ctl exp-ctl-route" bindtap="onViewRoute">查看路线</button>
+        <button class="exp-ctl exp-ctl-up" bindtap="onStepUp">攀登</button>
       </view>
     </view>
+
+    <!-- Gate 3.3C.1 P1：hero→面板 跨接缝照片暗化渐变（不挪/不加高面板；在面板上缘铺淡出，消除硬接缝） -->
+    <view class="exp-sheet-fade"></view>
 
     <!-- 峰顶轻提示：无庆祝大横幅，保证峰顶地形优先可见 -->
     <view wx:if="{{expSummit && expSummit.show}}" class="exp-summit-pill">
       <view class="exp-summit-txt">
         <text class="exp-summit-alt">{{expSummit.altitudeText}} m</text>
-        <text class="exp-summit-coords">{{expSummit.latText}}, {{expSummit.lonText}}</text>
       </view>
       <text class="exp-summit-note">🏔 {{expSummit.note}}</text>
       <view class="exp-summit-actions">

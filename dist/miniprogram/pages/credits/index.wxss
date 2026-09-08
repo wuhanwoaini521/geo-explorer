@@ -1,0 +1,118 @@
+/* 数据来源与许可 —— 与全库一致的羊皮纸主题（#f6f0dd） */
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 32rpx 28rpx 64rpx;
+  background: #f6f0dd;
+}
+
+.lead {
+  padding: 8rpx 4rpx 28rpx;
+}
+
+.lead-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #3d3a2e;
+}
+
+.lead-sub {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #94896a;
+  line-height: 1.6;
+}
+
+.group {
+  margin-top: 24rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  background: #fffdf3;
+  box-shadow: 0 2rpx 8rpx rgba(160, 106, 16, 0.08);
+}
+
+.group-title {
+  display: block;
+  padding: 20rpx 24rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #a06a10;
+  border-bottom: 1rpx solid #eee3c6;
+}
+
+.item {
+  padding: 20rpx 24rpx;
+  border-bottom: 1rpx solid #f2e9d2;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item-head {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.item-role {
+  font-size: 20rpx;
+  color: #a06a10;
+  background: #f6ead1;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+}
+
+.item-kind {
+  font-size: 20rpx;
+  color: #94896a;
+}
+
+.item-name {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 27rpx;
+  color: #2e2b20;
+  line-height: 1.5;
+}
+
+.item-line {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  color: #6a6147;
+  line-height: 1.5;
+}
+
+.item-link {
+  display: inline-block;
+  margin-top: 12rpx;
+}
+
+.item-link-text {
+  font-size: 22rpx;
+  color: #3a6ea5;
+  text-decoration: underline;
+}
+
+.item-note {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #b3893a;
+  line-height: 1.5;
+}
+
+.foot {
+  margin-top: 32rpx;
+  padding: 0 8rpx;
+}
+
+.foot-text {
+  font-size: 22rpx;
+  color: #94896a;
+  line-height: 1.6;
+}

@@ -45,6 +45,36 @@ export const DEFAULT_LIVE_TRANSITION: LiveSceneTransition = {
 };
 
 /* ------------------------------------------------------------------ */
+/* LIVE 竖屏 crop → 可渲染值（§12/§13/§15）：WXML 渲染层消费的唯一来源。    */
+/*  数据层只声明焦点 + 期望缩放；本函数把 crop 换算成 object-position 归一化 */
+/*  与 scale-cover（保证核心地理对象不被竖屏裁掉，页面不再随机重裁）。        */
+/* ------------------------------------------------------------------ */
+
+/** 渲染层消费 crop 的归一化值（WXML：object-position + transform scale） */
+export interface LiveCropUi {
+ /** 焦点横坐标 0-100（→ object-position x%） */
+ focusX: number;
+ /** 焦点纵坐标 0-100（→ object-position y%，保证峰顶/西库姆等不被竖屏裁掉） */
+ focusY: number;
+ /** 期望缩放倍数（≥1；中心 origin 放大，保证平移后仍完整覆盖） */
+ zoom: number;
+}
+
+/**
+ * LiveCrop → 渲染值：焦点 0-1 转 0-100、缩放下限 1。
+ * 布局换算只在此完成，页面/样式层不得再随机裁剪或额外缩放。
+ */
+export function presentationCropUi(crop?: LiveCrop): LiveCropUi {
+ const c = crop ?? DEFAULT_LIVE_CROP;
+ return {
+  focusX: clamp01(c.focusX ?? 0.5) * 100,
+  focusY: clamp01(c.focusY ?? 0.4) * 100,
+  // 只支持 ≥1 的拉近；禁止缩回比原图小（§12 不给假信息）
+  zoom: Math.max(1, c.scale ?? 1),
+ };
+}
+
+/* ------------------------------------------------------------------ */
 /* 场景选取：只依据「阶段索引」，progress 边界由 stageMap 派生              */
 /* ------------------------------------------------------------------ */
 
@@ -349,7 +379,11 @@ export function resolveLiveOverlay(
  if (cal) {
   // 正式路线 overlay 的唯一门禁（§5）：非 VERIFIED/CALIBRATED 一律不画
   if (!routeOverlayAllowed(cal.status)) return null;
-  return buildCalibratedLiveOverlay(cal, presentation.routeOverlay, localProgress);
+  return buildCalibratedLiveOverlay(
+   cal,
+   presentation.routeOverlay,
+   localProgress,
+  );
  }
  if (presentation.anchors) {
   return buildLiveRouteOverlay(
@@ -375,4 +409,3 @@ export function liveSceneInfo(
  }
  return presentation.image ? "真实珠峰影像" : null;
 }
-

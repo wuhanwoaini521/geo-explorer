@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="lead">
+    <text class="lead-title">数据来源与许可</text>
+    <text class="lead-sub">共 {{total}} 项材料 · 每一项都有出处与许可；缺失处会在这里暴露，而不是藏在页面里。</text>
+  </view>
+
+  <view class="group" wx:for="{{groups}}" wx:key="key" wx:if="{{item.items.length}}">
+    <text class="group-title">{{item.title}}</text>
+    <view class="item" wx:for="{{item.items}}" wx:for-item="it" wx:key="id">
+      <view class="item-head">
+        <text class="item-role">{{it.role}}</text>
+        <text class="item-kind">{{it.kind === 'asset' ? '素材' : '引用'}}</text>
+      </view>
+      <text class="item-name">{{it.name}}</text>
+      <text wx:if="{{it.credit}}" class="item-line">作者：{{it.credit}}</text>
+      <text wx:if="{{it.hasLicense}}" class="item-line">许可：{{it.license}}</text>
+      <view wx:if="{{it.hasUrl}}" class="item-link" data-url="{{it.url}}" bindtap="onCopyUrl">
+        <text class="item-link-text">出处链接（点按复制）</text>
+      </view>
+      <text wx:if="{{it.note}}" class="item-note">▲ {{it.note}}</text>
+    </view>
+  </view>
+
+  <view class="foot">
+    <text class="foot-text">· 海拔 8,848.86 m 为 2020 中尼联合官方测量值；其余 DEM/路线精度见「珠峰实景路线精度」文档。</text>
+  </view>
+</view>

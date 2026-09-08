@@ -1057,15 +1057,30 @@ page {
 .pl-cloud { z-index: 5; }
 .pl-ground { z-index: 6; }
 
-/* Gate 3.3C：LIVE 实景层（Kala Patthar 等）——DEM 三景之上、HUD/顶部之下；
-   默认透明，bindload 成功后淡入；binderror 由页面回退 DEM（WXML wx:if 移除） */
+/* Gate 3.3C.1：LIVE 实景层（Kala Patthar 等）——DEM 三景之上、HUD/顶部之下；
+   默认透明，bindload 成功后淡入；binderror 由页面回退 DEM（WXML wx:if 移除）。
+   crop 消费者：style object-position（焦点）＋ zoom（scale）→ 不做随机二次裁切；
+   全屏盒（覆盖 .view 的视差顶部留白）＋中心缩放原。 */
 .view-live {
+  top: 0;
+  height: 100%;
+  transform-origin: 50% 50%;
   z-index: 6;
   opacity: 0;
   will-change: opacity;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.22s ease;
 }
 .view-live-on { opacity: 1; }
+
+/* Gate 3.3C.1 P0：LIVE 不可用兜底——有意的本地珠峰实拍全屏 cover；
+   （覆盖 DEM 三景之上 z5；杜绝空白渐变 / 毛刺残片；底部交给 exp-sheet-fade 压暗） */
+.view-fallback {
+  top: 0;
+  height: 100%;
+  transform: none;
+  transform-origin: 50% 50%;
+  z-index: 5;
+}
 
 /* Gate 3.3C：LIVE 上的路线折线（合成层·不响应手势） */
 .live-route {
@@ -1118,8 +1133,8 @@ page {
   height: 26rpx;
   margin: -13rpx 0 0 -13rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, #ffd76a 45%, rgba(255, 179, 64, 0.95) 100%);
-  box-shadow: 0 0 10rpx rgba(255, 179, 64, 0.9), 0 0 2rpx #fff;
+  background: radial-gradient(circle, #fff 0%, #4ea8ff 45%, rgba(46, 120, 255, 0.95) 100%);
+  box-shadow: 0 0 10rpx rgba(78, 168, 255, 0.9), 0 0 2rpx #fff;
 }
 .live-route-chip {
   position: absolute;
@@ -1133,11 +1148,28 @@ page {
   letter-spacing: 1rpx;
   z-index: 9;
 }
+.live-info-chip {
+  position: absolute;
+  padding: 4rpx 12rpx;
+  border-radius: 18rpx;
+  font-size: 18rpx;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(10, 30, 60, 0.7);
+  letter-spacing: 1rpx;
+  z-index: 22;
+  pointer-events: none;
+  max-width: 46%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* Gate 3.3C：LIVE / TERRAIN(DEM) 切换（右上角、低打扰胶囊） */
 .vis-toggle {
   position: absolute;
-  right: calc(16rpx + env(safe-area-inset-right));
+  /* Gate 3.3C.1 P0：右侧位置由内联 right:{{capRight}}px 驱动（胶囊左缘外 8px）；
+     此备选值仅在内联样式缺失的首帧生效，避免与原生胶囊重叠 */
+  right: 100rpx;
   display: flex;
   gap: 2rpx;
   padding: 4rpx;
@@ -1157,9 +1189,14 @@ page {
   transition: color 0.2s ease, background 0.2s ease;
 }
 .vis-toggle-item.vis-on {
-  color: #0b1625;
-  background: linear-gradient(180deg, #ffd978, #ffbe45);
-  font-weight: 700;
+  color: #101a28;
+  background: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+/* LIVE 被兑底（实景不可用）：不发虚假“实景”；t半暗 + 文案已由 WXML 切换 */
+.vis-toggle-item.vis-unavailable {
+  color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* 登山者：SVG 人形插画（头盔/背包/登山杖）+ 贴地阴影；随风前倾、登顶淡出 */
@@ -1249,7 +1286,7 @@ page {
    地形优先：山体场景在全屏，底部约 30% 为高对比度暗色面板（死亡区再降饱和度）。
    ========================================================================== */
 .route-mode .hint {
-  bottom: calc(env(safe-area-inset-bottom) + 34vh + 18rpx);
+  bottom: calc(env(safe-area-inset-bottom) + 36vh + 18rpx);
 }
 
 /* ---- 顶部：登山标题 ---- */
@@ -1266,36 +1303,54 @@ page {
   text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.55);
 }
 .exp-top-title {
-  font-size: 40rpx;
-  font-weight: 800;
+  font-size: 30rpx;
+  font-weight: 700;
   letter-spacing: 2rpx;
   color: #fff;
 }
 .exp-top-meta {
-  margin-top: 6rpx;
-  font-size: 20rpx;
-  color: rgba(255, 255, 255, 0.72);
+  margin-top: 4rpx;
+  font-size: 17rpx;
+  color: rgba(255, 255, 255, 0.66);
   letter-spacing: 1rpx;
 }
 
-/* ---- 底面板：暗色限流区 ---- */
+/* 底部 30% 面板：视觉应向“轻量 overlay”收敛（背景更通透，层级仍主/次/路线） */
 .exp-sheet {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 34vh;
+  height: 36vh;
   box-sizing: border-box;
   padding: 14rpx 26rpx calc(env(safe-area-inset-bottom) + 14rpx);
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
-  background: linear-gradient(180deg, rgba(10, 16, 26, 0.72), rgba(6, 10, 18, 0.86) 55%);
-  border-top: 1rpx solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10rpx);
+  gap: 8rpx;
+  background: linear-gradient(180deg, rgba(14, 20, 34, 0.82), rgba(4, 7, 14, 0.92) 58%), linear-gradient(180deg, rgba(10, 16, 28, 0.55), rgba(5, 8, 14, 0.72) 55%);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12rpx);
   z-index: 11;
   color: #ecf1f7;
   overflow: hidden;
+}
+
+/* Gate 3.3C.1 P1：hero 照片→exp-sheet 接缝暗化渐变（置于面板上缘上方，透明→暗，跨接缝消硬边） */
+.exp-sheet-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 36vh; /* 面板上缘（面板高 36vh） */
+  height: 22vh;
+  pointer-events: none;
+  z-index: 10;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 13, 26, 0) 0%,
+    rgba(8, 13, 26, 0.22) 42%,
+    rgba(6, 10, 20, 0.55) 74%,
+    rgba(6, 9, 18, 0.86) 100%
+  );
 }
 
 /* ---- 当前位置 ---- */
@@ -1324,26 +1379,25 @@ page {
   text-align: right;
 }
 
-/* 距顶峰：两行独立 */
+/* 距顶峰：单行精简（去卡片，青色弱化） */
 .exp-goal {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 4rpx;
-  padding: 8rpx 12rpx;
-  border-radius: 12rpx;
-  background: rgba(255,255,255,0.05);
+  padding-top: 2rpx;
 }
-.exp-goal-row { display: flex; align-items: baseline; justify-content: space-between; }
+.exp-goal-row { display: flex; align-items: baseline; gap: 8rpx; }
 .exp-goal-k { font-size: 18rpx; color: rgba(255,255,255,0.6); }
-.exp-goal-v { font-size: 24rpx; font-weight: 700; color: #ffe9b8; font-variant-numeric: tabular-nums; }
+.exp-goal-v { font-size: 24rpx; font-weight: 700; color: #bde9ff; font-variant-numeric: tabular-nums; }
 
-/* 路线进度条 */
+/* 路线进度条（青色，微调 03 的 cyan bar） */
 .exp-route { display: flex; flex-direction: column; gap: 4rpx; }
 .exp-route-track {
   position: relative;
-  height: 10rpx;
+  height: 8rpx;
   border-radius: 8rpx;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.14);
   overflow: visible;
 }
 .exp-route-fill {
@@ -1352,22 +1406,22 @@ page {
   top: 0;
   bottom: 0;
   border-radius: 8rpx;
-  background: linear-gradient(90deg, #6fb7ff, #ffe08a);
+  background: linear-gradient(90deg, #2e9cff, #5ec2ff);
 }
 .exp-route-marker {
   position: absolute;
   top: 50%;
-  width: 18rpx;
-  height: 18rpx;
+  width: 16rpx;
+  height: 16rpx;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
-  border: 3rpx solid #e3b04b;
-  box-shadow: 0 0 8rpx rgba(255, 210, 120, 0.9);
+  border: 3rpx solid #3dabff;
+  box-shadow: 0 0 8rpx rgba(61, 171, 255, 0.9);
 }
 .exp-route-meta { display: flex; justify-content: space-between; align-items: baseline; }
-.exp-route-label { font-size: 17rpx; color: rgba(255,255,255,0.6); }
-.exp-route-pct { font-size: 22rpx; font-weight: 800; color: #ffe3a0; font-variant-numeric: tabular-nums; }
+.exp-route-label { font-size: 17rpx; color: rgba(255,255,255,0.55); }
+.exp-route-pct { font-size: 22rpx; font-weight: 800; color: #a7e2ff; font-variant-numeric: tabular-nums; }
 
 /* 下一站（一行） */
 .exp-step {
@@ -1390,22 +1444,20 @@ page {
 .exp-core {
   display: flex;
   align-items: stretch;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 .exp-stage {
   flex: 1 1 58%;
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  padding: 8rpx 12rpx;
-  border-radius: 12rpx;
-  background: rgba(255,255,255,0.07);
+  gap: 8rpx;
+  padding: 0;
   min-width: 0;
 }
-.exp-stage-emoji { font-size: 34rpx; }
+.exp-stage-emoji { font-size: 30rpx; }
 .exp-stage-txt { display: flex; flex-direction: column; min-width: 0; }
 .exp-stage-name {
-  font-size: 22rpx;
+  font-size: 21rpx;
   font-weight: 700;
   color: #fff;
   overflow: hidden;
@@ -1415,36 +1467,25 @@ page {
 .exp-env {
   flex: 1 1 42%;
   display: flex;
-  gap: 8rpx;
+  gap: 4rpx;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
 .exp-env-item {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 2rpx;
-  padding: 6rpx 4rpx;
-  border-radius: 10rpx;
-  background: rgba(255,255,255,0.06);
   min-width: 0;
+  max-width: 130rpx;
 }
-.exp-env-k { font-size: 16rpx; color: rgba(255,255,255,0.5); }
+.exp-env-k { font-size: 15rpx; color: rgba(255,255,255,0.45); }
 .exp-env-v {
   font-size: 20rpx;
   font-weight: 700;
-  color: #ffe9b8;
+  color: #bde9ff;
   font-variant-numeric: tabular-nums;
-}
-
-/* 阶段简介（一行省略号） */
-.exp-intro {
-  font-size: 17rpx;
-  line-height: 1.4;
-  color: rgba(255,255,255,0.62);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
 }
 
 /* 死亡区：克制变化（面板整体降饱和 + 细红描边 + 文案），不弹窗 */
@@ -1498,9 +1539,9 @@ page {
   border: 1rpx solid rgba(150, 200, 255, 0.5);
 }
 .exp-ctl-up {
-  background: linear-gradient(135deg, #e3b04b, #b57f1f);
-  border: 2rpx solid #7a5510;
-  box-shadow: 0 4rpx 0 #7a5510;
+  background: linear-gradient(135deg, #2e9cff, #1f6fe0);
+  border: 1rpx solid rgba(150, 210, 255, 0.65);
+  box-shadow: 0 4rpx 0 #0f4b9e;
 }
 
 /* ---- 峰顶轻提示（非庆祝弹层；地形优先） ---- */
@@ -1516,13 +1557,12 @@ page {
   padding: 14rpx 20rpx;
   border-radius: 18rpx;
   background: rgba(8, 14, 24, 0.72);
-  border: 1rpx solid rgba(255, 224, 150, 0.5);
+  border: 1rpx solid rgba(170, 220, 255, 0.45);
   backdrop-filter: blur(10rpx);
   box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.4);
 }
 .exp-summit-txt { display: flex; align-items: baseline; justify-content: space-between; }
-.exp-summit-alt { font-size: 40rpx; font-weight: 800; color: #ffe3a0; font-variant-numeric: tabular-nums; }
-.exp-summit-coords { font-size: 19rpx; color: rgba(255, 255, 255, 0.7); font-variant-numeric: tabular-nums; }
+.exp-summit-alt { font-size: 40rpx; font-weight: 800; color: #bfe9ff; font-variant-numeric: tabular-nums; }
 .exp-summit-note { font-size: 24rpx; color: #fff; font-weight: 600; }
 .exp-summit-actions { display: flex; gap: 16rpx; margin-top: 4rpx; }
 .exp-summit-act {
@@ -1533,3 +1573,91 @@ page {
   background: rgba(120, 170, 255, 0.18);
 }
 .exp-summit-act:active { opacity: 0.8; }
+
+/* ===== 路线全景 rou-*（替代“敬请期待”占位的真实数据全景 sheet） ===== */
+.rou-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 26, 14, 0.52);
+}
+.rou-card {
+  width: 90vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #fffdf3;
+  border-radius: 22rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(31, 26, 14, 0.35);
+}
+.rou-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx 8rpx;
+}
+.rou-title { font-size: 32rpx; font-weight: 700; color: #2a2b20; }
+.rou-close { padding: 8rpx 16rpx; font-size: 30rpx; color: #94896a; }
+.rou-intro {
+  padding: 2rpx 28rpx 16rpx;
+  font-size: 23rpx;
+  color: #6a5f47;
+  line-height: 1.55;
+}
+.rou-stats {
+  display: flex;
+  margin: 0 28rpx 14rpx;
+  padding: 18rpx 8rpx;
+  border-radius: 16rpx;
+  background: #f6ead1;
+}
+.rou-stat { flex: 1; text-align: center; }
+.rou-stat-v { display: block; font-size: 28rpx; font-weight: 700; color: #a06a10; }
+.rou-stat-k { display: block; margin-top: 2rpx; font-size: 20rpx; color: #94896a; }
+.rou-ends {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 28rpx 10rpx;
+}
+.rou-end { font-size: 22rpx; color: #4a4230; }
+.rou-end-right { color: #a06a10; font-weight: 600; }
+.rou-scroll { flex: 1; min-height: 0; padding: 0 28rpx; }
+.rou-sec-title {
+  display: block;
+  margin: 18rpx 0 10rpx;
+  font-size: 23rpx;
+  font-weight: 600;
+  color: #3a3a2e;
+  border-bottom: 1rpx solid #eee2c6;
+  padding-bottom: 8rpx;
+}
+.rou-item {
+  display: flex;
+  gap: 14rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f2ead4;
+}
+.rou-item.summit { background: rgba(160, 106, 16, 0.06); }
+.rou-item-emoji { font-size: 26rpx; }
+.rou-dot { font-size: 14rpx; color: #b98a3a; padding-top: 8rpx; }
+.rou-item-main { flex: 1; min-width: 0; }
+.rou-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12rpx; }
+.rou-item-name { font-size: 25rpx; font-weight: 600; color: #2a2b20; }
+.rou-item-km { font-size: 20rpx; color: #a06a10; white-space: nowrap; }
+.rou-item-range { display: block; font-size: 20rpx; color: #94896a; margin-top: 2rpx; }
+.rou-item-intro { display: block; font-size: 21rpx; color: #6a5f47; line-height: 1.5; margin-top: 4rpx; }
+.rou-psrc { display: block; font-size: 20rpx; color: #94896a; line-height: 1.6; }
+.rou-btn {
+  margin: 16rpx 28rpx 24rpx;
+  font-size: 26rpx;
+  line-height: 2.6;
+  border-radius: 999rpx;
+  color: #fffdf3;
+  background: linear-gradient(135deg, #b27c1d, #8a5e12);
+}
+.rou-btn::after { border: none; }
+.rou-btn:active { transform: translateY(3rpx); }

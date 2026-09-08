@@ -2,6 +2,18 @@
 
 This directory contains the canonical visual references for Geo Explorer Expedition V2.
 
+## Geo Explorer design pages
+
+01_home_explore.png - 地球探索首页
+02_everest_route_map.png - 珠穆朗玛峰路线地图
+03_exploration_progress.png - 探索进度 / 当前征程
+04_camp3_detail.png - Camp III 详情页
+05_route_overview.png - 路线概览
+06_altitude_environment.png - 海拔与环境变化
+07_surrounding_peaks.png - 周边山峰
+08_related_knowledge.png - 相关知识
+
+
 ## Everest
 
 `everest-product-reference.png`

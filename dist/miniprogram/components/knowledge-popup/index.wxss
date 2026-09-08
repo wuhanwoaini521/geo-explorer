@@ -1,3 +1,6 @@
+/* Gate 3.3C.1 P1：知识卡（发现卡）→ 暗色半透明玻璃
+   深色 immersive 页统一：透明玻璃底 + 细边框 + 减弱投影 + 单一 accent 图标（emoji）。
+   不再使用亮米色（bright cream）卡片；强调色收敛为细蓝高亮，不做 cyan-heavy 卡片。 */
 .popup-mask {
   position: fixed;
   inset: 0;
@@ -5,17 +8,22 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(42, 33, 15, 0.5);
-  backdrop-filter: blur(6rpx);
+  background: rgba(6, 10, 18, 0.58);
+  backdrop-filter: blur(8rpx);
 }
 .popup-sheet {
   width: 100%;
-  max-height: 78vh;
+  max-height: 72vh; /* 更小占用 */
   overflow-y: auto;
-  background: #fffdf4;
+  background: rgba(15, 22, 37, 0.92);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-bottom: none;
   border-radius: 32rpx 32rpx 0 0;
-  padding: 32rpx 32rpx 48rpx;
-  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -10rpx 40rpx rgba(0, 0, 0, 0.35); /* 减弱的投影 */
+  backdrop-filter: blur(26rpx);
+  padding: 30rpx 30rpx 44rpx;
+  padding-bottom: calc(44rpx + env(safe-area-inset-bottom));
+  color: #eef3fa;
   animation: sheetIn 0.28s ease both;
 }
 @keyframes sheetIn {
@@ -27,6 +35,7 @@
   align-items: center;
   gap: 18rpx;
 }
+/* 单一 accent 图标（知识 emoji）——整卡唯一强高亮 */
 .popup-emoji {
   font-size: 52rpx;
   line-height: 1;
@@ -41,28 +50,29 @@
 .popup-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #37311e;
+  color: #f4f7fc;
   letter-spacing: 1rpx;
 }
 .popup-elev {
   font-size: 22rpx;
-  color: #a06a10;
+  color: #9fd4ff;
 }
 .popup-close {
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  background: rgba(151, 124, 66, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8a7c58;
+  color: #9aaabd;
   font-size: 28rpx;
 }
 .popup-summary {
   margin-top: 22rpx;
   font-size: 27rpx;
-  color: #37311e;
+  color: #dfe6f0;
   line-height: 1.6;
 }
 .popup-expand {
@@ -70,7 +80,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8rpx;
-  color: #a06a10;
+  color: #9fd4ff;
   font-size: 26rpx;
 }
 .popup-expand-arrow {
@@ -79,13 +89,13 @@
 .popup-detail {
   margin-top: 22rpx;
   font-size: 26rpx;
-  color: #4a4430;
+  color: #cdd6e3;
   line-height: 1.7;
 }
 .popup-facts {
   margin-top: 26rpx;
-  background: #f4ecd3;
-  border: 1rpx solid rgba(151, 124, 66, 0.14);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
   display: flex;
@@ -94,7 +104,7 @@
 }
 .popup-facts-title {
   font-size: 22rpx;
-  color: #a06a10;
+  color: #9fd4ff;
   letter-spacing: 2rpx;
 }
 .fact {
@@ -104,11 +114,11 @@
 }
 .fact-label {
   font-size: 22rpx;
-  color: #8a7c58;
+  color: #93a4bb;
 }
 .fact-value {
   font-size: 24rpx;
-  color: #37311e;
+  color: #dce4f0;
   line-height: 1.5;
 }
 .popup-source {
@@ -119,36 +129,35 @@
 }
 .popup-source-flag {
   font-size: 20rpx;
-  color: #4a708c;
+  color: #8fc4f0;
   padding: 4rpx 12rpx;
   border-radius: 6rpx;
-  background: rgba(74, 112, 140, 0.1);
+  background: rgba(120, 174, 224, 0.12);
 }
 .popup-source-text {
   font-size: 20rpx;
-  color: #94896a;
+  color: #93a4bb;
 }
 .popup-actions {
   margin-top: 30rpx;
 }
+/* 主按钮：克制小玻璃（非 cyan-heavy 填充），与整体暗玻璃一致 */
 .popup-btn-primary {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 92rpx;
   border-radius: 46rpx;
-  background: linear-gradient(135deg, #e3b04b, #b57f1f);
-  border: 2rpx solid #7a5510;
-  box-shadow: 0 6rpx 0 #7a5510;
-  color: #fffdf4;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.18);
+  color: #eef4fb;
   font-size: 30rpx;
   font-weight: 600;
   letter-spacing: 2rpx;
 }
 .popup-btn-primary:active {
-  transform: translateY(4rpx);
-  box-shadow: 0 2rpx 0 #7a5510;
-  opacity: 0.94;
+  transform: translateY(2rpx);
+  background: rgba(255, 255, 255, 0.14);
 }
 /* ---------- 分层：分类标签 / 查看详情 / 完整知识 ---------- */
 .popup-cat-row {
@@ -158,25 +167,25 @@
 }
 .popup-cat {
   font-size: 20rpx;
-  color: #a06a10;
+  color: #c7d6e8;
   padding: 4rpx 14rpx;
   border-radius: 6rpx;
-  background: rgba(168, 119, 23, 0.1);
-  border: 1rpx solid rgba(168, 119, 23, 0.24);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
 }
 .popup-btn-expand {
   margin-top: 22rpx;
   display: inline-flex;
   align-items: center;
   gap: 8rpx;
-  color: #a06a10;
+  color: #9fd4ff;
   font-size: 26rpx;
   padding: 10rpx 0;
 }
 .popup-subtitle {
   margin-top: 26rpx;
   font-size: 22rpx;
-  color: #a06a10;
+  color: #9fd4ff;
   letter-spacing: 2rpx;
 }
 .popup-sources {
@@ -191,7 +200,7 @@
   align-items: flex-start;
 }
 .popup-src-bullet {
-  color: #b0a586;
+  color: #7f8fa6;
   font-size: 24rpx;
   line-height: 1.6;
 }
@@ -204,7 +213,7 @@
 }
 .popup-src-name {
   font-size: 22rpx;
-  color: #6f6547;
+  color: #b9c6d8;
   line-height: 1.5;
 }
 .popup-src-tags {
@@ -214,24 +223,24 @@
 }
 .tag-approx {
   font-size: 20rpx;
-  color: #a06a10;
+  color: #d6b37e;
   padding: 2rpx 10rpx;
   border-radius: 6rpx;
-  background: rgba(168, 119, 23, 0.1);
+  background: rgba(214, 179, 126, 0.12);
 }
 .tag-verified {
   font-size: 20rpx;
-  color: #5c7a34;
+  color: #8fce9a;
   padding: 2rpx 10rpx;
   border-radius: 6rpx;
-  background: rgba(107, 143, 61, 0.12);
+  background: rgba(143, 206, 154, 0.12);
 }
 .fact-src {
   display: flex;
   align-items: center;
   gap: 8rpx;
   font-size: 20rpx;
-  color: #94896a;
+  color: #93a4bb;
 }
 .popup-btn-lib {
   margin-top: 24rpx;
@@ -240,8 +249,8 @@
   gap: 8rpx;
   padding: 16rpx 20rpx;
   border-radius: 12rpx;
-  background: #f4ecd3;
-  border: 1rpx solid rgba(151, 124, 66, 0.16);
-  color: #6f6547;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  color: #b9c6d8;
   font-size: 24rpx;
 }

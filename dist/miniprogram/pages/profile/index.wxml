@@ -64,5 +64,6 @@
     <text>还没有探索记录，去首页开始第一段旅程吧 🏔</text>
   </view>
 
+  <view class="btn" bindtap="onOpenCredits">📜 数据来源与许可</view>
   <view class="btn" bindtap="onClear">清空本地记录</view>
 </view>

@@ -19,6 +19,7 @@ design/world/everest-3d/blender/*.blend1
 .gate1-tmp/
 .gate2-tmp/
 .gate3-tmp/
+.gate3tmp/
 .tmp-a/
 .tmp-sweep/
 .codegraph/
@@ -38,3 +39,5 @@ images/
 project.private.config.json
 # py tool caches
 .ruff_cache/
+# WeChat mini-program screenshots (generated, never committed)
+artifacts/visual/

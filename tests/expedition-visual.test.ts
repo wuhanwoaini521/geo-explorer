@@ -9,6 +9,7 @@ import { EVEREST_EXPEDITION } from "../miniprogram/data/expeditions/everest";
 import {
   liveSceneForStageIndex,
   liveSceneProgressRange,
+  presentationCropUi,
   resolveExpeditionVisual,
   visualFallbackWarning,
   type VisualResolveDeps,
@@ -151,6 +152,47 @@ describe("resolveExpeditionVisual：LIVE / TERRAIN / fallback（§24）", () => 
       expect(p.crop.focusX).toBeGreaterThanOrEqual(0);
       expect(p.transition?.crossfadeMs).toBeGreaterThan(0);
     }
+  });
+
+  describe("presentationCropUi：LiveCrop → 渲染层 0-100/zoom（§12/§13，WXML 唯一消费点）", () => {
+    it("无 crop → DEFAULT_LIVE_CROP 默认（焦点 50/40，zoom 1）", () => {
+      const ui = presentationCropUi(undefined);
+      expect(ui.focusX).toBe(50);
+      expect(ui.focusY).toBe(40);
+      expect(ui.zoom).toBe(1);
+    });
+
+    it("给定 crop → 焦点转 0-100、zoom 透传", () => {
+      const ui = presentationCropUi({
+        focusX: 0.62,
+        focusY: 0.38,
+        scale: 1.18,
+      });
+      expect(ui.focusX).toBe(62);
+      expect(ui.focusY).toBe(38);
+      expect(ui.zoom).toBe(1.18);
+    });
+
+    it("越界/非法：focus 夹取 0-1、scale 下限 1（不缩回原图以下）", () => {
+      const ui = presentationCropUi({ focusX: 1.4, focusY: -0.2, scale: 0.4 });
+      expect(ui.focusX).toBe(100);
+      expect(ui.focusY).toBe(0);
+      expect(ui.zoom).toBe(1);
+    });
+
+    it("LIVE 解析产物 crop → 渲染层 Ui（同一值，页面 object-position 消费）", () => {
+      const p = resolveExpeditionVisual(
+        { config: exp.visualMode, stageMap: exp.stageMap, media: exp.media },
+        { mode: "LIVE", stageIndex: 0 },
+      );
+      expect(p.kind).toBe("LIVE");
+      if (p.kind === "LIVE") {
+        const ui = presentationCropUi(p.crop);
+        expect(ui.focusX).toBe(p.crop.focusX * 100);
+        expect(ui.focusY).toBe(p.crop.focusY * 100);
+        expect(ui.zoom).toBeGreaterThanOrEqual(1);
+      }
+    });
   });
 
   it("绑定 unapproved 资产 → asset-not-approved 兜底", () => {

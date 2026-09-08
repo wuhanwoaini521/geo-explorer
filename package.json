@@ -9,6 +9,7 @@
     "clean": "node scripts/clean.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "wechat:screenshot": "node scripts/wechat-screenshot.cjs",
     "everest:viewer": "npm --prefix tools/everest-route-calibrator run build && node tools/everest-route-calibrator/server.mjs"
   },
   "keywords": [
@@ -20,6 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.19.43",
+    "miniprogram-automator": "^0.12.1",
     "typescript": "^5.6.0",
     "vitest": "^2.1.9"
   }
