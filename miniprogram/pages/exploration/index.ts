@@ -165,6 +165,8 @@ interface FloraItem {
 interface SceneState {
   mode: "mnt" | "summit"; // summit：8848 峰顶全景（深蓝天空+云海+峰顶雪脊）
   plates: {
+    /** Gate 3.4：高质量远征主视觉；为空时才回退到旧分层资产。 */
+    hero: string;
     far: string;
     main: string;
     snow: string; // 主峰雪冠覆盖层（雪量→透明度）
@@ -182,6 +184,9 @@ interface SceneState {
   };
   sun: number;
 }
+
+const EVEREST_CUSTOM_VISUAL =
+  "/assets/world/everest-expedition-hero-v1.png";
 
 interface CameraUiState {
   /** 供不同深度层消费的 transform；route 与主地形保持同一变换。 */
@@ -520,14 +525,15 @@ function buildRouteState(
 const SCENE_DEFAULT: SceneState = {
   mode: "mnt",
   plates: {
-    far: "/assets/world/everest-view-a.jpg",
-    main: "/assets/world/everest-view-b.jpg",
+    hero: EVEREST_CUSTOM_VISUAL,
+    far: "",
+    main: "",
     snow: "",
-    mid: "/assets/world/everest-view-c.jpg",
+    mid: "",
     cloud: "",
     ground: "",
   },
-  op: { far: 1, main: 0.72, snow: 0, mid: 0.18, cloud: 0, ground: 0 },
+  op: { far: 0, main: 1, snow: 0, mid: 0, cloud: 0, ground: 0 },
   sun: 0,
 };
 
@@ -555,35 +561,36 @@ function buildScene(
     return {
       mode: "summit",
       plates: {
-        far: "/assets/world/everest-view-a.jpg",
-        main: "/assets/world/everest-view-b.jpg",
+        hero: EVEREST_CUSTOM_VISUAL,
+        far: "",
+        main: "",
         snow: "",
-        mid: "/assets/world/everest-view-c.jpg",
+        mid: "",
         cloud: "",
         ground: "",
       },
-      op: { far: 0.28, main: 0.42, snow: 0, mid: 1, cloud: 0, ground: 0 },
+      op: { far: 0, main: 1, snow: 0, mid: 0, cloud: 0, ground: 0 },
       sun: 0,
     };
   }
-  // 真实 DEM 三景的 2.5D 组合：A 作远景大气层，B 作路线承载主体，
-  // C 只取前景冰壁；三层按相机帧以不同深度移动。资产均来自同一 DEM，
-  // 不使用无地理依据的装饰图或硬编码路线。
+  // 主视觉由自制珠峰远征图承载；路线仍由 canonical routeIndex 投影，
+  // 不把静态路线画进图片，避免运动时与真实进度脱节。
   const band = viewBand(progress);
   return {
     mode: "mnt",
-    plates: {
-      far: "/assets/world/everest-view-a.jpg",
-      main: "/assets/world/everest-view-b.jpg",
+      plates: {
+      hero: EVEREST_CUSTOM_VISUAL,
+      far: "",
+      main: "",
       snow: "",
-      mid: "/assets/world/everest-view-c.jpg",
+      mid: "",
       // 手绘云海/地面插画与照片级渲染风格冲突，已下架（图层保留供未来接真实云层）
       cloud: "",
       ground: "",
     },
     op: {
       far: band === 0 ? 1 : 0.62,
-      main: band === 1 ? 0.96 : 0.72,
+      main: 1,
       snow: 0,
       mid: band === 2 ? 0.86 : 0.34,
       cloud: 0,

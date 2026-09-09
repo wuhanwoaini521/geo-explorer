@@ -4,6 +4,9 @@
 
   <!-- ===== 山岳世界（world.style === 'mountain'：真实 DEM 三景按深度叠加） ===== -->
   <block wx:if="{{worldMountain}}">
+    <!-- Gate 3.4：自制远征主视觉；路线/marker 仍由 canonical route 动态叠加。 -->
+    <image wx:if="{{scene.plates.hero}}" class="plate view view-hero" mode="aspectFill" src="{{scene.plates.hero}}" style="transform:{{camera.mainTransform}} scale({{viewZoom.b}}); opacity:{{scene.op.main || 1}}"></image>
+
     <!-- 视图 A：远景全景（徒步→BC）：下锚缩放至 DEM 山体带，天空不再占用主体 -->
     <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a depth-far" mode="aspectFill" src="{{scene.plates.far}}" style="transform:{{camera.farTransform}} translate3d(0,-{{par.far * 0.25}}px,0) scale({{viewZoom.a}}); opacity:{{scene.op.far}}"></image>
 
@@ -16,9 +19,9 @@
     <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
 
-    <!-- Gate 3.3C.1 P0：LIVE 不可用（visLiveFallback）→ 有意的本地珠峰实拍 cover 全屏铺实
-         (assets/world/everest-hero.jpg)，杜绝空白渐变 / 毛刺残片；实景·不可用由顶部胶囊 + 底部说明共同表态 -->
-    <image wx:if="{{routeMode && visLiveFallback}}" class="plate view view-fallback" mode="aspectFill" src="/assets/world/everest-hero.jpg"></image>
+    <!-- Gate 3.3C.1 P0：LIVE 不可用（visLiveFallback）→ 自制珠峰远征主视觉全屏铺实，
+         杜绝空白渐变 / 毛刺残片；实景·不可用由顶部胶囊 + 底部说明共同表态 -->
+    <image wx:if="{{routeMode && visLiveFallback}}" class="plate view view-fallback" mode="aspectFill" src="/assets/world/everest-expedition-hero-v1.png"></image>
 
     <!-- Gate 3.3C.1：LIVE 实景层（crop 由数据层 → presentationCropUi 消费：object-position 焦点 + zoom 缩放） -->
     <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" style="object-position:{{liveCropUi.focusX}}% {{liveCropUi.focusY}}%; transform: scale({{liveCropUi.zoom}});" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>

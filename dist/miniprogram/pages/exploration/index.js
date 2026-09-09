@@ -75,6 +75,7 @@ const SNOWFLAKE_COUNT_STEP = 4; // 粒子数按档量化，减少数组重建
 const BANNER_MS = 2600; // 自然带进入提示时长
 const SUMMIT_CELEBRATION_MS = 3200; // 登顶庆祝动画时长
 const ROUTE_CANVAS_ASPECT = 1.9; // 可视场景画布高/宽近似比，用于将百分比坐标换为线段角度
+const EVEREST_CUSTOM_VISUAL = "/assets/world/everest-expedition-hero-v1.png";
 function cameraTransform(frame, depth) {
     var _a;
     const focus = (_a = frame.focus) !== null && _a !== void 0 ? _a : { x: 0.5, y: 0.5 };
@@ -217,14 +218,15 @@ function buildRouteState(route, progress) {
 const SCENE_DEFAULT = {
     mode: "mnt",
     plates: {
-        far: "/assets/world/everest-view-a.jpg",
-        main: "/assets/world/everest-view-b.jpg",
+        hero: EVEREST_CUSTOM_VISUAL,
+        far: "",
+        main: "",
         snow: "",
-        mid: "/assets/world/everest-view-c.jpg",
+        mid: "",
         cloud: "",
         ground: "",
     },
-    op: { far: 1, main: 0.72, snow: 0, mid: 0.18, cloud: 0, ground: 0 },
+    op: { far: 0, main: 1, snow: 0, mid: 0, cloud: 0, ground: 0 },
     sun: 0,
 };
 /** 云海/云雾选片（保留供未来接真实云层）：冰川带及以上 → 云海，其余 → 轻雾 */
@@ -243,35 +245,36 @@ function buildScene(_d, progress, summitMode) {
         return {
             mode: "summit",
             plates: {
-                far: "/assets/world/everest-view-a.jpg",
-                main: "/assets/world/everest-view-b.jpg",
+                hero: EVEREST_CUSTOM_VISUAL,
+                far: "",
+                main: "",
                 snow: "",
-                mid: "/assets/world/everest-view-c.jpg",
+                mid: "",
                 cloud: "",
                 ground: "",
             },
-            op: { far: 0.28, main: 0.42, snow: 0, mid: 1, cloud: 0, ground: 0 },
+            op: { far: 0, main: 1, snow: 0, mid: 0, cloud: 0, ground: 0 },
             sun: 0,
         };
     }
-    // 真实 DEM 三景的 2.5D 组合：A 作远景大气层，B 作路线承载主体，
-    // C 只取前景冰壁；三层按相机帧以不同深度移动。资产均来自同一 DEM，
-    // 不使用无地理依据的装饰图或硬编码路线。
+    // 主视觉由自制珠峰远征图承载；路线仍由 canonical routeIndex 投影，
+    // 不把静态路线画进图片，避免运动时与真实进度脱节。
     const band = viewBand(progress);
     return {
         mode: "mnt",
         plates: {
-            far: "/assets/world/everest-view-a.jpg",
-            main: "/assets/world/everest-view-b.jpg",
+            hero: EVEREST_CUSTOM_VISUAL,
+            far: "",
+            main: "",
             snow: "",
-            mid: "/assets/world/everest-view-c.jpg",
+            mid: "",
             // 手绘云海/地面插画与照片级渲染风格冲突，已下架（图层保留供未来接真实云层）
             cloud: "",
             ground: "",
         },
         op: {
             far: band === 0 ? 1 : 0.62,
-            main: band === 1 ? 0.96 : 0.72,
+            main: 1,
             snow: 0,
             mid: band === 2 ? 0.86 : 0.34,
             cloud: 0,

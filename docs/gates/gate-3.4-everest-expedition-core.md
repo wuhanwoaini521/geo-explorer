@@ -61,14 +61,15 @@ ExpeditionDriveState
 
 ### Depth
 
-- A/B/C 三个同源 DEM 资产分别作为远景、路线承载主体和前景冰壁，并使用不同深度 transform/clip 区域。
+- 采用自制的高质量珠峰远征主视觉作为全屏主背景，山体和冰川占据主体，消除旧 DEM 建模图的空蓝天与底部灰山问题。
+- 路线与 marker 仍是独立动态图层，并与主视觉使用同一相机 transform；旧 A/B/C 分层资产不再作为 Everest 主场景渲染入口。
 - 未引入 Three.js、WebGL 或其他大型运行时依赖。
 
 ### Visual review
 
 本次已直接检查设计参考与 DEM 资产，但没有取得本次代码的 WeChat 渲染截图。`npm run wechat:screenshot` 连接 `ws://127.0.0.1:9420` 失败；脚本没有启动可见窗口。仓库中旧的 `artifacts/visual/current.png` 早于本次修改，未作为证据使用。
 
-因此以下项目仍不能由当前运行自动判定：路线是否贴合山体、marker 是否贴合路线、相机边界是否无视觉 pop、三层深度是否自然、TERRAIN 配色是否保持 cinematic 而非 GIS/dashboard。
+因此以下项目仍不能由当前运行自动判定：路线是否贴合新主视觉、marker 是否贴合路线、相机边界是否无视觉 pop、主图与动态路线组合是否自然、TERRAIN 配色是否保持 cinematic 而非 GIS/dashboard。
 
 ## Phase 4 — Route Overview and Events
 
@@ -111,6 +112,9 @@ ExpeditionDriveState
 - `miniprogram/pages/exploration/index.ts`
 - `miniprogram/pages/exploration/index.wxml`
 - `miniprogram/pages/exploration/index.wxss`
+- `miniprogram/pages/home/index.ts`
+- `miniprogram/pages/home/index.wxml`
+- `miniprogram/assets/world/everest-expedition-hero-v1.png`
 - `tests/expedition-camera.test.ts`
 - `tests/expedition-climb.test.ts`
 - `tests/expedition-motion.test.ts`
@@ -120,7 +124,13 @@ ExpeditionDriveState
 
 ## Git Scope
 
-本次没有执行 commit、push、reset、clean unrelated files 或分支操作。工作区原有的 `AGENTS.md`、`.pi/agents/vision-reviewer.md`、`vitest.config.ts` 等修改均保留，未将其误判为本次可回滚内容。
+本次未执行 push、reset 或 clean unrelated files。已按功能分类创建 commit：
+
+- `298eb52 feat(expedition): implement Gate 3.4 expedition core`
+- `845b14d feat(home): use real Everest hero photo`
+- 当前变更待创建：`feat(ui): add custom Everest expedition visual`
+
+工作区原有的 `AGENTS.md`、`.pi/agents/vision-reviewer.md`、临时参考图及其他文档修改均未混入。
 
 ## Human Review Checklist
 

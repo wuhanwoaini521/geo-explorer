@@ -1054,6 +1054,12 @@ page {
 .view-a { z-index: 2; }
 .view-b { z-index: 3; }
 .view-c { z-index: 4; }
+.view-hero {
+  top: 0;
+  height: 100%;
+  transform-origin: 50% 50%;
+  z-index: 2;
+}
 /* 三张同一 DEM 的不同视角只取各自景别，避免整幅照片叠成双曝光：
    A 保留天空/远山，B 承载主路线山体，C 只作为底部近景冰壁。 */
 .depth-far { clip-path: inset(0 0 38% 0); }
@@ -1155,7 +1161,7 @@ page {
 }
 
 /* Gate 3.4：TERRAIN 科学地形上的路线重投影（2.5D 帆布，z7 在 live-route 之下，避免与 LIVE 重叠）。
-   画的是真实 terrain 路线点的全景折线，与 LIVE 校准扇线、示意直段不同；配色取琥珀色系区分 LIVE 的蓝系；
+   画的是真实 terrain 路线点的全景折线，与 LIVE 校准扇线、示意直段不同；配色保持克制的冰川青；
    坐标消耗与 live-route 同构（x/y 百分位 + 斜段 rotate），当前点/峰顶旗均为真实投影。 */
 .terrain-route {
   position: absolute;
@@ -1174,8 +1180,8 @@ page {
   margin-left: -3rpx;
   transform-origin: 50% 50%;
   border-radius: 3rpx;
-  background: linear-gradient(90deg, rgba(255, 186, 82, 0.38), rgba(255, 190, 90, 0.92));
-  box-shadow: 0 0 9rpx rgba(255, 176, 72, 0.5);
+  background: linear-gradient(90deg, rgba(151, 241, 255, 0.42), rgba(92, 215, 255, 0.92));
+  box-shadow: 0 0 9rpx rgba(92, 215, 255, 0.5);
 }
 .terrain-route-anchor {
   position: absolute;
@@ -1184,10 +1190,11 @@ page {
   margin: -10rpx 0 0 -10rpx;
   border-radius: 50%;
   background: #fff;
-  border: 3rpx solid rgba(240, 160, 60, 0.95);
-  box-shadow: 0 0 6rpx rgba(240, 150, 50, 0.6);
+  border: 3rpx solid rgba(143, 237, 255, 0.95);
+  box-shadow: 0 0 6rpx rgba(92, 215, 255, 0.6);
 }
 .terrain-route-anchor-tag {
+  display: none;
   position: absolute;
   left: 50%;
   bottom: 14rpx;
@@ -1206,15 +1213,15 @@ page {
   height: 28rpx;
   margin: -14rpx 0 0 -14rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, #ffc266 45%, rgba(255, 150, 30, 0.95) 100%);
-  box-shadow: 0 0 10rpx rgba(255, 170, 60, 0.9), 0 0 2rpx #fff;
+  background: radial-gradient(circle, #fff 0%, #9ff3ff 45%, rgba(42, 187, 235, 0.95) 100%);
+  box-shadow: 0 0 10rpx rgba(92, 215, 255, 0.9), 0 0 2rpx #fff;
 }
 .terrain-route-summit {
   position: absolute;
   transform: translate(-50%, -100%);
-  color: #ffe9b0;
+  color: #b9f5ff;
   font-size: 22rpx;
-  text-shadow: 0 0 8rpx rgba(255, 180, 60, 0.9), 0 1rpx 4rpx rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 8rpx rgba(92, 215, 255, 0.9), 0 1rpx 4rpx rgba(0, 0, 0, 0.6);
 }
 .terrain-route-chip {
   position: absolute;
