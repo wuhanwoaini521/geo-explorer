@@ -83,10 +83,18 @@ export interface CameraSegment {
    asset: string;
    /** 聚焦点（画面注视点），可选 */
    focus?: CameraFocus;
+   /** 该段起始聚焦点；缺省时沿用上一段终点或画面中心 */
+   fromFocus?: CameraFocus;
    /** 期望缩放：（1 原图）可插值 */
    scale?: number;
    /** 视线水平偏移（0.5 中心） */
    offsetX?: number;
+   /** 该段起始水平偏移 */
+   fromOffsetX?: number;
+   /** 视线垂直偏移（0.5 中心） */
+   offsetY?: number;
+   /** 该段起始垂直偏移 */
+   fromOffsetY?: number;
 }
 
 export interface CameraConfig {

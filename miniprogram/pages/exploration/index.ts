@@ -31,6 +31,18 @@ import {
   type ExpeditionDriveState,
 } from "../../engine/expedition-driver";
 import {
+  climbFrameAt,
+  createClimbRequest,
+  milestonesCrossedBetween,
+  type ClimbFrame,
+  type ClimbPhase,
+  type ClimbRequest,
+} from "../../engine/expedition-climb";
+import {
+  cameraFrameAt,
+  type ExpeditionCameraFrame,
+} from "../../engine/expedition-camera";
+import {
   liveSceneInfo,
   liveSceneProgressRange,
   presentationCropUi,
@@ -39,11 +51,19 @@ import {
   visualFallbackWarning,
 } from "../../engine/expedition-visual";
 import type { LiveCropUi, LiveOverlayUi } from "../../engine/expedition-visual";
+import {
+  buildTerrainDynamicState,
+  buildTerrainRouteGeometry,
+  type TerrainDynamicStateUi,
+  type TerrainRouteGeometryUi,
+} from "../../engine/terrain-projection";
 import { saveExplorationRecord } from "../../services/exploration-store";
 import type {
+  CameraConfig,
   MediaManifest,
   ExpeditionVisualMode,
   ExpeditionVisualModeConfig,
+  RouteMilestoneSample,
 } from "../../types/expedition";
 import type {
   EnvironmentMetric,
@@ -76,9 +96,36 @@ import {
 const TICK_MS = 55; // 渲染节拍（≈18fps）
 const METERS_PER_PX = 9; // 拖动 1px ≈ 爬升 9m
 const STEP_METERS = 360; // 上/下按钮步进（m）
-const ROUTE_STEP_METERS = 360; // 路线模式按钮步进（按真实路线里程，m）
+/** 单次攀登在路线轴上的目标增量（m；沿路线而非海拔） */
+const CLIMB_DELTA_M = 420;
 const EASE_EPS_ROUTE = 0.004; // 路线轴（0-1 progress）静止判定阈值（对应海拔轴 EASE_EPS）
 const OXYGEN_DEATH_TEXT = "≤ 30%"; // 死亡区含氧量提示（模型值被压制为克制的上限文案）
+
+/** 里程碑 kind → 中文标签（onViewRoute 也用同一映射） */
+function milestoneKindLabel(kind: string): string {
+  const map: Record<string, string> = {
+    camp: "营地",
+    landmark: "地标",
+    danger: "危险段",
+    knowledge: "知识",
+    summit: "峰顶",
+    waypoint: "途经点",
+  };
+  return map[kind] ?? "途经点";
+}
+
+/** 里程碑 kind → 横幅emoji */
+function milestoneKindEmoji(kind: string): string {
+  const map: Record<string, string> = {
+    camp: "🏕️",
+    landmark: "🗻",
+    danger: "⚠️",
+    knowledge: "📖",
+    summit: "🏔️",
+    waypoint: "◈",
+  };
+  return map[kind] ?? "◈";
+}
 const MOTION_GAIN = 0.22; // current 每 tick 逼近 target 系数
 const EASE_EPS = 0.4; // 静止判定阈值（m）
 const PARALLAX_BASE = 220; // 全场视差总位移（px）
@@ -134,6 +181,47 @@ interface SceneState {
     ground: number;
   };
   sun: number;
+}
+
+interface CameraUiState {
+  /** 供不同深度层消费的 transform；route 与主地形保持同一变换。 */
+  farTransform: string;
+  mainTransform: string;
+  nearTransform: string;
+  routeTransform: string;
+  zoom: number;
+  offsetX: number;
+  offsetY: number;
+  focusX: number;
+  focusY: number;
+  segmentId: string;
+}
+
+function cameraTransform(frame: ExpeditionCameraFrame, depth: number): string {
+  const focus = frame.focus ?? { x: 0.5, y: 0.5 };
+  // offset/focus 均来自 CameraConfig；这里只把归一化相机量映射为屏幕位移。
+  const x =
+    ((0.5 - frame.offsetX) * 150 + (0.5 - focus.x) * 100) * depth;
+  const y =
+    ((0.5 - frame.offsetY) * 120 + (0.5 - focus.y) * 260) * depth;
+  // 保留小数像素，避免把连续相机运动量化成少数几个整数位置。
+  return `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
+}
+
+function cameraUiAt(frame: ExpeditionCameraFrame): CameraUiState {
+  return {
+    farTransform: cameraTransform(frame, 0.34),
+    mainTransform: cameraTransform(frame, 0.82),
+    nearTransform: cameraTransform(frame, 1),
+    // 路线承载的是 main terrain，必须与 main 使用完全相同的变换，避免悬浮。
+    routeTransform: cameraTransform(frame, 0.82),
+    zoom: Math.round(frame.zoom * 1000) / 1000,
+    offsetX: Math.round(frame.offsetX * 1000) / 1000,
+    offsetY: Math.round(frame.offsetY * 1000) / 1000,
+    focusX: Math.round((frame.focus?.x ?? 0.5) * 1000) / 1000,
+    focusY: Math.round((frame.focus?.y ?? 0.5) * 1000) / 1000,
+    segmentId: frame.segmentId,
+  };
 }
 
 interface RouteRailItem {
@@ -195,6 +283,12 @@ interface RouteOverviewState {
   endName: string;
   endElevText: string;
   pointCount: number;
+  elevationProfile: Array<{
+    x: number;
+    top: number;
+    height: number;
+    elevText: string;
+  }>;
   stages: Array<{
     index: number;
     name: string;
@@ -433,7 +527,7 @@ const SCENE_DEFAULT: SceneState = {
     cloud: "",
     ground: "",
   },
-  op: { far: 1, main: 0, snow: 0, mid: 0, cloud: 0, ground: 0 },
+  op: { far: 1, main: 0.72, snow: 0, mid: 0.18, cloud: 0, ground: 0 },
   sun: 0,
 };
 
@@ -468,13 +562,13 @@ function buildScene(
         cloud: "",
         ground: "",
       },
-      op: { far: 0, main: 0, snow: 0, mid: 1, cloud: 0, ground: 0 },
+      op: { far: 0.28, main: 0.42, snow: 0, mid: 1, cloud: 0, ground: 0 },
       sun: 0,
     };
   }
-  // 真实 DEM 渲染三景硬切换（照片级图叠加会双曝光，不交叉淡化）：
-  // A 远景全景（徒步→BC）→ B 中景山脊（冰瀑→C3）→ C 死亡区冰岩壁（冲顶段）
-  // 同屏只亮一张：op 严格取 0 / 1
+  // 真实 DEM 三景的 2.5D 组合：A 作远景大气层，B 作路线承载主体，
+  // C 只取前景冰壁；三层按相机帧以不同深度移动。资产均来自同一 DEM，
+  // 不使用无地理依据的装饰图或硬编码路线。
   const band = viewBand(progress);
   return {
     mode: "mnt",
@@ -488,10 +582,10 @@ function buildScene(
       ground: "",
     },
     op: {
-      far: band === 0 ? 1 : 0,
-      main: band === 1 ? 1 : 0,
+      far: band === 0 ? 1 : 0.62,
+      main: band === 1 ? 0.96 : 0.72,
       snow: 0,
-      mid: band === 2 ? 1 : 0,
+      mid: band === 2 ? 0.86 : 0.34,
       cloud: 0,
       ground: 0,
     },
@@ -559,8 +653,25 @@ Page({
     worldOcean: false,
     scene: SCENE_DEFAULT as SceneState,
     mntScale: 100,
-    // Gate 3.2 构图：垂向缩放系数（把照片底部 DEM 山体带映射为整屏主体，下锚缩放）
-    viewZoom: { a: 4.55, b: 2.3, c: 1.12 },
+    // Gate 3.2/3.4：垂向缩放系数（把照片底部 DEM 山体带映射为整屏主体，下锚缩放）。
+    // Gate 3.4 起：不再手写常数——每帧由相机帧 derive（cameraFrameAt)，见 renderFrame 的 camZoom diff。
+    // Everest 进入页面后的缩放由 cameraFrameAt 派生；1 是无相机场景的中性回退。
+    viewZoom: { a: 1, b: 1, c: 1 },
+    camera: {
+      farTransform: "translate3d(0,0,0)",
+      mainTransform: "translate3d(0,0,0)",
+      nearTransform: "translate3d(0,0,0)",
+      routeTransform: "translate3d(0,0,0)",
+      zoom: 1,
+      offsetX: 0.5,
+      offsetY: 0.5,
+      focusX: 0.5,
+      focusY: 0.5,
+      segmentId: "",
+    } as CameraUiState,
+    // Gate 3.4：静态路线几何与动态位置分离，避免 marker 被 1% key 冻结。
+    terrainRouteGeometry: null as TerrainRouteGeometryUi | null,
+    terrainDynamicState: null as TerrainDynamicStateUi | null,
     // 顶部安全区（沉浸页：真实状态栏 + 胶囊几何驱动）
     capTop: 20,
     capH: 32,
@@ -590,6 +701,16 @@ Page({
 
     // 阶段横幅 / 知识 / 随堂
     stageBanner: {
+      show: false,
+      title: "",
+      biome: "",
+      emoji: "",
+    } as StageBanner,
+    // Gate 3.4：攀登交互反馈（活动动画期间禁用重复触发，按钮文案随阶段变化）
+    expClimbing: false,
+    expClimbLabel: "攀登",
+    // 里程碑穿越（事件只触发一次；克制横幅复用 stage-banner 样式）
+    milestoneBanner: {
       show: false,
       title: "",
       biome: "",
@@ -634,6 +755,8 @@ Page({
   exploration: null as Exploration | null,
   routeMode: false,
   expeditionCore: null as ExpeditionCore | null,
+  /** Gate 3.4：真实相机配置（数据层；renderFrame 每帧 derive 相机帧，不再横亘硬编码缩放） */
+  expCamera: null as CameraConfig | null,
   // Gate 3.3C：Dual Visual Mode 会话状态（不含渲染字段）
   visualConfig: null as ExpeditionVisualModeConfig | null,
   visualMedia: null as MediaManifest | null,
@@ -653,6 +776,28 @@ Page({
   answers: [] as QuizAnswerRecord[],
   quizDone: new Set<string>(),
   visitedStageIds: [] as string[],
+  // Gate 3.4：攀登会话（驱动 this.target 的连续补间）
+  climbReq: null as ClimbRequest | null,
+  climbPhase: "idle" as ClimbPhase,
+  /** 已放行过的里程碑 id（Event Once：同一里程碑只触发一次事件/横幅） */
+  crossedMilestoneIds: [] as string[],
+  /** 最近一次路线的距离（m，用于逐 tick 跨域检测） */
+  lastRouteDistanceM: 0,
+  /** 里程碑横幅计时器 */
+  milestoneTimer: null as ReturnType<typeof setTimeout> | null,
+  /** 运动审计：只记录攀登会话，不参与业务渲染。 */
+  motionAudit: {
+    active: false,
+    startedAt: 0,
+    endedAt: 0,
+    frameCount: 0,
+    setDataCalls: 0,
+    patchBytes: 0,
+    markerUpdates: 0,
+    cameraUpdates: 0,
+    routeGeometryRebuilds: 0,
+  },
+  motionAuditWrapped: false,
   startedAt: 0,
   elapsedSec: 0,
   prevStageIndex: -1,
@@ -670,6 +815,7 @@ Page({
   /* ---------------- 生命周期 ---------------- */
 
   onLoad(query: Record<string, string>) {
+    this.installMotionAudit();
     this.refreshSafeArea();
     const id = (query && query.id) || "";
     const fallback = EXPLORATIONS[0];
@@ -690,6 +836,8 @@ Page({
           maxElevation: expedition.maxElevation,
         }
       : null;
+    // Gate 3.4：真实相机配置（无 attachment 则为空 → 页面回落到旧构图）
+    this.expCamera = expedition?.camera ?? null;
     this.exploration = exploration;
     // Gate 3.3C：Dual Visual Mode 会话初始化（无视觉配置的旧场景如 Mariana 保持 TERRAIN）
     this.visualConfig = expedition?.visualMode ?? null;
@@ -707,6 +855,11 @@ Page({
       this.lastElev = initial.refM; // 知识解锁基线 = 实际起点参考海拔（避免首帧整批解锁）
       this.hudElevation = initial.refM;
       this.highestReached = initial.refM;
+      // 里程碑穿越：从上次记录点开始；起点（大本营）视为已到，避免开局误报
+      this.lastRouteDistanceM = 0;
+      this.crossedMilestoneIds = this.expeditionCore.routeIndex.milestones
+        .filter((m) => m.distanceM <= 1)
+        .map((m) => m.id);
     } else {
       this.current = exploration.startElevation;
       this.target = exploration.startElevation;
@@ -810,6 +963,10 @@ Page({
       clearTimeout(this.celebrationTimer);
       this.celebrationTimer = null;
     }
+    if (this.milestoneTimer !== null) {
+      clearTimeout(this.milestoneTimer);
+      this.milestoneTimer = null;
+    }
     this.persistProgress();
   },
 
@@ -907,7 +1064,26 @@ Page({
     if (!ex) return;
     const relay = this.routeMode && this.expeditionCore;
 
-    // 平滑追向目标（真实路线：轴域 0-1 progress；旧海拔轴：m）
+    // Gate 3.4：持续攀登会话 —— 由 climbFrameAt 每 tick 连续驱动 CANONICAL 位置
+    //（motion audit）：攀登期间 current 直接取 climbFrame 结果（唯一 interpolation 源），
+    // 不再串联 MOTION_GAIN 二次平滑 → 消除 double-smoothing；「arrived」即真实视觉到达
+    //（current === target === 目标里程），marker/altitude/camera 与请求完全同步。
+    if (relay && this.climbReq && this.expeditionCore) {
+      const now = Date.now();
+      const frame = climbFrameAt(this.climbReq, now);
+      const totalM = this.expeditionCore.routeIndex.totalDistanceM;
+      const p = clamp(frame.distanceM / totalM, 0, 1);
+      this.target = p;
+      this.current = p;
+      this.syncClimbUi(frame);
+      if (frame.done && frame.phase === "arrived") {
+        // 会话结束：位置已精确落定到目标里程（可证 abs(actual − target) < epsilon）
+        this.climbReq = null;
+        this.climbPhase = "idle";
+      }
+    }
+
+    // 非攀登（拖动 / legacy）路径：保留 MOTION_GAIN 惯性追向 target 的平滑
     this.current += (this.target - this.current) * MOTION_GAIN;
     const eps = relay ? EASE_EPS_ROUTE : EASE_EPS;
     if (Math.abs(this.target - this.current) < eps) {
@@ -929,6 +1105,24 @@ Page({
     } else {
       this.tickLegacyFrame(ex);
     }
+    if (this.motionAudit.active && !this.climbReq && this.climbPhase === "idle") {
+      this.motionAudit.active = false;
+      this.motionAudit.endedAt = Date.now();
+    }
+  },
+
+  /** 仅为性能审计包裹 setData；不改写业务 patch，也不在生产状态中持久化。 */
+  installMotionAudit() {
+    if (this.motionAuditWrapped) return;
+    const nativeSetData = this.setData.bind(this);
+    this.setData = (patch: Record<string, unknown>, callback?: () => void) => {
+      if (this.motionAudit.active) {
+        this.motionAudit.setDataCalls += 1;
+        this.motionAudit.patchBytes += JSON.stringify(patch).length;
+      }
+      nativeSetData(patch, callback);
+    };
+    this.motionAuditWrapped = true;
   },
 
   /** 旧探索（无 V2 附件，如马里亚纳）：海拔轴原语义完全保留 */
@@ -993,6 +1187,8 @@ Page({
     this.syncVisualMode(drive);
     // 七大阶段（按真实里程）：进站记录 + 克制横幅
     this.syncExpeditionStage(drive.stageIndex);
+    // Gate 3.4：里程碑跨距检测（连续运动期间不漏多跨；Event Once 见 tracker）
+    this.trackMilestoneCrossings(drive.distanceM);
 
     // 登顶：真实 progress 到达终点（不再用「海拔 ≥ maxElevation−0.5」阈值）
     if (!this.celebrated && drive.atSummit) {
@@ -1040,6 +1236,8 @@ Page({
         visLiveSrc: "",
         visLiveReady: false,
         liveOverlay: null,
+        terrainRouteGeometry: null,
+        terrainDynamicState: null,
       });
       return;
     }
@@ -1064,6 +1262,8 @@ Page({
           visLiveSrc: image,
           visLiveReady: false,
           liveOverlay: null,
+          terrainRouteGeometry: null,
+          terrainDynamicState: null,
           liveInfo: "",
           liveCropUi: presentationCropUi(presentation.crop),
         });
@@ -1134,6 +1334,8 @@ Page({
       visLiveSrc: "",
       visLiveReady: false,
       liveOverlay: null,
+      terrainRouteGeometry: null,
+      terrainDynamicState: null,
       liveInfo: requestedLive ? "实景暂不可用 · 已回退本地影像" : "",
     });
   },
@@ -1308,6 +1510,29 @@ Page({
       fromDistanceM: number;
       toDistanceM: number;
     }>;
+    // 海拔剖面直接从 canonical routeIndex.demM 采样；只做视觉归一化，不改写真实海拔。
+    const profileCount = 18;
+    const profileSamples: number[] = [];
+    for (let i = 0; i < profileCount; i++) {
+      const sourceIndex = Math.min(
+        idx.pointCount - 1,
+        Math.round((i * (idx.pointCount - 1)) / (profileCount - 1)),
+      );
+      profileSamples.push(idx.demM[sourceIndex] ?? 0);
+    }
+    const profileMin = Math.min(...profileSamples);
+    const profileMax = Math.max(...profileSamples);
+    const profileSpan = Math.max(1, profileMax - profileMin);
+    const elevationProfile = profileSamples.map((elevationM, i) => {
+      const level = (elevationM - profileMin) / profileSpan;
+      const height = 12 + level * 76;
+      return {
+        x: Math.round((i / (profileCount - 1)) * 1000) / 10,
+        top: Math.round((92 - height) * 10) / 10,
+        height: Math.round(height * 10) / 10,
+        elevText: `${formatNumber(elevationM, 0)} m`,
+      };
+    });
     this.setData({
       routeOverview: {
         show: true,
@@ -1321,6 +1546,7 @@ Page({
         endName: last?.name ?? "终点",
         endElevText: last ? elev(last.refM) : "",
         pointCount: idx.pointCount,
+        elevationProfile,
         stages: stage.map((s, i) => ({
           index: i + 1,
           name: s.name,
@@ -1426,6 +1652,45 @@ Page({
       patch.route = ex.route ? buildRouteState(ex.route, progress) : null;
     }
 
+    // Gate 3.4：TERRAIN 2.5D 路线重投影分层。
+    // 几何只在 TERRAIN 上首次挂载/路线上下文改变时重建；marker 使用每帧的
+    // effective progress，不能被 pct 整数化冻结。LIVE 只消费自己的 calibrated overlay。
+    const terrainOn =
+      this.data.worldMountain &&
+      this.expeditionCore &&
+      this.data.visActive === "TERRAIN";
+    const terrainGeometryKey = terrainOn
+      ? `route:${this.expeditionCore!.routeIndex.pointCount}`
+      : "off";
+    nextCache.terrainGeometryKey = terrainGeometryKey;
+    if (cache.terrainGeometryKey !== terrainGeometryKey) {
+      patch.terrainRouteGeometry = terrainOn
+        ? buildTerrainRouteGeometry(this.expeditionCore!.routeIndex)
+        : null;
+      if (terrainOn && this.motionAudit.active) {
+        this.motionAudit.routeGeometryRebuilds += 1;
+      }
+    }
+    const geometry = terrainOn
+      ? ((patch.terrainRouteGeometry as TerrainRouteGeometryUi | undefined) ??
+        (this.data.terrainRouteGeometry as TerrainRouteGeometryUi | null))
+      : null;
+    const dynamic = geometry
+      ? buildTerrainDynamicState(
+          this.expeditionCore!.routeIndex,
+          progress,
+          geometry,
+        )
+      : null;
+    const dynamicKey = dynamic
+      ? `${dynamic.progress.toFixed(4)}:${dynamic.marker.x.toFixed(3)}:${dynamic.marker.y.toFixed(3)}`
+      : "off";
+    nextCache.terrainDynamicKey = dynamicKey;
+    if (cache.terrainDynamicKey !== dynamicKey) {
+      patch.terrainDynamicState = dynamic;
+      if (dynamic && this.motionAudit.active) this.motionAudit.markerUpdates += 1;
+    }
+
     // ---- 低频：仅跨阶段边界时刷新整套环境与视觉（地形/天光/雾/植被/人物姿态/生物/刻度） ----
     nextCache.stageId = d.stage.id;
     if (cache.stageId !== d.stage.id) {
@@ -1501,6 +1766,34 @@ Page({
       : 100;
     nextCache.mntScale = mntScale;
     if (cache.mntScale !== mntScale) patch.mntScale = mntScale;
+
+    // Gate 3.4：相机的推——viewZoom.* 不再手写常量（4.55/2.3/1.12），改由真实相机帧派生。
+    // 相机 zoom 跨段边界连续插值，消除三景硬切换时的缩放跳变；同屏只有一片可见，
+    // 故三值共用当前帧 zoom（非活动片 op=0 不可见）。无相机（Mariana 等）保持 data 默认不动。
+    if (this.expCamera && this.data.worldMountain) {
+      const cameraFrame = cameraFrameAt(this.expCamera, progress);
+      const camZoom = Math.round(cameraFrame.zoom * 1000) / 1000;
+      nextCache.camZoom = camZoom;
+      const cameraUi = cameraUiAt(cameraFrame);
+      const cameraKey = [
+        cameraUi.zoom,
+        cameraUi.offsetX,
+        cameraUi.offsetY,
+        cameraUi.focusX,
+        cameraUi.focusY,
+        cameraUi.segmentId,
+        cameraUi.farTransform,
+        cameraUi.mainTransform,
+        cameraUi.nearTransform,
+        cameraUi.routeTransform,
+      ].join("|");
+      nextCache.cameraKey = cameraKey;
+      if (cache.cameraKey !== cameraKey) {
+        patch.camera = cameraUi;
+        patch.viewZoom = { a: camZoom, b: camZoom, c: camZoom };
+        if (this.motionAudit.active) this.motionAudit.cameraUpdates += 1;
+      }
+    }
 
     // 场景插画层：阶段/登顶模式/雪量/云海/视图分带 变化时才重建（山岳世界专用）
     // 峰顶全景只在真正抵达终点后进入，避免 8,826m 左右提前“登顶”。
@@ -1581,13 +1874,117 @@ Page({
     this.touching = false;
   },
 
+  /** Gate 3.4：请求连续攀登 —— 由路线里程增量解析目标，启动 1 次补间会话 */
+  requestClimb(deltaM: number) {
+    if (this.busy()) return;
+    const core = this.expeditionCore;
+    if (!core || !this.routeMode) return;
+    const totalM = core.routeIndex.totalDistanceM;
+    if (!(totalM > 0)) return;
+    // 触发时不重复叠加新会话（当前会话未结束时交还当前进度）
+    if (this.climbReq) return;
+    const fromM = this.current * totalM; // 当前真实路线里程
+    const req = createClimbRequest(fromM, deltaM, totalM, Date.now());
+    if (Math.abs(req.toDistanceM - req.fromDistanceM) < 0.5) return; // 无有效位移
+    this.motionAudit = {
+      active: true,
+      startedAt: req.startedAt,
+      endedAt: 0,
+      frameCount: 0,
+      setDataCalls: 0,
+      patchBytes: 0,
+      markerUpdates: 0,
+      cameraUpdates: 0,
+      routeGeometryRebuilds: 0,
+    };
+    this.climbReq = req;
+    this.climbPhase = "climbing";
+    this.updateClimbUi("climbing");
+  },
+
+  /** 每帧同步攀登交互态（ui 仅展示，不构成第二套路线真相源） */
+  syncClimbUi(frame: ClimbFrame) {
+    if (this.motionAudit.active) this.motionAudit.frameCount += 1;
+    if (frame.phase === "climbing") {
+      this.updateClimbUi(frame.phase, "攀登中");
+      return;
+    }
+    this.updateClimbUi(
+      frame.phase,
+      frame.phase === "settling" ? "就位" : "攀登",
+    );
+  },
+
+  /** 攀登 UI 只在阶段变化时 setData（避免每 tick 推送重复值） */
+  updateClimbUi(phase: ClimbPhase, label?: string) {
+    const cache = this.frameCache as Record<string, unknown>;
+    if (cache.climbUi === phase) return;
+    cache.climbUi = phase;
+    const climbing = phase === "climbing" || phase === "settling";
+    this.setData({
+      expClimbing: climbing,
+      expClimbLabel: climbing
+        ? (label ?? (phase === "climbing" ? "攀登中" : "就位"))
+        : "攀登",
+    });
+  },
+
+  /** Gate 3.4：里程碑跨距（一次遍历不漏多跨；事件只记一次） */
+  trackMilestoneCrossings(distanceM: number) {
+    const core = this.expeditionCore;
+    if (!core) return;
+    const idx = core.routeIndex;
+    const from = this.lastRouteDistanceM;
+    const to = Math.max(0, Math.min(distanceM, idx.totalDistanceM));
+    if (Math.abs(from - to) < 1e-6) return;
+    this.lastRouteDistanceM = to;
+    // 仅连续移动的跨区政府触发里程碑事件（返回紧贴 / 恰好停在里程碑边缘不算“到达”事件）
+    const lo = Math.min(from, to);
+    const hi = Math.max(from, to);
+    if (hi - lo < 1e-6) return;
+    const crossed = milestonesCrossedBetween(idx, lo, hi);
+    if (!crossed.length) return;
+    crossed.forEach((m) => {
+      if (this.crossedMilestoneIds.indexOf(m.id) !== -1) return; // Event Once
+      this.crossedMilestoneIds.push(m.id);
+      this.onMilestoneCrossed(m);
+    });
+  },
+
+  /** 里程碑穿越事件：录制 + 短横幅（克制，不弹大层） */
+  onMilestoneCrossed(m: RouteMilestoneSample) {
+    if (m.id === "base-camp") {
+      // 起点宿主不弹横幅（与 intro 首页重叠）
+      return;
+    }
+    if (m.kind === "summit") {
+      // 登顶已有全屏庆祝，里程碑横幅冗余；仅记录
+      return;
+    }
+    if (this.milestoneTimer !== null) clearTimeout(this.milestoneTimer);
+    this.setData({
+      milestoneBanner: {
+        show: true,
+        title: `◍ ${m.name}`,
+        biome: `${milestoneKindLabel(m.kind)} · ${formatNumber(m.refM, 0)} m`,
+        emoji: milestoneKindEmoji(m.kind),
+      },
+    });
+    this.milestoneTimer = setTimeout(() => {
+      this.milestoneTimer = null;
+      this.setData({
+        milestoneBanner: { show: false, title: "", biome: "", emoji: "" },
+      });
+    }, BANNER_MS);
+  },
+
   onStepUp() {
     if (this.busy()) return;
     const ex = this.exploration;
     if (!ex) return;
     if (this.routeMode && this.expeditionCore) {
-      const total = this.expeditionCore.routeIndex.totalDistanceM;
-      this.target = clamp(this.target + ROUTE_STEP_METERS / total, 0, 1);
+      // Gate 3.4：连续攀登（基于真实路线里程增量，目标由引擎解析）
+      this.requestClimb(CLIMB_DELTA_M);
       return;
     }
     this.target = clamp(
@@ -1614,8 +2011,8 @@ Page({
     const ex = this.exploration;
     if (!ex) return;
     if (this.routeMode && this.expeditionCore) {
-      const total = this.expeditionCore.routeIndex.totalDistanceM;
-      this.target = clamp(this.target - ROUTE_STEP_METERS / total, 0, 1);
+      // Gate 3.4：连续下撤（反向里程增量；保留退路能力）
+      this.requestClimb(-CLIMB_DELTA_M);
       return;
     }
     this.target = clamp(
@@ -1854,6 +2251,20 @@ Page({
     this.partBucket = -1;
     this.prevExpoStageIndex = -1;
     this.frameCache = {}; // 重置差分缓存，下一帧重建全部视觉
+    // Gate 3.4：重开局，滑动攀登会话与里程碑穿越去重集（保持 Event Once）
+    this.climbReq = null;
+    this.climbPhase = "idle";
+    this.lastRouteDistanceM = 0;
+    this.crossedMilestoneIds = [];
+    if (this.milestoneTimer) {
+      clearTimeout(this.milestoneTimer);
+      this.milestoneTimer = null;
+    }
+    if (this.routeMode && this.expeditionCore) {
+      this.crossedMilestoneIds = this.expeditionCore.routeIndex.milestones
+        .filter((m) => m.distanceM <= 1)
+        .map((m) => m.id);
+    }
     this.setData({
       intro: false,
       celebration: false,

@@ -2,16 +2,16 @@
   <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
   <view class="layer-sky" style="background:{{skyGradient}}"></view>
 
-  <!-- ===== 山岳世界（world.style === 'mountain'：真实 DEM 渲染三景硬切换，同屏只挂载一张） ===== -->
+  <!-- ===== 山岳世界（world.style === 'mountain'：真实 DEM 三景按深度叠加） ===== -->
   <block wx:if="{{worldMountain}}">
     <!-- 视图 A：远景全景（徒步→BC）：下锚缩放至 DEM 山体带，天空不再占用主体 -->
-    <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a" mode="aspectFill" src="{{scene.plates.far}}" style="transform:translate3d(0,-{{par.far * 0.25}}px,0) scale({{viewZoom.a}}); opacity:{{scene.op.far}}"></image>
+    <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a depth-far" mode="aspectFill" src="{{scene.plates.far}}" style="transform:{{camera.farTransform}} translate3d(0,-{{par.far * 0.25}}px,0) scale({{viewZoom.a}}); opacity:{{scene.op.far}}"></image>
 
     <!-- 视图 B：中景山脊（冰瀑→C3），随海拔缓推进（缩放=裁剪基准 × 渐进） -->
-    <image wx:if="{{scene.plates.main && scene.op.main > 0}}" class="plate view view-b" mode="aspectFill" src="{{scene.plates.main}}" style="transform:translate3d(0,-{{par.mid * 0.15}}px,0) scale({{viewZoom.b * (1 + (mntScale - 100) / 260)}}); opacity:{{scene.op.main}}"></image>
+    <image wx:if="{{scene.plates.main && scene.op.main > 0}}" class="plate view view-b depth-main" mode="aspectFill" src="{{scene.plates.main}}" style="transform:{{camera.mainTransform}} translate3d(0,-{{par.mid * 0.15}}px,0) scale({{viewZoom.b * (1 + (mntScale - 100) / 260)}}); opacity:{{scene.op.main}}"></image>
 
     <!-- 视图 C：死亡区冰岩壁（冲顶段） -->
-    <image wx:if="{{scene.plates.mid && scene.op.mid > 0}}" class="plate view view-c" mode="aspectFill" src="{{scene.plates.mid}}" style="transform:translate3d(0,-{{par.near * 0.15}}px,0) scale({{viewZoom.c}}); opacity:{{scene.op.mid}}"></image>
+    <image wx:if="{{scene.plates.mid && scene.op.mid > 0}}" class="plate view view-c depth-near" mode="aspectFill" src="{{scene.plates.mid}}" style="transform:{{camera.nearTransform}} translate3d(0,-{{par.near * 0.15}}px,0) scale({{viewZoom.c}}); opacity:{{scene.op.mid}}"></image>
 
     <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
@@ -31,6 +31,18 @@
       </view>
       <view class="live-route-dot" style="left:{{liveOverlay.marker.x}}%;top:{{liveOverlay.marker.y}}%"></view>
       <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">示意路线</view>
+    </view>
+
+    <!-- Gate 3.4：TERRAIN 科学地形上的路线重投影（真实 routeIndex → 屏幕；2.5D 帆布）。
+         独立于 live-route：仅 TERRAIN 模式（terrainRouteGeometry 非空）挂载，画的是 canonical routeIndex
+         三景上的科学折线，非 LIVE 照片上的校准直线段，故用独立图层/配色。 -->
+    <view wx:if="{{terrainRouteGeometry && terrainDynamicState}}" class="terrain-route" style="transform:{{camera.routeTransform}}">
+      <view wx:for="{{terrainRouteGeometry.segments}}" wx:key="index" class="terrain-route-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
+      <view wx:for="{{terrainRouteGeometry.origins}}" wx:key="key" class="terrain-route-anchor" style="left:{{item.x}}%;top:{{item.y}}%">
+        <text class="terrain-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
+      </view>
+      <view class="terrain-route-dot" style="left:{{terrainDynamicState.marker.x}}%;top:{{terrainDynamicState.marker.y}}%"></view>
+      <view class="terrain-route-summit" style="left:{{terrainRouteGeometry.summit.x}}%;top:{{terrainRouteGeometry.summit.y}}%">▶</view>
     </view>
 
     <!-- §40：LIVE 实景数据说明一行（代表性视角 / “实时暂不可用” 等）——置于顶部切换下方，常显不藏 -->
@@ -189,9 +201,17 @@
 
       <!-- 底部操作：下撤 / 查看路线（Gate 4+ 渲染路线全景）/ 攀登 -->
       <view class="exp-actions">
-        <button class="exp-ctl exp-ctl-down" bindtap="onStepDown">下撤</button>
+        <button
+          class="exp-ctl exp-ctl-down"
+          bindtap="onStepDown"
+          disabled="{{expClimbing}}"
+        >下撤</button>
         <button class="exp-ctl exp-ctl-route" bindtap="onViewRoute">查看路线</button>
-        <button class="exp-ctl exp-ctl-up" bindtap="onStepUp">攀登</button>
+        <button
+          class="exp-ctl exp-ctl-up"
+          bindtap="onStepUp"
+          disabled="{{expClimbing}}"
+        >{{expClimbLabel}}</button>
       </view>
     </view>
 
@@ -312,7 +332,16 @@
     </view>
   </view>
 
-  <!-- ===== 自然带横幅 ===== -->
+  <!-- 里程碑穿越提示（克制横幅；复用 stage-banner 样式） -->
+  <view wx:if="{{milestoneBanner.show}}" class="stage-banner ms-banner">
+    <text class="sb-emoji">{{milestoneBanner.emoji}}</text>
+    <view class="sb-main">
+      <text class="sb-name">{{milestoneBanner.title}}</text>
+      <text class="sb-biome">{{milestoneBanner.biome}}</text>
+    </view>
+  </view>
+
+  <!-- 自然带横幅 ===== -->
   <view wx:if="{{stageBanner.show}}" class="stage-banner">
     <text class="sb-emoji">{{stageBanner.emoji}}</text>
     <view class="sb-main">
@@ -348,6 +377,17 @@
       <view class="rou-ends">
         <text class="rou-end">🚩 {{routeOverview.startName}} {{routeOverview.startElevText}}</text>
         <text class="rou-end rou-end-right">🏔 {{routeOverview.endName}} {{routeOverview.endElevText}}</text>
+      </view>
+
+      <view class="rou-profile">
+        <view class="rou-profile-grid rou-profile-grid-a"></view>
+        <view class="rou-profile-grid rou-profile-grid-b"></view>
+        <view class="rou-profile-grid rou-profile-grid-c"></view>
+        <view wx:for="{{routeOverview.elevationProfile}}" wx:key="x" class="rou-profile-bar" style="left:{{item.x}}%;top:{{item.top}}%;height:{{item.height}}%">
+          <view class="rou-profile-dot"></view>
+        </view>
+        <text class="rou-profile-label rou-profile-label-low">路线起点</text>
+        <text class="rou-profile-label rou-profile-label-high">DEM 海拔剖面</text>
       </view>
 
       <scroll-view class="rou-scroll" scroll-y>

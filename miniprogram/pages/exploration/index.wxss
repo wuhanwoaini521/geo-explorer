@@ -1043,7 +1043,7 @@ page {
   width: 100%;
   height: 100%;
 }
-/* 三景全屏背景：真实 DEM 渲染，硬切换（同屏只挂载一张）。
+/* 三景全屏背景：真实 DEM 渲染，按深度叠加。
    上/下越界 12%：给轻微视差留余量，位移时不露底 */
 .view {
   will-change: opacity;
@@ -1054,6 +1054,11 @@ page {
 .view-a { z-index: 2; }
 .view-b { z-index: 3; }
 .view-c { z-index: 4; }
+/* 三张同一 DEM 的不同视角只取各自景别，避免整幅照片叠成双曝光：
+   A 保留天空/远山，B 承载主路线山体，C 只作为底部近景冰壁。 */
+.depth-far { clip-path: inset(0 0 38% 0); }
+.depth-main { clip-path: inset(24% 0 0 0); }
+.depth-near { clip-path: inset(56% 0 0 0); }
 .pl-cloud { z-index: 5; }
 .pl-ground { z-index: 6; }
 
@@ -1145,6 +1150,81 @@ page {
   font-size: 18rpx;
   color: rgba(255, 255, 255, 0.85);
   background: rgba(10, 30, 60, 0.55);
+  letter-spacing: 1rpx;
+  z-index: 9;
+}
+
+/* Gate 3.4：TERRAIN 科学地形上的路线重投影（2.5D 帆布，z7 在 live-route 之下，避免与 LIVE 重叠）。
+   画的是真实 terrain 路线点的全景折线，与 LIVE 校准扇线、示意直段不同；配色取琥珀色系区分 LIVE 的蓝系；
+   坐标消耗与 live-route 同构（x/y 百分位 + 斜段 rotate），当前点/峰顶旗均为真实投影。 */
+.terrain-route {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 7; /* 低于 live-route(8)，避免在 LIVE 时重叠盖住实景折线 */
+  pointer-events: none;
+  overflow: visible;
+}
+.terrain-route-seg {
+  position: absolute;
+  height: 6rpx;
+  margin-top: -3rpx;
+  margin-left: -3rpx;
+  transform-origin: 50% 50%;
+  border-radius: 3rpx;
+  background: linear-gradient(90deg, rgba(255, 186, 82, 0.38), rgba(255, 190, 90, 0.92));
+  box-shadow: 0 0 9rpx rgba(255, 176, 72, 0.5);
+}
+.terrain-route-anchor {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  margin: -10rpx 0 0 -10rpx;
+  border-radius: 50%;
+  background: #fff;
+  border: 3rpx solid rgba(240, 160, 60, 0.95);
+  box-shadow: 0 0 6rpx rgba(240, 150, 50, 0.6);
+}
+.terrain-route-anchor-tag {
+  position: absolute;
+  left: 50%;
+  bottom: 14rpx;
+  transform: translateX(-50%);
+  padding: 2rpx 8rpx;
+  border-radius: 8rpx;
+  font-size: 18rpx;
+  color: #fff;
+  background: rgba(40, 26, 6, 0.72);
+  letter-spacing: 1rpx;
+  white-space: nowrap;
+}
+.terrain-route-dot {
+  position: absolute;
+  width: 28rpx;
+  height: 28rpx;
+  margin: -14rpx 0 0 -14rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #ffc266 45%, rgba(255, 150, 30, 0.95) 100%);
+  box-shadow: 0 0 10rpx rgba(255, 170, 60, 0.9), 0 0 2rpx #fff;
+}
+.terrain-route-summit {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  color: #ffe9b0;
+  font-size: 22rpx;
+  text-shadow: 0 0 8rpx rgba(255, 180, 60, 0.9), 0 1rpx 4rpx rgba(0, 0, 0, 0.6);
+}
+.terrain-route-chip {
+  position: absolute;
+  right: calc(16rpx + env(safe-area-inset-right));
+  bottom: calc(210rpx + env(safe-area-inset-bottom));
+  padding: 4rpx 12rpx;
+  border-radius: 18rpx;
+  font-size: 18rpx;
+  color: rgba(255, 240, 200, 0.88);
+  background: rgba(46, 24, 4, 0.55);
   letter-spacing: 1rpx;
   z-index: 9;
 }
@@ -1623,6 +1703,50 @@ page {
   justify-content: space-between;
   padding: 0 28rpx 10rpx;
 }
+.rou-profile {
+  position: relative;
+  height: 128rpx;
+  margin: 4rpx 28rpx 8rpx;
+  overflow: hidden;
+  border-radius: 12rpx;
+  background: rgba(31, 45, 58, 0.08);
+  border: 1rpx solid rgba(151, 124, 66, 0.16);
+}
+.rou-profile-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1rpx;
+  background: rgba(151, 124, 66, 0.14);
+}
+.rou-profile-grid-a { top: 24%; }
+.rou-profile-grid-b { top: 56%; }
+.rou-profile-grid-c { top: 88%; }
+.rou-profile-bar {
+  position: absolute;
+  width: 2rpx;
+  min-height: 2rpx;
+  background: linear-gradient(180deg, #2d9cf4, rgba(45, 156, 244, 0.22));
+  transform: translateX(-1rpx);
+}
+.rou-profile-dot {
+  position: absolute;
+  left: 50%;
+  top: -5rpx;
+  width: 10rpx;
+  height: 10rpx;
+  margin-left: -5rpx;
+  border-radius: 50%;
+  background: #5ec2ff;
+  box-shadow: 0 0 0 3rpx rgba(45, 156, 244, 0.14);
+}
+.rou-profile-label {
+  position: absolute;
+  font-size: 17rpx;
+  color: #94896a;
+}
+.rou-profile-label-low { left: 10rpx; bottom: 7rpx; }
+.rou-profile-label-high { right: 10rpx; top: 7rpx; color: #547ba3; }
 .rou-end { font-size: 22rpx; color: #4a4230; }
 .rou-end-right { color: #a06a10; font-weight: 600; }
 .rou-scroll { flex: 1; min-height: 0; padding: 0 28rpx; }
