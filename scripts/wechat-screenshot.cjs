@@ -152,7 +152,9 @@ function fail(msg) {
       log(`reLaunch -> ${relaunchTo}`);
       try {
         await withTimeout(
-          mini.reLaunch({ url: `/${relaunchTo}` }),
+          // miniprogram-automator 的 reLaunch 会再次包装参数；这里直接调用
+          // App.callWxMethod，确保传给微信的是 { url: string }，支持带 query 的探索页。
+          mini.callWxMethod("reLaunch", { url: `/${relaunchTo}` }),
           STEP_MS,
           "reLaunch",
         );
