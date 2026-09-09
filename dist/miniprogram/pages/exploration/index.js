@@ -92,7 +92,8 @@ function cameraUiAt(frame) {
         mainTransform: cameraTransform(frame, 0.82),
         nearTransform: cameraTransform(frame, 1),
         // 路线承载的是 main terrain，必须与 main 使用完全相同的变换，避免悬浮。
-        routeTransform: cameraTransform(frame, 0.82),
+        // TERRAIN 示意路线必须和承载它的 hero 使用同一缩放，否则 marker 会“漂”在照片外。
+        routeTransform: `${cameraTransform(frame, 0.82)} scale(${Math.round(frame.zoom * 1000) / 1000})`,
         zoom: Math.round(frame.zoom * 1000) / 1000,
         offsetX: Math.round(frame.offsetX * 1000) / 1000,
         offsetY: Math.round(frame.offsetY * 1000) / 1000,
@@ -358,6 +359,7 @@ Page({
         // Gate 3.4：静态路线几何与动态位置分离，避免 marker 被 1% key 冻结。
         terrainRouteGeometry: null,
         terrainDynamicState: null,
+        terrainRouteTransform: "translate3d(0,0,0) scale(1)",
         // 顶部安全区（沉浸页：真实状态栏 + 胶囊几何驱动）
         capTop: 20,
         capH: 32,
@@ -393,6 +395,8 @@ Page({
         // Gate 3.4：攀登交互反馈（活动动画期间禁用重复触发，按钮文案随阶段变化）
         expClimbing: false,
         expClimbLabel: "攀登",
+        expMoving: false,
+        expMotionText: "",
         // 里程碑穿越（事件只触发一次；克制横幅复用 stage-banner 样式）
         milestoneBanner: {
             show: false,
@@ -455,6 +459,9 @@ Page({
     // Gate 3.4：攀登会话（驱动 this.target 的连续补间）
     climbReq: null,
     climbPhase: "idle",
+    climbDirection: "前进",
+    climbDistanceM: 0,
+    gestureTimer: null,
     /** 已放行过的里程碑 id（Event Once：同一里程碑只触发一次事件/横幅） */
     crossedMilestoneIds: [],
     /** 最近一次路线的距离（m，用于逐 tick 跨域检测） */
@@ -611,6 +618,10 @@ Page({
     },
     onUnload() {
         this.stopTicker();
+        if (this.gestureTimer !== null) {
+            clearTimeout(this.gestureTimer);
+            this.gestureTimer = null;
+        }
         if (this.bannerTimer !== null) {
             clearTimeout(this.bannerTimer);
             this.bannerTimer = null;
@@ -1212,7 +1223,8 @@ Page({
         // effective progress，不能被 pct 整数化冻结。LIVE 只消费自己的 calibrated overlay。
         const terrainOn = this.data.worldMountain &&
             this.expeditionCore &&
-            this.data.visActive === "TERRAIN";
+            (this.data.visActive === "TERRAIN" ||
+                (this.data.visActive === "LIVE" && !this.data.liveOverlay));
         const terrainGeometryKey = terrainOn
             ? `route:${this.expeditionCore.routeIndex.pointCount}`
             : "off";
@@ -1335,6 +1347,12 @@ Page({
                 if (this.motionAudit.active)
                     this.motionAudit.cameraUpdates += 1;
             }
+            const terrainRouteTransform = this.data.visActive === "TERRAIN"
+                ? cameraUi.routeTransform
+                : "translate3d(0,0,0) scale(1)";
+            if (this.data.terrainRouteTransform !== terrainRouteTransform) {
+                patch.terrainRouteTransform = terrainRouteTransform;
+            }
         }
         // 场景插画层：阶段/登顶模式/雪量/云海/视图分带 变化时才重建（山岳世界专用）
         // 峰顶全景只在真正抵达终点后进入，避免 8,826m 左右提前“登顶”。
@@ -1381,6 +1399,9 @@ Page({
             return;
         this.touching = true;
         this.lastTouchY = t.clientY;
+        if (this.routeMode) {
+            this.setData({ expMoving: false, expMotionText: "" });
+        }
     },
     onTouchMove(e) {
         if (!this.touching)
@@ -1397,12 +1418,24 @@ Page({
             // 真实路线：拖动像素 → 路线里程 → progress（1px ≈ 9m 里程）
             const total = this.expeditionCore.routeIndex.totalDistanceM;
             this.target = (0, format_1.clamp)(this.target + (dy * METERS_PER_PX) / total, 0, 1);
+            this.setData({
+                expMoving: true,
+                expMotionText: dy >= 0 ? "沿路线前进中" : "沿路线下撤中",
+            });
             return;
         }
         this.target = (0, format_1.clamp)(this.target + dy * METERS_PER_PX, ex.startElevation, ex.maxElevation);
     },
     onTouchEnd() {
         this.touching = false;
+        if (!this.routeMode)
+            return;
+        if (this.gestureTimer !== null)
+            clearTimeout(this.gestureTimer);
+        this.gestureTimer = setTimeout(() => {
+            this.gestureTimer = null;
+            this.setData({ expMoving: false, expMotionText: "" });
+        }, 700);
     },
     /** Gate 3.4：请求连续攀登 —— 由路线里程增量解析目标，启动 1 次补间会话 */
     requestClimb(deltaM) {
@@ -1434,6 +1467,12 @@ Page({
         };
         this.climbReq = req;
         this.climbPhase = "climbing";
+        this.climbDirection = deltaM >= 0 ? "前进" : "下撤";
+        this.climbDistanceM = Math.abs(deltaM);
+        this.setData({
+            expMoving: true,
+            expMotionText: deltaM >= 0 ? "沿路线前进中" : "沿路线下撤中",
+        });
         this.updateClimbUi("climbing");
     },
     /** 每帧同步攀登交互态（ui 仅展示，不构成第二套路线真相源） */
@@ -1442,6 +1481,20 @@ Page({
             this.motionAudit.frameCount += 1;
         if (frame.phase === "climbing") {
             this.updateClimbUi(frame.phase, "攀登中");
+            return;
+        }
+        if (frame.phase === "arrived") {
+            this.updateClimbUi(frame.phase, "攀登");
+            if (this.gestureTimer !== null)
+                clearTimeout(this.gestureTimer);
+            this.setData({
+                expMoving: false,
+                expMotionText: `已${this.climbDirection} ${(0, format_1.formatNumber)(this.climbDistanceM, 0)} m`,
+            });
+            this.gestureTimer = setTimeout(() => {
+                this.gestureTimer = null;
+                this.setData({ expMotionText: "" });
+            }, 1400);
             return;
         }
         this.updateClimbUi(frame.phase, frame.phase === "settling" ? "就位" : "攀登");

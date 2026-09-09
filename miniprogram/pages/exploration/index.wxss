@@ -1180,7 +1180,7 @@ page {
   margin-left: -3rpx;
   transform-origin: 50% 50%;
   border-radius: 3rpx;
-  background: linear-gradient(90deg, rgba(151, 241, 255, 0.42), rgba(92, 215, 255, 0.92));
+  background: repeating-linear-gradient(90deg, rgba(151, 241, 255, 0.95) 0 18rpx, rgba(151, 241, 255, 0.18) 18rpx 31rpx);
   box-shadow: 0 0 9rpx rgba(92, 215, 255, 0.5);
 }
 .terrain-route-anchor {
@@ -1216,6 +1216,8 @@ page {
   background: radial-gradient(circle, #fff 0%, #9ff3ff 45%, rgba(42, 187, 235, 0.95) 100%);
   box-shadow: 0 0 10rpx rgba(92, 215, 255, 0.9), 0 0 2rpx #fff;
 }
+.terrain-route-dot-moving { animation: terrainMarkerPulse 0.85s ease-in-out infinite; }
+@keyframes terrainMarkerPulse { 0%, 100% { transform: scale(.82); opacity: .82; } 50% { transform: scale(1.25); opacity: 1; } }
 .terrain-route-summit {
   position: absolute;
   transform: translate(-50%, -100%);
@@ -1226,7 +1228,7 @@ page {
 .terrain-route-chip {
   position: absolute;
   right: calc(16rpx + env(safe-area-inset-right));
-  bottom: calc(210rpx + env(safe-area-inset-bottom));
+  bottom: calc(40vh + 24rpx);
   padding: 4rpx 12rpx;
   border-radius: 18rpx;
   font-size: 18rpx;
@@ -1402,6 +1404,7 @@ page {
 .exp-back { flex-shrink: 0; color: #fff; font-size: 62rpx; line-height: 36rpx; }
 .exp-top-copy { display: flex; flex-direction: column; gap: 3rpx; }
 .exp-top-elev { margin-left: auto; color: #f5fbff; font-size: 24rpx; font-weight: 700; }
+.exp-top-status { margin-top: 4rpx; color: #62c7f7; font-size: 17rpx; }
 
 /* 底部 30% 面板：视觉应向“轻量 overlay”收敛（背景更通透，层级仍主/次/路线） */
 .exp-sheet {

@@ -21,7 +21,7 @@
 
     <!-- Gate 3.3C.1 P0：LIVE 不可用（visLiveFallback）→ 自制珠峰远征主视觉全屏铺实，
          杜绝空白渐变 / 毛刺残片；实景·不可用由顶部胶囊 + 底部说明共同表态 -->
-    <image wx:if="{{routeMode && visLiveFallback}}" class="plate view view-fallback" mode="aspectFill" src="/assets/world/everest-expedition-hero-v1.png"></image>
+    <image wx:if="{{routeMode && visLiveFallback}}" class="plate view view-fallback" mode="aspectFill" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg"></image>
 
     <!-- Gate 3.3C.1：LIVE 实景层（crop 由数据层 → presentationCropUi 消费：object-position 焦点 + zoom 缩放） -->
     <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" style="object-position:{{liveCropUi.focusX}}% {{liveCropUi.focusY}}%; transform: scale({{liveCropUi.zoom}});" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
@@ -39,13 +39,14 @@
     <!-- Gate 3.4：TERRAIN 科学地形上的路线重投影（真实 routeIndex → 屏幕；2.5D 帆布）。
          独立于 live-route：仅 TERRAIN 模式（terrainRouteGeometry 非空）挂载，画的是 canonical routeIndex
          三景上的科学折线，非 LIVE 照片上的校准直线段，故用独立图层/配色。 -->
-    <view wx:if="{{terrainRouteGeometry && terrainDynamicState}}" class="terrain-route" style="transform:{{camera.routeTransform}}">
+    <view wx:if="{{terrainRouteGeometry && terrainDynamicState}}" class="terrain-route" style="transform:{{terrainRouteTransform}}">
       <view wx:for="{{terrainRouteGeometry.segments}}" wx:key="index" class="terrain-route-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
       <view wx:for="{{terrainRouteGeometry.origins}}" wx:key="key" class="terrain-route-anchor" style="left:{{item.x}}%;top:{{item.y}}%">
         <text class="terrain-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
       </view>
-      <view class="terrain-route-dot" style="left:{{terrainDynamicState.marker.x}}%;top:{{terrainDynamicState.marker.y}}%"></view>
+      <view class="terrain-route-dot {{expMoving ? 'terrain-route-dot-moving' : ''}}" style="left:{{terrainDynamicState.marker.x}}%;top:{{terrainDynamicState.marker.y}}%"></view>
       <view class="terrain-route-summit" style="left:{{terrainRouteGeometry.summit.x}}%;top:{{terrainRouteGeometry.summit.y}}%">▶</view>
+      <view wx:if="{{terrainRouteGeometry.schematic}}" class="terrain-route-chip">路线示意 · 当前点随攀登移动</view>
     </view>
 
     <!-- §40：LIVE 实景数据说明一行（代表性视角 / “实时暂不可用” 等）——置于顶部切换下方，常显不藏 -->
@@ -125,7 +126,7 @@
     <!-- 顶部：登山标题（沉浸页：基于真实状态栏 + 胶囊定位的安全区） -->
     <view class="exp-top" style="top:{{capTop}}px">
       <text class="exp-back" bindtap="onBackHome">‹</text>
-      <view class="exp-top-copy"><text class="exp-top-title">探索进度</text><text class="exp-top-meta">{{metaPlace}}</text></view>
+      <view class="exp-top-copy"><text class="exp-top-title">探索进度</text><text class="exp-top-meta">{{metaPlace}}</text><text wx:if="{{expMoving}}" class="exp-top-status">{{expMotionText || '沿路线移动中'}} · {{expedition.nextName}}</text></view>
       <text class="exp-top-elev">{{expedition.currentElevText}} m</text>
     </view>
 
@@ -149,7 +150,7 @@
       <!-- 距顶峰（单行高差，简化） -->
       <view class="exp-goal">
         <view class="exp-goal-row">
-          <text class="exp-goal-k">距顶峰</text>
+          <text class="exp-goal-k">已行 {{expedition.distanceText}} · 距顶峰</text>
           <text class="exp-goal-v">{{expedition.remainingVerticalText}} m</text>
         </view>
       </view>
@@ -182,7 +183,7 @@
       <view class="exp-route">
         <view class="exp-route-track">
           <view class="exp-route-fill" style="width:{{expedition.pct}}%"></view>
-          <view class="exp-route-marker" style="left:{{expedition.pct}}%"></view>
+          <view class="exp-route-marker" style="left:{{expedition.progress * 100}}%"></view>
         </view>
         <view class="exp-route-meta">
           <text class="exp-route-label">Base Camp</text>
