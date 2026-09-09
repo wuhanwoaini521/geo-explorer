@@ -1,5 +1,5 @@
 /**
- * Knowledge(地理知识) Mock 数据 —— 30 条，覆盖六大类（设计文档 §7 体系）。
+ * Knowledge(地理知识) Mock 数据 —— 覆盖六大类（设计文档 §7 体系）。
  * 每条均含：内容、关联地点/地貌、分类；不硬编码在页面代码里（§28）。
  */
 import type { Knowledge } from "../types/models";
@@ -334,6 +334,28 @@ const DATA: Array<Omit<Knowledge, "id"> & { id: string }> = [
     emoji: "🌍",
     relatedPlaceIds: ["p-reef"],
     relatedLandformIds: [],
+  },
+  {
+    id: "k31",
+    title: "1953 年首次登顶",
+    summary: "人类首次站上世界之巅",
+    content:
+      "1953 年 5 月 29 日，新西兰登山家埃德蒙·希拉里（Edmund Hillary）和夏尔巴人丹增·诺尔盖（Tenzing Norgay）首次成功登顶珠穆朗玛峰，这是人类登山史上的里程碑。",
+    category: "世界地理",
+    emoji: "🏔️",
+    relatedPlaceIds: ["p-everest"],
+    relatedLandformIds: ["lf-mountain"],
+  },
+  {
+    id: "k32",
+    title: "现代攀登",
+    summary: "高海拔仍是一项极限挑战",
+    content:
+      "如今，每年有数百名登山者尝试攀登珠峰，但这仍然是一项极具风险的挑战。恶劣的天气、缺氧和复杂的地形，使它成为世界上最危险的山峰之一。",
+    category: "世界地理",
+    emoji: "🧗",
+    relatedPlaceIds: ["p-everest"],
+    relatedLandformIds: ["lf-mountain"],
   },
 ];
 

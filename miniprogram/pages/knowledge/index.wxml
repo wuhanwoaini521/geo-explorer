@@ -1,36 +1,14 @@
-<view class="page">
-  <view class="knowledge-head"><text class="knowledge-back" bindtap="onBack">‹</text><view><text class="eyebrow">GEO · EXPLORER ATLAS</text><text class="page-title">相关知识</text></view><text class="knowledge-more">•••</text></view>
-  <text class="page-sub">从山脉、海洋到地质，继续理解你正在探索的地球。</text>
-
-  <!-- 分类筛选 -->
-  <scroll-view class="cat-row" scroll-x="true" enable-flex="true">
-    <view
-      wx:for="{{categories}}"
-      wx:key="*this"
-      class="cat {{activeCategory === item ? 'cat-active' : ''}}"
-      data-category="{{item}}"
-      bindtap="onCategoryTap"
-    >{{item}}</view>
-  </scroll-view>
-
-  <!-- 列表 -->
-  <view class="list" wx:if="{{!empty}}">
-    <view class="item" wx:for="{{items}}" wx:key="id"
-      data-id="{{item.id}}" bindtap="onOpen">
-      <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
-      <view class="item-main">
-        <view class="item-row">
-          <text class="item-name">{{item.title}}</text>
-          <text wx:if="{{item.unlocked}}" class="item-badge">已解锁</text>
-        </view>
-        <text class="item-summary">{{item.summary}}</text>
+<view class="knowledge-page">
+  <view class="knowledge-head"><text class="knowledge-back" bindtap="onBack">‹</text><text class="knowledge-title">相关知识</text><text class="knowledge-more">•••</text></view>
+  <view class="knowledge-tabs"><text wx:for="{{categories}}" wx:key="*this" class="knowledge-tab {{activeTab === item ? 'knowledge-tab-active' : ''}}" data-category="{{item}}" bindtap="onCategoryTap">{{item}}</text></view>
+  <scroll-view class="knowledge-list" scroll-y="true">
+    <view wx:if="{{!empty}}">
+      <view class="knowledge-card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
+        <image class="knowledge-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="knowledge-card-shade"></view>
+        <view class="knowledge-card-copy"><text class="knowledge-card-title">{{item.title}}</text><text class="knowledge-card-body">{{item.content}}</text></view>
       </view>
-      <text class="item-arrow">›</text>
     </view>
-  </view>
-
-  <view class="empty" wx:else>
-    <text class="empty-emoji">🔭</text>
-    <text class="empty-text">没有匹配的知识条目，换个关键词试试</text>
-  </view>
+    <view wx:else class="knowledge-empty">没有匹配的知识条目</view>
+  </scroll-view>
 </view>
