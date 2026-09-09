@@ -1,0 +1,7 @@
+<view class="peaks-page">
+  <image class="peaks-image" src="{{hero}}" mode="aspectFill"></image><view class="peaks-shade"></view>
+  <view class="peaks-head"><text class="peaks-back" bindtap="onBack">‹</text><text class="peaks-title">周边山峰</text></view>
+  <view wx:for="{{peaks}}" wx:key="name" class="peak-label" style="left:{{item.left}}%;top:{{item.top}}%"><text>{{item.name}}</text><text>{{item.elevation}}</text><view class="peak-stem"></view></view>
+  <view class="compass"><text class="compass-mark">N</text><text class="compass-center">⌖</text><text class="compass-bearing">西南 243°<br/>距离 2.3 km</text></view>
+  <view class="peaks-switch"><text>实景</text><view class="switch {{!terrain ? 'switch-on' : ''}}" data-mode="live" bindtap="onToggleTerrain"><view></view></view><text>地形</text><view class="switch {{terrain ? 'switch-on' : ''}}" data-mode="terrain" bindtap="onToggleTerrain"><view></view></view></view>
+</view>

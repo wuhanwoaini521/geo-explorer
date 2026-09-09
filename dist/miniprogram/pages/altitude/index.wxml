@@ -1,0 +1,18 @@
+<view class="alt-page">
+  <view class="alt-head"><text class="alt-back" bindtap="onBack">‹</text><text class="alt-title">海拔与环境变化</text></view>
+  <view class="alt-tabs"><text wx:for="{{tabs}}" wx:key="key" class="alt-tab {{active === item.key ? 'alt-tab-active' : ''}}" data-key="{{item.key}}" bindtap="onMetricTap">{{item.label}}</text></view>
+  <view class="chart">
+    <view class="chart-grid grid-a"></view><view class="chart-grid grid-b"></view><view class="chart-grid grid-c"></view>
+    <text class="chart-max">{{chart.max}}</text><text class="chart-min">{{chart.min}}</text>
+    <view wx:for="{{chart.segments}}" wx:key="index" class="chart-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.width}}%;transform:rotate({{item.rotate}}deg)"></view>
+    <view wx:for="{{chart.points}}" wx:key="label" class="chart-point" style="left:{{item.x}}%;top:{{item.y}}%"><view class="chart-dot"></view><text class="chart-value">{{item.value}}</text><text class="chart-label">{{item.label}}</text></view>
+  </view>
+  <view class="axis-title">海拔参考</view>
+  <view class="bands">
+    <view class="band band-death"><text>&gt; 8,000 m</text><text>死亡地带 (Death Zone)</text></view>
+    <view class="band band-high"><text>6,000 – 8,000 m</text><text>极高海拔</text></view>
+    <view class="band band-mid"><text>3,000 – 6,000 m</text><text>高海拔</text></view>
+    <view class="band band-low"><text>1,500 – 3,000 m</text><text>中等海拔</text></view>
+    <view class="band band-green"><text>&lt; 1,500 m</text><text>低海拔</text></view>
+  </view>
+</view>

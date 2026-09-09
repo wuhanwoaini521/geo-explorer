@@ -1,0 +1,22 @@
+page { background: #07131f; color: #f4f8fb; }
+.alt-page { min-height: 100vh; padding: calc(env(safe-area-inset-top) + 72rpx) 28rpx calc(env(safe-area-inset-bottom) + 30rpx); background: #07131f; }
+.alt-head { display: flex; align-items: center; gap: 18rpx; }
+.alt-back { font-size: 64rpx; line-height: 34rpx; }
+.alt-title { font-size: 36rpx; font-weight: 800; }
+.alt-tabs { display: flex; gap: 10rpx; margin-top: 28rpx; }
+.alt-tab { flex: 1; padding: 13rpx 0; text-align: center; border-radius: 30rpx; background: #112536; color: #9bb0c1; font-size: 22rpx; }
+.alt-tab-active { color: #102236; background: #eff8ff; }
+.chart { position: relative; height: 330rpx; margin: 35rpx 0 0 42rpx; border-left: 2rpx solid #8fa7b8; border-bottom: 2rpx solid #8fa7b8; }
+.chart-grid { position: absolute; left: 0; right: 0; border-top: 1rpx solid rgba(139,181,211,.12); }
+.grid-a { top: 18%; }.grid-b { top: 50%; }.grid-c { top: 82%; }
+.chart-max,.chart-min { position: absolute; left: -48rpx; color: #c4d4df; font-size: 19rpx; }
+.chart-max { top: -10rpx; }.chart-min { bottom: -30rpx; }
+.chart-seg { position: absolute; height: 4rpx; transform-origin: 50% 50%; background: #32a9f2; box-shadow: 0 0 7rpx rgba(50,169,242,.7); }
+.chart-point { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; }
+.chart-dot { width: 17rpx; height: 17rpx; border: 4rpx solid #d8f3ff; border-radius: 50%; background: #2fa8ef; box-shadow: 0 0 9rpx #2fa8ef; }
+.chart-value { margin-top: -46rpx; transform: translateY(-100%); white-space: nowrap; color: #f0f7fb; font-size: 19rpx; }
+.chart-label { margin-top: 16rpx; white-space: nowrap; color: #b2c3cf; font-size: 18rpx; }
+.axis-title { margin: 56rpx 0 16rpx; font-size: 27rpx; font-weight: 700; }
+.bands { display: flex; flex-direction: column; gap: 3rpx; }
+.band { display: flex; justify-content: space-between; padding: 15rpx 18rpx; border-radius: 5rpx; font-size: 22rpx; }
+.band text:last-child { color: #e9f0f5; }.band-death { color: #ff8e91; background: rgba(224,75,82,.26); }.band-high { color: #ffd09a; background: rgba(195,113,70,.23); }.band-mid { color: #f3dc89; background: rgba(194,170,66,.22); }.band-low { color: #c7e58f; background: rgba(112,153,69,.2); }.band-green { color: #a8e4aa; background: rgba(58,139,84,.2); }

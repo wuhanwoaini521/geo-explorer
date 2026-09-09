@@ -1,0 +1,24 @@
+<view wx:if="{{detail}}" class="camp-page">
+  <view class="camp-hero">
+    <image class="camp-hero-image" src="{{detail.hero}}" mode="aspectFill"></image>
+    <view class="camp-hero-shade"></view>
+    <view class="camp-nav"><text class="camp-back" bindtap="onBack">‹</text><text class="camp-more">•••</text></view>
+    <view class="camp-heading"><text class="camp-title">{{detail.title}}</text><text class="camp-range">{{detail.range}}</text></view>
+  </view>
+
+  <view class="camp-body">
+    <scroll-view class="camp-tabs" scroll-x="true" enable-flex="true">
+      <text wx:for="{{tabs}}" wx:key="*this" class="camp-tab {{detail.activeTab === item ? 'camp-tab-active' : ''}}" data-tab="{{item}}" bindtap="onTabTap">{{item}}</text>
+    </scroll-view>
+    <view class="camp-copy">
+      <text class="camp-section-title">{{detail.sectionTitle}}</text>
+      <text class="camp-section-body">{{detail.body}}</text>
+    </view>
+    <image class="camp-inline-image" src="{{detail.inlineImage}}" mode="aspectFill"></image>
+    <view class="camp-facts">
+      <text class="camp-facts-title">关键数据</text>
+      <view wx:for="{{detail.facts}}" wx:key="label" class="camp-fact"><text>{{item.label}}</text><text>{{item.value}}</text></view>
+    </view>
+    <view wx:if="{{detail.activeTab === '相关知识'}}" class="camp-knowledge-link" bindtap="onOpenKnowledge">打开相关知识 →</view>
+  </view>
+</view>
