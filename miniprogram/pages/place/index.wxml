@@ -1,109 +1,67 @@
 <view class="page" wx:if="{{place}}">
-  <!-- Hero：地点名片 -->
-  <view class="hero fade-in">
-    <view class="hero-top">
-      <text class="hero-emoji">{{place.emoji}}</text>
-      <view class="hero-fav {{favorited ? 'on' : ''}}" bindtap="onToggleFavorite">
-        <text>{{favorited ? '♥' : '♡'}}</text>
+  <view class="detail-hero">
+    <image class="detail-hero-image" src="{{place.heroImage}}" mode="aspectFill"></image>
+    <view class="detail-hero-shade"></view>
+    <view class="detail-nav">
+      <text class="detail-back" bindtap="onBack">‹</text>
+      <view class="detail-nav-actions">
+        <text bindtap="onToggleFavorite" class="detail-fav {{favorited ? 'on' : ''}}">{{favorited ? '♥' : '♡'}}</text>
+        <text class="detail-more">•••</text>
       </view>
     </view>
-    <text class="hero-name">{{place.name}}</text>
-    <text class="hero-name-en">{{place.nameEn}}</text>
-    <view class="hero-chips">
-      <text class="chip chip-accent">{{place.typeLabel}}</text>
-      <text class="chip">{{place.country}}</text>
-      <text class="chip">{{place.region}}</text>
-    </view>
-    <text class="hero-short">{{place.shortDescription}}</text>
-  </view>
-
-  <!-- 关键数据行 -->
-  <view class="vitals">
-    <view class="vital">
-      <text class="vital-v">{{place.elevText}}</text>
-      <text class="vital-k">{{place.elevLabel}}</text>
-    </view>
-    <view class="vital">
-      <text class="vital-v">{{place.coordText}}</text>
-      <text class="vital-k">坐标</text>
-    </view>
-    <view class="vital">
-      <text class="vital-v">{{place.region}}</text>
-      <text class="vital-k">区域</text>
+    <view class="detail-heading">
+      <text class="detail-kicker">{{place.typeLabel}} · {{place.region}}</text>
+      <text class="detail-name">{{place.name}}</text>
+      <text class="detail-name-en">{{place.nameEn}}</text>
+      <text class="detail-elevation">{{place.elevText}} {{place.elevLabel}}</text>
     </view>
   </view>
 
-  <!-- 概览 -->
-  <view class="section">
-    <text class="sec-title">概览</text>
-    <text class="sec-body">{{place.description}}</text>
-  </view>
-
-  <!-- 成因 -->
-  <view class="section">
-    <text class="sec-title">成因</text>
-    <text class="sec-body">{{place.formation}}</text>
-    <text wx:if="{{place.geologicalAge}}" class="sec-note">地质年代 · {{place.geologicalAge}}</text>
-  </view>
-
-  <!-- 气候 -->
-  <view class="section" wx:if="{{place.climate}}">
-    <text class="sec-title">气候</text>
-    <text class="sec-body">{{place.climate}}</text>
-  </view>
-
-  <!-- 冷知识 -->
-  <view class="section facts" wx:if="{{place.facts.length}}">
-    <text class="sec-title">你知道吗</text>
-    <view class="fact" wx:for="{{place.facts}}" wx:key="*this">
-      <text class="fact-idx">0{{index + 1}}</text>
-      <text class="fact-body">{{item}}</text>
+  <scroll-view class="detail-content" scroll-y>
+    <view class="detail-tabs">
+      <text class="detail-tab active">概览</text>
+      <text class="detail-tab">环境</text>
+      <text class="detail-tab">地形</text>
+      <text class="detail-tab">历史</text>
+      <text class="detail-tab">相关知识</text>
     </view>
-  </view>
 
-  <!-- 沉浸探索入口 -->
-  <view class="explore-cta" wx:if="{{place.explorationId}}">
-    <view class="cta-main">
-      <text class="cta-title">{{place.explorationTitle}}</text>
-      <text class="cta-sub">沉浸式场景探索 · 真实地理数据驱动</text>
-    </view>
-    <button class="cta-btn" bindtap="onStartExploration">进入探索 ›</button>
-  </view>
-
-  <!-- 相关地点 -->
-  <view class="section" wx:if="{{related.length}}">
-    <view class="sec-row">
-      <text class="sec-title">继续探索</text>
-      <text class="sec-link" bindtap="onOpenMap">全部图鉴 ›</text>
-    </view>
-    <view class="related-list">
-      <view class="related-card" wx:for="{{related}}" wx:key="id"
-        data-id="{{item.id}}" bindtap="onOpenRelated">
-        <text class="related-emoji">{{item.emoji}}</text>
-        <text class="related-name">{{item.name}}</text>
-        <text class="related-sub">{{item.shortDescription}}</text>
+    <view class="detail-panel">
+      <text class="panel-label">关于这座山</text>
+      <text class="panel-title">{{place.shortDescription}}</text>
+      <text class="panel-body">{{place.description}}</text>
+      <view class="panel-data">
+        <view><text class="data-value">{{place.coordText}}</text><text class="data-label">坐标</text></view>
+        <view><text class="data-value">{{place.country}}</text><text class="data-label">所在地区</text></view>
+        <view><text class="data-value">{{place.geologicalAge || '喜马拉雅造山带'}}</text><text class="data-label">地质背景</text></view>
       </view>
     </view>
-  </view>
 
-  <!-- 关联知识 -->
-  <view class="section" wx:if="{{knowledge.length}}">
-    <text class="sec-title">关联知识</text>
-    <view class="k-list">
-      <view class="k-item" wx:for="{{knowledge}}" wx:key="id"
-        data-id="{{item.id}}" bindtap="onOpenKnowledge">
-        <text class="k-emoji">{{item.emoji}}</text>
-        <text class="k-title">{{item.title}}</text>
-        <text class="k-cat">{{item.category}}</text>
-      </view>
-    </view>
-  </view>
+    <image class="detail-inline-image" src="{{place.heroImage}}" mode="aspectFill"></image>
 
-  <!-- 标签与来源 -->
-  <view class="footer">
-    <view class="tag-row" wx:if="{{place.tags.length}}">
-      <text class="tag" wx:for="{{place.tags}}" wx:key="*this">#{{item}}</text>
+    <view class="key-section">
+      <text class="section-title">关键数据</text>
+      <view class="key-row"><text>成因</text><text>{{place.formation}}</text></view>
+      <view class="key-row" wx:if="{{place.climate}}"><text>气候</text><text>{{place.climate}}</text></view>
+      <view class="key-row"><text>{{place.elevLabel}}</text><text>{{place.elevText}}</text></view>
     </view>
+
+    <view class="detail-facts" wx:if="{{place.facts.length}}">
+      <text class="section-title">你知道吗</text>
+      <view class="fact" wx:for="{{place.facts}}" wx:key="*this"><text class="fact-index">0{{index + 1}}</text><text>{{item}}</text></view>
+    </view>
+
+    <view class="explore-cta" wx:if="{{place.explorationId}}">
+      <view><text class="cta-title">{{place.explorationTitle}}</text><text class="cta-sub">沉浸式场景探索 · 真实地理数据驱动</text></view>
+      <button class="cta-btn" bindtap="onStartExploration">进入探索 ›</button>
+    </view>
+
+    <view class="section related-section" wx:if="{{related.length}}">
+      <view class="section-row"><text class="section-title">继续探索</text><text bindtap="onOpenMap" class="section-link">全部图鉴 ›</text></view>
+      <view class="related-list"><view class="related-card" wx:for="{{related}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenRelated"><text class="related-emoji">{{item.emoji}}</text><text class="related-name">{{item.name}}</text><text class="related-sub">{{item.shortDescription}}</text></view></view>
+    </view>
+
+    <view class="section" wx:if="{{knowledge.length}}"><text class="section-title">关联知识</text><view class="k-list"><view class="k-item" wx:for="{{knowledge}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenKnowledge"><text>{{item.emoji}}</text><text class="k-title">{{item.title}}</text><text class="k-cat">{{item.category}}</text></view></view></view>
     <text class="footer-note">数据来源：公开资料（Wikipedia / 官方测量公告）· 部分数值为近似值</text>
-  </view>
+  </scroll-view>
 </view>

@@ -32,6 +32,7 @@ interface PlaceVM {
   /** 是否有可进入的沉浸探索场景 */
   explorationId?: string;
   explorationTitle?: string;
+  heroImage: string;
 }
 
 interface RelatedItem {
@@ -124,6 +125,13 @@ Page({
       coordText: `${place.latitude.toFixed(2)}°, ${place.longitude.toFixed(2)}°`,
       explorationId: place.explorationId,
       explorationTitle: ex?.title,
+      heroImage: place.id === "p-everest"
+        ? "/assets/expeditions/everest/live/live-a-kala-patthar.jpg"
+        : place.id === "p-fuji"
+          ? "/assets/world/fuji-card.png"
+          : place.id === "p-colorado"
+            ? "/assets/world/grand-canyon-card.png"
+            : "/assets/world/everest-expedition-hero-v1.png",
     };
     this.setData({
       place: vm,
@@ -134,6 +142,7 @@ Page({
   },
 
   onShow() {
+    this.getTabBar?.()?.setData({ hidden: true });
     const id = this.data.place?.id;
     if (id) this.setData({ favorited: favorites.isFavorite(id) });
   },
@@ -166,5 +175,9 @@ Page({
 
   onOpenMap() {
     wx.switchTab({ url: "/pages/map/index" });
+  },
+
+  onBack() {
+    wx.navigateBack({ delta: 1 });
   },
 });

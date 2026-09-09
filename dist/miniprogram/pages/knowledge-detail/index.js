@@ -30,6 +30,10 @@ Page({
             wx.setNavigationBarTitle({ title: item.title });
         }
     },
+    onShow() {
+        var _a, _b;
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: true });
+    },
     onOpenPlace(e) {
         var _a, _b, _c;
         const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");

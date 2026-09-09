@@ -83,6 +83,13 @@ Page({
             coordText: `${place.latitude.toFixed(2)}°, ${place.longitude.toFixed(2)}°`,
             explorationId: place.explorationId,
             explorationTitle: ex === null || ex === void 0 ? void 0 : ex.title,
+            heroImage: place.id === "p-everest"
+                ? "/assets/expeditions/everest/live/live-a-kala-patthar.jpg"
+                : place.id === "p-fuji"
+                    ? "/assets/world/fuji-card.png"
+                    : place.id === "p-colorado"
+                        ? "/assets/world/grand-canyon-card.png"
+                        : "/assets/world/everest-expedition-hero-v1.png",
         };
         this.setData({
             place: vm,
@@ -92,8 +99,9 @@ Page({
         });
     },
     onShow() {
-        var _a;
-        const id = (_a = this.data.place) === null || _a === void 0 ? void 0 : _a.id;
+        var _a, _b, _c;
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: true });
+        const id = (_c = this.data.place) === null || _c === void 0 ? void 0 : _c.id;
         if (id)
             this.setData({ favorited: favorites_store_1.favorites.isFavorite(id) });
     },
@@ -128,5 +136,8 @@ Page({
     },
     onOpenMap() {
         wx.switchTab({ url: "/pages/map/index" });
+    },
+    onBack() {
+        wx.navigateBack({ delta: 1 });
     },
 });

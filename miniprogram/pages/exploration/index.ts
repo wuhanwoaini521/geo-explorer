@@ -950,6 +950,7 @@ Page({
   },
 
   onShow() {
+    this.getTabBar?.()?.setData({ hidden: true });
     // 从知识库详情页返回时继续渲染
     if (this.ticker === null && this.exploration) this.startTicker();
   },

@@ -16,9 +16,18 @@ import type { Knowledge } from "../../types/models";
 
 interface KnowledgeItem extends Knowledge {
   unlocked: boolean;
+  image: string;
 }
 
 const ALL_CATEGORY = "全部";
+
+function knowledgeImage(item: Knowledge): string {
+  if (item.relatedPlaceIds.includes("p-everest")) return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
+  if (item.relatedPlaceIds.includes("p-fuji")) return "/assets/world/fuji-card.png";
+  if (item.relatedPlaceIds.includes("p-colorado")) return "/assets/world/grand-canyon-card.png";
+  if (item.relatedPlaceIds.includes("p-mariana")) return "/assets/world/mariana-card.png";
+  return "/assets/world/everest-expedition-hero-v1.png";
+}
 
 Page({
   data: {
@@ -33,13 +42,14 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ selected: 2 });
+    this.getTabBar?.()?.setData({ hidden: true });
     const records = getRecords();
     const unlocked = unlockedLibraryIds(records, EXPLORATIONS);
     const items: KnowledgeItem[] = filterKnowledge(
       KNOWLEDGE,
       this.data.activeCategory,
       this.data.query,
-    ).map((k) => ({ ...k, unlocked: unlocked.has(k.id) }));
+    ).map((k) => ({ ...k, unlocked: unlocked.has(k.id), image: knowledgeImage(k) }));
     this.setData({
       categories: [ALL_CATEGORY, ...KNOWLEDGE_CATEGORIES],
       items,
@@ -74,7 +84,7 @@ Page({
       KNOWLEDGE,
       category,
       query,
-    ).map((k) => ({ ...k, unlocked: unlocked.has(k.id) }));
+    ).map((k) => ({ ...k, unlocked: unlocked.has(k.id), image: knowledgeImage(k) }));
     this.setData({ items, empty: items.length === 0 });
   },
 
@@ -82,5 +92,9 @@ Page({
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
     wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+  },
+
+  onBack() {
+    wx.switchTab({ url: "/pages/home/index" });
   },
 });

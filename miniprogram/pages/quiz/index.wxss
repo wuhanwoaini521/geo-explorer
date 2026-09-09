@@ -189,3 +189,19 @@
 .act-primary:active { transform: translateY(3rpx); box-shadow: 0 2rpx 0 #7a5510; opacity: 0.94; }
 .act-ghost { background: #fffdf4; border: 2rpx solid rgba(122, 86, 14, 0.4); box-shadow: 0 4rpx 0 rgba(122, 86, 14, 0.18); color: #37311e; }
 .act-ghost:active { transform: translateY(2rpx); box-shadow: 0 1rpx 0 rgba(122, 86, 14, 0.18); }
+
+/* 与 expedition-v2 保持一致的深色内容层；答题页不属于主视觉路线，但仍共享同一套主题。 */
+.page { background: #07131f; color: #edf6fb; }
+.page-title, .lv-label, .q-question, .q-opt-text, .result-title { color: #edf6fb; }
+.page-sub, .play-step, .lv-best, .rule-line, .q-explain, .q-tip, .result-best { color: #7895a8; }
+.lv, .q-card, .result-card, .act-ghost { background: #102536; border-color: rgba(166, 211, 238, .14); }
+.rule, .rstat, .q-opt { background: #0d2030; border-color: rgba(166, 211, 238, .13); }
+.rule-t { color: #a8c5d5; }
+.lv-go, .result-record { color: #61c3f6; }
+.play-track { background: rgba(166, 211, 238, .16); }
+.play-fill { background: linear-gradient(90deg, #258fd4, #63c7fa); }
+.q-opt.sel { border-color: #34a8ee; background: rgba(45, 160, 222, .13); }
+.q-key { background: rgba(166, 211, 238, .13); color: #a8c5d5; }
+.q-next, .act-primary { background: linear-gradient(135deg, #2aa8ef, #1874bc); border-color: #16659e; box-shadow: 0 5rpx 0 #124f7d; }
+.rstat-v { color: #61c3f6; }
+.rstat-k { color: #7895a8; }

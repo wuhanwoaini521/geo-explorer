@@ -1,118 +1,40 @@
 <view class="page">
-  <!-- 页头 -->
-  <view class="head">
-    <text class="head-title">🗺️ 探索地图</text>
-    <text class="head-sub">选择一个目的地，开始你的地理之旅</text>
-  </view>
+  <image class="map-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill"></image>
+  <view class="map-shade"></view>
 
-  <!-- 已开放路线 -->
-  <view class="section">
-    <text class="section-title">沉浸探索 · 已开放路线</text>
-    <view class="open-card" wx:for="{{open}}" wx:key="id">
-      <view class="open-top">
-        <text class="open-emoji">{{item.emoji}}</text>
-        <view class="open-top-text">
-          <text class="open-title">{{item.title}}</text>
-          <text class="open-sub">{{item.subtitle}}</text>
-        </view>
-        <text wx:if="{{item.completed}}" class="open-done">🏁 已完成</text>
-      </view>
-      <view wx:if="{{item.id === 'everest' && !routeImageFailed[item.id]}}" class="open-plate">
-        <image class="open-plate-img" src="/assets/world/everest-route.jpg" mode="aspectFill" data-id="{{item.id}}" binderror="onRouteImageError"></image>
-        <text class="open-plate-tag">南坳路线 · 真实 DEM 渲染</text>
-      </view>
-      <view class="open-meta">
-        <text class="open-chip">📍 {{item.place}} · {{item.region}}</text>
-        <text class="open-chip">{{item.axisGlyph}} {{item.elevText}}</text>
-        <text class="open-chip">⏱️ 约 {{item.estMin}} 分钟</text>
-      </view>
-      <text class="open-desc">{{item.desc}}</text>
-      <view class="open-progress">
-        <view class="open-track">
-          <view class="open-bar" style="width:{{item.progress}}%"></view>
-        </view>
-        <text class="open-pct">{{item.progress}}%</text>
-      </view>
-      <text class="open-reached">{{item.reachedText}}</text>
-      <button class="open-btn" data-id="{{item.id}}" bindtap="onGo">进入探索 ›</button>
+  <view class="map-head">
+    <text class="map-back" bindtap="onBack">‹</text>
+    <view class="map-title-group">
+      <text class="map-title">珠穆朗玛峰</text>
+      <text class="map-title-en">Mount Everest</text>
     </view>
+    <text class="map-more">•••</text>
   </view>
 
-  <!-- 预告（紧凑条） -->
-  <view class="section" wx:if="{{coming.length}}">
-    <text class="section-title">即将开放</text>
-    <view class="coming-row">
-      <view class="coming-chip" wx:for="{{coming}}" wx:key="id">
-        <text class="coming-emoji">{{item.emoji}}</text>
-        <view class="coming-text">
-          <text class="coming-name">{{item.title}}</text>
-          <text class="coming-basis">{{item.basis}} · 设计路线中</text>
-        </view>
+  <view class="route-segments"><view wx:for="{{routeSegments}}" wx:key="index" class="route-segment" style="left:{{item.left}}%;top:{{item.top}}%;width:{{item.width}}%;transform:rotate({{item.rotate}}deg)"></view></view>
+  <view class="route-points">
+    <view wx:for="{{mapPoints}}" wx:key="id" class="route-point route-point-{{item.state}} route-point-{{item.side}}" style="top:{{item.top}}%;left:{{item.left}}%" data-id="{{item.id}}" bindtap="onMapPointTap">
+      <view class="route-dot"><text wx:if="{{item.isSummit}}">⚑</text></view>
+      <view class="route-label">
+        <text class="route-name">{{item.name}}</text>
+        <text class="route-alt">{{item.altitudeText}}</text>
       </view>
     </view>
   </view>
 
-  <!-- ===== 世界图鉴 ===== -->
-  <view class="section atlas">
-    <view class="atlas-head">
-      <text class="section-title">世界图鉴</text>
-      <text class="atlas-count">共 {{atlasTotal}} 个地点</text>
-    </view>
+  <view class="map-tools">
+    <view class="tool">⌖</view>
+    <view class="tool">≋</view>
+    <view class="tool tool-2d">2D</view>
+  </view>
 
-    <!-- 搜索 -->
-    <view class="search">
-      <text class="search-ico">🔍</text>
-      <input
-        class="search-input"
-        placeholder="搜索地点 / 区域 / 特征"
-        placeholder-class="search-ph"
-        value="{{query}}"
-        confirm-type="search"
-        bindinput="onQueryInput"
-      />
-      <text wx:if="{{query}}" class="search-clear" bindtap="onQueryClear">✕</text>
+  <view class="map-place-card" bindtap="onOpenPlaceCard">
+    <image class="map-place-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill"></image>
+    <view class="map-place-copy">
+      <text class="map-place-title">Khumbu 冰瀑</text>
+      <text class="map-place-alt">5,400 – 5,900 m</text>
+      <text class="map-place-desc">攀登路线的第一道真正挑战，布满裂缝的冰川地形。</text>
     </view>
-
-    <!-- 类型筛选 -->
-    <scroll-view class="type-scroll" scroll-x enable-flex enhanced show-scrollbar="{{false}}">
-      <view class="type-row">
-        <view
-          wx:for="{{types}}"
-          wx:key="type"
-          class="type-chip {{activeType === item.type ? 'on' : ''}}"
-          data-type="{{item.type}}"
-          bindtap="onTypeTap"
-        >
-          <text class="type-emoji">{{item.emoji}}</text>
-          <text>{{item.label}}</text>
-        </view>
-      </view>
-    </scroll-view>
-
-    <!-- 地点网格 -->
-    <view class="atlas-grid" wx:if="{{!atlasEmpty}}">
-      <view class="place-card" wx:for="{{atlas}}" wx:key="id"
-        data-id="{{item.id}}" bindtap="onOpenPlace">
-        <view class="place-top">
-          <text class="place-emoji">{{item.emoji}}</text>
-          <view class="place-top-r">
-            <text wx:if="{{item.favorited}}" class="place-fav">♥</text>
-            <text wx:if="{{item.exploration}}" class="place-badge">可探索</text>
-          </view>
-        </view>
-        <text class="place-name">{{item.name}}</text>
-        <text class="place-sub">{{item.shortDescription}}</text>
-        <view class="place-foot">
-          <text class="place-type">{{item.typeLabel}}</text>
-          <text class="place-arrow">›</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- 空状态 -->
-    <view class="atlas-empty" wx:else>
-      <text class="atlas-empty-emoji">🔭</text>
-      <text class="atlas-empty-text">没有匹配的地点，换个关键词或类型试试</text>
-    </view>
+    <text class="map-place-arrow">›</text>
   </view>
 </view>

@@ -1,23 +1,9 @@
 <view class="page">
-  <text class="page-title">🧭 地理知识库</text>
-  <text class="page-sub">共 {{total}} 条 · 探索中已解锁 {{unlockedCount}} 条</text>
-
-  <!-- 搜索 -->
-  <view class="search">
-    <text class="search-ico">🔍</text>
-    <input
-      class="search-input"
-      placeholder="搜索标题 / 关键词"
-      placeholder-class="search-ph"
-      value="{{query}}"
-      confirm-type="search"
-      bindinput="onQueryInput"
-    />
-    <text wx:if="{{query}}" class="search-clear" bindtap="onQueryClear">✕</text>
-  </view>
+  <view class="knowledge-head"><text class="knowledge-back" bindtap="onBack">‹</text><view><text class="eyebrow">GEO · EXPLORER ATLAS</text><text class="page-title">相关知识</text></view><text class="knowledge-more">•••</text></view>
+  <text class="page-sub">从山脉、海洋到地质，继续理解你正在探索的地球。</text>
 
   <!-- 分类筛选 -->
-  <view class="cat-row">
+  <scroll-view class="cat-row" scroll-x="true" enable-flex="true">
     <view
       wx:for="{{categories}}"
       wx:key="*this"
@@ -25,18 +11,17 @@
       data-category="{{item}}"
       bindtap="onCategoryTap"
     >{{item}}</view>
-  </view>
+  </scroll-view>
 
   <!-- 列表 -->
   <view class="list" wx:if="{{!empty}}">
     <view class="item" wx:for="{{items}}" wx:key="id"
       data-id="{{item.id}}" bindtap="onOpen">
-      <text class="item-emoji">{{item.emoji}}</text>
+      <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
       <view class="item-main">
         <view class="item-row">
           <text class="item-name">{{item.title}}</text>
           <text wx:if="{{item.unlocked}}" class="item-badge">已解锁</text>
-          <text class="item-cat">{{item.category}}</text>
         </view>
         <text class="item-summary">{{item.summary}}</text>
       </view>

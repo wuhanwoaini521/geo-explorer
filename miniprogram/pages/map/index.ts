@@ -50,6 +50,24 @@ interface AtlasPlace {
   exploration: boolean;
 }
 
+interface MapPoint {
+  id: string;
+  name: string;
+  altitudeText: string;
+  top: number;
+  left: number;
+  side: "left" | "right";
+  state: "completed" | "current" | "upcoming";
+  isSummit: boolean;
+}
+
+interface MapSegment {
+  left: number;
+  top: number;
+  width: number;
+  rotate: number;
+}
+
 const COMING: ComingScene[] = [
   { id: "fuji", emoji: "🗻", title: "富士山", region: "日本 · 本州", basis: "海拔 3,776 m · 休眠火山" },
   { id: "sahara", emoji: "🏜️", title: "撒哈拉沙漠", region: "北非", basis: "世界最大热沙漠" },
@@ -73,6 +91,8 @@ Page({
     atlasTotal: PLACES.length,
     atlasEmpty: false,
     routeImageFailed: {} as Record<string, boolean>,
+    mapPoints: [] as MapPoint[],
+    routeSegments: [] as MapSegment[],
   },
 
   onLoad() {
@@ -82,6 +102,7 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ selected: 1 });
+    this.getTabBar?.()?.setData({ hidden: true });
     // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
     const pending = consumeTypeFilter();
     if (pending !== null && pending !== this.data.activeType) {
@@ -93,6 +114,27 @@ Page({
 
   refreshScenes() {
     const records = getRecords();
+    const everest = EXPLORATIONS.find((ex) => ex.id === "everest");
+    const everestRecord = records.find((record) => record.id === "everest");
+    const waypoints = everest?.route?.waypoints ?? [];
+    const reached = everestRecord?.reachElevation ?? 0;
+    let currentSeen = false;
+    const mapPoints: MapPoint[] = waypoints.slice().reverse().map((waypoint, index) => {
+      const altitude = waypoint.altitude ?? 0;
+      const isCompleted = reached >= altitude && reached > 0;
+      const isCurrent = !isCompleted && !currentSeen && (reached > 0 || index === waypoints.length - 1);
+      if (isCurrent) currentSeen = true;
+      return {
+        id: waypoint.id,
+        name: waypoint.shortName ?? waypoint.name,
+        altitudeText: `${Math.round(altitude).toLocaleString()} m`,
+        top: 17 + index * 9.2,
+        left: waypoint.x,
+        side: waypoint.x > 55 ? "left" : "right",
+        state: isCompleted ? "completed" : isCurrent ? "current" : "upcoming",
+        isSummit: waypoint.id === "summit",
+      };
+    });
     const open: OpenCard[] = EXPLORATIONS.map((ex) => {
       const record = records.find((r) => r.id === ex.id) || null;
       const reached = record ? record.reachElevation : 0;
@@ -117,7 +159,18 @@ Page({
         record,
       };
     });
-    this.setData({ open });
+    const routeSegments: MapSegment[] = mapPoints.slice(0, -1).map((point, index) => {
+      const next = mapPoints[index + 1];
+      const dx = next.left - point.left;
+      const dy = next.top - point.top;
+      return {
+        left: point.left,
+        top: point.top,
+        width: Math.sqrt(dx * dx + dy * dy),
+        rotate: Math.atan2(dy, dx) * 180 / Math.PI,
+      };
+    });
+    this.setData({ open, mapPoints, routeSegments });
   },
 
   refreshAtlas() {
@@ -174,5 +227,17 @@ Page({
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
     wx.navigateTo({ url: `/pages/exploration/index?id=${id}` });
+  },
+
+  onMapPointTap() {
+    wx.navigateTo({ url: "/pages/exploration/index?id=everest" });
+  },
+
+  onBack() {
+    wx.switchTab({ url: "/pages/home/index" });
+  },
+
+  onOpenPlaceCard() {
+    wx.navigateTo({ url: "/pages/place/index?id=p-everest" });
   },
 });

@@ -124,8 +124,9 @@
   <block wx:if="{{routeMode}}">
     <!-- 顶部：登山标题（沉浸页：基于真实状态栏 + 胶囊定位的安全区） -->
     <view class="exp-top" style="top:{{capTop}}px">
-      <text class="exp-top-title">{{metaPlace}}</text>
-      <text class="exp-top-meta" wx:if="{{routeSub}}">{{routeSub}}</text>
+      <text class="exp-back" bindtap="onBackHome">‹</text>
+      <view class="exp-top-copy"><text class="exp-top-title">探索进度</text><text class="exp-top-meta">{{metaPlace}}</text></view>
+      <text class="exp-top-elev">{{expedition.currentElevText}} m</text>
     </view>
 
     <!-- Gate 3.3C.1：LIVE 实景 / TERRAIN（DEM）切换（右上角低打扰；right 由 capRight 驱动，清开原生胶囊） -->

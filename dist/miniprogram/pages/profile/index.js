@@ -29,8 +29,9 @@ Page({
         favoritesEmpty: true,
     },
     onShow() {
-        var _a, _b;
-        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 4 });
+        var _a, _b, _c, _d;
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 3 });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: false });
         const records = (0, exploration_store_1.getRecords)().map((r) => {
             var _a, _b;
             const ex = index_1.EXPLORATIONS.find((e) => e.id === r.id);

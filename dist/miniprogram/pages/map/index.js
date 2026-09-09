@@ -30,14 +30,17 @@ Page({
         atlasTotal: places_1.PLACES.length,
         atlasEmpty: false,
         routeImageFailed: {},
+        mapPoints: [],
+        routeSegments: [],
     },
     onLoad() {
         this.refreshScenes();
         this.refreshAtlas();
     },
     onShow() {
-        var _a, _b;
+        var _a, _b, _c, _d;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 1 });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: true });
         // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
         const pending = (0, ui_bus_1.consumeTypeFilter)();
         if (pending !== null && pending !== this.data.activeType) {
@@ -47,7 +50,31 @@ Page({
         this.refreshAtlas();
     },
     refreshScenes() {
+        var _a, _b, _c;
         const records = (0, exploration_store_1.getRecords)();
+        const everest = index_1.EXPLORATIONS.find((ex) => ex.id === "everest");
+        const everestRecord = records.find((record) => record.id === "everest");
+        const waypoints = (_b = (_a = everest === null || everest === void 0 ? void 0 : everest.route) === null || _a === void 0 ? void 0 : _a.waypoints) !== null && _b !== void 0 ? _b : [];
+        const reached = (_c = everestRecord === null || everestRecord === void 0 ? void 0 : everestRecord.reachElevation) !== null && _c !== void 0 ? _c : 0;
+        let currentSeen = false;
+        const mapPoints = waypoints.slice().reverse().map((waypoint, index) => {
+            var _a, _b;
+            const altitude = (_a = waypoint.altitude) !== null && _a !== void 0 ? _a : 0;
+            const isCompleted = reached >= altitude && reached > 0;
+            const isCurrent = !isCompleted && !currentSeen && (reached > 0 || index === waypoints.length - 1);
+            if (isCurrent)
+                currentSeen = true;
+            return {
+                id: waypoint.id,
+                name: (_b = waypoint.shortName) !== null && _b !== void 0 ? _b : waypoint.name,
+                altitudeText: `${Math.round(altitude).toLocaleString()} m`,
+                top: 17 + index * 9.2,
+                left: waypoint.x,
+                side: waypoint.x > 55 ? "left" : "right",
+                state: isCompleted ? "completed" : isCurrent ? "current" : "upcoming",
+                isSummit: waypoint.id === "summit",
+            };
+        });
         const open = index_1.EXPLORATIONS.map((ex) => {
             var _a, _b, _c, _d, _e, _f;
             const record = records.find((r) => r.id === ex.id) || null;
@@ -70,7 +97,18 @@ Page({
                 record,
             };
         });
-        this.setData({ open });
+        const routeSegments = mapPoints.slice(0, -1).map((point, index) => {
+            const next = mapPoints[index + 1];
+            const dx = next.left - point.left;
+            const dy = next.top - point.top;
+            return {
+                left: point.left,
+                top: point.top,
+                width: Math.sqrt(dx * dx + dy * dy),
+                rotate: Math.atan2(dy, dx) * 180 / Math.PI,
+            };
+        });
+        this.setData({ open, mapPoints, routeSegments });
     },
     refreshAtlas() {
         const places = (0, place_search_1.queryPlaces)(places_1.PLACES, this.data.query, this.data.activeType);
@@ -128,5 +166,14 @@ Page({
         if (!id)
             return;
         wx.navigateTo({ url: `/pages/exploration/index?id=${id}` });
+    },
+    onMapPointTap() {
+        wx.navigateTo({ url: "/pages/exploration/index?id=everest" });
+    },
+    onBack() {
+        wx.switchTab({ url: "/pages/home/index" });
+    },
+    onOpenPlaceCard() {
+        wx.navigateTo({ url: "/pages/place/index?id=p-everest" });
     },
 });

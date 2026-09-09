@@ -6,12 +6,12 @@
 Component({
   data: {
     selected: 0,
+    hidden: false,
     tabs: [
       { pagePath: "/pages/home/index", text: "探索", icon: "🧭" },
       { pagePath: "/pages/map/index", text: "地图", icon: "🗺️" },
-      { pagePath: "/pages/knowledge/index", text: "知识", icon: "📚" },
-      { pagePath: "/pages/quiz/index", text: "挑战", icon: "🏅" },
-      { pagePath: "/pages/profile/index", text: "我的", icon: "🎒" },
+      { pagePath: "/pages/knowledge/index", text: "知识", icon: "▣" },
+      { pagePath: "/pages/profile/index", text: "我的", icon: "♙" },
     ],
   },
   methods: {

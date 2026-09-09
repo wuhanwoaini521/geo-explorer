@@ -598,6 +598,8 @@ Page({
         this.startTicker();
     },
     onShow() {
+        var _a, _b;
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: true });
         // 从知识库详情页返回时继续渲染
         if (this.ticker === null && this.exploration)
             this.startTicker();

@@ -24,8 +24,9 @@ Page({
     quizzes: [],
     answers: [],
     onShow() {
-        var _a, _b;
-        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 3 });
+        var _a, _b, _c, _d;
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: true });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ selected: 3 });
         this.refreshIdle();
     },
     /* ---------------- 首页（难度选择） ---------------- */

@@ -40,6 +40,10 @@ Page({
     }
   },
 
+  onShow() {
+    this.getTabBar?.()?.setData({ hidden: true });
+  },
+
   onOpenPlace(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;

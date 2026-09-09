@@ -12,6 +12,17 @@ const index_1 = require("../../data/explorations/index");
 const exploration_store_1 = require("../../services/exploration-store");
 const knowledge_link_1 = require("../../utils/knowledge-link");
 const ALL_CATEGORY = "全部";
+function knowledgeImage(item) {
+    if (item.relatedPlaceIds.includes("p-everest"))
+        return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
+    if (item.relatedPlaceIds.includes("p-fuji"))
+        return "/assets/world/fuji-card.png";
+    if (item.relatedPlaceIds.includes("p-colorado"))
+        return "/assets/world/grand-canyon-card.png";
+    if (item.relatedPlaceIds.includes("p-mariana"))
+        return "/assets/world/mariana-card.png";
+    return "/assets/world/everest-expedition-hero-v1.png";
+}
 Page({
     data: {
         categories: [],
@@ -23,11 +34,12 @@ Page({
         empty: false,
     },
     onShow() {
-        var _a, _b;
+        var _a, _b, _c, _d;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 2 });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: true });
         const records = (0, exploration_store_1.getRecords)();
         const unlocked = (0, knowledge_link_1.unlockedLibraryIds)(records, index_1.EXPLORATIONS);
-        const items = (0, knowledge_link_1.filterKnowledge)(knowledge_1.KNOWLEDGE, this.data.activeCategory, this.data.query).map((k) => ({ ...k, unlocked: unlocked.has(k.id) }));
+        const items = (0, knowledge_link_1.filterKnowledge)(knowledge_1.KNOWLEDGE, this.data.activeCategory, this.data.query).map((k) => ({ ...k, unlocked: unlocked.has(k.id), image: knowledgeImage(k) }));
         this.setData({
             categories: [ALL_CATEGORY, ...knowledge_1.KNOWLEDGE_CATEGORIES],
             items,
@@ -56,7 +68,7 @@ Page({
     applyFilter(category, query) {
         const records = (0, exploration_store_1.getRecords)();
         const unlocked = (0, knowledge_link_1.unlockedLibraryIds)(records, index_1.EXPLORATIONS);
-        const items = (0, knowledge_link_1.filterKnowledge)(knowledge_1.KNOWLEDGE, category, query).map((k) => ({ ...k, unlocked: unlocked.has(k.id) }));
+        const items = (0, knowledge_link_1.filterKnowledge)(knowledge_1.KNOWLEDGE, category, query).map((k) => ({ ...k, unlocked: unlocked.has(k.id), image: knowledgeImage(k) }));
         this.setData({ items, empty: items.length === 0 });
     },
     onOpen(e) {
@@ -65,5 +77,8 @@ Page({
         if (!id)
             return;
         wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+    },
+    onBack() {
+        wx.switchTab({ url: "/pages/home/index" });
     },
 });

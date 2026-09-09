@@ -1,8 +1,8 @@
-<view class="tabbar">
+<view wx:if="{{!hidden}}" class="tabbar">
   <view class="pill">
     <view class="tabs">
       <!-- 滑动琥珀指示器（带回弹过渡） -->
-      <view class="indicator" style="left: {{selected * 20}}%"></view>
+      <view class="indicator" style="left: {{selected * 25}}%"></view>
       <view
         wx:for="{{tabs}}"
         wx:key="pagePath"

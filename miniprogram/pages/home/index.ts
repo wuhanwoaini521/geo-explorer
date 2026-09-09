@@ -4,12 +4,10 @@
  * 结构：Hero（品牌 + 珠峰实景主视觉）→ 沉浸场景 → 精选目的地
  * → 按地貌探索（分类入口 → 地图页图鉴）→ 你知道吗（随机冷知识）→ 关于。
  */
-import { EXPLORATIONS } from "../../data/explorations/index";
 import { DISCOVERIES, type Discovery } from "../../data/discoveries";
 import { PLACES, PLACE_TYPE_META } from "../../data/places";
 import { getExplorationStats } from "../../services/exploration-store";
 import { setPendingTypeFilter } from "../../services/ui-bus";
-import type { Exploration } from "../../types/exploration";
 import type { PlaceType } from "../../types/models";
 import { formatNumber } from "../../utils/format";
 import { randomDiscovery } from "../../utils/discovery";
@@ -21,6 +19,9 @@ interface SceneCard {
   emoji: string;
   meta: string;
   badge: string;
+  image: string;
+  tags: [string, string];
+  target: "exploration" | "place";
 }
 
 interface FeaturedCard {
@@ -53,18 +54,33 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ selected: 0 });
+    this.getTabBar?.()?.setData({ hidden: false });
     this.refresh();
   },
 
   refresh() {
-    const scenes: SceneCard[] = EXPLORATIONS.map((ex: Exploration) => ({
-      id: ex.id,
-      title: ex.title,
-      subtitle: ex.subtitle,
-      emoji: ex.emoji,
-      meta: `${formatNumber(ex.maxElevation, 2)} m 海拔 · ${ex.stages.length} 个自然带`,
-      badge: `知识节点 ×${ex.knowledgeNodes.length}`,
-    }));
+    const scenes: SceneCard[] = [
+      {
+        id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
+        meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+        tags: ["山脉", "攀登"], target: "exploration",
+      },
+      {
+        id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,900 m", emoji: "🌊",
+        meta: "", badge: "", image: "/assets/world/mariana-card.png",
+        tags: ["海沟", "下潜"], target: "exploration",
+      },
+      {
+        id: "p-colorado", title: "大峡谷", subtitle: "穿越地球的历史", emoji: "🏜️",
+        meta: "", badge: "", image: "/assets/world/grand-canyon-card.png",
+        tags: ["峡谷", "探索"], target: "place",
+      },
+      {
+        id: "p-fuji", title: "富士山", subtitle: "火山与生命", emoji: "🌋",
+        meta: "", badge: "", image: "/assets/world/fuji-card.png",
+        tags: ["火山", "攀登"], target: "place",
+      },
+    ];
 
     const featured: FeaturedCard[] = PLACES.filter((p) => p.featured)
       .slice(0, 8)
@@ -113,7 +129,12 @@ Page({
   onOpenScene(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
-    wx.navigateTo({ url: `/pages/exploration/index?id=${id}` });
+    const target = String(e.currentTarget?.dataset?.target ?? "exploration");
+    wx.navigateTo({
+      url: target === "place"
+        ? `/pages/place/index?id=${id}`
+        : `/pages/exploration/index?id=${id}`,
+    });
   },
 
   onOpenFeatured(e: PageEvent) {
