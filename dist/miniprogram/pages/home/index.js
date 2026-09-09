@@ -19,6 +19,9 @@ Page({
         types: [],
         discovery: null,
         heroImageFailed: false,
+        failedImages: {},
+        query: "",
+        activeType: "all",
         stats: { completed: 0, totalFound: 0 },
         placeCount: places_1.PLACES.length,
     },
@@ -34,7 +37,7 @@ Page({
             {
                 id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
                 meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-                tags: ["山脉", "攀登"], target: "exploration",
+                tags: ["高山地貌", "地貌观察"], target: "exploration",
             },
             {
                 id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,900 m", emoji: "🌊",
@@ -124,6 +127,7 @@ Page({
     onOpenType(e) {
         var _a, _b, _c;
         const type = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.type) !== null && _c !== void 0 ? _c : "all");
+        this.setData({ activeType: type });
         (0, ui_bus_1.setPendingTypeFilter)(type);
         wx.switchTab({ url: "/pages/map/index" });
     },
@@ -141,5 +145,25 @@ Page({
     /** 主视觉加载失败：降级为纯色卡片，避免出现破图 */
     onHeroImageError() {
         this.setData({ heroImageFailed: true });
+    },
+    onQueryInput(e) {
+        var _a, _b;
+        this.setData({ query: String((_b = (_a = e.detail) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "") });
+    },
+    onQueryConfirm() {
+        var _a;
+        const query = String((_a = this.data.query) !== null && _a !== void 0 ? _a : "").trim();
+        if (!query) {
+            wx.showToast({ title: "请输入地点或地貌", icon: "none" });
+            return;
+        }
+        (0, ui_bus_1.setPendingSearchQuery)(query);
+        wx.switchTab({ url: "/pages/map/index" });
+    },
+    onSceneImageError(e) {
+        var _a, _b, _c;
+        const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
+        if (id)
+            this.setData({ [`failedImages.${id}`]: true });
     },
 });

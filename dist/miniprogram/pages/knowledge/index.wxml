@@ -1,14 +1,16 @@
 <view class="knowledge-page">
   <view class="knowledge-head"><text class="knowledge-back" bindtap="onBack">‹</text><text class="knowledge-title">相关知识</text><text class="knowledge-more">•••</text></view>
+  <view class="knowledge-search"><text class="knowledge-search-mark">⌕</text><input value="{{query}}" placeholder="搜索知识、地貌或关键词" confirm-type="search" bindinput="onQueryInput" /><text wx:if="{{query}}" bindtap="onQueryClear" class="knowledge-clear">清除</text></view>
   <view class="knowledge-tabs"><text wx:for="{{categories}}" wx:key="*this" class="knowledge-tab {{activeTab === item ? 'knowledge-tab-active' : ''}}" data-category="{{item}}" bindtap="onCategoryTap">{{item}}</text></view>
   <scroll-view class="knowledge-list" scroll-y="true">
     <view wx:if="{{!empty}}">
       <view class="knowledge-card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
-        <image class="knowledge-image" src="{{item.image}}" mode="aspectFill"></image>
+        <image wx:if="{{!failedImages[item.id]}}" class="knowledge-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onImageError"></image>
+        <view wx:else class="knowledge-image-fallback">知识</view>
         <view class="knowledge-card-shade"></view>
         <view class="knowledge-card-copy"><text class="knowledge-card-title">{{item.title}}</text><text class="knowledge-card-body">{{item.content}}</text></view>
       </view>
     </view>
-    <view wx:else class="knowledge-empty">没有匹配的知识条目</view>
+    <view wx:else class="knowledge-empty"><text>没有匹配的知识条目</text><text>试试其他关键词或分类</text></view>
   </scroll-view>
 </view>

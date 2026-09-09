@@ -1,5 +1,5 @@
 /* Gate 3.3C.1 P1：知识卡（发现卡）→ 暗色半透明玻璃
-   深色 immersive 页统一：透明玻璃底 + 细边框 + 减弱投影 + 单一 accent 图标（emoji）。
+   深色 immersive 页统一：透明玻璃底 + 细边框 + 减弱投影 + 单一地貌标记。
    不再使用亮米色（bright cream）卡片；强调色收敛为细蓝高亮，不做 cyan-heavy 卡片。 */
 .popup-mask {
   position: fixed;
@@ -35,10 +35,20 @@
   align-items: center;
   gap: 18rpx;
 }
-/* 单一 accent 图标（知识 emoji）——整卡唯一强高亮 */
-.popup-emoji {
-  font-size: 52rpx;
-  line-height: 1;
+/* 单一 accent 地貌标记：用克制的文字印章替代卡通图案。 */
+.popup-mark {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1rpx solid rgba(105, 198, 232, 0.55);
+  border-radius: 50%;
+  color: #bfeeff;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+  background: rgba(18, 55, 78, 0.7);
 }
 .popup-head-text {
   flex: 1;

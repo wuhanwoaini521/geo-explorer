@@ -1,6 +1,6 @@
 <view class="page" wx:if="{{item}}">
   <view class="head">
-    <text class="head-emoji">{{item.emoji}}</text>
+    <view class="head-mark"><text>地貌</text></view>
     <text class="head-title">{{item.title}}</text>
     <text class="head-cat">{{item.category}}</text>
   </view>
@@ -20,7 +20,7 @@
     <view class="place-links">
       <view class="place-link" wx:for="{{relatedPlaces}}" wx:key="id"
         data-id="{{item.id}}" bindtap="onOpenPlace">
-        <text class="place-link-emoji">{{item.emoji}}</text>
+        <view class="place-link-mark"><text>地点</text></view>
         <text class="place-link-name">{{item.name}}</text>
         <text class="place-link-type">{{item.typeLabel}}</text>
       </view>

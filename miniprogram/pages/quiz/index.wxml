@@ -1,7 +1,7 @@
 <view class="page">
   <!-- ===== 阶段一：选择难度 ===== -->
   <block wx:if="{{phase === 'idle'}}">
-    <text class="page-title">🎯 地理挑战</text>
+    <text class="page-title">地貌挑战</text>
     <text class="page-sub">题库共 {{count}} 道题 · 每轮连答 5 题，即时判分</text>
 
     <view class="levels">
@@ -38,7 +38,7 @@
 
     <view class="q-card">
       <view class="q-head">
-        <text class="q-emoji">{{play.emoji}}</text>
+        <view class="q-mark"><text>地貌</text></view>
         <text class="q-question">{{play.question}}</text>
       </view>
 
@@ -69,7 +69,7 @@
   <!-- ===== 阶段三：结算 ===== -->
   <block wx:if="{{phase === 'result' && result}}">
     <view class="result-card">
-      <text class="result-emoji">{{result.pct >= 80 ? '🎉' : result.pct >= 60 ? '👍' : '💪'}}</text>
+      <view class="result-mark"><text>{{result.pct >= 80 ? '优秀' : result.pct >= 60 ? '继续' : '再看'}}</text></view>
       <text class="result-title">挑战完成！</text>
       <view class="result-star-row">
         <text class="result-star {{result.stars >= 1 ? 'on' : ''}}">★</text>
@@ -88,7 +88,7 @@
         </view>
       </view>
 
-      <view wx:if="{{result.isRecord}}" class="result-record">🏅 新纪录！刷新了该难度的最佳成绩</view>
+      <view wx:if="{{result.isRecord}}" class="result-record">新纪录！刷新了该难度的最佳成绩</view>
       <view wx:else class="result-best">该难度最佳：{{result.bestText}}</view>
 
       <view class="result-actions">

@@ -49,6 +49,23 @@ interface KnowledgeLinkItem {
   category: string;
 }
 
+const DETAIL_TABS = [
+  { id: "overview", label: "概览" },
+  { id: "environment", label: "环境" },
+  { id: "terrain", label: "地形" },
+  { id: "history", label: "历史" },
+  { id: "knowledge", label: "相关知识" },
+] as const;
+
+function placeImage(place: Place): string {
+  if (place.id === "p-everest") return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
+  if (place.id === "p-fuji" || place.type === "volcano") return "/assets/world/fuji-card.png";
+  if (place.id === "p-colorado" || place.type === "canyon" || place.type === "plateau") return "/assets/world/grand-canyon-card.png";
+  if (place.id === "p-mariana" || place.type === "ocean" || place.type === "coast" || place.type === "lake") return "/assets/world/mariana-card.png";
+  if (place.type === "mountain" || place.type === "glacier") return "/assets/world/everest-view-b.jpg";
+  return "/assets/world/grand-canyon-card.png";
+}
+
 /** 高程语义：海洋类显示深度，其余显示海拔/高程 */
 function elevDisplay(place: Place): { label: string; text: string } {
   const digits = Math.abs(place.elevationM) % 1 === 0 ? 0 : 2;
@@ -93,6 +110,9 @@ Page({
     favorited: false,
     related: [] as RelatedItem[],
     knowledge: [] as KnowledgeLinkItem[],
+    detailTabs: DETAIL_TABS,
+    activeDetailTab: "overview" as (typeof DETAIL_TABS)[number]["id"],
+    imageFailed: false,
   },
 
   onLoad(query: Record<string, string>) {
@@ -125,19 +145,15 @@ Page({
       coordText: `${place.latitude.toFixed(2)}°, ${place.longitude.toFixed(2)}°`,
       explorationId: place.explorationId,
       explorationTitle: ex?.title,
-      heroImage: place.id === "p-everest"
-        ? "/assets/expeditions/everest/live/live-a-kala-patthar.jpg"
-        : place.id === "p-fuji"
-          ? "/assets/world/fuji-card.png"
-          : place.id === "p-colorado"
-            ? "/assets/world/grand-canyon-card.png"
-            : "/assets/world/everest-expedition-hero-v1.png",
+      heroImage: placeImage(place),
     };
     this.setData({
       place: vm,
       favorited: favorites.isFavorite(place.id),
       related: relatedPlaces(place, PLACES),
       knowledge: relatedKnowledge(place.id),
+      activeDetailTab: "overview",
+      imageFailed: false,
     });
   },
 
@@ -175,6 +191,15 @@ Page({
 
   onOpenMap() {
     wx.switchTab({ url: "/pages/map/index" });
+  },
+
+  onDetailTabTap(e: PageEvent) {
+    const tab = String(e.currentTarget?.dataset?.tab ?? "overview");
+    if (DETAIL_TABS.some((item) => item.id === tab)) this.setData({ activeDetailTab: tab });
+  },
+
+  onImageError() {
+    this.setData({ imageFailed: true });
   },
 
   onBack() {

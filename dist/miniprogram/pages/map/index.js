@@ -32,6 +32,11 @@ Page({
         routeImageFailed: {},
         mapPoints: [],
         routeSegments: [],
+        atlasOpen: false,
+        mapMode: "地形",
+        activePointId: "",
+        activePlace: null,
+        mapImageFailed: false,
     },
     onLoad() {
         this.refreshScenes();
@@ -43,14 +48,19 @@ Page({
         (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: true });
         // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
         const pending = (0, ui_bus_1.consumeTypeFilter)();
-        if (pending !== null && pending !== this.data.activeType) {
-            this.setData({ activeType: pending });
-        }
+        const pendingQuery = (0, ui_bus_1.consumeSearchQuery)();
+        const patch = {};
+        if (pending !== null)
+            patch.activeType = pending;
+        if (pendingQuery !== null)
+            patch.query = pendingQuery;
+        if (Object.keys(patch).length)
+            this.setData(patch);
         this.refreshScenes();
         this.refreshAtlas();
     },
     refreshScenes() {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         const records = (0, exploration_store_1.getRecords)();
         const everest = index_1.EXPLORATIONS.find((ex) => ex.id === "everest");
         const everestRecord = records.find((record) => record.id === "everest");
@@ -108,7 +118,34 @@ Page({
                 rotate: Math.atan2(dy, dx) * 180 / Math.PI,
             };
         });
-        this.setData({ open, mapPoints, routeSegments });
+        const currentPoint = (_d = mapPoints.find((point) => point.state === "current")) !== null && _d !== void 0 ? _d : mapPoints[0];
+        const activePointId = this.data.activePointId && mapPoints.some((point) => point.id === this.data.activePointId)
+            ? this.data.activePointId
+            : (_e = currentPoint === null || currentPoint === void 0 ? void 0 : currentPoint.id) !== null && _e !== void 0 ? _e : "";
+        this.setData({
+            open,
+            mapPoints,
+            routeSegments,
+            activePointId,
+            activePlace: this.placeCardForPoint(activePointId, mapPoints),
+        });
+    },
+    placeCardForPoint(id, points) {
+        var _a;
+        const point = (_a = points.find((item) => item.id === id)) !== null && _a !== void 0 ? _a : points[0];
+        if (!point)
+            return null;
+        return {
+            id: point.id,
+            name: point.name,
+            altitudeText: point.altitudeText,
+            description: point.state === "completed"
+                ? "已观察：从冰川纹理与雪脊形态认识这里的高山地貌。"
+                : point.state === "current"
+                    ? "当前观察点：留意冰体破碎、坡度与山脊走向。"
+                    : "前方观察点：继续浏览山体影像，认识高海拔地貌变化。",
+            image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+        };
     },
     refreshAtlas() {
         const places = (0, place_search_1.queryPlaces)(places_1.PLACES, this.data.query, this.data.activeType);
@@ -167,13 +204,40 @@ Page({
             return;
         wx.navigateTo({ url: `/pages/exploration/index?id=${id}` });
     },
-    onMapPointTap() {
-        wx.navigateTo({ url: "/pages/exploration/index?id=everest" });
+    onMapImageError() {
+        this.setData({ mapImageFailed: true });
+    },
+    onMapPointTap(e) {
+        var _a, _b, _c;
+        const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
+        if (!id)
+            return;
+        this.setData({
+            activePointId: id,
+            activePlace: this.placeCardForPoint(id, this.data.mapPoints),
+        });
+    },
+    onToggleAtlas() {
+        this.setData({ atlasOpen: !this.data.atlasOpen });
+    },
+    onToggleMapMode() {
+        this.setData({ mapMode: this.data.mapMode === "地形" ? "路线" : "地形" });
+    },
+    onResetMap() {
+        var _a;
+        const point = (_a = this.data.mapPoints.find((item) => item.state === "current")) !== null && _a !== void 0 ? _a : this.data.mapPoints[0];
+        if (!point)
+            return;
+        this.setData({ activePointId: point.id, activePlace: this.placeCardForPoint(point.id, this.data.mapPoints) });
     },
     onBack() {
         wx.switchTab({ url: "/pages/home/index" });
     },
     onOpenPlaceCard() {
-        wx.navigateTo({ url: "/pages/place/index?id=p-everest" });
+        var _a;
+        const id = (_a = this.data.activePlace) === null || _a === void 0 ? void 0 : _a.id;
+        if (!id)
+            return;
+        wx.navigateTo({ url: `/pages/exploration/index?id=everest&waypointId=${id}` });
     },
 });

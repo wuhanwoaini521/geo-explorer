@@ -9,7 +9,7 @@ import { EXPLORATIONS } from "../../data/explorations/index";
 import { PLACES, PLACE_TYPE_META } from "../../data/places";
 import { getRecords } from "../../services/exploration-store";
 import type { ExplorationRecord } from "../../services/exploration-store";
-import { consumeTypeFilter } from "../../services/ui-bus";
+import { consumeSearchQuery, consumeTypeFilter } from "../../services/ui-bus";
 import { favorites } from "../../services/favorites-store";
 import type { Place, PlaceType } from "../../types/models";
 import { queryPlaces } from "../../utils/place-search";
@@ -68,6 +68,14 @@ interface MapSegment {
   rotate: number;
 }
 
+interface MapPlaceCard {
+  id: string;
+  name: string;
+  altitudeText: string;
+  description: string;
+  image: string;
+}
+
 const COMING: ComingScene[] = [
   { id: "fuji", emoji: "🗻", title: "富士山", region: "日本 · 本州", basis: "海拔 3,776 m · 休眠火山" },
   { id: "sahara", emoji: "🏜️", title: "撒哈拉沙漠", region: "北非", basis: "世界最大热沙漠" },
@@ -93,6 +101,11 @@ Page({
     routeImageFailed: {} as Record<string, boolean>,
     mapPoints: [] as MapPoint[],
     routeSegments: [] as MapSegment[],
+    atlasOpen: false,
+    mapMode: "地形" as "地形" | "路线",
+    activePointId: "",
+    activePlace: null as MapPlaceCard | null,
+    mapImageFailed: false,
   },
 
   onLoad() {
@@ -105,9 +118,11 @@ Page({
     this.getTabBar?.()?.setData({ hidden: true });
     // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
     const pending = consumeTypeFilter();
-    if (pending !== null && pending !== this.data.activeType) {
-      this.setData({ activeType: pending });
-    }
+    const pendingQuery = consumeSearchQuery();
+    const patch: Record<string, unknown> = {};
+    if (pending !== null) patch.activeType = pending;
+    if (pendingQuery !== null) patch.query = pendingQuery;
+    if (Object.keys(patch).length) this.setData(patch);
     this.refreshScenes();
     this.refreshAtlas();
   },
@@ -170,7 +185,33 @@ Page({
         rotate: Math.atan2(dy, dx) * 180 / Math.PI,
       };
     });
-    this.setData({ open, mapPoints, routeSegments });
+    const currentPoint = mapPoints.find((point) => point.state === "current") ?? mapPoints[0];
+    const activePointId = this.data.activePointId && mapPoints.some((point) => point.id === this.data.activePointId)
+      ? this.data.activePointId
+      : currentPoint?.id ?? "";
+    this.setData({
+      open,
+      mapPoints,
+      routeSegments,
+      activePointId,
+      activePlace: this.placeCardForPoint(activePointId, mapPoints),
+    });
+  },
+
+  placeCardForPoint(id: string, points: MapPoint[]): MapPlaceCard | null {
+    const point = points.find((item) => item.id === id) ?? points[0];
+    if (!point) return null;
+    return {
+      id: point.id,
+      name: point.name,
+      altitudeText: point.altitudeText,
+      description: point.state === "completed"
+        ? "已观察：从冰川纹理与雪脊形态认识这里的高山地貌。"
+        : point.state === "current"
+          ? "当前观察点：留意冰体破碎、坡度与山脊走向。"
+          : "前方观察点：继续浏览山体影像，认识高海拔地貌变化。",
+      image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+    };
   },
 
   refreshAtlas() {
@@ -229,8 +270,31 @@ Page({
     wx.navigateTo({ url: `/pages/exploration/index?id=${id}` });
   },
 
-  onMapPointTap() {
-    wx.navigateTo({ url: "/pages/exploration/index?id=everest" });
+  onMapImageError() {
+    this.setData({ mapImageFailed: true });
+  },
+
+  onMapPointTap(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    this.setData({
+      activePointId: id,
+      activePlace: this.placeCardForPoint(id, this.data.mapPoints),
+    });
+  },
+
+  onToggleAtlas() {
+    this.setData({ atlasOpen: !this.data.atlasOpen });
+  },
+
+  onToggleMapMode() {
+    this.setData({ mapMode: this.data.mapMode === "地形" ? "路线" : "地形" });
+  },
+
+  onResetMap() {
+    const point = this.data.mapPoints.find((item: MapPoint) => item.state === "current") ?? this.data.mapPoints[0];
+    if (!point) return;
+    this.setData({ activePointId: point.id, activePlace: this.placeCardForPoint(point.id, this.data.mapPoints) });
   },
 
   onBack() {
@@ -238,6 +302,8 @@ Page({
   },
 
   onOpenPlaceCard() {
-    wx.navigateTo({ url: "/pages/place/index?id=p-everest" });
+    const id = this.data.activePlace?.id;
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/exploration/index?id=everest&waypointId=${id}` });
   },
 });

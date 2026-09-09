@@ -44,6 +44,7 @@ Page({
         total: 0,
         unlockedCount: 0,
         empty: false,
+        failedImages: {},
     },
     onShow() {
         var _a, _b, _c, _d;
@@ -99,6 +100,12 @@ Page({
         if (!id)
             return;
         wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+    },
+    onImageError(e) {
+        var _a, _b, _c;
+        const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
+        if (id)
+            this.setData({ [`failedImages.${id}`]: true });
     },
     onBack() {
         wx.switchTab({ url: "/pages/home/index" });

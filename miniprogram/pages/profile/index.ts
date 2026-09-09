@@ -56,7 +56,7 @@ Page({
   },
 
   onShow() {
-    this.getTabBar?.()?.setData({ selected: 3 });
+    this.getTabBar?.()?.setData({ selected: 4 });
     this.getTabBar?.()?.setData({ hidden: false });
     const records: RecordItem[] = getRecords().map((r: ExplorationRecord) => {
       const ex = EXPLORATIONS.find((e) => e.id === r.id);

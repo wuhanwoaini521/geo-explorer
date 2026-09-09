@@ -1,6 +1,7 @@
 <view class="page" wx:if="{{place}}">
   <view class="detail-hero">
-    <image class="detail-hero-image" src="{{place.heroImage}}" mode="aspectFill"></image>
+    <image wx:if="{{!imageFailed}}" class="detail-hero-image" src="{{place.heroImage}}" mode="aspectFill" binderror="onImageError"></image>
+    <view wx:else class="detail-hero-fallback"></view>
     <view class="detail-hero-shade"></view>
     <view class="detail-nav">
       <text class="detail-back" bindtap="onBack">‹</text>
@@ -19,14 +20,10 @@
 
   <scroll-view class="detail-content" scroll-y>
     <view class="detail-tabs">
-      <text class="detail-tab active">概览</text>
-      <text class="detail-tab">环境</text>
-      <text class="detail-tab">地形</text>
-      <text class="detail-tab">历史</text>
-      <text class="detail-tab">相关知识</text>
+      <text wx:for="{{detailTabs}}" wx:key="id" class="detail-tab {{activeDetailTab === item.id ? 'active' : ''}}" data-tab="{{item.id}}" bindtap="onDetailTabTap">{{item.label}}</text>
     </view>
 
-    <view class="detail-panel">
+    <view wx:if="{{activeDetailTab === 'overview'}}" class="detail-panel">
       <text class="panel-label">关于这座山</text>
       <text class="panel-title">{{place.shortDescription}}</text>
       <text class="panel-body">{{place.description}}</text>
@@ -37,31 +34,58 @@
       </view>
     </view>
 
-    <image class="detail-inline-image" src="{{place.heroImage}}" mode="aspectFill"></image>
+    <view wx:elif="{{activeDetailTab === 'environment'}}" class="detail-panel detail-tab-panel">
+      <text class="panel-label">环境</text>
+      <text class="panel-title">海拔如何改变这里</text>
+      <text class="panel-body">{{place.climate || '当前地点暂无独立气候概括，建议结合区域与海拔信息阅读。'}}</text>
+      <view class="panel-data"><view><text class="data-value">{{place.elevText}}</text><text class="data-label">{{place.elevLabel}}</text></view><view><text class="data-value">{{place.region}}</text><text class="data-label">地理区域</text></view></view>
+    </view>
+    <view wx:elif="{{activeDetailTab === 'terrain'}}" class="detail-panel detail-tab-panel">
+      <text class="panel-label">地形</text>
+      <text class="panel-title">地貌是怎样形成的</text>
+      <text class="panel-body">{{place.formation}}</text>
+      <image wx:if="{{!imageFailed}}" class="detail-inline-image detail-tab-image" src="{{place.heroImage}}" mode="aspectFill" binderror="onImageError"></image>
+      <view wx:else class="detail-tab-image-fallback">当前地点影像暂不可用</view>
+    </view>
+    <view wx:elif="{{activeDetailTab === 'history'}}" class="detail-panel detail-tab-panel">
+      <text class="panel-label">历史</text>
+      <text class="panel-title">人类如何认识这里</text>
+      <text class="panel-body">{{place.facts[0] || place.description}}</text>
+      <view class="fact" wx:for="{{place.facts}}" wx:key="*this"><text class="fact-index">0{{index + 1}}</text><text>{{item}}</text></view>
+    </view>
+    <view wx:else class="detail-panel detail-tab-panel">
+      <text class="panel-label">相关知识</text>
+      <text class="panel-title">把一个地点放回地球系统</text>
+      <text class="panel-body">从地质、气候和人文线索继续理解 {{place.name}}。</text>
+      <view wx:if="{{knowledge.length}}" class="k-list"><view class="k-item" wx:for="{{knowledge}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenKnowledge"><view class="k-mark"><text>知识</text></view><text class="k-title">{{item.title}}</text><text class="k-cat">{{item.category}}</text></view></view>
+      <text wx:else class="tab-empty">暂时没有关联知识</text>
+    </view>
 
-    <view class="key-section">
+    <image wx:if="{{activeDetailTab === 'overview' && !imageFailed}}" class="detail-inline-image" src="{{place.heroImage}}" mode="aspectFill" binderror="onImageError"></image>
+
+    <view wx:if="{{activeDetailTab === 'overview'}}" class="key-section">
       <text class="section-title">关键数据</text>
       <view class="key-row"><text>成因</text><text>{{place.formation}}</text></view>
       <view class="key-row" wx:if="{{place.climate}}"><text>气候</text><text>{{place.climate}}</text></view>
       <view class="key-row"><text>{{place.elevLabel}}</text><text>{{place.elevText}}</text></view>
     </view>
 
-    <view class="detail-facts" wx:if="{{place.facts.length}}">
+    <view wx:if="{{activeDetailTab === 'overview' && place.facts.length}}" class="detail-facts">
       <text class="section-title">你知道吗</text>
       <view class="fact" wx:for="{{place.facts}}" wx:key="*this"><text class="fact-index">0{{index + 1}}</text><text>{{item}}</text></view>
     </view>
 
-    <view class="explore-cta" wx:if="{{place.explorationId}}">
+    <view wx:if="{{activeDetailTab === 'overview' && place.explorationId}}" class="explore-cta">
       <view><text class="cta-title">{{place.explorationTitle}}</text><text class="cta-sub">沉浸式场景探索 · 真实地理数据驱动</text></view>
       <button class="cta-btn" bindtap="onStartExploration">进入探索 ›</button>
     </view>
 
-    <view class="section related-section" wx:if="{{related.length}}">
+    <view wx:if="{{activeDetailTab === 'overview' && related.length}}" class="section related-section">
       <view class="section-row"><text class="section-title">继续探索</text><text bindtap="onOpenMap" class="section-link">全部图鉴 ›</text></view>
-      <view class="related-list"><view class="related-card" wx:for="{{related}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenRelated"><text class="related-emoji">{{item.emoji}}</text><text class="related-name">{{item.name}}</text><text class="related-sub">{{item.shortDescription}}</text></view></view>
+      <view class="related-list"><view class="related-card" wx:for="{{related}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenRelated"><view class="related-mark"><text>地貌</text></view><text class="related-name">{{item.name}}</text><text class="related-sub">{{item.shortDescription}}</text></view></view>
     </view>
 
-    <view class="section" wx:if="{{knowledge.length}}"><text class="section-title">关联知识</text><view class="k-list"><view class="k-item" wx:for="{{knowledge}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenKnowledge"><text>{{item.emoji}}</text><text class="k-title">{{item.title}}</text><text class="k-cat">{{item.category}}</text></view></view></view>
+    <view wx:if="{{activeDetailTab === 'overview' && knowledge.length}}" class="section"><text class="section-title">关联知识</text><view class="k-list"><view class="k-item" wx:for="{{knowledge}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenKnowledge"><view class="k-mark"><text>知识</text></view><text class="k-title">{{item.title}}</text><text class="k-cat">{{item.category}}</text></view></view></view>
     <text class="footer-note">数据来源：公开资料（Wikipedia / 官方测量公告）· 部分数值为近似值</text>
   </scroll-view>
 </view>

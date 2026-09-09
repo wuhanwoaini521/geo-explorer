@@ -1,5 +1,6 @@
 <view class="page">
-  <image class="map-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill"></image>
+  <image wx:if="{{!mapImageFailed}}" class="map-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill" binderror="onMapImageError"></image>
+  <view wx:else class="map-image-fallback"></view>
   <view class="map-shade"></view>
 
   <view class="map-head">
@@ -14,7 +15,7 @@
   <view class="route-segments"><view wx:for="{{routeSegments}}" wx:key="index" class="route-segment" style="left:{{item.left}}%;top:{{item.top}}%;width:{{item.width}}%;transform:rotate({{item.rotate}}deg)"></view></view>
   <view class="route-points">
     <view wx:for="{{mapPoints}}" wx:key="id" class="route-point route-point-{{item.state}} route-point-{{item.side}}" style="top:{{item.top}}%;left:{{item.left}}%" data-id="{{item.id}}" bindtap="onMapPointTap">
-      <view class="route-dot"><text wx:if="{{item.isSummit}}">⚑</text></view>
+      <view class="route-dot"><view wx:if="{{item.isSummit}}" class="route-summit-mark"></view></view>
       <view class="route-label">
         <text class="route-name">{{item.name}}</text>
         <text class="route-alt">{{item.altitudeText}}</text>
@@ -23,18 +24,28 @@
   </view>
 
   <view class="map-tools">
-    <view class="tool">⌖</view>
-    <view class="tool">≋</view>
-    <view class="tool tool-2d">2D</view>
+    <view class="tool" bindtap="onResetMap">⌖</view>
+    <view class="tool" bindtap="onToggleAtlas">图鉴</view>
+    <view class="tool tool-2d" bindtap="onToggleMapMode">{{mapMode}}</view>
   </view>
 
-  <view class="map-place-card" bindtap="onOpenPlaceCard">
-    <image class="map-place-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill"></image>
+  <view class="map-place-card" wx:if="{{activePlace}}" bindtap="onOpenPlaceCard">
+    <image class="map-place-image" src="{{activePlace.image}}" mode="aspectFill"></image>
     <view class="map-place-copy">
-      <text class="map-place-title">Khumbu 冰瀑</text>
-      <text class="map-place-alt">5,400 – 5,900 m</text>
-      <text class="map-place-desc">攀登路线的第一道真正挑战，布满裂缝的冰川地形。</text>
+      <text class="map-place-title">{{activePlace.name}}</text>
+      <text class="map-place-alt">{{activePlace.altitudeText}}</text>
+      <text class="map-place-desc">{{activePlace.description}}</text>
     </view>
     <text class="map-place-arrow">›</text>
+  </view>
+
+  <view wx:if="{{atlasOpen}}" class="atlas-drawer">
+    <view class="atlas-drawer-head"><view><text class="atlas-kicker">WORLD ATLAS</text><text class="atlas-title">地貌图鉴</text></view><text class="atlas-close" bindtap="onToggleAtlas">×</text></view>
+    <view class="atlas-search"><text class="atlas-search-mark">⌕</text><input value="{{query}}" placeholder="搜索地点或地貌" confirm-type="search" bindinput="onQueryInput" /><text wx:if="{{query}}" class="atlas-clear" bindtap="onQueryClear">清除</text></view>
+    <scroll-view class="atlas-types" scroll-x enhanced show-scrollbar="{{false}}"><view class="atlas-type-row"><text wx:for="{{types}}" wx:key="type" class="atlas-type {{activeType === item.type ? 'atlas-type-active' : ''}}" data-type="{{item.type}}" bindtap="onTypeTap">{{item.label}}</text></view></scroll-view>
+    <scroll-view class="atlas-list" scroll-y>
+      <view wx:if="{{atlas.length}}" class="atlas-grid"><view wx:for="{{atlas}}" wx:key="id" class="atlas-item" data-id="{{item.id}}" bindtap="onOpenPlace"><view class="atlas-item-mark">地貌</view><view class="atlas-item-copy"><text class="atlas-item-name">{{item.name}}</text><text class="atlas-item-meta">{{item.typeLabel}}{{item.exploration ? ' · 可探索' : ''}}</text><text class="atlas-item-desc">{{item.shortDescription}}</text></view><text class="atlas-item-arrow">›</text></view></view>
+      <view wx:else class="atlas-empty"><text>没有匹配的地点</text><text>试试其他关键词或分类</text></view>
+    </scroll-view>
   </view>
 </view>

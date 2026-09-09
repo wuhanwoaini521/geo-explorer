@@ -48,6 +48,7 @@ Page({
     total: 0,
     unlockedCount: 0,
     empty: false,
+    failedImages: {} as Record<string, boolean>,
   },
 
   onShow() {
@@ -105,6 +106,11 @@ Page({
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
     wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+  },
+
+  onImageError(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (id) this.setData({ [`failedImages.${id}`]: true } as Record<string, unknown>);
   },
 
   onBack() {

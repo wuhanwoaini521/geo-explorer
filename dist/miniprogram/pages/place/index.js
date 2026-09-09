@@ -10,6 +10,26 @@ const knowledge_1 = require("../../data/knowledge");
 const index_1 = require("../../data/explorations/index");
 const favorites_store_1 = require("../../services/favorites-store");
 const format_1 = require("../../utils/format");
+const DETAIL_TABS = [
+    { id: "overview", label: "概览" },
+    { id: "environment", label: "环境" },
+    { id: "terrain", label: "地形" },
+    { id: "history", label: "历史" },
+    { id: "knowledge", label: "相关知识" },
+];
+function placeImage(place) {
+    if (place.id === "p-everest")
+        return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
+    if (place.id === "p-fuji" || place.type === "volcano")
+        return "/assets/world/fuji-card.png";
+    if (place.id === "p-colorado" || place.type === "canyon" || place.type === "plateau")
+        return "/assets/world/grand-canyon-card.png";
+    if (place.id === "p-mariana" || place.type === "ocean" || place.type === "coast" || place.type === "lake")
+        return "/assets/world/mariana-card.png";
+    if (place.type === "mountain" || place.type === "glacier")
+        return "/assets/world/everest-view-b.jpg";
+    return "/assets/world/grand-canyon-card.png";
+}
 /** 高程语义：海洋类显示深度，其余显示海拔/高程 */
 function elevDisplay(place) {
     const digits = Math.abs(place.elevationM) % 1 === 0 ? 0 : 2;
@@ -51,6 +71,9 @@ Page({
         favorited: false,
         related: [],
         knowledge: [],
+        detailTabs: DETAIL_TABS,
+        activeDetailTab: "overview",
+        imageFailed: false,
     },
     onLoad(query) {
         var _a;
@@ -83,19 +106,15 @@ Page({
             coordText: `${place.latitude.toFixed(2)}°, ${place.longitude.toFixed(2)}°`,
             explorationId: place.explorationId,
             explorationTitle: ex === null || ex === void 0 ? void 0 : ex.title,
-            heroImage: place.id === "p-everest"
-                ? "/assets/expeditions/everest/live/live-a-kala-patthar.jpg"
-                : place.id === "p-fuji"
-                    ? "/assets/world/fuji-card.png"
-                    : place.id === "p-colorado"
-                        ? "/assets/world/grand-canyon-card.png"
-                        : "/assets/world/everest-expedition-hero-v1.png",
+            heroImage: placeImage(place),
         };
         this.setData({
             place: vm,
             favorited: favorites_store_1.favorites.isFavorite(place.id),
             related: relatedPlaces(place, places_1.PLACES),
             knowledge: relatedKnowledge(place.id),
+            activeDetailTab: "overview",
+            imageFailed: false,
         });
     },
     onShow() {
@@ -136,6 +155,15 @@ Page({
     },
     onOpenMap() {
         wx.switchTab({ url: "/pages/map/index" });
+    },
+    onDetailTabTap(e) {
+        var _a, _b, _c;
+        const tab = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.tab) !== null && _c !== void 0 ? _c : "overview");
+        if (DETAIL_TABS.some((item) => item.id === tab))
+            this.setData({ activeDetailTab: tab });
+    },
+    onImageError() {
+        this.setData({ imageFailed: true });
     },
     onBack() {
         wx.navigateBack({ delta: 1 });

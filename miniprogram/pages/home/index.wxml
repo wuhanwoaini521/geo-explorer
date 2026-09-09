@@ -1,6 +1,7 @@
 <view class="page">
   <view class="home-hero">
-    <image class="home-hero-image" src="/assets/world/everest-expedition-hero-v1.png" mode="aspectFill"></image>
+    <image wx:if="{{!heroImageFailed}}" class="home-hero-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill" binderror="onHeroImageError"></image>
+    <view wx:else class="home-hero-fallback"></view>
     <view class="home-hero-shade"></view>
     <view class="home-topbar">
       <text class="home-brand">GEO EXPLORER</text>
@@ -12,24 +13,21 @@
     </view>
     <view class="search">
       <text class="search-icon">⌕</text>
-      <input class="search-input" placeholder="搜索地点、山脉、海洋、地貌..." placeholder-class="search-placeholder" />
+      <input class="search-input" value="{{query}}" placeholder="搜索地点、山脉、海洋、地貌..." placeholder-class="search-placeholder" confirm-type="search" bindinput="onQueryInput" bindconfirm="onQueryConfirm" />
     </view>
   </view>
 
   <scroll-view class="filters" scroll-x enhanced show-scrollbar="{{false}}">
     <view class="filter-row">
-      <text class="filter filter-on">推荐</text>
-      <text class="filter">山脉</text>
-      <text class="filter">海洋</text>
-      <text class="filter">峡谷</text>
-      <text class="filter">火山</text>
-      <text class="filter">更多</text>
+      <text class="filter {{activeType === 'all' ? 'filter-on' : ''}}" data-type="all" bindtap="onOpenAtlas">推荐</text>
+      <text wx:for="{{types}}" wx:key="type" class="filter {{activeType === item.type ? 'filter-on' : ''}}" data-type="{{item.type}}" bindtap="onOpenType">{{item.label}} {{item.count}}</text>
     </view>
   </scroll-view>
 
   <view class="destination-list">
     <view class="destination" wx:for="{{scenes}}" wx:key="id" data-id="{{item.id}}" data-target="{{item.target}}" bindtap="onOpenScene">
-      <image class="destination-image" src="{{item.image}}" mode="aspectFill"></image>
+      <image wx:if="{{!failedImages[item.id]}}" class="destination-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onSceneImageError"></image>
+      <view wx:else class="destination-image-fallback">{{item.title}}</view>
       <view class="destination-shade"></view>
       <view class="destination-copy">
         <text class="destination-title">{{item.title}}</text>
@@ -41,5 +39,30 @@
       </view>
       <view class="destination-action"><text>›</text></view>
     </view>
+  </view>
+
+  <view class="home-section home-stats">
+    <view><text class="stat-value">{{stats.completed}}</text><text class="stat-label">已完成探索</text></view>
+    <view><text class="stat-value">{{stats.totalFound}}</text><text class="stat-label">已发现知识</text></view>
+    <view><text class="stat-value">{{placeCount}}</text><text class="stat-label">图鉴地点</text></view>
+  </view>
+
+  <view class="home-section" wx:if="{{featured.length}}">
+    <view class="section-heading"><text>精选地貌</text><text class="section-link" bindtap="onOpenAtlas">查看图鉴 ›</text></view>
+    <scroll-view class="featured-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="featured-row">
+        <view class="featured-card" wx:for="{{featured}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenFeatured">
+          <view class="featured-mark"><text>地貌</text></view>
+          <text class="featured-name">{{item.name}}</text>
+          <text class="featured-type">{{item.typeLabel}} · {{item.explorText}}</text>
+          <text class="featured-desc">{{item.shortDescription}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="home-section discovery-card" wx:if="{{discovery}}">
+    <view class="discovery-head"><view class="discovery-mark">GEO</view><view><text class="discovery-label">你知道吗 · {{discovery.index}}</text><text class="discovery-title">{{discovery.title}}</text></view><text class="section-link" bindtap="onShuffleDiscovery">换一条</text></view>
+    <text class="discovery-content">{{discovery.content}}</text>
   </view>
 </view>

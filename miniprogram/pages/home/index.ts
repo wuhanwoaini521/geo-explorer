@@ -7,7 +7,7 @@
 import { DISCOVERIES, type Discovery } from "../../data/discoveries";
 import { PLACES, PLACE_TYPE_META } from "../../data/places";
 import { getExplorationStats } from "../../services/exploration-store";
-import { setPendingTypeFilter } from "../../services/ui-bus";
+import { setPendingSearchQuery, setPendingTypeFilter } from "../../services/ui-bus";
 import type { PlaceType } from "../../types/models";
 import { formatNumber } from "../../utils/format";
 import { randomDiscovery } from "../../utils/discovery";
@@ -48,6 +48,9 @@ Page({
     types: [] as TypeEntry[],
     discovery: null as (Discovery & { index: number }) | null,
     heroImageFailed: false,
+    failedImages: {} as Record<string, boolean>,
+    query: "",
+    activeType: "all" as PlaceType | "all",
     stats: { completed: 0, totalFound: 0 },
     placeCount: PLACES.length,
   },
@@ -63,7 +66,7 @@ Page({
       {
         id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
         meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-        tags: ["山脉", "攀登"], target: "exploration",
+        tags: ["高山地貌", "地貌观察"], target: "exploration",
       },
       {
         id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,900 m", emoji: "🌊",
@@ -146,6 +149,7 @@ Page({
   /** 分类入口 → 地图页图鉴（带筛选） */
   onOpenType(e: PageEvent) {
     const type = String(e.currentTarget?.dataset?.type ?? "all") as PlaceType;
+    this.setData({ activeType: type });
     setPendingTypeFilter(type);
     wx.switchTab({ url: "/pages/map/index" });
   },
@@ -167,5 +171,24 @@ Page({
   /** 主视觉加载失败：降级为纯色卡片，避免出现破图 */
   onHeroImageError() {
     this.setData({ heroImageFailed: true });
+  },
+
+  onQueryInput(e: PageEvent) {
+    this.setData({ query: String(e.detail?.value ?? "") });
+  },
+
+  onQueryConfirm() {
+    const query = String(this.data.query ?? "").trim();
+    if (!query) {
+      wx.showToast({ title: "请输入地点或地貌", icon: "none" });
+      return;
+    }
+    setPendingSearchQuery(query);
+    wx.switchTab({ url: "/pages/map/index" });
+  },
+
+  onSceneImageError(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (id) this.setData({ [`failedImages.${id}`]: true } as Record<string, unknown>);
   },
 });

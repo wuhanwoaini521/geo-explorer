@@ -1,4 +1,4 @@
-/* 自定义 tabBar：设计图中的四项深色底栏。 */
+/* 自定义 tabBar：与 app.json 五项 tab 保持同一顺序。 */
 .tabbar {
   position: fixed;
   left: 0;
@@ -11,7 +11,7 @@
 .pill {
   position: relative;
   display: flex;
-  height: 104rpx;
+  height: 88rpx;
   padding: 0 18rpx;
   border-radius: 0;
   background: rgba(6, 18, 29, 0.96);
@@ -30,9 +30,9 @@
 /* 滑动指示器：琥珀柔光胶囊，带回弹曲线 */
 .indicator {
   position: absolute;
-  top: 10rpx;
-  bottom: 10rpx;
-  width: 25%;
+  top: 8rpx;
+  bottom: 8rpx;
+  width: 20%;
   border-radius: 18rpx;
   background: rgba(109, 188, 244, 0.12);
   border: 1rpx solid rgba(109, 188, 244, 0.2);
@@ -47,14 +47,65 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rpx;
+  gap: 0;
 }
 .tab-ico {
-  font-size: 36rpx;
-  line-height: 1.1;
-  filter: grayscale(0.6);
+  position: relative;
+  width: 34rpx;
+  height: 34rpx;
+  color: #8397aa;
   opacity: 0.66;
-  transition: filter 0.25s, opacity 0.25s, transform 0.25s;
+  transition: color 0.25s, opacity 0.25s, transform 0.25s;
+}
+.tab-ico-shape,
+.tab-ico-shape::before,
+.tab-ico-shape::after {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+  content: "";
+}
+.tab-ico-0 .tab-ico-shape {
+  left: 7rpx; top: 8rpx; width: 20rpx; height: 18rpx;
+  border: 2rpx solid currentColor; border-top: 0; border-radius: 2rpx 2rpx 5rpx 5rpx;
+}
+.tab-ico-0 .tab-ico-shape::before {
+  left: 4rpx; top: -7rpx; width: 9rpx; height: 9rpx;
+  border-left: 2rpx solid currentColor; border-top: 2rpx solid currentColor; transform: rotate(45deg);
+}
+.tab-ico-1 .tab-ico-shape {
+  left: 5rpx; top: 5rpx; width: 24rpx; height: 24rpx;
+  border: 2rpx solid currentColor; border-radius: 50%;
+}
+.tab-ico-1 .tab-ico-shape::before {
+  left: 10rpx; top: 4rpx; width: 2rpx; height: 12rpx; background: currentColor;
+}
+.tab-ico-1 .tab-ico-shape::after {
+  left: 4rpx; top: 10rpx; width: 12rpx; height: 2rpx; background: currentColor;
+}
+.tab-ico-2 .tab-ico-shape {
+  left: 5rpx; top: 7rpx; width: 24rpx; height: 18rpx;
+  border: 2rpx solid currentColor; border-radius: 2rpx;
+}
+.tab-ico-2 .tab-ico-shape::before {
+  left: 5rpx; top: 5rpx; width: 10rpx; height: 2rpx; background: currentColor;
+  box-shadow: 0 5rpx 0 currentColor;
+}
+.tab-ico-3 .tab-ico-shape {
+  left: 7rpx; top: 5rpx; width: 20rpx; height: 24rpx;
+  border: 2rpx solid currentColor; border-radius: 50% 50% 46% 46%;
+}
+.tab-ico-3 .tab-ico-shape::before {
+  left: 7rpx; top: 6rpx; width: 3rpx; height: 3rpx; border-radius: 50%; background: currentColor;
+  box-shadow: 6rpx 0 0 currentColor;
+}
+.tab-ico-4 .tab-ico-shape {
+  left: 6rpx; top: 7rpx; width: 22rpx; height: 21rpx;
+  border: 2rpx solid currentColor; border-radius: 50% 50% 45% 45%;
+}
+.tab-ico-4 .tab-ico-shape::before {
+  left: 8rpx; top: 5rpx; width: 3rpx; height: 3rpx; border-radius: 50%; background: currentColor;
+  box-shadow: 6rpx 0 0 currentColor;
 }
 .tab-text {
   font-size: 20rpx;
@@ -63,7 +114,7 @@
   transition: color 0.25s;
 }
 .tab-on .tab-ico {
-  filter: grayscale(0);
+  color: #c8edff;
   opacity: 1;
   transform: translateY(-4rpx) scale(1.12);
   animation: tabBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);

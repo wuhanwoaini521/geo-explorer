@@ -1,5 +1,5 @@
 <view class="route-page">
-  <view class="route-head"><text class="route-back" bindtap="onBack">‹</text><text class="route-title">路线概览</text><text class="route-more">•••</text></view>
+  <view class="route-head"><text class="route-back" bindtap="onBack">‹</text><text class="route-title">地貌观察索引</text><text class="route-more">•••</text></view>
   <scroll-view class="route-list" scroll-y="true">
     <view class="route-spine"></view>
     <view wx:for="{{rows}}" wx:key="id" class="route-row route-row-{{item.state}}" data-id="{{item.id}}" bindtap="onRowTap">

@@ -15,14 +15,30 @@ const IMAGES = [
   "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
 ];
 
+const DISPLAY_IDS = new Set([
+  "base-camp",
+  "khumbu-icefall",
+  "lhotse-face-camp-iii",
+  "south-col-camp-iv",
+  "summit",
+]);
+
+const LANDFORM_LABELS: Record<string, string> = {
+  "base-camp": "冰川前缘",
+  "khumbu-icefall": "冰瀑地形",
+  "lhotse-face-camp-iii": "陡峭冰壁",
+  "south-col-camp-iv": "高山鞍部",
+  summit: "雪峰顶部",
+};
+
 function rows(progress: number): RouteRow[] {
   const ordered = EVEREST_EXPEDITION.routeIndex.milestones
-    .filter((m) => m.id !== "south-summit")
+    .filter((m) => DISPLAY_IDS.has(m.id))
     .slice();
   const current = ordered.find((m) => m.progress >= progress) ?? ordered[ordered.length - 1];
   return ordered.reverse().map((m) => ({
     id: m.id,
-    title: m.id === "summit" ? "珠穆朗玛峰 Summit" : m.name,
+    title: LANDFORM_LABELS[m.id] || m.name,
     elevation: `${Math.round(m.refM).toLocaleString()} m`,
     image: IMAGES[ordered.indexOf(m) % IMAGES.length],
     state: m.progress < progress ? "completed" : m.id === current.id ? "current" : "upcoming",

@@ -6,6 +6,7 @@
 import type { PlaceType } from "../types/models";
 
 let pending: PlaceType | "all" | null = null;
+let pendingQuery: string | null = null;
 
 export function setPendingTypeFilter(type: PlaceType | "all"): void {
   pending = type;
@@ -16,4 +17,15 @@ export function consumeTypeFilter(): PlaceType | "all" | null {
   const value = pending;
   pending = null;
   return value;
+}
+
+export function setPendingSearchQuery(query: string): void {
+  pendingQuery = query.trim();
+}
+
+/** 取出并清除待消费的图鉴关键词；空关键词视为无待处理项。 */
+export function consumeSearchQuery(): string | null {
+  const value = pendingQuery;
+  pendingQuery = null;
+  return value || null;
 }

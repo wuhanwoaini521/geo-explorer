@@ -2,11 +2,11 @@
   <view class="popup-sheet">
     <!-- 头：类型标签 + 分类 + 海拔 -->
     <view class="popup-head">
-      <text class="popup-emoji">{{node.emoji}}</text>
+      <view class="popup-mark"><text>地貌</text></view>
       <view class="popup-head-text">
         <view class="popup-cat-row">
           <text class="popup-cat" wx:if="{{node.category}}">{{node.category}}</text>
-          <text class="popup-elev">📍 {{axisLabel}} {{node.elevation}} {{axisUnit}}</text>
+          <text class="popup-elev">{{axisLabel}} {{node.elevation}} {{axisUnit}}</text>
         </view>
         <text class="popup-title">{{node.title}}</text>
       </view>
