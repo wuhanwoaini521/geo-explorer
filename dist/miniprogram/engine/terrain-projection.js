@@ -7,9 +7,10 @@ exports.projectTerrainPoint = projectTerrainPoint;
 const route_index_1 = require("./route-index");
 const CANVAS_W = 9;
 const CANVAS_H = 16;
-/** 屏幕纵向安全边距（%）：峰顶靠上（TOP），大本营靠下（BOTTOM） */
+/** 屏幕纵向安全边距（%）：峰顶靠上（TOP），大本营留在底部面板上缘之上（BOTTOM） */
 const SUMMIT_TOP_Y = 14;
-const BASE_BOTTOM_Y = 88;
+// 底部信息面板从约 60% 开始；留出 4% 安全边距，起点/当前点不贴面板边缘。
+const BASE_BOTTOM_Y = 56;
 /** 横向偏差摆幅（屏宽 %）：dev 归一后 ±调幅 */
 const DEV_AMP = 34;
 function clamp01(v) {
@@ -177,6 +178,7 @@ function buildTerrainRouteGeometry(routeIndex, opts) {
             key: m.id,
             x: p.x,
             y: p.y,
+            progress: routeIndex.totalDistanceM > 0 ? m.distanceM / routeIndex.totalDistanceM : 0,
             label: m.name,
             elevationM: Math.round(m.refM),
             distanceM: m.distanceM,

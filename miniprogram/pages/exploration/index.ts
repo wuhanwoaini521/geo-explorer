@@ -114,7 +114,7 @@ function milestoneKindLabel(kind: string): string {
   return map[kind] ?? "途经点";
 }
 
-/** 里程碑 kind → 横幅emoji */
+/** 里程碑 kind → 横幅标记（保留数据兼容，UI 不再渲染 emoji）。 */
 function milestoneKindEmoji(kind: string): string {
   const map: Record<string, string> = {
     camp: "🏕️",
@@ -201,6 +201,168 @@ interface CameraUiState {
   segmentId: string;
 }
 
+interface ConceptRoutePoint {
+  id: string;
+  label: string;
+  progress: number;
+  x: number;
+  y: number;
+  state: "completed" | "current" | "upcoming";
+}
+
+/** 学习型地貌标签：路线只表达照片中的观察顺序，不代表精确登山导航。 */
+const LANDFORM_LABELS: Record<string, string> = {
+  "base-camp": "冰川前缘",
+  "khumbu-icefall": "冰瀑地形",
+  "camp-i": "冰川谷地",
+  "western-cwm-camp-ii": "雪谷地形",
+  "lhotse-face-camp-iii": "陡峭冰壁",
+  "south-col-camp-iv": "高山鞍部",
+  "south-summit": "雪脊转折",
+  summit: "雪峰顶部",
+};
+
+const LANDFORM_DESCRIPTIONS: Record<string, string> = {
+  "base-camp": "冰川前缘是冰体向山谷展开的起始区域，碎冰、岩屑和融水共同塑造了这里的过渡地貌。",
+  "khumbu-icefall": "冰瀑是流动冰川在陡坎处形成的破碎地形，冰塔、裂隙和冰脊会随着冰体运动持续变化。",
+  "camp-i": "冰川谷地是被冰川长期刨蚀形成的宽阔谷地，谷底较缓，两侧山壁保留着明显的冰蚀痕迹。",
+  "western-cwm-camp-ii": "雪谷位于高山冰川盆地中，积雪覆盖了起伏地表，远处的雪脊构成了清晰的地形层次。",
+  "lhotse-face-camp-iii": "陡峭冰壁是高山冰冻作用塑造的坡面，硬冰与风成雪层叠在一起，形成连续的高差。",
+  "south-col-camp-iv": "鞍部是连接两侧山峰的低凹山脊，风会沿着山口通过，因此常成为高山地貌中的显著转折点。",
+  "south-summit": "雪脊转折展示了山脊线由横向向上抬升的变化，是识别山体结构的重要观察位置。",
+  summit: "雪峰顶部是山体汇聚到最高处的尖顶区域，冰雪和风共同决定了它的轮廓。",
+};
+
+function landformLabel(id: string, fallback = "地貌观察点"): string {
+  return LANDFORM_LABELS[id] || fallback;
+}
+
+interface ConceptRouteSegment {
+  id: string;
+  x: number;
+  y: number;
+  length: number;
+  rotateDeg: number;
+  completed: boolean;
+}
+
+interface ConceptRouteState {
+  points: ConceptRoutePoint[];
+  segments: ConceptRouteSegment[];
+  completedSegments: ConceptRouteSegment[];
+}
+
+interface ConceptRouteMarker {
+  x: number;
+  y: number;
+}
+
+/**
+ * 概念路线的视觉锚点：沿照片里的主山脊上行，不冒充 DEM 像素校准结果。
+ * 真实进度/名称仍从 routeIndex 注入，只有展示坐标是产品视觉层的简化表达。
+ */
+const CONCEPT_ROUTE_COORDS: Record<string, { x: number; y: number }> = {
+  "base-camp": { x: 18, y: 52 },
+  "khumbu-icefall": { x: 25, y: 47 },
+  "camp-i": { x: 32, y: 46 },
+  "western-cwm-camp-ii": { x: 41, y: 40 },
+  "lhotse-face-camp-iii": { x: 49, y: 32 },
+  "south-col-camp-iv": { x: 55, y: 25 },
+  "south-summit": { x: 52, y: 20 },
+  summit: { x: 49, y: 15 },
+};
+const CONCEPT_ROUTE_POINT_IDS = new Set([
+  "base-camp",
+  "khumbu-icefall",
+  "lhotse-face-camp-iii",
+  "south-col-camp-iv",
+  "summit",
+]);
+// 路线层覆盖的是竖屏全屏照片，CSS 的 width 百分比与 top 百分比不是同一
+// 个物理尺度。按设计目标设备的宽高比换算，避免线段在节点之间出现断口。
+const CONCEPT_ROUTE_VIEWPORT_ASPECT = 0.48;
+
+function conceptPointState(
+  pointProgress: number,
+  currentProgress: number,
+  currentId: string,
+  pointId: string,
+): ConceptRoutePoint["state"] {
+  if (pointId === currentId) return "current";
+  return pointProgress < currentProgress ? "completed" : "upcoming";
+}
+
+function buildConceptRouteState(
+  milestones: Array<{ id: string; name: string; progress: number }>,
+  progress: number,
+): ConceptRouteState {
+  const visibleMilestones = milestones.filter((milestone) => CONCEPT_ROUTE_POINT_IDS.has(milestone.id));
+  const reached = visibleMilestones.filter((milestone) => milestone.progress <= progress + 0.0001);
+  const currentId = reached[reached.length - 1]?.id ?? visibleMilestones[0]?.id ?? "";
+  const points = visibleMilestones.map((milestone) => {
+    const coord = CONCEPT_ROUTE_COORDS[milestone.id] ?? { x: 50, y: 50 };
+    return {
+      id: milestone.id,
+      label: landformLabel(milestone.id, milestone.name),
+      progress: milestone.progress,
+      x: coord.x,
+      y: coord.y,
+      state: conceptPointState(milestone.progress, progress, currentId, milestone.id),
+    };
+  });
+  const segments: ConceptRouteSegment[] = [];
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const a = points[i];
+    const b = points[i + 1];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const screenDy = dy / CONCEPT_ROUTE_VIEWPORT_ASPECT;
+    segments.push({
+      id: `${a.id}-${b.id}`,
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+      length: Math.hypot(dx, screenDy),
+      rotateDeg: (Math.atan2(screenDy, dx) * 180) / Math.PI,
+      completed: b.progress <= progress + 0.0001,
+    });
+  }
+  return {
+    points,
+    segments,
+    completedSegments: segments.filter((segment) => segment.completed),
+  };
+}
+
+function conceptRouteMarkerAt(
+  milestones: Array<{ id: string; name: string; progress: number }>,
+  progress: number,
+): ConceptRouteMarker {
+  const visibleMilestones = milestones.filter((milestone) => CONCEPT_ROUTE_POINT_IDS.has(milestone.id));
+  if (visibleMilestones.length === 0) return { x: 50, y: 50 };
+  const p = clamp(progress, 0, 1);
+  let nextIndex = visibleMilestones.findIndex((milestone) => milestone.progress >= p);
+  if (nextIndex < 0) nextIndex = visibleMilestones.length - 1;
+  const next = visibleMilestones[nextIndex];
+  const prev = visibleMilestones[Math.max(0, nextIndex - 1)];
+  const a = CONCEPT_ROUTE_COORDS[prev.id] ?? { x: 50, y: 50 };
+  const b = CONCEPT_ROUTE_COORDS[next.id] ?? a;
+  const span = next.progress - prev.progress;
+  const t = span > 0 ? clamp((p - prev.progress) / span, 0, 1) : 1;
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+}
+
+/** 兼容旧 DEM 引擎缓存：页面视觉已改用 conceptRoute，不再直接渲染此窗口。 */
+function terrainSegmentsNearProgress(
+  geometry: TerrainRouteGeometryUi,
+  progress: number,
+): TerrainRouteGeometryUi["segments"] {
+  const from = Math.max(0, progress - 0.04);
+  const to = Math.min(1, progress + 0.18);
+  return geometry.segments.filter(
+    (segment) => segment.fromProgress <= to && segment.toProgress >= from,
+  );
+}
+
 function cameraTransform(frame: ExpeditionCameraFrame, depth: number): string {
   const focus = frame.focus ?? { x: 0.5, y: 0.5 };
   // offset/focus 均来自 CameraConfig；这里只把归一化相机量映射为屏幕位移。
@@ -271,6 +433,7 @@ interface WaypointCardState {
   name: string;
   altitudeText: string;
   desc: string;
+  image?: string;
   /** 该点关联知识尚未解锁 */
   lockedKnowledge?: boolean;
 }
@@ -363,12 +526,14 @@ interface ExpeditionView {
   remainingVerticalText: string;
   /** 当前标的物（上一站）名称 */
   currentName: string;
+  currentLandform: string;
   /** 当前参考海拔（ref，m） */
   currentElevText: string;
   /** 前一个标的物 */
   prevName: string;
   /** 下一站名称 */
   nextName: string;
+  nextLandform: string;
   /** 距下一站精确里程（如 “3,139 m”） */
   nextGapText: string;
   stageName: string;
@@ -403,9 +568,11 @@ function emptyExpeditionView(): ExpeditionView {
     remainingRouteText: "",
     remainingVerticalText: "",
     currentName: "",
+    currentLandform: "",
     currentElevText: "",
     prevName: "—",
     nextName: "",
+    nextLandform: "",
     nextGapText: "",
     stageName: "",
     stageEmoji: "",
@@ -678,8 +845,11 @@ Page({
     } as CameraUiState,
     // Gate 3.4：静态路线几何与动态位置分离，避免 marker 被 1% key 冻结。
     terrainRouteGeometry: null as TerrainRouteGeometryUi | null,
+    terrainVisibleSegments: [] as TerrainRouteGeometryUi["segments"],
     terrainDynamicState: null as TerrainDynamicStateUi | null,
     terrainRouteTransform: "translate3d(0,0,0) scale(1)",
+    conceptRoute: null as ConceptRouteState | null,
+    conceptRouteMarker: { x: 18, y: 56 } as ConceptRouteMarker,
     // 顶部安全区（沉浸页：真实状态栏 + 胶囊几何驱动）
     capTop: 20,
     capH: 32,
@@ -1253,8 +1423,6 @@ Page({
         visLiveSrc: "",
         visLiveReady: false,
         liveOverlay: null,
-        terrainRouteGeometry: null,
-        terrainDynamicState: null,
       });
       return;
     }
@@ -1420,11 +1588,17 @@ Page({
       remainingRouteText: formatRouteKm(drive.remainingRouteM),
       remainingVerticalText: formatNumber(drive.remainingVerticalM, 0),
       currentName: drive.current ? drive.current.name : "",
+      currentLandform: drive.current
+        ? landformLabel(drive.current.id, drive.current.name)
+        : "",
       currentElevText: drive.atSummit
         ? formatNumber(drive.summitRefM, 2)
         : formatNumber(drive.refM, 0),
       prevName: drive.prev ? drive.prev.name : "—",
       nextName: drive.next ? drive.next.name : "已抵达峰顶",
+      nextLandform: drive.next
+        ? landformLabel(drive.next.id, drive.next.name)
+        : "雪峰顶部",
       nextGapText: drive.next ? formatDistanceM(drive.nextGapM) : "—",
       stageName: drive.stage ? drive.stage.name : "",
       stageEmoji: drive.stage ? drive.stage.emoji : "",
@@ -1701,6 +1875,27 @@ Page({
       patch.route = ex.route ? buildRouteState(ex.route, progress) : null;
     }
 
+    // 路线页采用产品概念路线：真实里程碑负责顺序/进度，视觉坐标沿主山脊简化。
+    const conceptRouteKey = this.routeMode && this.expeditionCore
+      ? `${this.expeditionCore.routeIndex.routeId}:${pct}`
+      : "off";
+    nextCache.conceptRouteKey = conceptRouteKey;
+    if (cache.conceptRouteKey !== conceptRouteKey) {
+      patch.conceptRoute = this.expeditionCore
+        ? buildConceptRouteState(this.expeditionCore.routeIndex.milestones, progress)
+        : null;
+    }
+    const conceptMarker = this.expeditionCore
+      ? conceptRouteMarkerAt(this.expeditionCore.routeIndex.milestones, progress)
+      : null;
+    const conceptMarkerKey = conceptMarker
+      ? `${conceptMarker.x.toFixed(2)}:${conceptMarker.y.toFixed(2)}`
+      : "off";
+    nextCache.conceptMarkerKey = conceptMarkerKey;
+    if (cache.conceptMarkerKey !== conceptMarkerKey && conceptMarker) {
+      patch.conceptRouteMarker = conceptMarker;
+    }
+
     // Gate 3.4：TERRAIN 2.5D 路线重投影分层。
     // 几何只在 TERRAIN 上首次挂载/路线上下文改变时重建；marker 使用每帧的
     // effective progress，不能被 pct 整数化冻结。LIVE 只消费自己的 calibrated overlay。
@@ -1713,9 +1908,12 @@ Page({
       ? `route:${this.expeditionCore!.routeIndex.pointCount}`
       : "off";
     nextCache.terrainGeometryKey = terrainGeometryKey;
-    if (cache.terrainGeometryKey !== terrainGeometryKey) {
+    // LIVE 资源加载失败/切换模式时，syncVisualMode 可能会主动清空 data 中的
+    // geometry；不能只看 key，否则缓存仍是 route:289，回退到 TERRAIN 后路线永远不重建。
+    const terrainGeometryMissing = terrainOn && !this.data.terrainRouteGeometry;
+    if (cache.terrainGeometryKey !== terrainGeometryKey || terrainGeometryMissing) {
       patch.terrainRouteGeometry = terrainOn
-        ? buildTerrainRouteGeometry(this.expeditionCore!.routeIndex)
+        ? buildTerrainRouteGeometry(this.expeditionCore!.routeIndex, { maxPoints: 40 })
         : null;
       if (terrainOn && this.motionAudit.active) {
         this.motionAudit.routeGeometryRebuilds += 1;
@@ -1725,6 +1923,13 @@ Page({
       ? ((patch.terrainRouteGeometry as TerrainRouteGeometryUi | undefined) ??
         (this.data.terrainRouteGeometry as TerrainRouteGeometryUi | null))
       : null;
+    const terrainWindowKey = geometry ? `${Math.round(progress * 100)}` : "off";
+    nextCache.terrainWindowKey = terrainWindowKey;
+    if (cache.terrainWindowKey !== terrainWindowKey) {
+      patch.terrainVisibleSegments = geometry
+        ? terrainSegmentsNearProgress(geometry, progress)
+        : [];
+    }
     const dynamic = geometry
       ? buildTerrainDynamicState(
           this.expeditionCore!.routeIndex,
@@ -1736,7 +1941,8 @@ Page({
       ? `${dynamic.progress.toFixed(4)}:${dynamic.marker.x.toFixed(3)}:${dynamic.marker.y.toFixed(3)}`
       : "off";
     nextCache.terrainDynamicKey = dynamicKey;
-    if (cache.terrainDynamicKey !== dynamicKey) {
+    const terrainDynamicMissing = Boolean(dynamic && !this.data.terrainDynamicState);
+    if (cache.terrainDynamicKey !== dynamicKey || terrainDynamicMissing) {
       patch.terrainDynamicState = dynamic;
       if (dynamic && this.motionAudit.active) this.motionAudit.markerUpdates += 1;
     }
@@ -1817,11 +2023,13 @@ Page({
     // Gate 3.4：相机的推——viewZoom.* 不再手写常量（4.55/2.3/1.12），改由真实相机帧派生。
     // 相机 zoom 跨段边界连续插值，消除三景硬切换时的缩放跳变；同屏只有一片可见，
     // 故三值共用当前帧 zoom（非活动片 op=0 不可见）。无相机（Mariana 等）保持 data 默认不动。
+    let cameraSceneId = "-";
     if (this.expCamera && this.data.worldMountain) {
       const cameraFrame = cameraFrameAt(this.expCamera, progress);
       const camZoom = Math.round(cameraFrame.zoom * 1000) / 1000;
       nextCache.camZoom = camZoom;
       const cameraUi = cameraUiAt(cameraFrame);
+      cameraSceneId = cameraUi.segmentId;
       const cameraKey = [
         cameraUi.zoom,
         cameraUi.offsetX,
@@ -1849,7 +2057,8 @@ Page({
       }
     }
 
-    // 场景插画层：阶段/登顶模式/雪量/云海/视图分带 变化时才重建（山岳世界专用）
+    // 场景层：每个相机里程碑、阶段/登顶模式/雪量/云海/视图分带变化时重建。
+    // 相机段是由真实里程碑推导的，因此抵达每个节点都会进入一个明确的新场景状态。
     // 峰顶全景只在真正抵达终点后进入，避免 8,826m 左右提前“登顶”。
     const summitMode = Boolean(this.data.worldMountain && d.isSummit);
     {
@@ -1859,6 +2068,7 @@ Page({
         Math.round(d.snow * 40),
         cloudSeaKey(d.stage.surfaceKind, progress),
         this.data.worldMountain && !summitMode ? viewBand(progress) : "-",
+        cameraSceneId,
       ].join("|");
       nextCache.sceneKey = sKey;
       if (cache.sceneKey !== sKey) {
@@ -2155,6 +2365,28 @@ Page({
           : "",
         desc: point.desc,
         lockedKnowledge: Boolean(linkedNode),
+      },
+    });
+  },
+
+  /** 地貌观察点：不做 DEM 命中测试，点击照片上的节点直接打开学习浮窗。 */
+  onTapExpeditionWaypoint(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    const milestone = this.expeditionCore?.routeIndex.milestones.find(
+      (item) => item.id === id,
+    );
+    if (!milestone) return;
+    const reached = milestone.progress <= this.current + 0.0001;
+    this.setData({
+      waypointCard: {
+        show: true,
+        name: landformLabel(milestone.id, milestone.name),
+        altitudeText: `${formatNumber(milestone.refM, 0)} m`,
+        desc: reached
+          ? LANDFORM_DESCRIPTIONS[milestone.id] || "这里是一处值得观察的高山地貌。"
+          : "继续探索这张山体影像，到达后可解锁这里的地貌知识。",
+        image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+        lockedKnowledge: !reached,
       },
     });
   },

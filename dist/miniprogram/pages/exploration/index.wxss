@@ -679,6 +679,13 @@ page {
   gap: 16rpx;
   box-shadow: 0 16rpx 48rpx rgba(20, 14, 4, 0.3);
 }
+.wpc-image {
+  width: 100%;
+  height: 220rpx;
+  border-radius: 16rpx;
+  object-fit: cover;
+  background: #d7e6f2;
+}
 .wpc-head {
   display: flex;
   align-items: baseline;
@@ -1146,7 +1153,89 @@ page {
   z-index: 9;
 }
 
-/* Gate 3.4：TERRAIN 科学地形上的路线重投影（2.5D 帆布，z7 在 live-route 之下，避免与 LIVE 重叠）。
+/* 概念性山脊路线：不追求 DEM 像素命中，只负责让用户一眼看懂“沿哪条山脊走”。 */
+.concept-route {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.concept-route-seg {
+  position: absolute;
+  height: 7rpx;
+  margin: -3.5rpx 0 0 -3.5rpx;
+  transform-origin: 50% 50%;
+  border-radius: 8rpx;
+  background: rgba(255, 238, 170, 0.62);
+  box-shadow: 0 0 8rpx rgba(255, 213, 91, 0.52);
+}
+.concept-route-seg-base {
+  border: 1rpx dashed rgba(255, 247, 202, 0.78);
+  background: repeating-linear-gradient(90deg, rgba(255, 230, 128, 0.9) 0 18rpx, rgba(255, 230, 128, 0.18) 18rpx 32rpx);
+}
+.concept-route-seg-completed {
+  height: 10rpx;
+  margin-top: -5rpx;
+  margin-left: -5rpx;
+  background: linear-gradient(90deg, #fff2b8, #f4b52d 75%, #e28e20);
+  border: 1rpx solid rgba(255, 255, 240, 0.96);
+  box-shadow: 0 0 14rpx rgba(255, 203, 77, 0.95), 0 1rpx 4rpx rgba(35, 22, 4, 0.72);
+}
+.concept-route-point {
+  position: absolute;
+  width: 34rpx;
+  height: 34rpx;
+  margin: -17rpx 0 0 -17rpx;
+  pointer-events: auto;
+}
+.concept-route-point-dot {
+  width: 22rpx;
+  height: 22rpx;
+  margin: 6rpx;
+  border-radius: 50%;
+  background: rgba(255, 252, 226, 0.96);
+  border: 3rpx solid rgba(239, 174, 47, 0.98);
+  box-shadow: 0 0 0 5rpx rgba(255, 205, 85, 0.18), 0 0 10rpx rgba(255, 218, 110, 0.82);
+}
+.concept-route-point-completed .concept-route-point-dot { background: #ffd46b; }
+.concept-route-point-current .concept-route-point-dot {
+  width: 30rpx;
+  height: 30rpx;
+  margin: 2rpx;
+  border-color: #fff;
+  background: radial-gradient(circle, #fff 0 28%, #ffd66b 30% 56%, #d88c20 58% 100%);
+  box-shadow: 0 0 0 8rpx rgba(255, 211, 93, 0.22), 0 0 18rpx rgba(255, 222, 128, 1);
+}
+.concept-route-point-label {
+  position: absolute;
+  left: 22rpx;
+  bottom: 28rpx;
+  min-width: 88rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 10rpx;
+  color: #fff8dc;
+  background: rgba(20, 31, 45, 0.72);
+  font-size: 18rpx;
+  line-height: 1.25;
+  white-space: nowrap;
+  text-shadow: 0 1rpx 3rpx rgba(0,0,0,.65);
+}
+.concept-route-point-upcoming .concept-route-point-label { opacity: .72; }
+.concept-route-marker {
+  position: absolute;
+  width: 38rpx;
+  height: 38rpx;
+  margin: -19rpx 0 0 -19rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 22%, #fff0ae 24% 42%, #efad2d 45% 100%);
+  border: 3rpx solid #fff;
+  box-shadow: 0 0 0 8rpx rgba(255, 214, 111, 0.22), 0 0 18rpx rgba(255, 209, 74, 1);
+  pointer-events: none;
+}
+.concept-route-marker-moving { animation: conceptRoutePulse .85s ease-in-out infinite; }
+@keyframes conceptRoutePulse { 0%,100% { transform: scale(.86); } 50% { transform: scale(1.18); } }
+
+/* Gate 3.4：TERRAIN 科学地形上的路线重投影（2.5D 帆布，位于山体之上、HUD 之下）。
    画的是真实 terrain 路线点的全景折线，与 LIVE 校准扇线、示意直段不同；配色保持克制的冰川青；
    坐标消耗与 live-route 同构（x/y 百分位 + 斜段 rotate），当前点/峰顶旗均为真实投影。 */
 .terrain-route {
@@ -1155,23 +1244,35 @@ page {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 7; /* 低于 live-route(8)，避免在 LIVE 时重叠盖住实景折线 */
+  /* 路线必须压在接缝暗化层之上、底部信息面板之下；否则前两个节点会被“渐变”吃掉。 */
+  z-index: 10;
   pointer-events: none;
   overflow: visible;
 }
 .terrain-route-seg {
   position: absolute;
+  height: 9rpx;
+  margin-top: -4.5rpx;
+  margin-left: -4.5rpx;
+  transform-origin: 50% 50%;
+  border-radius: 6rpx;
+  background: repeating-linear-gradient(90deg, #67e4ff 0 22rpx, rgba(103, 228, 255, 0.6) 22rpx 35rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0 12rpx rgba(48, 199, 255, 0.9), 0 1rpx 4rpx rgba(5, 38, 64, 0.9);
+}
+.terrain-route-seg-completed {
+  background: linear-gradient(90deg, #d7fbff, #61ddff 68%, #20aef2);
+  border-color: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 0 14rpx rgba(54, 211, 255, 0.98), 0 0 5rpx rgba(255,255,255,0.98);
+}
+.terrain-route-seg-upcoming {
   height: 6rpx;
   margin-top: -3rpx;
   margin-left: -3rpx;
-  transform-origin: 50% 50%;
-  border-radius: 3rpx;
-  background: repeating-linear-gradient(90deg, rgba(151, 241, 255, 0.95) 0 18rpx, rgba(151, 241, 255, 0.18) 18rpx 31rpx);
-  box-shadow: 0 0 9rpx rgba(92, 215, 255, 0.5);
-}
-.terrain-route-seg-completed {
-  background: linear-gradient(90deg, #fff0ad, #ffd36a 68%, #8fe9ff);
-  box-shadow: 0 0 12rpx rgba(255, 205, 91, 0.86), 0 0 4rpx rgba(255,255,255,0.95);
+  background: repeating-linear-gradient(90deg, rgba(210, 247, 255, 0.72) 0 18rpx, rgba(103, 228, 255, 0.28) 18rpx 34rpx);
+  border: 1rpx solid rgba(224, 250, 255, 0.56);
+  box-shadow: 0 0 8rpx rgba(48, 199, 255, 0.52);
+  opacity: 0.78;
 }
 .terrain-route-anchor {
   position: absolute;
@@ -1183,50 +1284,18 @@ page {
   border: 3rpx solid rgba(143, 237, 255, 0.95);
   box-shadow: 0 0 6rpx rgba(92, 215, 255, 0.6);
 }
-.terrain-route-anchor-tag {
-  display: none;
-  position: absolute;
-  left: 50%;
-  bottom: 14rpx;
-  transform: translateX(-50%);
-  padding: 2rpx 8rpx;
-  border-radius: 8rpx;
-  font-size: 18rpx;
-  color: #fff;
-  background: rgba(40, 26, 6, 0.72);
-  letter-spacing: 1rpx;
-  white-space: nowrap;
-}
 .terrain-route-dot {
   position: absolute;
-  width: 28rpx;
-  height: 28rpx;
-  margin: -14rpx 0 0 -14rpx;
+  width: 34rpx;
+  height: 34rpx;
+  margin: -17rpx 0 0 -17rpx;
   border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, #9ff3ff 45%, rgba(42, 187, 235, 0.95) 100%);
-  box-shadow: 0 0 10rpx rgba(92, 215, 255, 0.9), 0 0 2rpx #fff;
+  border: 3rpx solid #fff;
+  box-shadow: 0 0 14rpx rgba(92, 215, 255, 1), 0 0 4rpx #fff;
 }
 .terrain-route-dot-moving { animation: terrainMarkerPulse 0.85s ease-in-out infinite; }
 @keyframes terrainMarkerPulse { 0%, 100% { transform: scale(.82); opacity: .82; } 50% { transform: scale(1.25); opacity: 1; } }
-.terrain-route-summit {
-  position: absolute;
-  transform: translate(-50%, -100%);
-  color: #b9f5ff;
-  font-size: 22rpx;
-  text-shadow: 0 0 8rpx rgba(92, 215, 255, 0.9), 0 1rpx 4rpx rgba(0, 0, 0, 0.6);
-}
-.terrain-route-chip {
-  position: absolute;
-  right: calc(16rpx + env(safe-area-inset-right));
-  bottom: calc(40vh + 24rpx);
-  padding: 4rpx 12rpx;
-  border-radius: 18rpx;
-  font-size: 18rpx;
-  color: rgba(255, 240, 200, 0.88);
-  background: rgba(46, 24, 4, 0.55);
-  letter-spacing: 1rpx;
-  z-index: 9;
-}
 .live-info-chip {
   position: absolute;
   padding: 4rpx 12rpx;
@@ -1392,7 +1461,7 @@ page {
   bottom: 40vh; /* 面板上缘 */
   height: 22vh;
   pointer-events: none;
-  z-index: 10;
+  z-index: 9;
   background: linear-gradient(
     180deg,
     rgba(8, 13, 26, 0) 0%,
@@ -1427,10 +1496,6 @@ page {
   white-space: nowrap;
   text-align: right;
 }
-.exp-current-copy { display: flex; flex-direction: column; gap: 3rpx; padding: 2rpx 0; }
-.exp-current-k { color: rgba(255,255,255,0.5); font-size: 17rpx; }
-.exp-current-desc { color: rgba(255,255,255,0.74); font-size: 19rpx; line-height: 1.35; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
 /* 距顶峰：单行精简（去卡片，青色弱化） */
 .exp-goal {
   display: flex;
@@ -1476,25 +1541,6 @@ page {
 .exp-route-label { font-size: 17rpx; color: rgba(255,255,255,0.55); }
 .exp-route-pct { font-size: 22rpx; font-weight: 800; color: #a7e2ff; font-variant-numeric: tabular-nums; }
 .exp-route-hint { display: block; padding-top: 8rpx; text-align: center; color: rgba(222, 239, 255, 0.62); font-size: 18rpx; letter-spacing: 1rpx; }
-
-/* 下一站（一行） */
-.exp-step {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-.exp-step-k { font-size: 18rpx; color: rgba(255,255,255,0.55); }
-.exp-step-name {
-  font-size: 20rpx;
-  font-weight: 700;
-  color: #d9e8ff;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.exp-step-gap { font-size: 17rpx; color: rgba(255,255,255,0.5); margin-left: auto; }
-.exp-links { display: flex; justify-content: space-between; padding: 2rpx 4rpx; color: #8fcdf1; font-size: 18rpx; }
-.exp-links text { padding: 6rpx 4rpx; }
 
 /* 阶段 + 环境三指标 */
 .exp-core {
@@ -1750,6 +1796,40 @@ page {
 .rou-item-km { font-size: 20rpx; color: #a06a10; white-space: nowrap; }
 .rou-item-range { display: block; font-size: 20rpx; color: #94896a; margin-top: 2rpx; }
 .rou-item-intro { display: block; font-size: 21rpx; color: #6a5f47; line-height: 1.5; margin-top: 4rpx; }
+
+/* 统一地貌学习视觉：文字印章 + 细线几何，整个项目不再渲染卡通 emoji。 */
+.stage-mark,
+.exp-stage-mark,
+.sb-mark,
+.quiz-ico,
+.celebrate-mark,
+.summit-badge,
+.ach-mark,
+.next-stop-mark,
+.rou-item-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1rpx solid rgba(255, 220, 137, .58);
+  color: #ffe4a0;
+  background: rgba(48, 38, 18, .52);
+  letter-spacing: 2rpx;
+}
+.stage-mark { width: 74rpx; height: 74rpx; border-radius: 50%; font-size: 20rpx; }
+.exp-stage-mark { width: 48rpx; height: 48rpx; border-radius: 50%; font-size: 16rpx; letter-spacing: 1rpx; }
+.sb-mark { width: 54rpx; height: 54rpx; border-radius: 50%; font-size: 17rpx; }
+.ico { width: 104rpx; height: 104rpx; display: flex; align-items: center; justify-content: center; border: 2rpx solid rgba(160, 106, 16, .45); border-radius: 50%; color: #a06a10; background: rgba(168,119,23,.1); font-size: 24rpx; font-weight: 800; letter-spacing: 3rpx; }
+.progress-ico { width: 28rpx; height: 28rpx; position: relative; filter: none; }
+.progress-ico::before { content: ""; position: absolute; left: 2rpx; bottom: 4rpx; width: 22rpx; height: 16rpx; border-left: 2rpx solid #ffe19a; border-top: 2rpx solid #ffe19a; transform: skewY(-28deg) rotate(18deg); }
+.g-mark { width: 74rpx; height: 74rpx; display: inline-flex; align-items: center; justify-content: center; border: 1rpx solid rgba(255, 220, 137, .56); border-radius: 50%; color: #ffe4a0; font-size: 18rpx; letter-spacing: 2rpx; animation: none; filter: none; }
+.hint-ico { width: 34rpx; height: 34rpx; display: flex; align-items: center; justify-content: center; border: 1rpx solid #a06a10; border-radius: 50%; color: #a06a10; font-size: 21rpx; font-weight: 800; animation: none; transform: none; }
+.quiz-ico { width: 58rpx; height: 58rpx; border-radius: 50%; color: #a06a10; background: rgba(168,119,23,.1); font-size: 18rpx; }
+.celebrate-mark { width: 150rpx; height: 150rpx; border-radius: 50%; color: #ffe19a; font-size: 32rpx; font-weight: 800; }
+.summit-badge { width: 74rpx; height: 74rpx; border-radius: 50%; color: #a06a10; background: rgba(168,119,23,.1); font-size: 19rpx; }
+.ach-mark { width: 66rpx; height: 66rpx; border-radius: 14rpx; color: #a06a10; background: rgba(168,119,23,.1); font-size: 17rpx; }
+.next-stop-mark { width: 78rpx; height: 48rpx; border-radius: 24rpx; color: #a06a10; background: rgba(168,119,23,.1); font-size: 16rpx; letter-spacing: 1rpx; }
+.rou-item-mark { width: 52rpx; height: 52rpx; border-radius: 50%; color: #a06a10; background: rgba(168,119,23,.08); font-size: 16rpx; letter-spacing: 1rpx; }
 .rou-psrc { display: block; font-size: 20rpx; color: #94896a; line-height: 1.6; }
 .rou-btn {
   margin: 16rpx 28rpx 24rpx;

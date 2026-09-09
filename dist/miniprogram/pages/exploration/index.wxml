@@ -27,7 +27,8 @@
     <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" style="object-position:{{liveCropUi.focusX}}% {{liveCropUi.focusY}}%; transform: scale({{liveCropUi.zoom}});" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
 
     <!-- Gate 3.3C：LIVE 照片之上——由 resolve 产物渲染路线折线（大本营→洛子肩→峰顶）+ 当前点 + 起终点标 -->
-    <view wx:if="{{visLiveSrc && liveOverlay}}" class="live-route">
+    <!-- 路线模式只渲染 concept-route；LIVE 校准线属于旧叠加层，不能与概念路线同时出现。 -->
+    <view wx:if="{{visLiveSrc && liveOverlay && !routeMode}}" class="live-route">
       <view wx:for="{{liveOverlay.segments}}" wx:key="index" class="live-route-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
       <view wx:for="{{liveOverlay.origins}}" wx:key="key" class="live-route-anchor" style="left:{{item.x}}%;top:{{item.y}}%;opacity:{{item.label ? 1 : 0}}">
         <text class="live-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
@@ -36,18 +37,22 @@
       <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">示意路线</view>
     </view>
 
-    <!-- Gate 3.4：TERRAIN 科学地形上的路线重投影（真实 routeIndex → 屏幕；2.5D 帆布）。
-         独立于 live-route：仅 TERRAIN 模式（terrainRouteGeometry 非空）挂载，画的是 canonical routeIndex
-         三景上的科学折线，非 LIVE 照片上的校准直线段，故用独立图层/配色。 -->
-    <view wx:if="{{terrainRouteGeometry && terrainDynamicState}}" class="terrain-route" style="transform:{{terrainRouteTransform}}">
-      <view wx:for="{{terrainRouteGeometry.segments}}" wx:key="index" class="terrain-route-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
-      <view wx:for="{{terrainDynamicState.completedSegments}}" wx:key="index" class="terrain-route-seg terrain-route-seg-completed" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
-      <view wx:for="{{terrainRouteGeometry.origins}}" wx:key="key" class="terrain-route-anchor" style="left:{{item.x}}%;top:{{item.y}}%">
-        <text class="terrain-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
+    <!-- 概念性山脊路线：沿照片主山脊画线，保留真实里程碑顺序；节点可点击打开途经点浮窗。 -->
+    <view wx:if="{{routeMode && conceptRoute && conceptRouteMarker}}" class="concept-route">
+      <view wx:for="{{conceptRoute.segments}}" wx:key="id" class="concept-route-seg concept-route-seg-base" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.length}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
+      <view wx:for="{{conceptRoute.completedSegments}}" wx:key="id" class="concept-route-seg concept-route-seg-completed" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.length}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
+      <view
+        wx:for="{{conceptRoute.points}}"
+        wx:key="id"
+        class="concept-route-point concept-route-point-{{item.state}}"
+        style="left:{{item.x}}%;top:{{item.y}}%"
+        data-id="{{item.id}}"
+        bindtap="onTapExpeditionWaypoint"
+      >
+        <view class="concept-route-point-dot"></view>
+        <text class="concept-route-point-label">{{item.label}}</text>
       </view>
-      <view class="terrain-route-dot {{expMoving ? 'terrain-route-dot-moving' : ''}}" style="left:{{terrainDynamicState.marker.x}}%;top:{{terrainDynamicState.marker.y}}%"></view>
-      <view class="terrain-route-summit" style="left:{{terrainRouteGeometry.summit.x}}%;top:{{terrainRouteGeometry.summit.y}}%">▶</view>
-      <view wx:if="{{terrainRouteGeometry.schematic}}" class="terrain-route-chip">路线示意 · 当前点随攀登移动</view>
+      <view class="concept-route-marker {{expMoving ? 'concept-route-marker-moving' : ''}}" style="left:{{conceptRouteMarker.x}}%;top:{{conceptRouteMarker.y}}%"></view>
     </view>
 
     <!-- §40：LIVE 实景数据说明一行（代表性视角 / “实时暂不可用” 等）——置于顶部切换下方，常显不藏 -->
@@ -106,9 +111,7 @@
       <view class="ground-main" style="background:linear-gradient(180deg,{{terrainTop}} 0%,{{terrainBottom}} 100%)"></view>
       <view class="ground-glare"></view>
     </view>
-    <view class="flora-layer" style="transform:translate3d(0,-{{par.near}}px,0)">
-      <text wx:for="{{flora}}" wx:key="emoji" class="flora-item" style="left:{{item.left}}%; bottom:{{item.bottom}}vh; font-size:{{item.size}}rpx">{{item.emoji}}</text>
-    </view>
+    <view class="flora-layer" style="transform:translate3d(0,-{{par.near}}px,0)"></view>
   </block>
 
   <!-- 风雪粒子（强度=雪量，档位化；山岳世界 DEM 照片自带雪景，不再叠加粒子避免盖脸） -->
@@ -121,10 +124,10 @@
 
   <!-- ===== 路线模式 HUD（Gate 3：Expedition 附件 → 真实路线驱动；地形优先 + 底部 30% 暗色限流 UI） ===== -->
   <block wx:if="{{routeMode}}">
-    <!-- 顶部：登山标题（沉浸页：基于真实状态栏 + 胶囊定位的安全区） -->
+    <!-- 顶部：地貌观察标题（路线只作为观察顺序，不是登山导航） -->
     <view class="exp-top" style="top:{{capTop}}px">
       <text class="exp-back" bindtap="onBackHome">‹</text>
-      <view class="exp-top-copy"><text class="exp-top-title">探索进度</text><text class="exp-top-meta">{{metaPlace}}</text><text wx:if="{{expMoving || expMotionText}}" class="exp-top-status">{{expMotionText || '沿路线移动中'}} · {{expedition.nextName}}</text></view>
+      <view class="exp-top-copy"><text class="exp-top-title">地貌观察</text><text class="exp-top-meta">{{metaPlace}}</text><text wx:if="{{expMoving || expMotionText}}" class="exp-top-status">{{expMotionText || '正在切换观察点'}} · {{expedition.nextLandform}}</text></view>
       <text class="exp-top-elev">{{expedition.currentElevText}} m</text>
     </view>
 
@@ -134,7 +137,7 @@
       <text class="vis-toggle-item {{visActive === 'TERRAIN' ? 'vis-on' : ''}}" data-mode="TERRAIN" bindtap="onToggleVisualMode">DEM</text>
     </view>
 
-    <!-- 底部 30% 面板：真实路线进度驱动（Mockup 层级：位置/海拔 → 距顶峰 → 环境 → 进度 → 下一站） -->
+    <!-- 底部 40% 面板：对齐探索进度参考图（位置/海拔 → 距顶峰 → 环境 → 进度 → 操作） -->
     <view class="exp-sheet {{expDeathZone ? 'exp-death' : ''}}">
       <!-- 位置 + 海拔（隐藏 REFERENCE 徽标，避免干扰） -->
       <view class="exp-pos">
@@ -142,23 +145,23 @@
           <text class="exp-elev">{{expedition.currentElevText}}</text>
           <text class="exp-elev-unit">m</text>
         </view>
-        <text class="exp-pos-name" bindtap="onOpenCurrentCamp">{{expedition.currentName}} ›</text>
+        <text class="exp-pos-name" bindtap="onOpenCurrentCamp">{{expedition.currentLandform}} ›</text>
       </view>
 
-      <!-- 距顶峰（单行高差，简化） -->
+      <!-- 下一观察点（不再使用“距顶峰”的登山目标文案） -->
       <view class="exp-goal">
         <view class="exp-goal-row">
-          <text class="exp-goal-k">已行 {{expedition.distanceText}} · 距顶峰</text>
-          <text class="exp-goal-v">{{expedition.remainingVerticalText}} m</text>
+          <text class="exp-goal-k">下一观察点 · {{expedition.nextLandform}}</text>
+          <text class="exp-goal-v">观察</text>
         </view>
       </view>
 
       <!-- 阶段 + 环境三指标（MODEL / REFERENCE 徽标隐藏） -->
       <view class="exp-core">
         <view class="exp-stage">
-          <text class="exp-stage-emoji">{{expedition.stageEmoji}}</text>
+          <view class="exp-stage-mark"><text>地貌</text></view>
           <view class="exp-stage-txt">
-            <text class="exp-stage-name">{{expedition.stageName}}</text>
+            <text class="exp-stage-name">{{expedition.currentLandform}}</text>
           </view>
         </view>
         <view class="exp-env" bindtap="onOpenAltitudePage">
@@ -177,37 +180,18 @@
         </view>
       </view>
 
-      <!-- 真实进度（Base Camp ━━━●━━━ Summit + 实际 %，锚点即里程） -->
+      <!-- 地貌观察序列（只表达已观察范围） -->
       <view class="exp-route">
         <view class="exp-route-track">
           <view class="exp-route-fill" style="width:{{expedition.progress * 100}}%"></view>
           <view class="exp-route-marker" style="left:{{expedition.progress * 100}}%"></view>
         </view>
       <view class="exp-route-meta">
-        <text class="exp-route-label">Base Camp</text>
+        <text class="exp-route-label">起点</text>
         <text class="exp-route-pct">{{expedition.pct}}%</text>
-        <text class="exp-route-label">Summit</text>
+        <text class="exp-route-label">峰顶地貌</text>
       </view>
-      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在沿路线移动…' : '上滑前进 · 下滑回撤'}}</text>
-      </view>
-
-      <view class="exp-current-copy">
-        <text class="exp-current-k">当前行程</text>
-        <text class="exp-current-desc">{{expedition.stageIntro}}</text>
-      </view>
-
-      <view class="exp-links">
-        <text bindtap="onOpenRouteOverviewPage">路线概览</text>
-        <text bindtap="onOpenAltitudePage">海拔变化</text>
-        <text bindtap="onOpenPeaksPage">周边山峰</text>
-        <text bindtap="onOpenKnowledgePage">相关知识</text>
-      </view>
-
-      <!-- 下一站（终点不展示） -->
-      <view wx:if="{{expedition.nextName}}" class="exp-step">
-        <text class="exp-step-k">下一站</text>
-        <text class="exp-step-name">{{expedition.nextName}}</text>
-        <text class="exp-step-gap">距 {{expedition.nextGapText}} ▶</text>
+      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在切换观察点…' : '上滑查看下一个地貌 · 下滑返回上一个'}}</text>
       </view>
 
       <!-- 死亡区克制提示（配色/文案/降低对比度；不弹窗不震屏） -->
@@ -215,19 +199,19 @@
         <text>死亡区 · 8000 m 以上 · 含氧不足海面 1/3</text>
       </view>
 
-      <!-- 底部操作：下撤 / 查看路线（Gate 4+ 渲染路线全景）/ 攀登 -->
+      <!-- 底部操作：上一个地貌 / 地貌索引 / 下一个地貌 -->
       <view class="exp-actions">
         <button
           class="exp-ctl exp-ctl-down"
           bindtap="onStepDown"
           disabled="{{expClimbing}}"
-        >下撤</button>
-        <button class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">查看路线</button>
+        >上一个</button>
+        <button class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">地貌索引</button>
         <button
           class="exp-ctl exp-ctl-up"
           bindtap="onStepUp"
           disabled="{{expClimbing}}"
-          >{{expClimbLabel === '攀登' ? '继续攀登' : expClimbLabel}}</button>
+          >{{expClimbLabel === '攀登' ? '下一个地貌' : expClimbLabel}}</button>
       </view>
     </view>
 
@@ -239,7 +223,7 @@
       <view class="exp-summit-txt">
         <text class="exp-summit-alt">{{expSummit.altitudeText}} m</text>
       </view>
-      <text class="exp-summit-note">🏔 {{expSummit.note}}</text>
+      <text class="exp-summit-note">{{expSummit.note}}</text>
       <view class="exp-summit-actions">
         <text class="exp-summit-act" bindtap="onGoProfile">查看成就</text>
         <text class="exp-summit-act" bindtap="onBackHome">返回首页</text>
@@ -256,7 +240,7 @@
     </view>
     <view class="hud-right">
       <view class="hud-metrics">
-        <text wx:for="{{metricsShow}}" wx:key="key" class="metric">{{item.icon}} {{item.value}}{{item.unit}}</text>
+        <text wx:for="{{metricsShow}}" wx:key="key" class="metric">{{item.label}} {{item.value}}{{item.unit}}</text>
         <text wx:if="{{metricsMore}}" class="metric metric-more" bindtap="onToggleMetrics">{{metricsOpen ? '收起 ▾' : '更多 ▸'}}</text>
       </view>
       <text class="hud-km">{{kmStage}}</text>
@@ -265,7 +249,7 @@
 
   <!-- 阶段信息卡（低打扰：名称 + 自然带宽 + 描述简述） -->
   <view wx:if="{{!routeMode}}" class="stage-card">
-    <text class="stage-emoji">{{stageEmoji}}</text>
+    <view class="stage-mark"><text>地貌</text></view>
     <view class="stage-main">
       <view class="stage-line">
         <text class="stage-name">{{stageName}}</text>
@@ -284,7 +268,7 @@
 
   <!-- 进度条 -->
   <view wx:if="{{!routeMode}}" class="progress-row">
-    <text class="progress-ico">⛰</text>
+    <view class="progress-ico" aria-label="地貌进度"></view>
     <view class="progress-track"><view class="progress-bar" style="width:{{pct}}%"></view></view>
     <text class="progress-pct">{{pct}}<text class="pct-sign">%</text></text>
   </view>
@@ -296,7 +280,7 @@
       <text class="ctl-label">{{ui.backLabel}}</text>
     </button>
     <view class="ctl-center">
-      <text class="g-mark">🧭</text>
+      <text class="g-mark">GEO</text>
     </view>
     <button class="ctl ctl-up" bindtap="onStepUp">
       <text class="ctl-glyph up">{{ui.forwardGlyph}}</text>
@@ -306,7 +290,7 @@
 
   <!-- 知识提示条 -->
   <view wx:if="{{hint.show}}" class="hint" bindtap="onHintTap">
-    <text class="hint-ico">💡</text>
+    <text class="hint-ico">i</text>
     <text class="hint-text">{{hint.text}}</text>
     <text class="hint-arrow">›</text>
   </view>
@@ -335,12 +319,12 @@
   <!-- ===== 开始引导 ===== -->
   <view wx:if="{{intro}}" class="overlay intro">
     <view class="intro-card">
-      <text class="ico">{{emoji}}</text>
+      <view class="ico"><text>GEO</text></view>
       <text class="intro-title">{{title}}</text>
       <text class="intro-sub">{{subtitle}}</text>
       <view class="intro-meta">
-        <text class="meta-chip">📍 {{metaPlace}} · {{metaRegion}}</text>
-        <text class="meta-chip">⏱️ 约 {{estMinutes}} 分钟</text>
+        <text class="meta-chip">{{metaPlace}} · {{metaRegion}}</text>
+        <text class="meta-chip">地貌观察 · {{estMinutes}} 分钟</text>
       </view>
       <view class="intro-desc">{{metaDesc}}</view>
       <button class="btn-primary" bindtap="onStartClimb">开始探索</button>
@@ -350,7 +334,7 @@
 
   <!-- 里程碑穿越提示（克制横幅；复用 stage-banner 样式） -->
   <view wx:if="{{milestoneBanner.show}}" class="stage-banner ms-banner">
-    <text class="sb-emoji">{{milestoneBanner.emoji}}</text>
+    <view class="sb-mark"><text>地貌</text></view>
     <view class="sb-main">
       <text class="sb-name">{{milestoneBanner.title}}</text>
       <text class="sb-biome">{{milestoneBanner.biome}}</text>
@@ -359,7 +343,7 @@
 
   <!-- 自然带横幅 ===== -->
   <view wx:if="{{stageBanner.show}}" class="stage-banner">
-    <text class="sb-emoji">{{stageBanner.emoji}}</text>
+    <view class="sb-mark"><text>地貌</text></view>
     <view class="sb-main">
       <text class="sb-name">{{stageBanner.title}}</text>
       <text class="sb-biome">{{stageBanner.biome}}</text>
@@ -370,7 +354,7 @@
   <view wx:if="{{routeOverview && routeOverview.show}}" class="rou-mask" catchtouchmove="noop">
     <view class="rou-card">
       <view class="rou-head">
-        <text class="rou-title">🗺 {{routeOverview.name}}</text>
+          <text class="rou-title">{{routeOverview.name}}</text>
         <text class="rou-close" bindtap="onCloseRouteOverview">✕</text>
       </view>
       <text class="rou-intro">{{routeOverview.intro}}</text>
@@ -391,8 +375,8 @@
       </view>
 
       <view class="rou-ends">
-        <text class="rou-end">🚩 {{routeOverview.startName}} {{routeOverview.startElevText}}</text>
-        <text class="rou-end rou-end-right">🏔 {{routeOverview.endName}} {{routeOverview.endElevText}}</text>
+        <text class="rou-end">起点 · {{routeOverview.startName}} {{routeOverview.startElevText}}</text>
+        <text class="rou-end rou-end-right">终点 · {{routeOverview.endName}} {{routeOverview.endElevText}}</text>
       </view>
 
       <view class="rou-profile">
@@ -409,7 +393,7 @@
       <scroll-view class="rou-scroll" scroll-y>
         <view class="rou-sec-title">路线阶段（{{routeOverview.stages.length}}）</view>
         <view class="rou-item" wx:for="{{routeOverview.stages}}" wx:key="index">
-          <text class="rou-item-emoji">{{item.emoji}}</text>
+          <view class="rou-item-mark"><text>地貌</text></view>
           <view class="rou-item-main">
             <view class="rou-item-head">
               <text class="rou-item-name">{{item.index}}. {{item.name}}</text>
@@ -445,13 +429,14 @@
   <!-- ===== 途经点介绍卡 ===== -->
   <view wx:if="{{waypointCard && waypointCard.show}}" class="wpc-mask" catchtouchmove="noop">
     <view class="wpc-card">
+      <image wx:if="{{waypointCard.image}}" class="wpc-image" mode="aspectFill" src="{{waypointCard.image}}"></image>
       <view class="wpc-head">
         <text class="wpc-name">{{waypointCard.name}}</text>
         <text wx:if="{{waypointCard.altitudeText}}" class="wpc-alt">{{waypointCard.altitudeText}}</text>
       </view>
       <text class="wpc-desc">{{waypointCard.desc}}</text>
-      <text wx:if="{{waypointCard.lockedKnowledge}}" class="wpc-lock">🔒 抵达此处后可解锁相关知识</text>
-      <button class="wpc-btn" bindtap="onWaypointCardClose">继续攀登</button>
+      <text wx:if="{{waypointCard.lockedKnowledge}}" class="wpc-lock">抵达此处后可解锁相关知识</text>
+      <button class="wpc-btn" bindtap="onWaypointCardClose">继续观察</button>
     </view>
   </view>
 
@@ -470,7 +455,7 @@
   <view wx:if="{{quiz && quiz.show}}" class="quiz-mask" catchtouchmove="noop">
     <view class="quiz-card">
       <view class="quiz-head">
-        <text class="quiz-ico">{{quiz.nodeEmoji}}</text>
+        <view class="quiz-ico"><text>知识</text></view>
         <text class="quiz-tag">随堂测验</text>
       </view>
       <text class="quiz-lead">{{quiz.lead}}</text>
@@ -495,7 +480,7 @@
 
   <!-- ===== 终局庆祝 ===== -->
   <view wx:if="{{celebration}}" class="overlay celebration">
-    <text class="celebrate-emoji">{{destination.emoji}}</text>
+    <view class="celebrate-mark"><text>GEO</text></view>
     <text class="celebrate-title">{{destination.title}}</text>
     <text class="celebrate-elev">{{destination.tagline}}</text>
     <text class="celebrate-msg">{{metaPlace}} · {{ui.axisLabel}} {{maxElevationText}} {{ui.axisUnit}}</text>
@@ -505,7 +490,7 @@
   <view wx:if="{{summit && summaryStats}}" class="overlay summit">
     <view class="summit-card">
       <view class="summit-head">
-        <text class="summit-badge">🏆</text>
+        <view class="summit-badge"><text>完成</text></view>
         <view class="summit-head-text">
           <text class="summit-title">探险完成！</text>
           <text class="summit-sub">你探索了 {{metaPlace}} · {{ui.extentWord}} {{summaryStats.maxText}} {{ui.axisUnit}}</text>
@@ -543,7 +528,7 @@
         <text class="summit-band-t">获得成就</text>
         <view wx:if="{{summaryStats.achievements.length}}" class="ach-list">
           <view wx:for="{{summaryStats.achievements}}" wx:key="id" class="ach-item">
-            <text class="ach-emoji">{{item.emoji}}</text>
+            <view class="ach-mark"><text>成就</text></view>
             <view class="ach-text">
               <text class="ach-title">{{item.title}}</text>
               <text class="ach-desc">{{item.desc}}</text>
@@ -558,7 +543,7 @@
         <view class="next-stops">
           <view class="next-stop" wx:for="{{nextStops}}" wx:key="id"
             data-id="{{item.id}}" bindtap="onOpenNextStop">
-            <text class="next-stop-emoji">{{item.emoji}}</text>
+            <view class="next-stop-mark"><text>下一站</text></view>
             <view class="next-stop-text">
               <text class="next-stop-name">{{item.name}}</text>
               <text class="next-stop-sub">{{item.shortDescription}}</text>

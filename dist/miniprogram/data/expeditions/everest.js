@@ -107,42 +107,43 @@ exports.EVEREST_STAGE_MAP = stageMap;
 /* ------------------------------------------------------------------ */
 /* 相机配置（数据层声明；Gate 4 渲染才消费）                              */
 /* ------------------------------------------------------------------ */
+/**
+ * 每个真实里程碑都是一个镜头场景锚点。
+ *
+ * 这里不再引用旧的 Blender 视图图，而是对批准的写实主景做连续的
+ * 景别/焦点变化：抵达每个节点时，山体构图、路线投影和信息层一起进入
+ * 该节点的镜头状态；节点之间仍然平滑过渡，不会瞬移。
+ */
+const CHECKPOINT_CAMERA_PRESETS = [
+    { id: "base-camp", scale: 1.02, offsetX: 0.50, offsetY: 0.64, focus: { x: 0.50, y: 0.68 } },
+    { id: "khumbu-icefall", scale: 1.05, offsetX: 0.52, offsetY: 0.59, focus: { x: 0.47, y: 0.62 } },
+    { id: "camp-i", scale: 1.08, offsetX: 0.48, offsetY: 0.55, focus: { x: 0.52, y: 0.57 } },
+    { id: "western-cwm-camp-ii", scale: 1.11, offsetX: 0.46, offsetY: 0.50, focus: { x: 0.48, y: 0.52 } },
+    { id: "lhotse-face-camp-iii", scale: 1.14, offsetX: 0.52, offsetY: 0.46, focus: { x: 0.56, y: 0.47 } },
+    { id: "south-col-camp-iv", scale: 1.17, offsetX: 0.55, offsetY: 0.42, focus: { x: 0.44, y: 0.41 } },
+    { id: "south-summit", scale: 1.20, offsetX: 0.48, offsetY: 0.38, focus: { x: 0.52, y: 0.34 } },
+    { id: "summit", scale: 1.24, offsetX: 0.50, offsetY: 0.34, focus: { x: 0.50, y: 0.28 } },
+];
+function checkpointProgress(id) {
+    var _a, _b;
+    return (_b = (_a = routeIndex.milestones.find((milestone) => milestone.id === id)) === null || _a === void 0 ? void 0 : _a.progress) !== null && _b !== void 0 ? _b : 0;
+}
 const camera = {
-    segments: [
-        {
-            id: "camera-a",
-            fromProgress: 0,
-            toProgress: 0.4,
-            asset: "everest-view-a",
-            scale: 1.06,
-            offsetX: 0.50,
-            offsetY: 0.56,
-            fromOffsetX: 0.54,
-            fromOffsetY: 0.62,
-            fromFocus: { x: 0.50, y: 0.66 },
-            focus: { x: 0.50, y: 0.58 },
-        },
-        {
-            id: "camera-b",
-            fromProgress: 0.4,
-            toProgress: 0.66,
-            asset: "everest-view-b",
-            scale: 1.12,
-            offsetX: 0.46,
-            offsetY: 0.51,
-            focus: { x: 0.48, y: 0.52 },
-        },
-        {
-            id: "camera-c",
-            fromProgress: 0.66,
-            toProgress: 1,
-            asset: "everest-view-c",
-            scale: 1.2,
-            offsetX: 0.54,
-            offsetY: 0.42,
-            focus: { x: 0.52, y: 0.36 },
-        },
-    ],
+    segments: CHECKPOINT_CAMERA_PRESETS.map((preset, index, presets) => {
+        const progress = checkpointProgress(preset.id);
+        const nextProgress = index < presets.length - 1 ? checkpointProgress(presets[index + 1].id) : 1;
+        return {
+            id: `camera-${preset.id}`,
+            // 场景边界严格落在里程碑：抵达节点才切换，不提前半段换镜头。
+            fromProgress: progress,
+            toProgress: nextProgress,
+            asset: "everest-expedition-hero-v1",
+            scale: preset.scale,
+            offsetX: preset.offsetX,
+            offsetY: preset.offsetY,
+            focus: preset.focus,
+        };
+    }),
 };
 /* ------------------------------------------------------------------ */
 /* 媒体清单（schema 已锁定，validateMediaManifest 校验）                  */

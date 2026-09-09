@@ -46,6 +46,8 @@ export interface TerrainOverlayOriginUi {
   key: string;
   x: number;
   y: number;
+  /** 里程碑在 canonical route 上的连续进度，用于隐藏尚未抵达的节点。 */
+  progress: number;
   /** 展示名（页面可用本地化标签覆盖；空则不显示标签） */
   label: string;
   /** 真实权威参考海拔（m） */
@@ -105,9 +107,10 @@ type ProjectionFrame = TerrainProjectionBasis;
 
 const CANVAS_W = 9;
 const CANVAS_H = 16;
-/** 屏幕纵向安全边距（%）：峰顶靠上（TOP），大本营靠下（BOTTOM） */
+/** 屏幕纵向安全边距（%）：峰顶靠上（TOP），大本营留在底部面板上缘之上（BOTTOM） */
 const SUMMIT_TOP_Y = 14;
-const BASE_BOTTOM_Y = 88;
+// 底部信息面板从约 60% 开始；留出 4% 安全边距，起点/当前点不贴面板边缘。
+const BASE_BOTTOM_Y = 56;
 /** 横向偏差摆幅（屏宽 %）：dev 归一后 ±调幅 */
 const DEV_AMP = 34;
 
@@ -316,6 +319,7 @@ export function buildTerrainRouteGeometry(
       key: m.id,
       x: p.x,
       y: p.y,
+      progress: routeIndex.totalDistanceM > 0 ? m.distanceM / routeIndex.totalDistanceM : 0,
       label: m.name,
       elevationM: Math.round(m.refM),
       distanceM: m.distanceM,

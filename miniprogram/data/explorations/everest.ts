@@ -1,5 +1,5 @@
 /**
- * 🏔️ 攀登珠穆朗玛峰 —— 探索场景数据（MVP 核心 Demo）。
+ * 珠穆朗玛峰地貌观察 —— 探索场景数据（MVP 核心 Demo）。
  *
  * 数据真实性：山峰高程、关键点位海拔、植被/雪线/含氧量均为**现有公开资料**的近似值；
  * 每个知识节点带来源字段（source/verifiedAt/approximate），无法确认的数值明确标注近似。
@@ -45,13 +45,13 @@ const SRC_GLACIER: DataSource = {
 export const EVEREST: Exploration = {
   id: "everest",
   slug: "everest",
-  title: "攀登珠穆朗玛峰",
-  subtitle: "从山麓到世界之巅 · 海拔 8848.86 m",
+  title: "观察珠穆朗玛峰地貌",
+  subtitle: "从冰川前缘到雪峰顶部 · 认识高山地貌",
   emoji: "🏔️",
   meta: {
     placeLabel: "珠穆朗玛峰",
     region: "喜马拉雅山脉",
-    typeLabel: "极高山 / 山地",
+    typeLabel: "高山地貌",
     description:
       "世界最高峰（8,848.86 m）。从亚热带林带一路穿过针叶林、草甸、高山荒漠到永久积雪，在一条海拔剖面上看完整个地球的垂直自然带。",
     tags: ["世界屋脊", "垂直分带", "中尼联合测量"],
@@ -70,24 +70,24 @@ export const EVEREST: Exploration = {
   ui: {
     axisLabel: "海拔",
     axisUnit: "m",
-    forwardLabel: "攀登",
-    forwardGlyph: "▲",
-    backLabel: "下撤",
-    backGlyph: "▼",
-    remainingLabel: "距峰顶",
-    advanceHint: "上滑屏幕或点底部「继续攀登」前进 · 途经节点记得「查看详情」",
-    stagesLabel: "穿越自然带",
-    extentWord: "最高",
+    forwardLabel: "下一个地貌",
+    forwardGlyph: "→",
+    backLabel: "上一个地貌",
+    backGlyph: "←",
+    remainingLabel: "观察点",
+    advanceHint: "上滑或点底部按钮浏览下一个地貌 · 点击节点查看解释",
+    stagesLabel: "地貌主题",
+    extentWord: "最高点",
   },
   destination: {
     label: "峰顶",
-    title: "登顶成功！",
-    tagline: "世界之巅 · 海拔 8,848.86 m",
+    title: "完成地貌观察！",
+    tagline: "从冰川前缘看到雪峰顶部",
     emoji: "🏔️",
   },
   route: {
     id: "everest-south-col",
-    name: "珠峰南坡攀登线",
+    name: "珠峰高山地貌观察序列",
     // 此路线是经典南坡攀登空间的参考表达；progress 映射教学用 0–8848.86m 轴，
     // altitude 只用于标示各营地的真实参考高度，不改变通用 Exploration Axis。
     waypoints: [
