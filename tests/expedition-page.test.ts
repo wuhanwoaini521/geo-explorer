@@ -90,6 +90,35 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(v.atSummit).toBe(false);
   });
 
+  it("LIVE 回退 TERRAIN 后仍会挂载真实路线 overlay", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    // 模拟实景资源解码失败后的会话状态：当前应诚实回退 DEM，但不能丢路线。
+    inst.visBroken = true;
+    inst.visMode = "TERRAIN";
+    inst.data.visActive = "TERRAIN";
+    driveTo(inst, 0.67);
+    const data = inst.data as Record<string, any>;
+    expect(data.terrainRouteGeometry?.segments.length).toBeGreaterThan(2);
+    expect(data.terrainDynamicState?.marker).toEqual(
+      expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) }),
+    );
+    expect(data.conceptRoute?.points).toHaveLength(5);
+  });
+
+  it("点击概念路线途经点打开带实景图的浮窗", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    inst.onTapExpeditionWaypoint({ currentTarget: { dataset: { id: "camp-i" } } });
+    expect(inst.data.waypointCard).toEqual(
+      expect.objectContaining({
+        name: "冰川谷地",
+        image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+        show: true,
+      }),
+    );
+  });
+
   it("途中（progress=0.5）：真实里程 / 当前·下一站 / 剩余垂直参考差", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "everest" });

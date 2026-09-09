@@ -4,7 +4,7 @@
  * 地点详情页（数据组装/收藏/关联/非法 id 兜底）。
  */
 import { describe, expect, it, beforeAll, vi } from "vitest";
-import { setPendingTypeFilter } from "../miniprogram/services/ui-bus";
+import { setPendingSearchQuery, setPendingTypeFilter } from "../miniprogram/services/ui-bus";
 
 /* ---------------- wx / Page 全局 mock ---------------- */
 const wxCalls: Record<string, unknown[][]> = {};
@@ -113,6 +113,14 @@ describe("首页装配", () => {
     tap(inst, "onOpenType", { type: "desert" });
     expect(lastNavUrl("switchTab")).toContain("/pages/map/index");
   });
+
+  it("首页搜索确认 → switchTab 地图并传递关键词", () => {
+    wxCalls.switchTab = [];
+    const inst = createInstance(home);
+    inst.setData({ query: "贝加尔" });
+    inst.onQueryConfirm();
+    expect(lastNavUrl("switchTab")).toContain("/pages/map/index");
+  });
 });
 
 /* ---------------- 地图页（世界图鉴） ---------------- */
@@ -180,12 +188,31 @@ describe("地图页图鉴", () => {
     expect((inst.data as Record<string, any>).activeType).toBe("all");
   });
 
-  it("点击地点卡 → navigateTo 地点详情", () => {
+  it("点击当前观察卡 → navigateTo 对应探索与节点", () => {
     wxCalls.navigateTo = [];
     const inst = createInstance(map);
     inst.onLoad();
-    tap(inst, "onOpenPlace", { id: "p-everest" });
-    expect(lastNavUrl("navigateTo")).toContain("id=p-everest");
+    const currentId = (inst.data as any).activePlace.id;
+    tap(inst, "onOpenPlaceCard", {});
+    expect(lastNavUrl("navigateTo")).toContain(`id=everest&waypointId=${currentId}`);
+  });
+
+  it("首页搜索通过 switchTab 到地图后仍保留关键词", () => {
+    const inst = createInstance(map);
+    inst.onLoad();
+    setPendingSearchQuery("珠穆朗玛");
+    inst.onShow();
+    expect((inst.data as any).query).toBe("珠穆朗玛");
+    expect((inst.data as any).atlas.map((p: any) => p.id)).toContain("p-everest");
+  });
+
+  it("点击路线节点 → 只更新真实节点，不再跳转到固定地点", () => {
+    wxCalls.navigateTo = [];
+    const inst = createInstance(map);
+    inst.onLoad();
+    tap(inst, "onMapPointTap", { id: (inst.data as any).mapPoints[0].id });
+    expect((inst.data as any).activePointId).toBe((inst.data as any).mapPoints[0].id);
+    expect((inst.data as any).activePlace.id).toBe((inst.data as any).mapPoints[0].id);
   });
 });
 
@@ -250,5 +277,14 @@ describe("地点详情页", () => {
     expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=");
     tap(inst, "onOpenKnowledge", { id: data.knowledge[0].id });
     expect(lastNavUrl("navigateTo")).toContain("/pages/knowledge-detail/index?id=");
+  });
+
+  it("详情页五个标签是真实状态切换", () => {
+    const inst = createInstance(place);
+    inst.onLoad({ id: "p-fuji" });
+    tap(inst, "onDetailTabTap", { tab: "terrain" });
+    expect((inst.data as any).activeDetailTab).toBe("terrain");
+    tap(inst, "onDetailTabTap", { tab: "knowledge" });
+    expect((inst.data as any).activeDetailTab).toBe("knowledge");
   });
 });

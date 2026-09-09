@@ -122,6 +122,11 @@ describe("TERRAIN 路线投影层", () => {
     expect(ovMid.marker.y).toBeGreaterThanOrEqual(lo - 3);
     expect(ovMid.marker.y).toBeLessThanOrEqual(hi + 3);
   });
+
+  it("68% 攀登进度的当前点位于底部面板上缘之上", () => {
+    const ov = buildTerrainOverlay(routeIndex, 0.68);
+    expect(ov.marker.y).toBeLessThan(61);
+  });
 });
 
 function expectNumberInCanvas(v: number): void {

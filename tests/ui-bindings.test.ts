@@ -110,4 +110,55 @@ describe("探索页视觉约束", () => {
     expect(wxml).not.toMatch(/climber|hillman|🧗|🤿/);
     expect(wxss).not.toMatch(/\.climber|\.hillman|\.m-climber/);
   });
+
+  it("探索进度 HUD 保留路线核心信息，不用长文案/链接堆满底部视野", () => {
+    const wxml = readFileSync(join(PAGES_DIR, "exploration", "index.wxml"), "utf-8");
+    expect(wxml).not.toMatch(/class="exp-current-copy"/);
+    expect(wxml).not.toMatch(/class="exp-links"/);
+    expect(wxml).not.toMatch(/class="exp-step"/);
+    expect(wxml).toMatch(/class="concept-route"/);
+    expect(wxml).toMatch(/conceptRoute\.segments/);
+    expect(wxml).toMatch(/conceptRoute\.completedSegments/);
+    expect(wxml).toMatch(/liveOverlay && !routeMode/);
+    expect(wxml).toMatch(/bindtap="onTapExpeditionWaypoint"/);
+    expect(wxml).toMatch(/waypointCard\.image/);
+    expect(wxml).toMatch(/class="exp-route-hint"/);
+  });
+});
+
+describe("核心页面交互控件确实渲染", () => {
+  it("app.json、custom-tab-bar、页面 selected 使用同一套五项索引", () => {
+    const app = JSON.parse(readFileSync(join(ROOT, "app.json"), "utf-8"));
+    const tabPaths = app.tabBar.list.map((item: { pagePath: string }) => item.pagePath);
+    expect(tabPaths).toEqual([
+      "pages/home/index", "pages/map/index", "pages/knowledge/index",
+      "pages/quiz/index", "pages/profile/index",
+    ]);
+    const tabWxml = readFileSync(join(ROOT, "custom-tab-bar", "index.wxml"), "utf-8");
+    const tabTs = readFileSync(join(ROOT, "custom-tab-bar", "index.ts"), "utf-8");
+    expect((tabTs.match(/pagePath: \"\/pages\//g) ?? []).length).toBe(5);
+    expect(tabWxml).toContain("selected * 20");
+    expect(readFileSync(join(PAGES_DIR, "quiz", "index.ts"), "utf-8")).toContain("selected: 3");
+    expect(readFileSync(join(PAGES_DIR, "profile", "index.ts"), "utf-8")).toContain("selected: 4");
+  });
+
+  it("首页/地图/知识/地点详情的关键控件都有实际绑定", () => {
+    const home = readFileSync(join(PAGES_DIR, "home", "index.wxml"), "utf-8");
+    const map = readFileSync(join(PAGES_DIR, "map", "index.wxml"), "utf-8");
+    const knowledge = readFileSync(join(PAGES_DIR, "knowledge", "index.wxml"), "utf-8");
+    const place = readFileSync(join(PAGES_DIR, "place", "index.wxml"), "utf-8");
+    expect(home).toMatch(/bindinput="onQueryInput"/);
+    expect(home).toMatch(/bindtap="onOpenType"/);
+    expect(home).toMatch(/stats.completed/);
+    expect(home).toMatch(/featured/);
+    expect(home).toMatch(/discovery.content/);
+    expect(map).toMatch(/bindtap="onToggleAtlas"/);
+    expect(map).toMatch(/bindinput="onQueryInput"/);
+    expect(map).toMatch(/data-id="\{\{item\.id\}\}" bindtap="onMapPointTap"/);
+    expect(map).toMatch(/wx:for="\{\{atlas\}\}"/);
+    expect(knowledge).toMatch(/bindinput="onQueryInput"/);
+    expect(knowledge).toMatch(/bindtap="onCategoryTap"/);
+    expect(place).toMatch(/bindtap="onDetailTabTap"/);
+    expect(place).toMatch(/activeDetailTab === 'environment'/);
+  });
 });
