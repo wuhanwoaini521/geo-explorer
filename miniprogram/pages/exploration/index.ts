@@ -135,7 +135,6 @@ const LAYER_SPEED = {
   mid: 0.52,
   near: 0.82,
   ground: 1.0,
-  climber: 1.12,
   snow: 1.26,
 };
 const METRICS_PINNED = 3; // 指标条缺省折叠数量，其余折叠为“更多”
@@ -694,7 +693,7 @@ Page({
 
     // 环境图层
     skyGradient: "",
-    par: { sky: 0, far: 0, mid: 0, near: 0, ground: 0, climber: 0, snow: 0 },
+    par: { sky: 0, far: 0, mid: 0, near: 0, ground: 0, snow: 0 },
     fogOpacity: 0,
     snowCover: 0,
     vegetation: 1,
@@ -702,7 +701,6 @@ Page({
     terrainTop: "#4a7a3a",
     terrainBottom: "#26401f",
     flora: [] as FloraItem[],
-    climberLean: 0,
     particles: [] as Particle[],
     bubbles: [] as Particle[], // 海洋世界：上浮气泡（复用 Particle 结构）
     rayOpacity: 0, // 海洋世界：表层光柱透明度（随深度衰减）
@@ -1765,7 +1763,6 @@ Page({
       ).toFixed(2)})`;
       patch.terrainTop = d.terrainTint[0];
       patch.terrainBottom = d.terrainTint[1];
-      patch.climberLean = Math.round(clamp(d.wind * 6, 0, 6));
       // 海洋世界：表层光柱随深度衰减（只在阶段边界更新，低频）
       if (this.data.worldOcean) {
         patch.rayOpacity = Math.round((1 - progress) * 50) / 100;
@@ -1795,7 +1792,6 @@ Page({
       Math.round(progress * PARALLAX_BASE * LAYER_SPEED.mid),
       Math.round(progress * PARALLAX_BASE * LAYER_SPEED.near),
       Math.round(progress * PARALLAX_BASE * LAYER_SPEED.ground),
-      Math.round(progress * PARALLAX_BASE * LAYER_SPEED.climber),
       Math.round(progress * PARALLAX_BASE * LAYER_SPEED.snow),
     ];
     const parKey = parVals.join(",");
@@ -1807,8 +1803,7 @@ Page({
         mid: parVals[2],
         near: parVals[3],
         ground: parVals[4],
-        climber: parVals[5],
-        snow: parVals[6],
+        snow: parVals[5],
       };
     }
 
@@ -1896,6 +1891,7 @@ Page({
       this.data.intro ||
         this.data.summit ||
         this.data.celebration ||
+        this.data.expClimbing ||
         (this.data.quiz && this.data.quiz.show),
     );
   },
@@ -1904,6 +1900,7 @@ Page({
     if (this.busy()) return;
     const t = e.touches && e.touches[0];
     if (!t) return;
+    if (this.data.expClimbing) return;
     this.touching = true;
     this.lastTouchY = t.clientY;
     if (this.routeMode) {
@@ -1913,6 +1910,7 @@ Page({
 
   onTouchMove(e: PageEvent) {
     if (!this.touching) return;
+    if (this.data.expClimbing) return;
     const t = e.touches && e.touches[0];
     if (!t) return;
     const dy = this.lastTouchY - t.clientY; // 上滑 → 前进
@@ -1973,6 +1971,8 @@ Page({
     this.climbPhase = "climbing";
     this.climbDirection = deltaM >= 0 ? "前进" : "下撤";
     this.climbDistanceM = Math.abs(deltaM);
+    // 按钮触发攀登时结束可能残留的滑动手势，避免动画结束后继续消费旧 touch 状态。
+    this.touching = false;
     this.setData({
       expMoving: true,
       expMotionText: deltaM >= 0 ? "沿路线前进中" : "沿路线下撤中",

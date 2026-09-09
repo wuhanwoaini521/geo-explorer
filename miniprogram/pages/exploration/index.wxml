@@ -109,9 +109,6 @@
     <view class="flora-layer" style="transform:translate3d(0,-{{par.near}}px,0)">
       <text wx:for="{{flora}}" wx:key="emoji" class="flora-item" style="left:{{item.left}}%; bottom:{{item.bottom}}vh; font-size:{{item.size}}rpx">{{item.emoji}}</text>
     </view>
-    <view class="climber" style="transform:translate3d(0,-{{par.climber}}px,0) rotate({{0-climberLean}}deg)">
-      <text class="hillman">{{worldOcean ? '🤿' : '🧗'}}</text>
-    </view>
   </block>
 
   <!-- 风雪粒子（强度=雪量，档位化；山岳世界 DEM 照片自带雪景，不再叠加粒子避免盖脸） -->
@@ -186,11 +183,12 @@
           <view class="exp-route-fill" style="width:{{expedition.progress * 100}}%"></view>
           <view class="exp-route-marker" style="left:{{expedition.progress * 100}}%"></view>
         </view>
-        <view class="exp-route-meta">
-          <text class="exp-route-label">Base Camp</text>
-          <text class="exp-route-pct">{{expedition.pct}}%</text>
-          <text class="exp-route-label">Summit</text>
-        </view>
+      <view class="exp-route-meta">
+        <text class="exp-route-label">Base Camp</text>
+        <text class="exp-route-pct">{{expedition.pct}}%</text>
+        <text class="exp-route-label">Summit</text>
+      </view>
+      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在沿路线移动…' : '上滑前进 · 下滑回撤'}}</text>
       </view>
 
       <view class="exp-current-copy">
@@ -229,7 +227,7 @@
           class="exp-ctl exp-ctl-up"
           bindtap="onStepUp"
           disabled="{{expClimbing}}"
-        >{{expClimbLabel}}</button>
+          >{{expClimbLabel === '攀登' ? '继续攀登' : expClimbLabel}}</button>
       </view>
     </view>
 
