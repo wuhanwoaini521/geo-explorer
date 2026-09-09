@@ -60,8 +60,8 @@ function pageWxmlFiles(page: string): string[] {
 }
 
 describe("WXML 事件绑定 ↔ 页面方法一致性", () => {
-  it("页面模块均已注册（9 页 + 1 组件）", () => {
-    expect(pageDefs.size).toBe(9);
+  it("页面模块均已注册（13 页 + 1 组件）", () => {
+    expect(pageDefs.size).toBe(13);
     expect(componentDefs.length).toBe(1);
   });
 
