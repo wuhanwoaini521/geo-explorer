@@ -145,7 +145,7 @@
           <text class="exp-elev">{{expedition.currentElevText}}</text>
           <text class="exp-elev-unit">m</text>
         </view>
-        <text class="exp-pos-name">{{expedition.currentName}}</text>
+        <text class="exp-pos-name" bindtap="onOpenCurrentCamp">{{expedition.currentName}} ›</text>
       </view>
 
       <!-- 距顶峰（单行高差，简化） -->
@@ -164,7 +164,7 @@
             <text class="exp-stage-name">{{expedition.stageName}}</text>
           </view>
         </view>
-        <view class="exp-env">
+        <view class="exp-env" bindtap="onOpenAltitudePage">
           <view class="exp-env-item">
             <text class="exp-env-k">气压</text>
             <text class="exp-env-v">{{expedition.pressText}}</text>
@@ -193,6 +193,18 @@
         </view>
       </view>
 
+      <view class="exp-current-copy">
+        <text class="exp-current-k">当前行程</text>
+        <text class="exp-current-desc">{{expedition.stageIntro}}</text>
+      </view>
+
+      <view class="exp-links">
+        <text bindtap="onOpenRouteOverviewPage">路线概览</text>
+        <text bindtap="onOpenAltitudePage">海拔变化</text>
+        <text bindtap="onOpenPeaksPage">周边山峰</text>
+        <text bindtap="onOpenKnowledgePage">相关知识</text>
+      </view>
+
       <!-- 下一站（终点不展示） -->
       <view wx:if="{{expedition.nextName}}" class="exp-step">
         <text class="exp-step-k">下一站</text>
@@ -212,7 +224,7 @@
           bindtap="onStepDown"
           disabled="{{expClimbing}}"
         >下撤</button>
-        <button class="exp-ctl exp-ctl-route" bindtap="onViewRoute">查看路线</button>
+        <button class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">查看路线</button>
         <button
           class="exp-ctl exp-ctl-up"
           bindtap="onStepUp"

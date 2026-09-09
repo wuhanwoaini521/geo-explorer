@@ -1586,6 +1586,38 @@ Page({
     });
   },
 
+  /** 参考页 05：打开独立路线概览，不再把路线清单塞进探索 HUD。 */
+  onOpenRouteOverviewPage() {
+    const progress = this.data.expedition?.progress ?? this.current;
+    wx.navigateTo({
+      url: `/pages/route-overview/index?id=everest&progress=${Math.max(0, Math.min(1, progress))}`,
+    });
+  },
+
+  /** 参考页 04：当前位置直接进入营地/途经点详情。 */
+  onOpenCurrentCamp() {
+    const core = this.expeditionCore;
+    if (!core) return;
+    const drive = driveAtProgress(core, this.current);
+    const id = drive.current?.id || "lhotse-face-camp-iii";
+    wx.navigateTo({ url: `/pages/camp-detail/index?id=${id}` });
+  },
+
+  /** 参考页 06：海拔与环境曲线。 */
+  onOpenAltitudePage() {
+    wx.navigateTo({ url: "/pages/altitude/index?id=everest" });
+  },
+
+  /** 参考页 07：周边山峰实景。 */
+  onOpenPeaksPage() {
+    wx.navigateTo({ url: "/pages/peaks/index?id=everest" });
+  },
+
+  /** 参考页 08：相关知识列表。 */
+  onOpenKnowledgePage() {
+    wx.switchTab({ url: "/pages/knowledge/index" });
+  },
+
   onCloseRouteOverview() {
     this.setData({ routeOverview: null });
   },

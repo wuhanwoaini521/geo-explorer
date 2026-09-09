@@ -1473,6 +1473,9 @@ page {
   white-space: nowrap;
   text-align: right;
 }
+.exp-current-copy { display: flex; flex-direction: column; gap: 3rpx; padding: 2rpx 0; }
+.exp-current-k { color: rgba(255,255,255,0.5); font-size: 17rpx; }
+.exp-current-desc { color: rgba(255,255,255,0.74); font-size: 19rpx; line-height: 1.35; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 /* 距顶峰：单行精简（去卡片，青色弱化） */
 .exp-goal {
@@ -1535,6 +1538,8 @@ page {
   white-space: nowrap;
 }
 .exp-step-gap { font-size: 17rpx; color: rgba(255,255,255,0.5); margin-left: auto; }
+.exp-links { display: flex; justify-content: space-between; padding: 2rpx 4rpx; color: #8fcdf1; font-size: 18rpx; }
+.exp-links text { padding: 6rpx 4rpx; }
 
 /* 阶段 + 环境三指标 */
 .exp-core {
