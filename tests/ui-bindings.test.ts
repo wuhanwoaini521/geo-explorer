@@ -102,3 +102,12 @@ describe("自定义组件事件命名", () => {
     for (const t of triggers) expect(["close", "continue"]).toContain(t);
   });
 });
+
+describe("探索页视觉约束", () => {
+  it("不再渲染与当前界面不匹配的人形装饰", () => {
+    const wxml = readFileSync(join(PAGES_DIR, "exploration", "index.wxml"), "utf-8");
+    const wxss = readFileSync(join(PAGES_DIR, "exploration", "index.wxss"), "utf-8");
+    expect(wxml).not.toMatch(/climber|hillman|🧗|🤿/);
+    expect(wxss).not.toMatch(/\.climber|\.hillman|\.m-climber/);
+  });
+});

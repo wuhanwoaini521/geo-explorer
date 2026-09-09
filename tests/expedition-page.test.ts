@@ -194,6 +194,19 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(ov.stages.length).toBeGreaterThanOrEqual(7);
     expect(ov.milestones.length).toBeGreaterThanOrEqual(8);
   });
+
+  it("攀登动画期间锁定手势，避免滑动与按钮同时改写路线位置", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    inst.data.intro = false;
+    inst.requestClimb(360);
+
+    expect(inst.data.expClimbing).toBe(true);
+    inst.onTouchStart({ touches: [{ clientY: 300 }] });
+    expect(inst.touching).toBe(false);
+    inst.onTouchMove({ touches: [{ clientY: 120 }] });
+    expect(inst.climbReq).toBeTruthy();
+  });
 });
 
 /* ---------------- Mariana（无 Expedition 附件）：旧探索兼容 ---------------- */
