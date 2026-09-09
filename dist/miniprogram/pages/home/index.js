@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 🏠 首页 —— 探索的起点（内容驱动，无硬编码业务数据）。
  *
- * 结构：Hero（品牌 + 真实 DEM 主视觉）→ 沉浸场景 → 精选目的地
+ * 结构：Hero（品牌 + 珠峰实景主视觉）→ 沉浸场景 → 精选目的地
  * → 按地貌探索（分类入口 → 地图页图鉴）→ 你知道吗（随机冷知识）→ 关于。
  */
 const index_1 = require("../../data/explorations/index");
