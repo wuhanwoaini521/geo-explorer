@@ -75,6 +75,7 @@ function downsamplePts(routeIndex, maxPoints) {
                 x: routeIndex.xs[i],
                 y: routeIndex.ys[i],
                 demM: routeIndex.demM[i],
+                progress: routeIndex.cumulative[i] / routeIndex.totalDistanceM,
             });
         }
         return out;
@@ -86,12 +87,14 @@ function downsamplePts(routeIndex, maxPoints) {
             x: routeIndex.xs[k],
             y: routeIndex.ys[k],
             demM: routeIndex.demM[k],
+            progress: routeIndex.cumulative[k] / routeIndex.totalDistanceM,
         });
     }
     out.push({
         x: routeIndex.xs[n - 1],
         y: routeIndex.ys[n - 1],
         demM: routeIndex.demM[n - 1],
+        progress: 1,
     });
     return out;
 }
@@ -112,9 +115,44 @@ function buildSegs(points) {
             y: (ay + by) / 2,
             lengthX: len,
             rotateDeg: (Math.atan2(dy, dx) * 180) / Math.PI,
+            startX: ax,
+            startY: ay,
+            endX: bx,
+            endY: by,
+            fromProgress: points[i].progress,
+            toProgress: points[i + 1].progress,
         });
     }
     return segs;
+}
+function buildCompletedSegs(segments, progress) {
+    const completed = [];
+    for (const segment of segments) {
+        if (progress <= segment.fromProgress)
+            continue;
+        const ratio = progress >= segment.toProgress
+            ? 1
+            : (progress - segment.fromProgress) /
+                Math.max(1e-6, segment.toProgress - segment.fromProgress);
+        const endX = segment.startX + (segment.endX - segment.startX) * clamp01(ratio);
+        const endY = segment.startY + (segment.endY - segment.startY) * clamp01(ratio);
+        const dx = endX - segment.startX;
+        const dy = endY - segment.startY;
+        const length = Math.hypot(dx, dy);
+        if (length < 0.02)
+            continue;
+        completed.push({
+            ...segment,
+            x: (segment.startX + endX) / 2,
+            y: (segment.startY + endY) / 2,
+            lengthX: length,
+            rotateDeg: (Math.atan2(dy, dx) * 180) / Math.PI,
+            endX,
+            endY,
+            toProgress: Math.min(progress, segment.toProgress),
+        });
+    }
+    return completed;
 }
 /**
  * 构建 TERRAIN 路线 overlay。
@@ -130,7 +168,7 @@ function buildTerrainRouteGeometry(routeIndex, opts) {
     const project = (p) => projectPointInto(frame, p);
     // 折线（全程真实点 → 屏幕）
     const rawPts = downsamplePts(routeIndex, maxPoints);
-    const screenPts = rawPts.map((p) => project(p));
+    const screenPts = rawPts.map((p) => ({ ...project(p), progress: p.progress }));
     const lastPt = screenPts[screenPts.length - 1];
     // 途经标点（营地 / 峰顶 / 起点）：全部由真实里程碑投影，绝不读像素数据
     const origins = routeIndex.milestones.map((m) => {
@@ -164,10 +202,14 @@ function buildTerrainDynamicState(routeIndex, progress, geometry) {
     const project = (p) => projectPointInto(frame, p);
     const at = (0, route_index_1.routeSampleAtProgress)(routeIndex, progress);
     const marker = project({ x: at.x, y: at.y, demM: at.demM });
+    const completedProgress = clamp01(progress);
     return {
         marker,
-        progress: clamp01(progress),
-        completedProgress: clamp01(progress),
+        progress: completedProgress,
+        completedProgress,
+        completedSegments: geometry
+            ? buildCompletedSegs(geometry.segments, completedProgress)
+            : [],
     };
 }
 /** 组合入口，保留旧 API 给现有纯逻辑测试与工具使用。 */

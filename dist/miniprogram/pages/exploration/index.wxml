@@ -41,6 +41,7 @@
          三景上的科学折线，非 LIVE 照片上的校准直线段，故用独立图层/配色。 -->
     <view wx:if="{{terrainRouteGeometry && terrainDynamicState}}" class="terrain-route" style="transform:{{terrainRouteTransform}}">
       <view wx:for="{{terrainRouteGeometry.segments}}" wx:key="index" class="terrain-route-seg" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
+      <view wx:for="{{terrainDynamicState.completedSegments}}" wx:key="index" class="terrain-route-seg terrain-route-seg-completed" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.lengthX}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
       <view wx:for="{{terrainRouteGeometry.origins}}" wx:key="key" class="terrain-route-anchor" style="left:{{item.x}}%;top:{{item.y}}%">
         <text class="terrain-route-anchor-tag" wx:if="{{item.label}}">{{item.label}}</text>
       </view>
@@ -182,7 +183,7 @@
       <!-- 真实进度（Base Camp ━━━●━━━ Summit + 实际 %，锚点即里程） -->
       <view class="exp-route">
         <view class="exp-route-track">
-          <view class="exp-route-fill" style="width:{{expedition.pct}}%"></view>
+          <view class="exp-route-fill" style="width:{{expedition.progress * 100}}%"></view>
           <view class="exp-route-marker" style="left:{{expedition.progress * 100}}%"></view>
         </view>
         <view class="exp-route-meta">

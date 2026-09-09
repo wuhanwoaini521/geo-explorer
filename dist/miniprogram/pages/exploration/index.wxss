@@ -1183,6 +1183,10 @@ page {
   background: repeating-linear-gradient(90deg, rgba(151, 241, 255, 0.95) 0 18rpx, rgba(151, 241, 255, 0.18) 18rpx 31rpx);
   box-shadow: 0 0 9rpx rgba(92, 215, 255, 0.5);
 }
+.terrain-route-seg-completed {
+  background: linear-gradient(90deg, #fff0ad, #ffd36a 68%, #8fe9ff);
+  box-shadow: 0 0 12rpx rgba(255, 205, 91, 0.86), 0 0 4rpx rgba(255,255,255,0.95);
+}
 .terrain-route-anchor {
   position: absolute;
   width: 20rpx;
@@ -1498,6 +1502,7 @@ page {
   bottom: 0;
   border-radius: 8rpx;
   background: linear-gradient(90deg, #2e9cff, #5ec2ff);
+  transition: width 0.08s linear;
 }
 .exp-route-marker {
   position: absolute;

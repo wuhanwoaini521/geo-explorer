@@ -31,6 +31,14 @@ export interface TerrainOverlaySegmentUi {
   lengthX: number;
   /** 与水平夹角（度） */
   rotateDeg: number;
+  /** 该段起点/终点，用于把“已走路线”裁到当前里程。 */
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  /** 该段对应的连续路线进度范围。 */
+  fromProgress: number;
+  toProgress: number;
 }
 
 /** TERRAIN 指示标点（大本营 / 营地 / 峰顶） */
@@ -83,6 +91,8 @@ export interface TerrainDynamicStateUi {
   progress: number;
   /** 连续路线完成进度；用于动态完成态，不与静态几何 key 绑定。 */
   completedProgress: number;
+  /** 当前进度以前的亮色轨迹，明确显示已经走过的路线。 */
+  completedSegments: TerrainOverlaySegmentUi[];
 }
 
 /** 向后兼容的组合结果：纯引擎调用仍可一次取得完整 overlay。 */
@@ -182,15 +192,16 @@ function projectPointInto(
 function downsamplePts(
   routeIndex: RouteIndex,
   maxPoints: number,
-): Array<{ x: number; y: number; demM: number }> {
+): Array<{ x: number; y: number; demM: number; progress: number }> {
   const n = routeIndex.pointCount;
-  const out: Array<{ x: number; y: number; demM: number }> = [];
+  const out: Array<{ x: number; y: number; demM: number; progress: number }> = [];
   if (n <= maxPoints) {
     for (let i = 0; i < n; i++) {
       out.push({
         x: routeIndex.xs[i],
         y: routeIndex.ys[i],
         demM: routeIndex.demM[i],
+        progress: routeIndex.cumulative[i] / routeIndex.totalDistanceM,
       });
     }
     return out;
@@ -202,18 +213,20 @@ function downsamplePts(
       x: routeIndex.xs[k],
       y: routeIndex.ys[k],
       demM: routeIndex.demM[k],
+      progress: routeIndex.cumulative[k] / routeIndex.totalDistanceM,
     });
   }
   out.push({
     x: routeIndex.xs[n - 1],
     y: routeIndex.ys[n - 1],
     demM: routeIndex.demM[n - 1],
+    progress: 1,
   });
   return out;
 }
 
 function buildSegs(
-  points: Array<{ x: number; y: number }>,
+  points: Array<{ x: number; y: number; progress: number }>,
 ): TerrainOverlaySegmentUi[] {
   const segs: TerrainOverlaySegmentUi[] = [];
   for (let i = 0; i < points.length - 1; i++) {
@@ -230,9 +243,49 @@ function buildSegs(
       y: (ay + by) / 2,
       lengthX: len,
       rotateDeg: (Math.atan2(dy, dx) * 180) / Math.PI,
+      startX: ax,
+      startY: ay,
+      endX: bx,
+      endY: by,
+      fromProgress: points[i].progress,
+      toProgress: points[i + 1].progress,
     });
   }
   return segs;
+}
+
+function buildCompletedSegs(
+  segments: TerrainOverlaySegmentUi[],
+  progress: number,
+): TerrainOverlaySegmentUi[] {
+  const completed: TerrainOverlaySegmentUi[] = [];
+  for (const segment of segments) {
+    if (progress <= segment.fromProgress) continue;
+    const ratio =
+      progress >= segment.toProgress
+        ? 1
+        : (progress - segment.fromProgress) /
+          Math.max(1e-6, segment.toProgress - segment.fromProgress);
+    const endX =
+      segment.startX + (segment.endX - segment.startX) * clamp01(ratio);
+    const endY =
+      segment.startY + (segment.endY - segment.startY) * clamp01(ratio);
+    const dx = endX - segment.startX;
+    const dy = endY - segment.startY;
+    const length = Math.hypot(dx, dy);
+    if (length < 0.02) continue;
+    completed.push({
+      ...segment,
+      x: (segment.startX + endX) / 2,
+      y: (segment.startY + endY) / 2,
+      lengthX: length,
+      rotateDeg: (Math.atan2(dy, dx) * 180) / Math.PI,
+      endX,
+      endY,
+      toProgress: Math.min(progress, segment.toProgress),
+    });
+  }
+  return completed;
 }
 
 /**
@@ -253,7 +306,7 @@ export function buildTerrainRouteGeometry(
 
   // 折线（全程真实点 → 屏幕）
   const rawPts = downsamplePts(routeIndex, maxPoints);
-  const screenPts = rawPts.map((p) => project(p));
+  const screenPts = rawPts.map((p) => ({ ...project(p), progress: p.progress }));
   const lastPt = screenPts[screenPts.length - 1];
 
   // 途经标点（营地 / 峰顶 / 起点）：全部由真实里程碑投影，绝不读像素数据
@@ -294,10 +347,14 @@ export function buildTerrainDynamicState(
     projectPointInto(frame, p);
   const at: RouteSampleAt = routeSampleAtProgress(routeIndex, progress);
   const marker = project({ x: at.x, y: at.y, demM: at.demM });
+  const completedProgress = clamp01(progress);
   return {
     marker,
-    progress: clamp01(progress),
-    completedProgress: clamp01(progress),
+    progress: completedProgress,
+    completedProgress,
+    completedSegments: geometry
+      ? buildCompletedSegs(geometry.segments, completedProgress)
+      : [],
   };
 }
 
