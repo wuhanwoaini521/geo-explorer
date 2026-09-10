@@ -86,6 +86,7 @@ import {
   nextRouteWaypoint,
   routePositionAt,
 } from "../../utils/route";
+import { formatObservationElevation } from "../../engine/expedition-observation";
 import {
   computeAchievements,
   summarizeRun,
@@ -1592,8 +1593,8 @@ Page({
         ? landformLabel(drive.current.id, drive.current.name)
         : "",
       currentElevText: drive.atSummit
-        ? formatNumber(drive.summitRefM, 2)
-        : formatNumber(drive.refM, 0),
+        ? formatObservationElevation(drive.summitRefM, this.expeditionCore?.maxElevation ?? drive.summitRefM)
+        : formatObservationElevation(drive.refM, this.expeditionCore?.maxElevation ?? drive.refM),
       prevName: drive.prev ? drive.prev.name : "—",
       nextName: drive.next ? drive.next.name : "已抵达峰顶",
       nextLandform: drive.next
@@ -2266,8 +2267,8 @@ Page({
     this.setData({
       milestoneBanner: {
         show: true,
-        title: `◍ ${m.name}`,
-        biome: `${milestoneKindLabel(m.kind)} · ${formatNumber(m.refM, 0)} m`,
+        title: `已到达：${landformLabel(m.id, m.name)}`,
+        biome: `${milestoneKindLabel(m.kind)} · ${formatObservationElevation(m.refM, this.expeditionCore?.maxElevation ?? m.refM)}`,
         emoji: milestoneKindEmoji(m.kind),
       },
     });
@@ -2526,7 +2527,10 @@ Page({
       accuracyText: `${Math.round(stats.accuracy * 100)}%`,
       stageNames: stats.visitedStages,
       stageTotal: stats.stageTotal,
-      maxText: formatNumber(stats.maxReached, 0),
+      maxText: formatObservationElevation(
+        stats.maxReached,
+        this.expeditionCore?.maxElevation ?? ex.maxElevation,
+      ),
       achievements,
     };
   },

@@ -71,12 +71,12 @@
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1rpx solid rgba(255, 255, 255, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9aaabd;
+  color: #f5f8fb;
   font-size: 28rpx;
 }
 .popup-summary {
@@ -264,3 +264,19 @@
   color: #b9c6d8;
   font-size: 24rpx;
 }
+
+/* 弹层跟随 Penpot 的现代浅色内容层，仍保留底部 sheet 形态。 */
+.popup-mask { background: rgba(16, 44, 61, .28); }
+.popup-sheet { background: rgba(255, 255, 255, .98); border-color: #d5e2e9; box-shadow: 0 -10rpx 40rpx rgba(16,44,61,.16); color: #102c3d; }
+.popup-mark { color: #168bb9; background: #e5f3f8; border-color: #b9ddea; }
+.popup-title { color: #102c3d; }
+.popup-elev, .popup-expand, .popup-btn-expand, .popup-subtitle, .popup-facts-title { color: #2c77d9; }
+.popup-close { background: #f1f7f9; border-color: #d5e2e9; color: #587180; }
+.popup-summary, .popup-detail, .fact-value { color: #587180; }
+.popup-facts, .popup-btn-lib { background: #f1f7f9; border-color: #d5e2e9; }
+.fact-label, .popup-source-text, .popup-src-bullet, .fact-src { color: #8da1ad; }
+.popup-btn-primary { background: #2c77d9; border-color: #2c77d9; color: #ffffff; box-shadow: 0 8rpx 20rpx rgba(44,119,217,.2); }
+.popup-cat { color: #168bb9; background: #e5f3f8; border-color: #b9ddea; }
+.popup-src-name, .popup-btn-lib { color: #587180; }
+.tag-approx { color: #a06f24; background: #fff6e5; }
+.tag-verified { color: #2f8b67; background: #e7f6ef; }

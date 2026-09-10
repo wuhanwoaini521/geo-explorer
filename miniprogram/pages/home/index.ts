@@ -11,6 +11,7 @@ import { setPendingSearchQuery, setPendingTypeFilter } from "../../services/ui-b
 import type { PlaceType } from "../../types/models";
 import { formatNumber } from "../../utils/format";
 import { randomDiscovery } from "../../utils/discovery";
+import { filterScenes } from "../../utils/scene-search";
 
 interface SceneCard {
   id: string;
@@ -41,6 +42,29 @@ interface TypeEntry {
   count: number;
 }
 
+const SCENE_CATALOG: SceneCard[] = [
+  {
+    id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
+    meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+    tags: ["高山地貌", "地貌观察"], target: "exploration",
+  },
+  {
+    id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,900 m", emoji: "🌊",
+    meta: "", badge: "", image: "/assets/world/mariana-card.png",
+    tags: ["海沟", "下潜"], target: "exploration",
+  },
+  {
+    id: "p-colorado", title: "大峡谷", subtitle: "穿越地球的历史", emoji: "🏜️",
+    meta: "", badge: "", image: "/assets/world/grand-canyon-card.png",
+    tags: ["峡谷", "探索"], target: "place",
+  },
+  {
+    id: "p-fuji", title: "富士山", subtitle: "火山与生命", emoji: "🌋",
+    meta: "", badge: "", image: "/assets/world/fuji-card.png",
+    tags: ["火山", "攀登"], target: "place",
+  },
+];
+
 Page({
   data: {
     scenes: [] as SceneCard[],
@@ -50,6 +74,7 @@ Page({
     heroImageFailed: false,
     failedImages: {} as Record<string, boolean>,
     query: "",
+    sceneEmpty: false,
     activeType: "all" as PlaceType | "all",
     stats: { completed: 0, totalFound: 0 },
     placeCount: PLACES.length,
@@ -62,28 +87,7 @@ Page({
   },
 
   refresh() {
-    const scenes: SceneCard[] = [
-      {
-        id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
-        meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-        tags: ["高山地貌", "地貌观察"], target: "exploration",
-      },
-      {
-        id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,900 m", emoji: "🌊",
-        meta: "", badge: "", image: "/assets/world/mariana-card.png",
-        tags: ["海沟", "下潜"], target: "exploration",
-      },
-      {
-        id: "p-colorado", title: "大峡谷", subtitle: "穿越地球的历史", emoji: "🏜️",
-        meta: "", badge: "", image: "/assets/world/grand-canyon-card.png",
-        tags: ["峡谷", "探索"], target: "place",
-      },
-      {
-        id: "p-fuji", title: "富士山", subtitle: "火山与生命", emoji: "🌋",
-        meta: "", badge: "", image: "/assets/world/fuji-card.png",
-        tags: ["火山", "攀登"], target: "place",
-      },
-    ];
+    const scenes = filterScenes(SCENE_CATALOG, this.data.query);
 
     const featured: FeaturedCard[] = PLACES.filter((p) => p.featured)
       .slice(0, 8)
@@ -112,6 +116,7 @@ Page({
 
     this.setData({
       scenes,
+      sceneEmpty: Boolean(this.data.query.trim()) && scenes.length === 0,
       featured,
       types,
       discovery: this.pickDiscovery(),
@@ -174,7 +179,13 @@ Page({
   },
 
   onQueryInput(e: PageEvent) {
-    this.setData({ query: String(e.detail?.value ?? "") });
+    const query = String(e.detail?.value ?? "");
+    const scenes = filterScenes(SCENE_CATALOG, query);
+    this.setData({ query, scenes, sceneEmpty: Boolean(query.trim()) && scenes.length === 0 });
+  },
+
+  onQueryClear() {
+    this.setData({ query: "", scenes: SCENE_CATALOG, sceneEmpty: false });
   },
 
   onQueryConfirm() {

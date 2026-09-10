@@ -65,7 +65,7 @@ Page({
   answers: [] as AnswerResult[],
 
   onShow() {
-    this.getTabBar?.()?.setData({ hidden: true });
+    this.getTabBar?.()?.setData({ hidden: false });
     this.getTabBar?.()?.setData({ selected: 3 });
     this.refreshIdle();
   },
@@ -193,5 +193,10 @@ Page({
 
   onBackIdle() {
     this.refreshIdle();
+  },
+
+  /** 结算后给出明确的学习回路，而不是把用户留在结果页。 */
+  onContinueLearning() {
+    wx.switchTab({ url: "/pages/knowledge/index" });
   },
 });

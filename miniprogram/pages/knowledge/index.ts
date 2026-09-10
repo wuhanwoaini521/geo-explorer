@@ -53,7 +53,7 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ selected: 2 });
-    this.getTabBar?.()?.setData({ hidden: true });
+    this.getTabBar?.()?.setData({ hidden: false });
     const records = getRecords();
     const unlocked = unlockedLibraryIds(records, EXPLORATIONS);
     const items = this.filterForTab(this.data.activeTab, this.data.query, unlocked);

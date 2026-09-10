@@ -7,11 +7,11 @@
 
   <view class="stats">
     <view class="st">
-      <text class="st-v">{{stats.completed}}</text>
+      <text class="st-v">{{stats.completed}}/{{stats.totalExplorations}}</text>
       <text class="st-k">完成探索</text>
     </view>
     <view class="st">
-      <text class="st-v">{{stats.totalFound}}</text>
+      <text class="st-v">{{stats.totalFound}}/{{stats.totalKnowledge}}</text>
       <text class="st-k">已获知识</text>
     </view>
     <view class="st">
@@ -34,7 +34,7 @@
     <text>还没有挑战记录，去「挑战」页开始第一组地貌题</text>
   </view>
 
-  <view class="sec-title">我的收藏</view>
+  <view class="sec-title">我的收藏 · 书签</view>
   <view class="record" wx:if="{{!favoritesEmpty}}">
     <view class="rec" wx:for="{{favoritesList}}" wx:key="id">
       <view class="rec-mark"><text>地貌</text></view>
@@ -49,13 +49,13 @@
     <text>还没有收藏。在图鉴里收藏想继续研究的地貌</text>
   </view>
 
-  <view class="sec-title">探索记录</view>
+  <view class="sec-title">探索记录 · 历史</view>
   <view class="record" wx:if="{{!empty}}">
     <view class="rec" wx:for="{{records}}" wx:key="id">
       <view class="rec-mark"><text>观察</text></view>
       <view class="rec-main">
         <text class="rec-name">{{item.title}}{{item.completed ? ' · 已完成' : ''}}</text>
-        <text class="rec-meta">达到 {{item.reachElevation}} {{item.unitText}} / {{item.maxElevation}} {{item.unitText}} · 知识 {{item.knowledgeCount}} 条</text>
+        <text class="rec-meta">已达 {{item.reachText}} {{item.unitText}} / 峰顶 {{item.maxText}} {{item.unitText}} · 知识 {{item.knowledgeCount}} 条</text>
       </view>
       <text class="rec-pct">{{item.pct}}%</text>
     </view>
@@ -65,5 +65,5 @@
   </view>
 
   <view class="btn" bindtap="onOpenCredits">数据来源与许可</view>
-  <view class="btn" bindtap="onClear">清空本地记录</view>
+  <view class="btn btn-danger" bindtap="onClear">清空本地数据</view>
 </view>

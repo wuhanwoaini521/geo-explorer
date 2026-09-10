@@ -22,6 +22,7 @@ const terrain_projection_1 = require("../../engine/terrain-projection");
 const exploration_store_1 = require("../../services/exploration-store");
 const format_1 = require("../../utils/format");
 const route_1 = require("../../utils/route");
+const expedition_observation_1 = require("../../engine/expedition-observation");
 const summary_1 = require("../../utils/summary");
 /* ---------------- 交互 / 动画参数 ---------------- */
 const TICK_MS = 55; // 渲染节拍（≈18fps）
@@ -1102,6 +1103,7 @@ Page({
     },
     /** Gate 3：真实路线HUD（差分推送；死亡区/峰顶附独立 flag 供样式切换） */
     renderExpeditionView(drive) {
+        var _a, _b, _c, _e;
         const ex = this.exploration;
         if (!ex)
             return;
@@ -1116,8 +1118,8 @@ Page({
                 ? landformLabel(drive.current.id, drive.current.name)
                 : "",
             currentElevText: drive.atSummit
-                ? (0, format_1.formatNumber)(drive.summitRefM, 2)
-                : (0, format_1.formatNumber)(drive.refM, 0),
+                ? (0, expedition_observation_1.formatObservationElevation)(drive.summitRefM, (_b = (_a = this.expeditionCore) === null || _a === void 0 ? void 0 : _a.maxElevation) !== null && _b !== void 0 ? _b : drive.summitRefM)
+                : (0, expedition_observation_1.formatObservationElevation)(drive.refM, (_e = (_c = this.expeditionCore) === null || _c === void 0 ? void 0 : _c.maxElevation) !== null && _e !== void 0 ? _e : drive.refM),
             prevName: drive.prev ? drive.prev.name : "—",
             nextName: drive.next ? drive.next.name : "已抵达峰顶",
             nextLandform: drive.next
@@ -1732,6 +1734,7 @@ Page({
     },
     /** 里程碑穿越事件：录制 + 短横幅（克制，不弹大层） */
     onMilestoneCrossed(m) {
+        var _a, _b;
         if (m.id === "base-camp") {
             // 起点宿主不弹横幅（与 intro 首页重叠）
             return;
@@ -1745,8 +1748,8 @@ Page({
         this.setData({
             milestoneBanner: {
                 show: true,
-                title: `◍ ${m.name}`,
-                biome: `${milestoneKindLabel(m.kind)} · ${(0, format_1.formatNumber)(m.refM, 0)} m`,
+                title: `已到达：${landformLabel(m.id, m.name)}`,
+                biome: `${milestoneKindLabel(m.kind)} · ${(0, expedition_observation_1.formatObservationElevation)(m.refM, (_b = (_a = this.expeditionCore) === null || _a === void 0 ? void 0 : _a.maxElevation) !== null && _b !== void 0 ? _b : m.refM)}`,
                 emoji: milestoneKindEmoji(m.kind),
             },
         });
@@ -1944,6 +1947,7 @@ Page({
     },
     /** 计算总结（纯汇总；登顶动画期间即准备，等展示时已就绪） */
     computeSummary() {
+        var _a, _b;
         const ex = this.exploration;
         if (!ex)
             return {
@@ -1983,7 +1987,7 @@ Page({
             accuracyText: `${Math.round(stats.accuracy * 100)}%`,
             stageNames: stats.visitedStages,
             stageTotal: stats.stageTotal,
-            maxText: (0, format_1.formatNumber)(stats.maxReached, 0),
+            maxText: (0, expedition_observation_1.formatObservationElevation)(stats.maxReached, (_b = (_a = this.expeditionCore) === null || _a === void 0 ? void 0 : _a.maxElevation) !== null && _b !== void 0 ? _b : ex.maxElevation),
             achievements,
         };
     },

@@ -25,6 +25,7 @@
   </scroll-view>
 
   <view class="destination-list">
+    <view wx:if="{{sceneEmpty}}" class="scene-empty"><text>没有找到相关地点</text><text>试试“珠峰”“海沟”或其他地貌关键词</text><text class="scene-empty-clear" bindtap="onQueryClear">清除搜索</text></view>
     <view class="destination" wx:for="{{scenes}}" wx:key="id" data-id="{{item.id}}" data-target="{{item.target}}" bindtap="onOpenScene">
       <image wx:if="{{!failedImages[item.id]}}" class="destination-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onSceneImageError"></image>
       <view wx:else class="destination-image-fallback">{{item.title}}</view>

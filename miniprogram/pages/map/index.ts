@@ -6,6 +6,13 @@
  * 搜索/筛选为纯函数（utils/place-search），页面只负责装配。
  */
 import { EXPLORATIONS } from "../../data/explorations/index";
+import { EVEREST_EXPEDITION } from "../../data/expeditions/everest";
+import {
+  buildObservationPoints,
+  progressForReferenceElevation,
+  projectRouteMilestones,
+  routeSegment,
+} from "../../engine/expedition-observation";
 import { PLACES, PLACE_TYPE_META } from "../../data/places";
 import { getRecords } from "../../services/exploration-store";
 import type { ExplorationRecord } from "../../services/exploration-store";
@@ -59,6 +66,7 @@ interface MapPoint {
   side: "left" | "right";
   state: "completed" | "current" | "upcoming";
   isSummit: boolean;
+  stateLabel: string;
 }
 
 interface MapSegment {
@@ -74,6 +82,7 @@ interface MapPlaceCard {
   altitudeText: string;
   description: string;
   image: string;
+  stateLabel: string;
 }
 
 const COMING: ComingScene[] = [
@@ -115,7 +124,7 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ selected: 1 });
-    this.getTabBar?.()?.setData({ hidden: true });
+    this.getTabBar?.()?.setData({ hidden: false });
     // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
     const pending = consumeTypeFilter();
     const pendingQuery = consumeSearchQuery();
@@ -129,25 +138,29 @@ Page({
 
   refreshScenes() {
     const records = getRecords();
-    const everest = EXPLORATIONS.find((ex) => ex.id === "everest");
     const everestRecord = records.find((record) => record.id === "everest");
-    const waypoints = everest?.route?.waypoints ?? [];
     const reached = everestRecord?.reachElevation ?? 0;
-    let currentSeen = false;
-    const mapPoints: MapPoint[] = waypoints.slice().reverse().map((waypoint, index) => {
-      const altitude = waypoint.altitude ?? 0;
-      const isCompleted = reached >= altitude && reached > 0;
-      const isCurrent = !isCompleted && !currentSeen && (reached > 0 || index === waypoints.length - 1);
-      if (isCurrent) currentSeen = true;
+    const progress = everestRecord?.completed
+      ? 1
+      : progressForReferenceElevation(
+        EVEREST_EXPEDITION.routeIndex,
+        EVEREST_EXPEDITION.maxElevation,
+        reached,
+      );
+    const canonical = buildObservationPoints(EVEREST_EXPEDITION, progress);
+    const projection = projectRouteMilestones(EVEREST_EXPEDITION.routeIndex);
+    const mapPoints: MapPoint[] = canonical.map((point) => {
+      const position = projection.points.find((item) => item.id === point.id) ?? { x: 50, y: 50 };
       return {
-        id: waypoint.id,
-        name: waypoint.shortName ?? waypoint.name,
-        altitudeText: `${Math.round(altitude).toLocaleString()} m`,
-        top: 17 + index * 9.2,
-        left: waypoint.x,
-        side: waypoint.x > 55 ? "left" : "right",
-        state: isCompleted ? "completed" : isCurrent ? "current" : "upcoming",
-        isSummit: waypoint.id === "summit",
+        id: point.id,
+        name: point.label,
+        altitudeText: point.elevationText,
+        top: position.y,
+        left: position.x,
+        side: position.x > 55 ? "left" : "right",
+        state: point.state,
+        stateLabel: point.stateLabel,
+        isSummit: point.id === "summit",
       };
     });
     const open: OpenCard[] = EXPLORATIONS.map((ex) => {
@@ -174,17 +187,7 @@ Page({
         record,
       };
     });
-    const routeSegments: MapSegment[] = mapPoints.slice(0, -1).map((point, index) => {
-      const next = mapPoints[index + 1];
-      const dx = next.left - point.left;
-      const dy = next.top - point.top;
-      return {
-        left: point.left,
-        top: point.top,
-        width: Math.sqrt(dx * dx + dy * dy),
-        rotate: Math.atan2(dy, dx) * 180 / Math.PI,
-      };
-    });
+    const routeSegments: MapSegment[] = projection.points.slice(0, -1).map((point, index) => routeSegment(point, projection.points[index + 1]));
     const currentPoint = mapPoints.find((point) => point.state === "current") ?? mapPoints[0];
     const activePointId = this.data.activePointId && mapPoints.some((point) => point.id === this.data.activePointId)
       ? this.data.activePointId
@@ -210,8 +213,23 @@ Page({
         : point.state === "current"
           ? "当前观察点：留意冰体破碎、坡度与山脊走向。"
           : "前方观察点：继续浏览山体影像，认识高海拔地貌变化。",
-      image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+      image: this.mapPointImage(point.id),
+      stateLabel: point.stateLabel,
     };
+  },
+
+  mapPointImage(id: string): string {
+    const images: Record<string, string> = {
+      "base-camp": "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+      "khumbu-icefall": "/assets/world/everest-view-a.jpg",
+      "camp-i": "/assets/world/everest-view-a.jpg",
+      "western-cwm-camp-ii": "/assets/world/everest-view-b.jpg",
+      "lhotse-face-camp-iii": "/assets/world/everest-view-b.jpg",
+      "south-col-camp-iv": "/assets/world/everest-view-c.jpg",
+      "south-summit": "/assets/world/everest-view-c.jpg",
+      summit: "/assets/world/everest-hero.jpg",
+    };
+    return images[id] ?? "/assets/world/everest-hero.jpg";
   },
 
   refreshAtlas() {

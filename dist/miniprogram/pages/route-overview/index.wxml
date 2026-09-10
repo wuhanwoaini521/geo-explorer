@@ -1,11 +1,12 @@
 <view class="route-page">
   <view class="route-head"><text class="route-back" bindtap="onBack">‹</text><text class="route-title">地貌观察索引</text><text class="route-more">•••</text></view>
+  <view class="route-progress"><text>{{progressText}}</text><text class="route-progress-cta" bindtap="onContinue">继续观察 ›</text></view>
   <scroll-view class="route-list" scroll-y="true">
     <view class="route-spine"></view>
     <view wx:for="{{rows}}" wx:key="id" class="route-row route-row-{{item.state}}" data-id="{{item.id}}" bindtap="onRowTap">
       <view class="route-node"></view>
       <image class="route-thumb" src="{{item.image}}" mode="aspectFill"></image>
-      <view class="route-copy"><text class="route-row-title">{{item.title}}</text><text class="route-row-elev">{{item.elevation}}</text></view>
+      <view class="route-copy"><text class="route-row-state route-row-state-{{item.state}}">{{item.stateLabel}}</text><text class="route-row-title">{{item.title}}</text><text class="route-row-elev">{{item.elevation}}</text></view>
       <text class="route-arrow">›</text>
     </view>
   </scroll-view>

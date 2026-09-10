@@ -11,6 +11,8 @@ Component({
     node: { type: Object, value: null },
     axisLabel: { type: String, value: "海拔" },
     axisUnit: { type: String, value: "m" },
+    contextName: { type: String, value: "" },
+    contextElevation: { type: String, value: "" },
   },
   data: {
     expanded: false,

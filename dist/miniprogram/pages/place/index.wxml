@@ -23,6 +23,11 @@
       <text wx:for="{{detailTabs}}" wx:key="id" class="detail-tab {{activeDetailTab === item.id ? 'active' : ''}}" data-tab="{{item.id}}" bindtap="onDetailTabTap">{{item.label}}</text>
     </view>
 
+    <view wx:if="{{activeDetailTab === 'overview' && place.explorationId}}" class="explore-cta detail-first-cta">
+      <view><text class="cta-title">开始地貌观察</text><text class="cta-sub">从这张地点卡进入沉浸式观察</text></view>
+      <button class="cta-btn" bindtap="onStartExploration">进入探索 ›</button>
+    </view>
+
     <view wx:if="{{activeDetailTab === 'overview'}}" class="detail-panel">
       <text class="panel-label">关于这座山</text>
       <text class="panel-title">{{place.shortDescription}}</text>
@@ -73,11 +78,6 @@
     <view wx:if="{{activeDetailTab === 'overview' && place.facts.length}}" class="detail-facts">
       <text class="section-title">你知道吗</text>
       <view class="fact" wx:for="{{place.facts}}" wx:key="*this"><text class="fact-index">0{{index + 1}}</text><text>{{item}}</text></view>
-    </view>
-
-    <view wx:if="{{activeDetailTab === 'overview' && place.explorationId}}" class="explore-cta">
-      <view><text class="cta-title">{{place.explorationTitle}}</text><text class="cta-sub">沉浸式场景探索 · 真实地理数据驱动</text></view>
-      <button class="cta-btn" bindtap="onStartExploration">进入探索 ›</button>
     </view>
 
     <view wx:if="{{activeDetailTab === 'overview' && related.length}}" class="section related-section">

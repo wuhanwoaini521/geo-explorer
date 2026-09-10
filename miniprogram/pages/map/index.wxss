@@ -17,20 +17,24 @@
 .route-summit-mark { width: 10rpx; height: 10rpx; border-radius: 50%; background: #d79029; box-shadow: 0 0 0 3rpx rgba(215, 144, 41, .22); }
 .route-point-current .route-dot { width: 34rpx; height: 34rpx; border-color: #fff; background: #26a9f2; box-shadow: 0 0 0 5rpx rgba(41, 174, 249, .3), 0 0 16rpx rgba(41, 174, 249, .8); }
 .route-point-upcoming .route-dot { background: #d8e8f4; border-color: rgba(18, 106, 174, .8); }
-.route-label { min-width: 188rpx; padding: 8rpx 14rpx; border-radius: 10rpx; background: rgba(9, 27, 44, .72); display: flex; flex-direction: column; gap: 1rpx; }
+.route-label { min-width: 154rpx; max-width: 190rpx; padding: 8rpx 14rpx; border-radius: 10rpx; background: rgba(9, 27, 44, .78); display: flex; flex-direction: column; gap: 1rpx; }
+.route-point-selected .route-label { border: 1rpx solid rgba(255, 214, 117, .8); background: rgba(18, 38, 55, .92); }
+.route-state { color: #ffd675; font-size: 18rpx; }
 .route-name { font-size: 25rpx; font-weight: 700; color: #fff; }
 .route-alt { font-size: 22rpx; color: rgba(235, 246, 255, .76); }
 .map-tools { position: absolute; right: 22rpx; top: 40%; display: flex; flex-direction: column; gap: 18rpx; z-index: 4; }
 .tool { width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; background: rgba(10, 22, 35, .76); border: 1rpx solid rgba(255,255,255,.14); font-size: 42rpx; }
 .tool-2d { font-size: 22rpx; font-weight: 800; }
-.map-place-card { position: absolute; left: 16rpx; right: 16rpx; bottom: calc(env(safe-area-inset-bottom) + 20rpx); min-height: 190rpx; display: flex; align-items: center; gap: 18rpx; padding: 18rpx; border-radius: 20rpx; background: rgba(9, 22, 35, .9); border: 1rpx solid rgba(194, 224, 245, .18); z-index: 5; }
+.map-place-card { position: absolute; left: 16rpx; right: 16rpx; bottom: calc(env(safe-area-inset-bottom) + 156rpx); min-height: 174rpx; box-sizing: border-box; display: flex; align-items: center; gap: 18rpx; padding: 18rpx; border-radius: 20rpx; background: rgba(9, 22, 35, .92); border: 1rpx solid rgba(194, 224, 245, .18); z-index: 5; }
 .map-place-image { width: 138rpx; height: 138rpx; border-radius: 12rpx; }
+.map-place-image-fallback { width: 138rpx; height: 138rpx; display: flex; align-items: center; justify-content: center; border-radius: 12rpx; background: linear-gradient(145deg, #285d82, #0a1c2d); color: #a9dff7; font-size: 22rpx; }
 .map-place-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5rpx; }
 .map-place-title { font-size: 28rpx; font-weight: 700; }
+.map-place-state { color: #ffd675; font-size: 19rpx; }
 .map-place-alt { font-size: 22rpx; color: #b4c7d7; }
 .map-place-desc { font-size: 21rpx; line-height: 1.5; color: #91a7ba; }
 .map-place-arrow { font-size: 48rpx; color: #dcecf7; }
-.atlas-drawer { position: absolute; z-index: 8; left: 14rpx; right: 14rpx; top: calc(env(safe-area-inset-top) + 92rpx); bottom: calc(env(safe-area-inset-bottom) + 18rpx); padding: 22rpx 18rpx; box-sizing: border-box; border-radius: 22rpx; background: rgba(7, 20, 33, .96); border: 1rpx solid rgba(177, 215, 240, .22); box-shadow: 0 18rpx 55rpx rgba(0,0,0,.34); }
+.atlas-drawer { position: absolute; z-index: 8; left: 14rpx; right: 14rpx; top: calc(env(safe-area-inset-top) + 92rpx); bottom: calc(env(safe-area-inset-bottom) + 140rpx); padding: 22rpx 18rpx; box-sizing: border-box; border-radius: 22rpx; background: rgba(7, 20, 33, .96); border: 1rpx solid rgba(177, 215, 240, .22); box-shadow: 0 18rpx 55rpx rgba(0,0,0,.34); }
 .atlas-drawer-head { display: flex; align-items: center; justify-content: space-between; }
 .atlas-drawer-head > view { display: flex; flex-direction: column; gap: 4rpx; }
 .atlas-kicker { color: #6aa9ce; font-size: 18rpx; letter-spacing: 4rpx; }
@@ -54,3 +58,35 @@
 .atlas-item-desc { color: #8ea7b7; font-size: 19rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .atlas-item-arrow { color: #9bc4dc; font-size: 38rpx; }
 .atlas-empty { display: flex; flex-direction: column; align-items: center; gap: 8rpx; padding-top: 80rpx; color: #9aafbf; font-size: 22rpx; }
+
+/* Penpot Map / Atlas：雾蓝地形 + 白色选择卡，路线仍是页面视觉中心。 */
+.page { background: #b9d2df; }
+.map-shade { background: linear-gradient(180deg, rgba(20, 74, 112, .28), rgba(20, 74, 112, .02) 42%, rgba(16, 44, 61, .34) 100%); }
+.map-title, .map-title-en, .map-back, .map-more { text-shadow: 0 2rpx 10rpx rgba(16, 44, 61, .28); }
+.route-segment { background: #ffffff; box-shadow: 0 0 12rpx rgba(44, 119, 217, .75); }
+.route-dot { background: #ffffff; border-color: #2c77d9; box-shadow: 0 0 0 4rpx rgba(16, 44, 61, .24); }
+.route-point-current .route-dot { background: #36b5e3; border-color: #ffffff; box-shadow: 0 0 0 5rpx rgba(54, 181, 227, .28), 0 0 16rpx rgba(44, 119, 217, .8); }
+.route-point-upcoming .route-dot { background: #e5f3f8; border-color: #669eb2; }
+.route-label { background: rgba(255, 255, 255, .92); box-shadow: 0 8rpx 18rpx rgba(16, 44, 61, .12); }
+.route-point-selected .route-label { border-color: #36b5e3; background: #ffffff; }
+.route-state { color: #168bb9; }
+.route-name { color: #102c3d; }
+.route-alt { color: #587180; }
+.tool { color: #2c77d9; background: rgba(255, 255, 255, .92); border-color: #d5e2e9; box-shadow: 0 8rpx 18rpx rgba(16, 44, 61, .12); }
+.map-place-card { background: rgba(255, 255, 255, .96); border-color: #d5e2e9; box-shadow: 0 16rpx 34rpx rgba(16, 44, 61, .16); }
+.map-place-state { color: #168bb9; }
+.map-place-alt { color: #587180; }
+.map-place-desc { color: #718894; }
+.map-place-arrow { color: #2c77d9; }
+.atlas-drawer { background: rgba(255, 255, 255, .97); border-color: #d5e2e9; box-shadow: 0 18rpx 55rpx rgba(16, 44, 61, .18); }
+.atlas-kicker, .atlas-item-meta { color: #168bb9; }
+.atlas-title, .atlas-item-name { color: #102c3d; }
+.atlas-close, .atlas-clear { color: #2c77d9; }
+.atlas-search { background: #f1f7f9; border-color: #d5e2e9; }
+.atlas-search-mark { color: #2c77d9; }
+.atlas-search input { color: #102c3d; }
+.atlas-type, .atlas-item { background: #f1f7f9; color: #587180; border-color: #d5e2e9; }
+.atlas-type-active { background: #2c77d9; color: #ffffff; }
+.atlas-item-mark { color: #168bb9; background: #e5f3f8; border-color: #b9ddea; }
+.atlas-item-desc, .atlas-empty { color: #8da1ad; }
+.atlas-item-arrow { color: #2c77d9; }

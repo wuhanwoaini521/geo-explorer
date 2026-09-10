@@ -14,9 +14,10 @@
 
   <view class="route-segments"><view wx:for="{{routeSegments}}" wx:key="index" class="route-segment" style="left:{{item.left}}%;top:{{item.top}}%;width:{{item.width}}%;transform:rotate({{item.rotate}}deg)"></view></view>
   <view class="route-points">
-    <view wx:for="{{mapPoints}}" wx:key="id" class="route-point route-point-{{item.state}} route-point-{{item.side}}" style="top:{{item.top}}%;left:{{item.left}}%" data-id="{{item.id}}" bindtap="onMapPointTap">
+    <view wx:for="{{mapPoints}}" wx:key="id" class="route-point route-point-{{item.state}} route-point-{{item.side}} {{activePointId === item.id ? 'route-point-selected' : ''}}" style="top:{{item.top}}%;left:{{item.left}}%" data-id="{{item.id}}" bindtap="onMapPointTap">
       <view class="route-dot"><view wx:if="{{item.isSummit}}" class="route-summit-mark"></view></view>
       <view class="route-label">
+        <text class="route-state">{{item.stateLabel}}</text>
         <text class="route-name">{{item.name}}</text>
         <text class="route-alt">{{item.altitudeText}}</text>
       </view>
@@ -30,8 +31,10 @@
   </view>
 
   <view class="map-place-card" wx:if="{{activePlace}}" bindtap="onOpenPlaceCard">
-    <image class="map-place-image" src="{{activePlace.image}}" mode="aspectFill"></image>
+    <image wx:if="{{!mapImageFailed}}" class="map-place-image" src="{{activePlace.image}}" mode="aspectFill" binderror="onMapImageError"></image>
+    <view wx:else class="map-place-image-fallback">地貌</view>
     <view class="map-place-copy">
+      <text class="map-place-state">{{activePlace.stateLabel}}</text>
       <text class="map-place-title">{{activePlace.name}}</text>
       <text class="map-place-alt">{{activePlace.altitudeText}}</text>
       <text class="map-place-desc">{{activePlace.description}}</text>

@@ -37,6 +37,7 @@
 .fact { display: flex; gap: 16rpx; padding: 18rpx 0; color: #adc0cf; font-size: 23rpx; line-height: 1.6; border-bottom: 1rpx solid rgba(177, 210, 232, .1); }
 .fact-index { color: #5f91b5; font-family: Georgia, serif; font-size: 28rpx; }
 .explore-cta { display: flex; align-items: center; gap: 16rpx; margin-top: 32rpx; padding: 24rpx; border-radius: 16rpx; background: linear-gradient(135deg, #124d78, #0c304e); border: 1rpx solid rgba(72, 181, 244, .3); }
+.detail-first-cta { margin-top: 0; margin-bottom: 22rpx; }
 .explore-cta > view { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
 .cta-title { font-size: 27rpx; font-weight: 700; }
 .cta-sub { color: #8bb1c8; font-size: 19rpx; }
@@ -57,3 +58,27 @@
 .k-title { flex: 1; color: #dceaf3; font-size: 23rpx; }
 .k-cat { color: #7b9bb0; font-size: 19rpx; }
 .footer-note { display: block; margin-top: 34rpx; padding-bottom: 24rpx; color: #5c7385; font-size: 19rpx; line-height: 1.6; }
+
+/* 明亮地点详情：照片做首屏锚点，事实信息使用轻量白卡。 */
+.page { background: #f7fafc; color: #102c3d; }
+.detail-hero-shade { background: linear-gradient(180deg, rgba(8, 33, 52, .34), rgba(8, 33, 52, .04) 45%, #f7fafc 100%); }
+.detail-kicker { color: #36b5e3; }
+.detail-tab { color: #8da1ad; }
+.detail-tab.active { color: #2c77d9; border-color: #2c77d9; }
+.detail-tab-image-fallback { background: #e5f3f8; color: #168bb9; }
+.tab-empty { color: #8da1ad; }
+.detail-panel, .related-card, .k-item { background: #ffffff; border-color: #d5e2e9; box-shadow: 0 10rpx 28rpx rgba(16, 44, 61, .06); }
+.panel-label, .section-link { color: #168bb9; }
+.panel-title, .section-title { color: #102c3d; }
+.panel-body, .key-row, .fact { color: #587180; }
+.data-value { color: #102c3d; }
+.data-label, .related-sub, .k-cat { color: #8da1ad; }
+.key-row, .fact { border-color: #e4edf1; }
+.key-row text:last-child { color: #587180; }
+.fact-index { color: #2c77d9; }
+.explore-cta { background: linear-gradient(135deg, #e5f3f8, #ffffff); border-color: #b9ddea; box-shadow: 0 10rpx 24rpx rgba(16, 44, 61, .06); }
+.cta-title, .related-name, .k-title { color: #102c3d; }
+.cta-sub { color: #587180; }
+.cta-btn { background: #2c77d9; }
+.related-mark, .k-mark { color: #168bb9; background: #e5f3f8; border-color: #b9ddea; }
+.footer-note { color: #8da1ad; }

@@ -11,12 +11,13 @@
 .pill {
   position: relative;
   display: flex;
-  height: 88rpx;
-  padding: 0 18rpx;
-  border-radius: 0;
-  background: rgba(6, 18, 29, 0.96);
-  border-top: 1rpx solid rgba(172, 210, 238, 0.18);
-  box-shadow: 0 -10rpx 30rpx rgba(0, 0, 0, 0.18);
+  height: 92rpx;
+  margin: 0 24rpx 18rpx;
+  padding: 0 12rpx;
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1rpx solid #d5e2e9;
+  box-shadow: 0 12rpx 34rpx rgba(16, 44, 61, 0.14);
   pointer-events: auto;
 }
 /* tab 区：内缩于胶囊圆角，指示器两端不再膈应圆角 */
@@ -34,8 +35,8 @@
   bottom: 8rpx;
   width: 20%;
   border-radius: 18rpx;
-  background: rgba(109, 188, 244, 0.12);
-  border: 1rpx solid rgba(109, 188, 244, 0.2);
+  background: #e5f3f8;
+  border: 1rpx solid #b9ddea;
   transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
 }
@@ -53,7 +54,7 @@
   position: relative;
   width: 34rpx;
   height: 34rpx;
-  color: #8397aa;
+  color: #8da1ad;
   opacity: 0.66;
   transition: color 0.25s, opacity 0.25s, transform 0.25s;
 }
@@ -109,18 +110,18 @@
 }
 .tab-text {
   font-size: 20rpx;
-  color: #8397aa;
+  color: #718894;
   letter-spacing: 2rpx;
   transition: color 0.25s;
 }
 .tab-on .tab-ico {
-  color: #c8edff;
+  color: #2c77d9;
   opacity: 1;
   transform: translateY(-4rpx) scale(1.12);
   animation: tabBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .tab-on .tab-text {
-  color: #c8edff;
+  color: #2c77d9;
   font-weight: 700;
 }
 @keyframes tabBounce {

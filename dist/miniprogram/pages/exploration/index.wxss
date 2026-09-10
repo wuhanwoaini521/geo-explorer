@@ -1841,3 +1841,14 @@ page {
 }
 .rou-btn::after { border: none; }
 .rou-btn:active { transform: translateY(3rpx); }
+
+/* 沉浸式页继续使用暗色地形，但将旧琥珀强调替换为冰川蓝，和全局品牌一致。 */
+.route-mode .exp-top-status, .route-mode .exp-goal-v, .route-mode .exp-route-pct { color: #72d5f5; }
+.route-mode .exp-route-fill { background: linear-gradient(90deg, #36b5e3, #2c77d9); }
+.route-mode .exp-route-marker { border-color: #36b5e3; box-shadow: 0 0 8rpx rgba(54,181,227,.9); }
+.route-mode .exp-ctl-route { background: rgba(54,181,227,.2); border-color: rgba(114,213,245,.5); }
+.route-mode .exp-ctl-up { background: linear-gradient(135deg, #36b5e3, #2c77d9); border-color: rgba(166,231,250,.7); box-shadow: 0 4rpx 0 #185aa8; }
+.route-mode .exp-stage-mark, .route-mode .stage-mark, .route-mode .sb-mark { color: #9de8fb; border-color: rgba(114,213,245,.58); background: rgba(23,82,107,.5); }
+.route-mode .route-segment-completed { background: linear-gradient(90deg, #36b5e3, #b5efff); box-shadow: 0 0 10rpx rgba(54,181,227,.7); }
+.route-mode .route-waypoint-completed .route-waypoint-dot { background: #72d5f5; border-color: #e5fbff; }
+.route-mode .route-waypoint-current .route-waypoint-dot { background: #36b5e3; box-shadow: 0 0 0 8rpx rgba(54,181,227,.26), 0 0 16rpx rgba(114,213,245,.9); }

@@ -8,6 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 搜索/筛选为纯函数（utils/place-search），页面只负责装配。
  */
 const index_1 = require("../../data/explorations/index");
+const everest_1 = require("../../data/expeditions/everest");
+const expedition_observation_1 = require("../../engine/expedition-observation");
 const places_1 = require("../../data/places");
 const exploration_store_1 = require("../../services/exploration-store");
 const ui_bus_1 = require("../../services/ui-bus");
@@ -45,7 +47,7 @@ Page({
     onShow() {
         var _a, _b, _c, _d;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 1 });
-        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: true });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: false });
         // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
         const pending = (0, ui_bus_1.consumeTypeFilter)();
         const pendingQuery = (0, ui_bus_1.consumeSearchQuery)();
@@ -60,29 +62,28 @@ Page({
         this.refreshAtlas();
     },
     refreshScenes() {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c;
         const records = (0, exploration_store_1.getRecords)();
-        const everest = index_1.EXPLORATIONS.find((ex) => ex.id === "everest");
         const everestRecord = records.find((record) => record.id === "everest");
-        const waypoints = (_b = (_a = everest === null || everest === void 0 ? void 0 : everest.route) === null || _a === void 0 ? void 0 : _a.waypoints) !== null && _b !== void 0 ? _b : [];
-        const reached = (_c = everestRecord === null || everestRecord === void 0 ? void 0 : everestRecord.reachElevation) !== null && _c !== void 0 ? _c : 0;
-        let currentSeen = false;
-        const mapPoints = waypoints.slice().reverse().map((waypoint, index) => {
-            var _a, _b;
-            const altitude = (_a = waypoint.altitude) !== null && _a !== void 0 ? _a : 0;
-            const isCompleted = reached >= altitude && reached > 0;
-            const isCurrent = !isCompleted && !currentSeen && (reached > 0 || index === waypoints.length - 1);
-            if (isCurrent)
-                currentSeen = true;
+        const reached = (_a = everestRecord === null || everestRecord === void 0 ? void 0 : everestRecord.reachElevation) !== null && _a !== void 0 ? _a : 0;
+        const progress = (everestRecord === null || everestRecord === void 0 ? void 0 : everestRecord.completed)
+            ? 1
+            : (0, expedition_observation_1.progressForReferenceElevation)(everest_1.EVEREST_EXPEDITION.routeIndex, everest_1.EVEREST_EXPEDITION.maxElevation, reached);
+        const canonical = (0, expedition_observation_1.buildObservationPoints)(everest_1.EVEREST_EXPEDITION, progress);
+        const projection = (0, expedition_observation_1.projectRouteMilestones)(everest_1.EVEREST_EXPEDITION.routeIndex);
+        const mapPoints = canonical.map((point) => {
+            var _a;
+            const position = (_a = projection.points.find((item) => item.id === point.id)) !== null && _a !== void 0 ? _a : { x: 50, y: 50 };
             return {
-                id: waypoint.id,
-                name: (_b = waypoint.shortName) !== null && _b !== void 0 ? _b : waypoint.name,
-                altitudeText: `${Math.round(altitude).toLocaleString()} m`,
-                top: 17 + index * 9.2,
-                left: waypoint.x,
-                side: waypoint.x > 55 ? "left" : "right",
-                state: isCompleted ? "completed" : isCurrent ? "current" : "upcoming",
-                isSummit: waypoint.id === "summit",
+                id: point.id,
+                name: point.label,
+                altitudeText: point.elevationText,
+                top: position.y,
+                left: position.x,
+                side: position.x > 55 ? "left" : "right",
+                state: point.state,
+                stateLabel: point.stateLabel,
+                isSummit: point.id === "summit",
             };
         });
         const open = index_1.EXPLORATIONS.map((ex) => {
@@ -107,21 +108,11 @@ Page({
                 record,
             };
         });
-        const routeSegments = mapPoints.slice(0, -1).map((point, index) => {
-            const next = mapPoints[index + 1];
-            const dx = next.left - point.left;
-            const dy = next.top - point.top;
-            return {
-                left: point.left,
-                top: point.top,
-                width: Math.sqrt(dx * dx + dy * dy),
-                rotate: Math.atan2(dy, dx) * 180 / Math.PI,
-            };
-        });
-        const currentPoint = (_d = mapPoints.find((point) => point.state === "current")) !== null && _d !== void 0 ? _d : mapPoints[0];
+        const routeSegments = projection.points.slice(0, -1).map((point, index) => (0, expedition_observation_1.routeSegment)(point, projection.points[index + 1]));
+        const currentPoint = (_b = mapPoints.find((point) => point.state === "current")) !== null && _b !== void 0 ? _b : mapPoints[0];
         const activePointId = this.data.activePointId && mapPoints.some((point) => point.id === this.data.activePointId)
             ? this.data.activePointId
-            : (_e = currentPoint === null || currentPoint === void 0 ? void 0 : currentPoint.id) !== null && _e !== void 0 ? _e : "";
+            : (_c = currentPoint === null || currentPoint === void 0 ? void 0 : currentPoint.id) !== null && _c !== void 0 ? _c : "";
         this.setData({
             open,
             mapPoints,
@@ -144,8 +135,23 @@ Page({
                 : point.state === "current"
                     ? "当前观察点：留意冰体破碎、坡度与山脊走向。"
                     : "前方观察点：继续浏览山体影像，认识高海拔地貌变化。",
-            image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+            image: this.mapPointImage(point.id),
+            stateLabel: point.stateLabel,
         };
+    },
+    mapPointImage(id) {
+        var _a;
+        const images = {
+            "base-camp": "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+            "khumbu-icefall": "/assets/world/everest-view-a.jpg",
+            "camp-i": "/assets/world/everest-view-a.jpg",
+            "western-cwm-camp-ii": "/assets/world/everest-view-b.jpg",
+            "lhotse-face-camp-iii": "/assets/world/everest-view-b.jpg",
+            "south-col-camp-iv": "/assets/world/everest-view-c.jpg",
+            "south-summit": "/assets/world/everest-view-c.jpg",
+            summit: "/assets/world/everest-hero.jpg",
+        };
+        return (_a = images[id]) !== null && _a !== void 0 ? _a : "/assets/world/everest-hero.jpg";
     },
     refreshAtlas() {
         const places = (0, place_search_1.queryPlaces)(places_1.PLACES, this.data.query, this.data.activeType);

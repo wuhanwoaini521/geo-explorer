@@ -152,7 +152,7 @@
       <view class="exp-goal">
         <view class="exp-goal-row">
           <text class="exp-goal-k">下一观察点 · {{expedition.nextLandform}}</text>
-          <text class="exp-goal-v">观察</text>
+          <text class="exp-goal-v">{{expedition.nextGapText === '—' ? '已抵达' : '还有 ' + expedition.nextGapText}}</text>
         </view>
       </view>
 
@@ -191,7 +191,7 @@
         <text class="exp-route-pct">{{expedition.pct}}%</text>
         <text class="exp-route-label">峰顶地貌</text>
       </view>
-      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在切换观察点…' : '上滑查看下一个地貌 · 下滑返回上一个'}}</text>
+      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在切换观察点…' : '点击“攀登”前进；可用“上一个”回看'}}</text>
       </view>
 
       <!-- 死亡区克制提示（配色/文案/降低对比度；不弹窗不震屏） -->
@@ -211,7 +211,7 @@
           class="exp-ctl exp-ctl-up"
           bindtap="onStepUp"
           disabled="{{expClimbing}}"
-          >{{expClimbLabel === '攀登' ? '下一个地貌' : expClimbLabel}}</button>
+          >{{expClimbLabel}}</button>
       </view>
     </view>
 
@@ -447,6 +447,8 @@
     node="{{openNode}}"
     axis-label="{{ui.axisLabel}}"
     axis-unit="{{ui.axisUnit}}"
+    context-name="{{expedition.currentLandform}}"
+    context-elevation="{{expedition.currentElevText}}"
     bind:close="onPopupClose"
     bind:continue="onPopupContinue"
   />

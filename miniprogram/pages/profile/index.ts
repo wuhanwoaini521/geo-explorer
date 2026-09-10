@@ -15,7 +15,9 @@ import {
   type QuizSummaryLevel,
 } from "../../services/quiz-store";
 import { EXPLORATIONS } from "../../data/explorations/index";
+import { KNOWLEDGE } from "../../data/knowledge";
 import type { ExplorationRecord } from "../../services/exploration-store";
+import { formatObservationElevation } from "../../engine/expedition-observation";
 
 interface RecordItem {
   id: string;
@@ -27,6 +29,8 @@ interface RecordItem {
   unitText: string;
   knowledgeCount: number;
   pct: number;
+  reachText: string;
+  maxText: string;
 }
 
 interface FavoriteItem {
@@ -46,7 +50,7 @@ function difficultyStars(d: number): string {
 
 Page({
   data: {
-    stats: { completed: 0, totalFound: 0 },
+    stats: { completed: 0, totalFound: 0, totalExplorations: EXPLORATIONS.length, totalKnowledge: KNOWLEDGE.length },
     records: [] as RecordItem[],
     empty: false,
     quiz: { totalPlays: 0, levels: [] as (QuizSummaryLevel & { stars: string; bestText: string })[] },
@@ -69,7 +73,9 @@ Page({
         maxElevation: r.maxElevation,
         unitText: ex?.ui?.axisUnit ?? "m",
         knowledgeCount: r.knowledgeIds.length,
-        pct: Math.round((r.reachElevation / r.maxElevation) * 100),
+        pct: Math.min(100, Math.round((r.reachElevation / Math.max(1, r.maxElevation)) * 100)),
+        reachText: formatObservationElevation(r.reachElevation, r.maxElevation),
+        maxText: formatObservationElevation(r.maxElevation, r.maxElevation),
       };
     });
     const best = getQuizBest();
@@ -80,7 +86,11 @@ Page({
       bestText: `最佳 ${l.bestCorrect}/${l.bestTotal} · ${Math.round(l.bestRate * 100)}%`,
     }));
     this.setData({
-      stats: getExplorationStats(),
+      stats: {
+        ...getExplorationStats(),
+        totalExplorations: EXPLORATIONS.length,
+        totalKnowledge: KNOWLEDGE.length,
+      },
       records,
       empty: records.length === 0,
       quiz: { totalPlays: summary.totalPlays, levels: quizLevels },
@@ -119,8 +129,9 @@ Page({
   onClear() {
     wx.showModal({
       title: "清空探索记录",
-      content: "将删除本地保存的全部进度记录，确定？",
-      confirmText: "清空",
+      content: "会删除探索进度、收藏和挑战成绩，仅影响本机数据，且不能恢复。确定清空？",
+      confirmText: "清空本地数据",
+      cancelText: "保留数据",
       success: (res) => {
         if (res.confirm) {
           wx.clearStorageSync();

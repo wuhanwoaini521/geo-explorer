@@ -92,7 +92,8 @@
       <view wx:else class="result-best">该难度最佳：{{result.bestText}}</view>
 
       <view class="result-actions">
-        <view class="act act-primary" bindtap="onRetry">再来一轮</view>
+        <view class="act act-primary" bindtap="onContinueLearning">继续学习</view>
+        <view class="act act-ghost" bindtap="onRetry">再来一轮</view>
         <view class="act act-ghost" bindtap="onBackIdle">换个难度</view>
       </view>
     </view>

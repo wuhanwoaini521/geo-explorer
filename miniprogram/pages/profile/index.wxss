@@ -19,3 +19,16 @@
 .quiz-stars { color: #6bc4f0; font-size: 27rpx; letter-spacing: 4rpx; }
 .rec-remove { padding: 8rpx 12rpx; color: #ff7f92; font-size: 30rpx; }
 .btn { display: flex; align-items: center; justify-content: center; height: 80rpx; margin-top: 22rpx; border-radius: 40rpx; background: #102536; border: 1rpx solid rgba(166, 211, 238, .22); color: #a8c5d5; font-size: 25rpx; }
+.btn-danger { margin-top: 30rpx; color: #ff9aa8; border-color: rgba(255, 127, 146, .28); background: rgba(117, 30, 47, .22); }
+
+.page { background: #f7fafc; color: #102c3d; }
+.me { background: linear-gradient(180deg, #e5f3f8, #ffffff); border-color: #d5e2e9; box-shadow: 0 12rpx 28rpx rgba(16,44,61,.07); }
+.me-avatar { color: #168bb9; background: linear-gradient(145deg, #ffffff, #d9eff7); border-color: #b9ddea; }
+.me-name, .sec-title, .rec-name { color: #102c3d; }
+.me-note, .st-k, .rec-meta { color: #8da1ad; }
+.st, .record.empty, .rec, .btn { background: #ffffff; border-color: #d5e2e9; box-shadow: 0 8rpx 22rpx rgba(16,44,61,.05); }
+.st-v, .rec-pct { color: #2c77d9; }
+.rec-mark { color: #168bb9; background: #e5f3f8; border-color: #b9ddea; }
+.rec-remove { color: #d65e69; }
+.btn { color: #2c77d9; }
+.btn-danger { color: #d65e69; border-color: #efbdc4; background: #fff3f4; }

@@ -4,7 +4,9 @@ page { background: #07131f; color: #f3f8fc; }
 .route-back { font-size: 64rpx; line-height: 34rpx; }
 .route-title { flex: 1; font-size: 38rpx; font-weight: 800; }
 .route-more { color: #9db4c5; letter-spacing: 7rpx; }
-.route-list { position: relative; height: calc(100vh - 120rpx); margin-top: 24rpx; }
+.route-progress { display: flex; align-items: center; justify-content: space-between; margin-top: 20rpx; padding: 16rpx 20rpx; border-radius: 14rpx; background: #102536; color: #a7e1ff; font-size: 22rpx; }
+.route-progress-cta { color: #ffd675; }
+.route-list { position: relative; height: calc(100vh - 198rpx); margin-top: 16rpx; }
 .route-spine { position: absolute; left: 18rpx; top: 30rpx; bottom: 35rpx; width: 3rpx; background: linear-gradient(#fb645e, #b3d6ee 12%, #3aa6ee 46%, #b3d6ee 72%, #edf5fb); }
 .route-row { position: relative; display: flex; align-items: center; gap: 16rpx; min-height: 118rpx; padding: 12rpx 8rpx 12rpx 48rpx; border-bottom: 1rpx solid rgba(167,201,223,.08); }
 .route-node { position: absolute; left: 5rpx; width: 27rpx; height: 27rpx; border: 4rpx solid #e4f2fc; border-radius: 50%; background: #a8cde5; box-shadow: 0 0 0 5rpx #07131f; }
@@ -13,6 +15,26 @@ page { background: #07131f; color: #f3f8fc; }
 .route-thumb { width: 112rpx; height: 82rpx; flex-shrink: 0; border-radius: 10rpx; }
 .route-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5rpx; }
 .route-row-title { color: #ecf5fb; font-size: 26rpx; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.route-row-state { font-size: 19rpx; }
+.route-row-state-completed { color: #7dbb92; }
+.route-row-state-current { color: #ffd675; }
+.route-row-state-upcoming { color: #83b4d2; }
 .route-row-elev { color: #98aec0; font-size: 22rpx; }
 .route-arrow { color: #7193a8; font-size: 42rpx; }
 .route-row-current .route-row-title, .route-row-current .route-row-elev { color: #a7e1ff; }
+
+/* 路线索引与 Penpot 的白底数据页统一。 */
+page { background: #f7fafc; color: #102c3d; }
+.route-page { background: #f7fafc; }
+.route-title, .route-row-title { color: #102c3d; }
+.route-more { color: #8da1ad; }
+.route-progress { background: #e5f3f8; color: #168bb9; border: 1rpx solid #b9ddea; }
+.route-progress-cta, .route-row-state-current { color: #2c77d9; }
+.route-row { border-color: #e4edf1; }
+.route-spine { background: linear-gradient(#d65e69, #b9ddea 12%, #36b5e3 46%, #b9ddea 72%, #e5f3f8); }
+.route-node { border-color: #ffffff; background: #a2b6c0; box-shadow: 0 0 0 5rpx #f7fafc; }
+.route-row-current .route-node { border-color: #ffffff; background: #36b5e3; box-shadow: 0 0 0 6rpx rgba(54,181,227,.22), 0 0 14rpx #36b5e3; }
+.route-row-state-completed { color: #3aa37b; }
+.route-row-state-upcoming, .route-row-elev { color: #8da1ad; }
+.route-arrow { color: #2c77d9; }
+.route-row-current .route-row-title, .route-row-current .route-row-elev { color: #168bb9; }

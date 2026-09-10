@@ -2,8 +2,8 @@
  * 全局样式 —— Geo Explorer Expedition V2（深夜蓝黑 / 冰蓝数据）。
  */
 page {
-  background: #07131f;
-  color: #f5f8fb;
+  background: #f7fafc;
+  color: #102c3d;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
   font-size: 28rpx;
   line-height: 1.5;
@@ -51,13 +51,13 @@ button::after {
   gap: 20rpx;
 }
 .text-dim {
-  color: #a7b7c7;
+  color: #587180;
 }
 .text-muted {
-  color: #71859a;
+  color: #8da1ad;
 }
 .text-accent {
-  color: #4cbcff;
+  color: #2c77d9;
 }
 .text-xl {
   font-size: 40rpx;
@@ -75,7 +75,7 @@ button::after {
 }
 .caption {
   font-size: 20rpx;
-  color: #71859a;
+  color: #8da1ad;
   letter-spacing: 1rpx;
 }
 .ellipsis {
@@ -91,10 +91,11 @@ button::after {
 
 /* 通用卡片 */
 .panel {
-  background: #112131;
-  border: 1rpx solid rgba(158, 194, 225, 0.14);
+  background: #ffffff;
+  border: 1rpx solid #d5e2e9;
   border-radius: 20rpx;
   padding: 28rpx;
+  box-shadow: 0 12rpx 32rpx rgba(16, 44, 61, 0.06);
 }
 
 /* 主按钮：硬投影 + 墨色描边，可按压回弹 */
@@ -105,9 +106,9 @@ button::after {
   height: 88rpx;
   padding: 0 44rpx;
   border-radius: 44rpx;
-  background: #2298e8;
-  border: 1rpx solid #69c9ff;
-  box-shadow: 0 5rpx 16rpx rgba(17, 145, 226, 0.25);
+  background: #2c77d9;
+  border: 1rpx solid #2c77d9;
+  box-shadow: 0 8rpx 20rpx rgba(44, 119, 217, 0.22);
   color: #fff;
   font-size: 30rpx;
   font-weight: 600;
@@ -125,10 +126,10 @@ button::after {
   height: 88rpx;
   padding: 0 44rpx;
   border-radius: 44rpx;
-  border: 1rpx solid rgba(169, 204, 232, 0.28);
-  background: #142536;
-  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.18);
-  color: #e9f4ff;
+  border: 1rpx solid #c8d9e2;
+  background: #ffffff;
+  box-shadow: 0 6rpx 16rpx rgba(16, 44, 61, 0.08);
+  color: #2c77d9;
   font-size: 30rpx;
   letter-spacing: 2rpx;
 }

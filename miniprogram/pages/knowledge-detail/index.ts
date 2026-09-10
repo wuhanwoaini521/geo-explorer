@@ -49,4 +49,12 @@ Page({
     if (!id) return;
     wx.navigateTo({ url: `/pages/place/index?id=${id}` });
   },
+
+  onBack() {
+    wx.navigateBack({ delta: 1 });
+  },
+
+  onContinueLearning() {
+    wx.switchTab({ url: "/pages/knowledge/index" });
+  },
 });

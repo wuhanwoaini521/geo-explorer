@@ -49,7 +49,7 @@ Page({
     onShow() {
         var _a, _b, _c, _d;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 2 });
-        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: true });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: false });
         const records = (0, exploration_store_1.getRecords)();
         const unlocked = (0, knowledge_link_1.unlockedLibraryIds)(records, index_1.EXPLORATIONS);
         const items = this.filterForTab(this.data.activeTab, this.data.query, unlocked);

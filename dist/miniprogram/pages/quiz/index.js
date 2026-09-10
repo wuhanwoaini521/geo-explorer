@@ -25,7 +25,7 @@ Page({
     answers: [],
     onShow() {
         var _a, _b, _c, _d;
-        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: true });
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: false });
         (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ selected: 3 });
         this.refreshIdle();
     },
@@ -147,5 +147,9 @@ Page({
     },
     onBackIdle() {
         this.refreshIdle();
+    },
+    /** 结算后给出明确的学习回路，而不是把用户留在结果页。 */
+    onContinueLearning() {
+        wx.switchTab({ url: "/pages/knowledge/index" });
     },
 });

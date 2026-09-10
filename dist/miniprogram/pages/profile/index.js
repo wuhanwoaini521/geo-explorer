@@ -10,6 +10,8 @@ const places_1 = require("../../data/places");
 const places_2 = require("../../data/places");
 const quiz_store_1 = require("../../services/quiz-store");
 const index_1 = require("../../data/explorations/index");
+const knowledge_1 = require("../../data/knowledge");
+const expedition_observation_1 = require("../../engine/expedition-observation");
 /** 难度星级文案（与挑战页 ★~★★★ 对应） */
 function difficultyStars(d) {
     if (d <= 1)
@@ -20,7 +22,7 @@ function difficultyStars(d) {
 }
 Page({
     data: {
-        stats: { completed: 0, totalFound: 0 },
+        stats: { completed: 0, totalFound: 0, totalExplorations: index_1.EXPLORATIONS.length, totalKnowledge: knowledge_1.KNOWLEDGE.length },
         records: [],
         empty: false,
         quiz: { totalPlays: 0, levels: [] },
@@ -44,7 +46,9 @@ Page({
                 maxElevation: r.maxElevation,
                 unitText: (_b = (_a = ex === null || ex === void 0 ? void 0 : ex.ui) === null || _a === void 0 ? void 0 : _a.axisUnit) !== null && _b !== void 0 ? _b : "m",
                 knowledgeCount: r.knowledgeIds.length,
-                pct: Math.round((r.reachElevation / r.maxElevation) * 100),
+                pct: Math.min(100, Math.round((r.reachElevation / Math.max(1, r.maxElevation)) * 100)),
+                reachText: (0, expedition_observation_1.formatObservationElevation)(r.reachElevation, r.maxElevation),
+                maxText: (0, expedition_observation_1.formatObservationElevation)(r.maxElevation, r.maxElevation),
             };
         });
         const best = (0, quiz_store_1.getQuizBest)();
@@ -55,7 +59,11 @@ Page({
             bestText: `最佳 ${l.bestCorrect}/${l.bestTotal} · ${Math.round(l.bestRate * 100)}%`,
         }));
         this.setData({
-            stats: (0, exploration_store_1.getExplorationStats)(),
+            stats: {
+                ...(0, exploration_store_1.getExplorationStats)(),
+                totalExplorations: index_1.EXPLORATIONS.length,
+                totalKnowledge: knowledge_1.KNOWLEDGE.length,
+            },
             records,
             empty: records.length === 0,
             quiz: { totalPlays: summary.totalPlays, levels: quizLevels },
@@ -94,8 +102,9 @@ Page({
     onClear() {
         wx.showModal({
             title: "清空探索记录",
-            content: "将删除本地保存的全部进度记录，确定？",
-            confirmText: "清空",
+            content: "会删除探索进度、收藏和挑战成绩，仅影响本机数据，且不能恢复。确定清空？",
+            confirmText: "清空本地数据",
+            cancelText: "保留数据",
             success: (res) => {
                 if (res.confirm) {
                     wx.clearStorageSync();
