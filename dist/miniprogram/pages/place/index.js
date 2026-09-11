@@ -38,6 +38,22 @@ function elevDisplay(place) {
     }
     return { label: "海拔", text: `${(0, format_1.formatNumber)(place.elevationM, digits)} m` };
 }
+function placeNoun(place) {
+    const nouns = {
+        mountain: "这座山",
+        volcano: "这座火山",
+        glacier: "这片冰川",
+        canyon: "这条峡谷",
+        desert: "这片荒漠",
+        ocean: "这条海沟",
+        coast: "这片极地",
+        river: "这条河流",
+        lake: "这座湖泊",
+        waterfall: "这道瀑布",
+        plateau: "这片高原",
+    };
+    return nouns[place.type] || "这个地点";
+}
 /** 相关地点：同类型优先，其次共享标签；最多 4 个 */
 function relatedPlaces(place, all) {
     const scored = all
@@ -95,6 +111,7 @@ Page({
             country: place.country,
             region: place.region,
             shortDescription: place.shortDescription,
+            placeNoun: placeNoun(place),
             description: place.description,
             formation: place.formation,
             climate: place.climate,

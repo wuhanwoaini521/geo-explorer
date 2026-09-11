@@ -6,6 +6,15 @@
     <text class="head-cat">{{item.category}}</text>
   </view>
 
+  <view wx:if="{{process && currentStep}}" class="process-explorer">
+    <view class="process-head"><view><text class="section-title">地貌课堂</text><text class="process-question">{{process.question}}</text></view><text class="process-count">{{processIndex + 1}} / {{process.steps.length}}</text></view>
+    <view class="process-steps"><view wx:for="{{process.steps}}" wx:key="id" class="process-step-dot {{index < processIndex ? 'complete' : ''}} {{index === processIndex ? 'current' : ''}}"><text>{{item.label}}</text></view></view>
+    <view class="process-visual"><text class="visual-line">{{currentStep.visual}}</text><text class="visual-title">{{currentStep.title}}</text><text class="visual-step">{{currentStep.label}}</text></view>
+    <text class="process-explanation">{{currentStep.explanation}}</text>
+    <view class="process-progress"><view class="process-progress-on" style="width:{{((processIndex + 1) / process.steps.length) * 100}}%"></view></view>
+    <view class="process-actions"><view class="process-prev {{processIndex === 0 ? 'disabled' : ''}}" bindtap="onProcessPrev">‹ 上一步</view><view class="process-next {{processIndex === process.steps.length - 1 ? 'disabled' : ''}}" bindtap="onProcessNext">{{processIndex === process.steps.length - 1 ? '已完成' : '下一步 ›'}}</view></view>
+  </view>
+
   <view class="section">
     <text class="section-title">一句话</text>
     <text class="section-body">{{item.summary}}</text>
