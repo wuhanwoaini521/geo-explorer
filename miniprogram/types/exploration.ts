@@ -175,6 +175,10 @@ export interface ExplorationStage {
 /**
  * 场景内路线的关键途经点。坐标是场景画布的百分比（左上角为 0,0），
  * 与海拔教学轴解耦：例如珠峰场景可以从 0m 的教学轴映射到南坡大本营开始。
+ *
+ * 说明（Expedition 场景）：带有山体路径（routePath）的场景中，屏幕位置不再由
+ * x/y 决定，而是把该点的 progress 吸附到山体路径上（见 engine/route-path.ts）；
+ * x/y 仅保留给旧的海拔轴场景（无 routePath）使用。
  */
 export interface ExplorationRouteWaypoint {
   id: string;
@@ -185,15 +189,32 @@ export interface ExplorationRouteWaypoint {
   altitude?: number;
   /** 该点在本场景探索进度中的位置，范围 0–1，严格升序 */
   progress: number;
-  /** 场景画布横坐标百分比 */
+  /** 场景画布横坐标百分比（旧海拔轴场景使用） */
   x: number;
-  /** 场景画布纵坐标百分比 */
+  /** 场景画布纵坐标百分比（旧海拔轴场景使用） */
   y: number;
   /** 关联的场景知识节点；解锁后可从路线点进入知识卡 */
   knowledgeId?: string;
   /** 途经点介绍（点击路线点卡片展示，真实地理信息） */
   desc?: string;
+  /** 地点英文名（Discovery Card 副标题；缺省不显示） */
+  nameEn?: string;
+  /** 地形/地貌类型（Discovery Card chip，如 “冰川 / 冰瀑”） */
+  terrain?: string;
+  /** 详细说明（Discovery Card 展开段落；desc 保持一句话简介） */
+  detail?: string;
+  /** 地点知识要点（1~3 条，Discovery Card facts 列表） */
+  facts?: string[];
+  /** 地点实景图（第 1 张作卡片封面；可多张，支持全屏预览左右切换） */
+  images?: string[];
+  /** 与 images 一一对应的出处/许可说明（真实照片必须可溯源） */
+  imageCredits?: string[];
+  /** 与 images 一一对应的媒体类型；用于明确区分照片、地形渲染与示意图 */
+  imageKinds?: ExplorationImageKind[];
 }
+
+/** Discovery Card 媒体类型：不把 DEM/渲染图误标为真实照片。 */
+export type ExplorationImageKind = "photo" | "terrain" | "diagram";
 
 /**
  * 场景路线配置。路线属于 Scene Data；页面只按该数据绘制，Engine 不含场景判断。

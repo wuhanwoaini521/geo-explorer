@@ -29,7 +29,7 @@
     </view>
 
     <view wx:if="{{activeDetailTab === 'overview'}}" class="detail-panel">
-      <text class="panel-label">关于这座山</text>
+      <text class="panel-label">关于{{place.placeNoun}}</text>
       <text class="panel-title">{{place.shortDescription}}</text>
       <text class="panel-body">{{place.description}}</text>
       <view class="panel-data">

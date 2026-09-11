@@ -1,0 +1,11 @@
+const fs=require("fs");
+const s=fs.readFileSync("miniprogram/pages/exploration/index.ts","utf8");
+const lines=s.split(String.fromCharCode(10));
+let bad=[];
+lines.forEach((l,i)=>{ if(/[\u201C\u201D]/.test(l)){ const code=l.split("//")[0]; if(/[\u201C\u201D]/.test(code)) bad.push((i+1)+": "+l.trim());} });
+console.log("curly-in-code:", bad.length);
+bad.forEach(b=>console.log(b));
+const needle="routeLayerTransform:";
+const idx=s.indexOf(needle);
+const decl=s.slice(idx, idx+45);
+console.log("decl ok:", !/[\u201C\u201D\uFF0C]/.test(decl));

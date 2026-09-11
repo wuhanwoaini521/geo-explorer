@@ -9,6 +9,7 @@
  */
 import { describe, expect, it, beforeAll } from "vitest";
 import { getExpeditionById } from "../miniprogram/data/expeditions/index";
+import { deriveState } from "../miniprogram/engine/exploration-engine";
 
 /* ---------------- wx / Page 全局 mock ---------------- */
 const wxCalls: Record<string, unknown[][]> = {};
@@ -90,7 +91,7 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(v.atSummit).toBe(false);
   });
 
-  it("LIVE 回退 TERRAIN 后仍会挂载真实路线 overlay", () => {
+  it("LIVE 回退 TERRAIN 后仍会挂载真实山体路线（路线/waypoint/marker 同一投影）", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "everest" });
     // 模拟实景资源解码失败后的会话状态：当前应诚实回退 DEM，但不能丢路线。
@@ -99,24 +100,49 @@ describe("探索页路线模式（Everest V2）", () => {
     inst.data.visActive = "TERRAIN";
     driveTo(inst, 0.67);
     const data = inst.data as Record<string, any>;
-    expect(data.terrainRouteGeometry?.segments.length).toBeGreaterThan(2);
-    expect(data.terrainDynamicState?.marker).toEqual(
+    // 山体路径几何（Terrain-Conforming Route）：已走段 + 全部 8 个真实节点
+    expect(data.conceptRoute?.segments.length).toBeGreaterThan(2);
+    expect(data.conceptRoute?.completedSegments.length).toBeGreaterThan(2);
+    expect(data.conceptRoute?.points).toHaveLength(8);
+    // waypoint 由路径吸附定位（同一投影函数），坐标为山体图层内的百分比
+    for (const point of data.conceptRoute.points as Array<{ style: string }>) {
+      expect(point.style).toMatch(/^left:[\d.]+%;top:[\d.]+%;$/);
+    }
+    // Explorer Marker 沿路径插值（不是节点瞬移），位置随进度连续
+    expect(data.conceptRouteMarker).toEqual(
       expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) }),
     );
-    expect(data.conceptRoute?.points).toHaveLength(5);
+    const at67 = { ...data.conceptRouteMarker };
+    driveTo(inst, 0.69);
+    expect(
+      (inst.data as Record<string, any>).conceptRouteMarker.x,
+    ).not.toBe(at67.x);
   });
 
-  it("点击概念路线途经点打开带实景图的浮窗", () => {
+  it("点击山体途经点：未到达只给名称/海拔，到达后解锁实景图与知识", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "everest" });
     inst.onTapExpeditionWaypoint({ currentTarget: { dataset: { id: "camp-i" } } });
-    expect(inst.data.waypointCard).toEqual(
-      expect.objectContaining({
-        name: "冰川谷地",
-        image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-        show: true,
-      }),
+    const locked = inst.data.waypointCard as Record<string, any>;
+    expect(locked).toEqual(
+      expect.objectContaining({ show: true, title: "C1 营地", unlocked: false }),
     );
+    expect(locked.image).toBeUndefined();
+
+    driveTo(inst, 0.3); // 越过 C1（里程碑进度 0.28766）
+    inst.onTapExpeditionWaypoint({ currentTarget: { dataset: { id: "camp-i" } } });
+    const card = inst.data.waypointCard as Record<string, any>;
+    expect(card.unlocked).toBe(true);
+    expect(card.title).toBe("C1 营地");
+    expect(card.titleEn).toBe("Camp I");
+    expect(card.altitudeText).toBe("6,065 m");
+    expect(card.landform).toBe("冰川谷地");
+    expect(card.terrain).toBeTruthy();
+    expect(card.facts.length).toBeGreaterThan(0);
+    expect(card.image).toBe("/assets/expeditions/everest/waypoints/camp-i.jpg");
+    expect(card.images.length).toBe(1);
+    // 点击旧节点只回看知识，不改变当前攀登位置
+    expect(inst.current).toBeCloseTo(0.3, 3);
   });
 
   it("途中（progress=0.5）：真实里程 / 当前·下一站 / 剩余垂直参考差", () => {
@@ -144,6 +170,19 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(v.deathZone).toBe(false);
   });
 
+  it("到达提示优先于阶段提示：同一时刻不渲染两张重叠横幅", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    inst.data.milestoneBanner = { show: true, title: "南坳", biome: "段 5/7", emoji: "" };
+    inst.showStageBanner({
+      id: "stage-4",
+      name: "陡峭冰壁",
+      biome: "段 4/7",
+      emoji: "",
+    });
+    expect(inst.data.stageBanner.show).toBe(false);
+  });
+
   it("死亡区：ref≥8000 且未到顶 → expDeathZone=true、氧气文案压制", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "everest" });
@@ -162,12 +201,14 @@ describe("探索页路线模式（Everest V2）", () => {
     inst.onStartClimb(); // 关闭引导页后横幅才出现（与旧模式一致）
     driveTo(inst, 0.5); // 西库姆冰谷（index 2 / 段 3）
     let data = inst.data as Record<string, any>;
-    expect(data.stageBanner.show).toBe(true);
-    expect(data.stageBanner.title).toContain("西库姆");
+    // 同一帧跨过里程碑时，到达提示优先，阶段提示不再与它重叠。
+    expect(data.stageBanner.show).toBe(false);
+    expect(data.milestoneBanner.show).toBe(true);
     expect(inst.visitedStageIds.indexOf("western-cwm") >= 0).toBe(true);
     driveTo(inst, 0.99); // 冲顶（index 6 / 段 7）
     data = inst.data as Record<string, any>;
-    expect(data.stageBanner.title).toContain("冲顶");
+    expect(data.stageBanner.show).toBe(false);
+    expect(data.milestoneBanner.show).toBe(true);
     expect(inst.visitedStageIds.indexOf("summit-push") >= 0).toBe(true);
   });
 
@@ -235,6 +276,75 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(inst.touching).toBe(false);
     inst.onTouchMove({ touches: [{ clientY: 120 }] });
     expect(inst.climbReq).toBeTruthy();
+  });
+
+  it("背景与路线同一相机视图：transform 同源、锚点=marker、zoom 随攀登持续推近", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    inst.data.intro = false;
+    inst.data.visActive = "TERRAIN";
+    inst.visMode = "TERRAIN";
+    inst.visBroken = true;
+
+    const parseScale = (t: string | undefined): number => {
+      const m = String(t ?? "").match(/scale\(([\d.]+)\)/);
+      return m ? Number(m[1]) : 0;
+    };
+
+    // 起步段：路线变换 = 相机位移 + 缩放（与 hero/LIVE 背景同一 transform 结构）
+    driveTo(inst, 0.03);
+    let data = inst.data as Record<string, any>;
+    expect(data.routeLayerTransform).toMatch(/^translate3d\(.+\) scale\(/);
+    const baseScale = parseScale(data.routeLayerTransform);
+    expect(baseScale).toBeGreaterThan(1.2);
+    // 锚点与 marker 同源：背景以当前攀登位置为原点缩放
+    expect(data.routeAnchorX).toBe(data.conceptRouteMarker.x);
+    expect(data.routeAnchorY).toBe(data.conceptRouteMarker.y);
+    expect(Number(data.routeAnnotationScale)).toBeCloseTo(1 / baseScale, 2);
+
+    // 向峰顶推进：zoom 单调增大（1.30 → 2.56），背景持续向山体推近
+    const prevY = data.conceptRouteMarker.y;
+    driveTo(inst, 0.97);
+    data = inst.data as Record<string, any>;
+    const topScale = parseScale(data.routeLayerTransform);
+    expect(topScale).toBeGreaterThan(baseScale + 0.4);
+    expect(topScale).toBeLessThanOrEqual(1.92);
+    expect(Number(data.routeAnnotationScale)).toBeCloseTo(1 / topScale, 2);
+    // 攀登推进后 marker 向上移动（y 减小）——背景/路线一起动，不脱节
+    expect(data.conceptRouteMarker.y).toBeLessThan(prevY);
+    expect(data.routeAnchorY).toBe(data.conceptRouteMarker.y);
+  });
+
+  it("LIVE 实景模式：路线层=相机 zoom×实景 crop 缩放，锚点与 marker 保持一致", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    inst.data.intro = false;
+    // 模拟 LIVE 可用（crop zoom 1）且已挂载实景
+    inst.data.visActive = "LIVE";
+    inst.visMode = "LIVE";
+    inst.data.liveCropUi = { focusX: 50, focusY: 38, zoom: 1.35 };
+    inst.visLiveSrc = "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
+    inst.visMountedSrc = inst.visLiveSrc;
+    inst.data.visLiveReady = true;
+
+    driveTo(inst, 0.1);
+    // tickFrame 会按场景数据刷新 crop；这里再注入非 1 的合成 crop，直接重绘一帧验证
+    // viewScale = camZoomB × cropScale，避免把“crop 已经生效”误测成固定默认值。
+    inst.data.liveCropUi = { focusX: 50, focusY: 38, zoom: 1.35 };
+    inst.renderFrame(
+      inst.exploration,
+      deriveState(inst.exploration, inst.current, []),
+      inst.current,
+    );
+    const data = inst.data as Record<string, any>;
+    const scale = Number(
+      String(data.routeLayerTransform).match(/scale\(([\d.]+)\)/)?.[1] ?? 0,
+    );
+    // LIVE camera 推近 + 实景 crop 缩放叠加；crop 已进入同一 image transform，不能再单独缩放一次。
+    expect(scale).toBeCloseTo(Number(data.viewZoom.b) * 1.35, 3);
+    expect(data.liveCropUi.zoom).toBe(1.35);
+    expect(data.routeAnchorX).toBe(data.conceptRouteMarker.x);
+    expect(data.routeAnchorY).toBe(data.conceptRouteMarker.y);
   });
 });
 

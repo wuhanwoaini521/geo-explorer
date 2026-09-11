@@ -21,6 +21,7 @@ import { EVEREST } from "../explorations/everest";
 import { buildRouteIndex } from "../../engine/route-index";
 import { buildStageMap } from "../../engine/expedition-stages";
 import { SOUTH_COL_ROUTE } from "../routes/everest/index";
+import { buildEverestRoutePath } from "../routes/everest/visual-route";
 
 const routeIndex = buildRouteIndex(SOUTH_COL_ROUTE);
 
@@ -141,15 +142,20 @@ const stageMap = buildStageMap(STAGE_DEFS, routeIndex);
  * 景别/焦点变化：抵达每个节点时，山体构图、路线投影和信息层一起进入
  * 该节点的镜头状态；节点之间仍然平滑过渡，不会瞬移。
  */
+/**
+ * 注意：zoom 锚点相机（cameraAnchor = 当前 marker 位置）上线后，这一组缩放承担
+ * 「背景 = 路线」同一相机视图的推近量：从大本营的远观 1.22 一路推到峰顶 1.92。
+ * 这是保留山体上下文的视觉上限；不要用极端放大掩盖路线投影误差。
+ */
 const CHECKPOINT_CAMERA_PRESETS = [
-  { id: "base-camp", scale: 1.02, offsetX: 0.50, offsetY: 0.64, focus: { x: 0.50, y: 0.68 } },
-  { id: "khumbu-icefall", scale: 1.05, offsetX: 0.52, offsetY: 0.59, focus: { x: 0.47, y: 0.62 } },
-  { id: "camp-i", scale: 1.08, offsetX: 0.48, offsetY: 0.55, focus: { x: 0.52, y: 0.57 } },
-  { id: "western-cwm-camp-ii", scale: 1.11, offsetX: 0.46, offsetY: 0.50, focus: { x: 0.48, y: 0.52 } },
-  { id: "lhotse-face-camp-iii", scale: 1.14, offsetX: 0.52, offsetY: 0.46, focus: { x: 0.56, y: 0.47 } },
-  { id: "south-col-camp-iv", scale: 1.17, offsetX: 0.55, offsetY: 0.42, focus: { x: 0.44, y: 0.41 } },
-  { id: "south-summit", scale: 1.20, offsetX: 0.48, offsetY: 0.38, focus: { x: 0.52, y: 0.34 } },
-  { id: "summit", scale: 1.24, offsetX: 0.50, offsetY: 0.34, focus: { x: 0.50, y: 0.28 } },
+  { id: "base-camp", scale: 1.22, offsetX: 0.50, offsetY: 0.62, focus: { x: 0.50, y: 0.70 } },
+  { id: "khumbu-icefall", scale: 1.30, offsetX: 0.52, offsetY: 0.56, focus: { x: 0.50, y: 0.58 } },
+  { id: "camp-i", scale: 1.39, offsetX: 0.50, offsetY: 0.50, focus: { x: 0.52, y: 0.52 } },
+  { id: "western-cwm-camp-ii", scale: 1.49, offsetX: 0.48, offsetY: 0.44, focus: { x: 0.48, y: 0.45 } },
+  { id: "lhotse-face-camp-iii", scale: 1.59, offsetX: 0.52, offsetY: 0.38, focus: { x: 0.56, y: 0.38 } },
+  { id: "south-col-camp-iv", scale: 1.69, offsetX: 0.55, offsetY: 0.32, focus: { x: 0.44, y: 0.30 } },
+  { id: "south-summit", scale: 1.81, offsetX: 0.48, offsetY: 0.26, focus: { x: 0.52, y: 0.24 } },
+  { id: "summit", scale: 1.92, offsetX: 0.50, offsetY: 0.22, focus: { x: 0.50, y: 0.22 } },
 ] as const;
 
 function checkpointProgress(id: string): number {
@@ -329,6 +335,9 @@ export const EVEREST_EXPEDITION: EverestExpedition = {
   sources,
   /* Gate 3.3A：Dual Visual Mode（LIVE/TERRAIN） */
   visualMode,
+  /* Gate 3.5B：山体路径（Terrain-Conforming Route）——按视觉模式分别投影，
+     共享同一条真实里程轴；waypoint 由路径吸附定位。 */
+  routePath: buildEverestRoutePath(routeIndex),
 };
 
 /** 供校验层便捷调用 */

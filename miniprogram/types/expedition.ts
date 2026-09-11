@@ -230,6 +230,81 @@ export interface RouteSampleAt {
 }
 
 /* ------------------------------------------------------------------ *
+ * 3.5 · Terrain-Conforming Route —— 山体路径（视觉层地理几何）             *
+ *                                                                     *
+ *  与 RouteIndex 的分工：                                               *
+ *    RouteIndex   —— 真实世界几何（米 / WGS84 / DEM），负责进度与海拔；   *
+ *    RouteSpine   —— 山体影像上的路径控制点（图像归一化 0..1），负责视觉。 *
+ *  两者共享同一条「路线进度轴」：spine 控制点的 progress 直接取自         *
+ *  RouteIndex 里程碑进度，因此 waypoint 可以精确吸附到路径上。           *
+ * ------------------------------------------------------------------ */
+
+/** 山体路径控制点：归一化图像坐标 + 该点对应的真实路线进度 */
+export interface RouteSpinePoint {
+   /** 归一化图像横坐标（0..1，原图 natural 空间） */
+   x: number;
+   /** 归一化图像纵坐标（0..1，原图 natural 空间） */
+   y: number;
+   /** 该控制点在真实路线里程轴上的进度（0..1，严格升序） */
+   progress: number;
+}
+
+/** 承载路线的背景资产投影参数（aspectFill / cover 裁剪还原所需） */
+export interface RouteCoverFrame {
+   /** 原图 natural 宽高比（宽 / 高） */
+   imageAspect: number;
+   /** 容器（视口）宽高比（宽 / 高） */
+   containerAspect: number;
+   /** 裁剪焦点横坐标（0..1，对应 object-position x%）；缺省 0.5 */
+   focusX?: number;
+   /** 裁剪焦点纵坐标（0..1，对应 object-position y%）；缺省 0.5 */
+   focusY?: number;
+}
+
+/** 路径均匀采样点（容器归一化百分位），marker / waypoint 共用同一投影来源 */
+export interface RouteSegmentSample {
+   /** 0..1（与路线里程轴一致） */
+   progress: number;
+   /** 容器宽度百分位 */
+   x: number;
+   /** 容器高度百分位 */
+   y: number;
+}
+
+/**
+ * 一套山体路径投影（一种渲染模式一份）。
+ *
+ * LIVE 与 TERRAIN 是同一段攀登的两个 renderer：waypoint id / 进度 / 海拔 / 解锁状态
+ * 完全共享（见 ExpeditionAttachment.routeIndex），只有「山体影像上的位置」不同。
+ * 因此这里只声明投影差异，不复制任何业务数据。
+ */
+export interface ExpeditionRouteProjection {
+   /** 投影 id（= 视觉模式：LIVE | TERRAIN） */
+   id: ExpeditionVisualMode;
+   /** 该投影承载路线的背景资产（须与页面实际渲染的图层同源） */
+   image: string;
+   /** 背景资产 natural 宽高比 */
+   imageAspect: number;
+   /** aspectFill 裁剪焦点（0..1） */
+   focusX: number;
+   focusY: number;
+   /**
+    * 山体路径控制点（图像归一化坐标）。
+    * 必须包含全部里程碑的 progress —— waypoint 由这些控制点吸附得到，
+    * 而不是反过来用 waypoint 连直线。
+    */
+   spine: RouteSpinePoint[];
+}
+
+/** 场景的山体路径声明（按视觉模式索引；缺省的模式回落到 terrain） */
+export interface ExpeditionRoutePathConfig {
+   /** 缺省投影（无对应模式投影时使用，通常是 terrain/hero 影像） */
+   default: ExpeditionRouteProjection;
+   /** 分模式投影（可选；键为视觉模式） */
+   modes?: Partial<Record<ExpeditionVisualMode, ExpeditionRouteProjection>>;
+}
+
+/* ------------------------------------------------------------------ *
  * 4 · 阶段（ExpeditionStage）—— 沿路线距离的阶段映射                       *
  * ------------------------------------------------------------------ */
 
@@ -347,6 +422,11 @@ export interface ExpeditionAttachment {
    sources: DataSource[];
    /** Dual Visual Mode 配置（Gate 3.3A）：LIVE 实景 / TERRAIN 科学地形 */
    visualMode: ExpeditionVisualModeConfig;
+   /**
+    * 山体路径投影（可选）：声明「路线贴哪座山、怎么投影到屏幕」。
+    * 缺省时页面不绘制山体路径（只保留 HUD），因此旧场景无需改动。
+    */
+   routePath?: ExpeditionRoutePathConfig;
 }
 
 /* ------------------------------------------------------------------ *

@@ -4,8 +4,8 @@
 
   <!-- ===== 山岳世界（world.style === 'mountain'：真实 DEM 三景按深度叠加） ===== -->
   <block wx:if="{{worldMountain}}">
-    <!-- Gate 3.4：自制远征主视觉；路线/marker 仍由 canonical route 动态叠加。 -->
-    <image wx:if="{{scene.plates.hero}}" class="plate view view-hero" mode="aspectFill" src="{{scene.plates.hero}}" style="transform:{{camera.mainTransform}} scale({{viewZoom.b}}); opacity:{{scene.op.main || 1}}"></image>
+    <!-- Gate 3.4：自制远征主视觉；与路线共享同一相机视图（transform-origin=marker 锚点） -->
+    <image wx:if="{{scene.plates.hero}}" class="plate view view-hero" mode="aspectFill" src="{{scene.plates.hero}}" style="transform:{{routeLayerTransform}};transform-origin:{{routeAnchorX}}% {{routeAnchorY}}%; opacity:{{scene.op.main || 1}}"></image>
 
     <!-- 视图 A：远景全景（徒步→BC）：下锚缩放至 DEM 山体带，天空不再占用主体 -->
     <image wx:if="{{scene.plates.far && scene.op.far > 0}}" class="plate view view-a depth-far" mode="aspectFill" src="{{scene.plates.far}}" style="transform:{{camera.farTransform}} translate3d(0,-{{par.far * 0.25}}px,0) scale({{viewZoom.a}}); opacity:{{scene.op.far}}"></image>
@@ -19,12 +19,14 @@
     <!-- 云海 / 云丝带（已下架：与照片级渲染风格冲突，保留图层结构） -->
     <image wx:if="{{scene.plates.cloud}}" class="plate pl-cloud" mode="aspectFit" src="{{scene.plates.cloud}}" style="transform:translate3d(0,-{{par.mid}}px,0); opacity:{{scene.op.cloud}}"></image>
 
-    <!-- Gate 3.3C.1 P0：LIVE 不可用（visLiveFallback）→ 自制珠峰远征主视觉全屏铺实，
-         杜绝空白渐变 / 毛刺残片；实景·不可用由顶部胶囊 + 底部说明共同表态 -->
-    <image wx:if="{{routeMode && visLiveFallback}}" class="plate view view-fallback" mode="aspectFill" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg"></image>
+    <!-- Gate 3.3C.1 P0：LIVE 不可用（visLiveFallback）→ 使用 TERRAIN 同源 hero 兜底，
+         杜绝空白渐变 / 毛刺残片；实景·不可用由顶部胶囊 + 底部说明共同表态。
+         兜底图必须与 activeRouteProjection=TERRAIN 同源，不能拿 LIVE 影像冒充 DEM 背景。 -->
+    <image wx:if="{{routeMode && visLiveFallback && scene.plates.hero}}" class="plate view view-fallback" mode="aspectFill" src="{{scene.plates.hero}}" style="transform:{{routeLayerTransform}};transform-origin:{{routeAnchorX}}% {{routeAnchorY}}%"></image>
 
-    <!-- Gate 3.3C.1：LIVE 实景层（crop 由数据层 → presentationCropUi 消费：object-position 焦点 + zoom 缩放） -->
-    <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" style="object-position:{{liveCropUi.focusX}}% {{liveCropUi.focusY}}%; transform: scale({{liveCropUi.zoom}});" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
+    <!-- Gate 3.3C.1：LIVE 实景层（crop 由数据层 → presentationCropUi 消费：object-position 焦点 + zoom 缩放；
+         与路线层同一相机视图——transform/锚点同 hero、concept-route，攀登时实景随路线推进） -->
+    <image wx:if="{{visLiveSrc}}" class="plate view view-live {{visLiveReady ? 'view-live-on' : ''}}" mode="aspectFill" src="{{visLiveSrc}}" style="object-position:{{liveCropUi.focusX}}% {{liveCropUi.focusY}}%; transform:{{routeLayerTransform}};transform-origin:{{routeAnchorX}}% {{routeAnchorY}}%;" bindload="onLiveImageLoad" binderror="onLiveImageError"></image>
 
     <!-- Gate 3.3C：LIVE 照片之上——由 resolve 产物渲染路线折线（大本营→洛子肩→峰顶）+ 当前点 + 起终点标 -->
     <!-- 路线模式只渲染 concept-route；LIVE 校准线属于旧叠加层，不能与概念路线同时出现。 -->
@@ -37,22 +39,40 @@
       <view wx:if="{{liveOverlay.schematic}}" class="live-route-chip">示意路线</view>
     </view>
 
-    <!-- 概念性山脊路线：沿照片主山脊画线，保留真实里程碑顺序；节点可点击打开途经点浮窗。 -->
-    <view wx:if="{{routeMode && conceptRoute && conceptRouteMarker}}" class="concept-route">
-      <view wx:for="{{conceptRoute.segments}}" wx:key="id" class="concept-route-seg concept-route-seg-base" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.length}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
-      <view wx:for="{{conceptRoute.completedSegments}}" wx:key="id" class="concept-route-seg concept-route-seg-completed" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.length}}%;transform:rotate({{item.rotateDeg}}deg)"></view>
+    <!-- 山体路径（Terrain-Conforming Route）：先在真实山体上定路径，waypoint 再吸附上去。
+         图层与山体背景共享同一相机视图（同一 transform + 同一 transform-origin=marker 锚点），
+         因此相机推近/切换模式时，背景与路线/marker 一起动，绝不脱节。 -->
+    <view wx:if="{{routeMode && conceptRoute && conceptRouteMarker && routeLayerTransform}}" class="concept-route" style="transform:{{routeLayerTransform}};transform-origin:{{routeAnchorX}}% {{routeAnchorY}}%">
+      <!-- 未来路线：弱化浅色线（近端更粗更亮 / 远端更细更淡，形成山体远近感） -->
+      <view wx:for="{{conceptRoute.segments}}" wx:key="id" class="concept-route-seg concept-route-seg-base" style="{{item.style}}"></view>
+      <!-- 已走路线：点亮（含当前段的局部裁剪，跟随 marker） -->
+      <view
+        wx:for="{{conceptRoute.completedSegments}}"
+        wx:key="id"
+        class="concept-route-seg concept-route-seg-completed {{item.active ? 'concept-route-seg-active' : ''}}"
+        style="{{item.style}}"
+      ></view>
+      <!-- Waypoint：路线上的真实地理节点（completed / current / upcoming 三种状态） -->
       <view
         wx:for="{{conceptRoute.points}}"
         wx:key="id"
-        class="concept-route-point concept-route-point-{{item.state}}"
-        style="left:{{item.x}}%;top:{{item.y}}%"
+        class="concept-route-point concept-route-point-{{item.state}} {{item.isSummit ? 'concept-route-point-summit' : ''}}"
+        style="{{item.style}} transform:scale({{routeAnnotationScale}});transform-origin:50% 50%;"
         data-id="{{item.id}}"
         bindtap="onTapExpeditionWaypoint"
       >
+        <view wx:if="{{item.isSummit}}" class="concept-route-point-flag"><text class="concept-route-point-flag-cloth"></text></view>
         <view class="concept-route-point-dot"></view>
-        <text class="concept-route-point-label">{{item.label}}</text>
+        <view class="concept-route-point-label">
+          <text class="concept-route-point-name">{{item.shortName}}</text>
+          <text wx:if="{{item.state !== 'upcoming'}}" class="concept-route-point-alt">{{item.altitudeText}}</text>
+        </view>
       </view>
-      <view class="concept-route-marker {{expMoving ? 'concept-route-marker-moving' : ''}}" style="left:{{conceptRouteMarker.x}}%;top:{{conceptRouteMarker.y}}%"></view>
+      <!-- Explorer Marker：用户当前在路线上的位置（沿路径插值，不是节点瞬移） -->
+      <view class="concept-route-marker {{expMoving || expClimbing ? 'concept-route-marker-moving' : ''}}" style="left:{{conceptRouteMarker.x}}%;top:{{conceptRouteMarker.y}}%;transform:scale({{routeAnnotationScale}});transform-origin:50% 50%;">
+        <view class="concept-route-marker-core"></view>
+        <text wx:if="{{routeMarkerAltText}}" class="concept-route-marker-tag">{{routeMarkerAltText}}</text>
+      </view>
     </view>
 
     <!-- §40：LIVE 实景数据说明一行（代表性视角 / “实时暂不可用” 等）——置于顶部切换下方，常显不藏 -->
@@ -342,7 +362,7 @@
   </view>
 
   <!-- 自然带横幅 ===== -->
-  <view wx:if="{{stageBanner.show}}" class="stage-banner">
+  <view wx:if="{{!milestoneBanner.show && stageBanner.show}}" class="stage-banner">
     <view class="sb-mark"><text>地貌</text></view>
     <view class="sb-main">
       <text class="sb-name">{{stageBanner.title}}</text>
@@ -426,17 +446,75 @@
     </view>
   </view>
 
-  <!-- ===== 途经点介绍卡 ===== -->
-  <view wx:if="{{waypointCard && waypointCard.show}}" class="wpc-mask" catchtouchmove="noop">
-    <view class="wpc-card">
-      <image wx:if="{{waypointCard.image}}" class="wpc-image" mode="aspectFill" src="{{waypointCard.image}}"></image>
-      <view class="wpc-head">
-        <text class="wpc-name">{{waypointCard.name}}</text>
-        <text wx:if="{{waypointCard.altitudeText}}" class="wpc-alt">{{waypointCard.altitudeText}}</text>
+  <!-- ===== Waypoint Discovery Card（地点知识卡）=====
+       到达山上的真实节点后解锁：地点名 / 英文名 / 海拔 / 实景图 / 地形类型 /
+       简介 / 详细说明 / 知识要点。半高卡片，不永久遮挡山体：上方仍能看到
+       路线与当前位置；图片可点击全屏查看（wx.previewImage）。 -->
+  <view wx:if="{{waypointCard && waypointCard.show}}" class="wpd-sheet">
+    <view class="wpd-grip" bindtap="onWaypointCardClose">
+      <view class="wpd-grip-bar"></view>
+    </view>
+
+    <view class="wpd-head">
+      <view class="wpd-head-copy">
+        <text class="wpd-name">{{waypointCard.title}}</text>
+        <text wx:if="{{waypointCard.titleEn}}" class="wpd-name-en">{{waypointCard.titleEn}}</text>
       </view>
-      <text class="wpc-desc">{{waypointCard.desc}}</text>
-      <text wx:if="{{waypointCard.lockedKnowledge}}" class="wpc-lock">抵达此处后可解锁相关知识</text>
-      <button class="wpc-btn" bindtap="onWaypointCardClose">继续观察</button>
+      <view class="wpd-head-right">
+        <text class="wpd-alt">{{waypointCard.altitudeText}}</text>
+        <text wx:if="{{waypointCard.unlocked}}" class="wpd-unlocked">已到达</text>
+        <text wx:else class="wpd-locked">未到达</text>
+      </view>
+      <text class="wpd-close" bindtap="onWaypointCardClose">✕</text>
+    </view>
+
+    <scroll-view class="wpd-scroll" scroll-y>
+      <view wx:if="{{waypointCard.image}}" class="wpd-media" bindtap="onPreviewWaypointImage">
+        <image class="wpd-image" mode="aspectFill" src="{{waypointCard.image}}"></image>
+        <text class="wpd-media-hint">点击查看大图 · 双指缩放</text>
+        <view wx:if="{{waypointCard.imageCount > 1}}" class="wpd-dots">
+          <view
+            wx:for="{{waypointCard.images}}"
+            wx:key="*this"
+            class="wpd-dot {{waypointCard.imageIndex === index ? 'wpd-dot-on' : ''}}"
+            data-index="{{index}}"
+            catchtap="onWaypointImagePick"
+          ></view>
+        </view>
+      </view>
+      <text wx:if="{{waypointCard.imageCredit}}" class="wpd-credit">{{waypointCard.imageCredit}}</text>
+      <text wx:if="{{waypointCard.imageKindLabel}}" class="wpd-media-kind">{{waypointCard.imageKindLabel}}</text>
+
+      <view wx:if="{{waypointCard.terrain || waypointCard.landform}}" class="wpd-chips">
+        <text wx:if="{{waypointCard.terrain}}" class="wpd-chip">{{waypointCard.terrain}}</text>
+        <text class="wpd-chip wpd-chip-soft">{{waypointCard.landform}}</text>
+      </view>
+
+      <text class="wpd-desc">{{waypointCard.desc}}</text>
+
+      <view wx:if="{{waypointCard.detail}}" class="wpd-more" bindtap="onToggleWaypointDetail">
+        <text class="wpd-more-t">{{waypointCard.detailOpen ? '收起说明 ▴' : '展开说明 ▾'}}</text>
+      </view>
+      <text wx:if="{{waypointCard.detailOpen}}" class="wpd-detail">{{waypointCard.detail}}</text>
+
+      <view wx:if="{{waypointCard.facts.length}}" class="wpd-facts">
+        <text class="wpd-facts-title">知识要点</text>
+        <view wx:for="{{waypointCard.facts}}" wx:key="*this" class="wpd-fact">
+          <text class="wpd-fact-dot">·</text>
+          <text class="wpd-fact-text">{{item}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="wpd-actions">
+      <button
+        wx:if="{{waypointCard.unlocked && waypointCard.knowledgeId}}"
+        class="wpd-btn wpd-btn-ghost"
+        bindtap="onOpenWaypointKnowledge"
+      >查看完整知识</button>
+      <button class="wpd-btn wpd-btn-primary" bindtap="onWaypointCardClose">
+        {{waypointCard.unlocked ? '继续攀登' : '关闭'}}
+      </button>
     </view>
   </view>
 

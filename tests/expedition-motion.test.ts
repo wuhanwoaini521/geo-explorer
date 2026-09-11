@@ -129,9 +129,9 @@ describe("运动不变式 · 攀登会话单一插值源（无 double-smoothing�
     expect(inst.climbReq).toBeNull();
     expect(inst.climbPhase).toBe("idle");
     expect(Math.abs(inst.current * totalM - 360)).toBeLessThan(0.5);
-    // UI 也不停留在“攀登中”
+    // UI 也不停留在“攀登中”（静止态按位置给文案：途中 →「继续攀登」）
     expect(inst.data.expClimbing).toBe(false);
-    expect(inst.data.expClimbLabel).toBe("攀登");
+    expect(inst.data.expClimbLabel).toBe("继续攀登");
     expect(inst.motionAudit.markerUpdates).toBeGreaterThan(12);
     expect(inst.motionAudit.cameraUpdates).toBeGreaterThan(4);
     expect(inst.motionAudit.routeGeometryRebuilds).toBeLessThanOrEqual(1);

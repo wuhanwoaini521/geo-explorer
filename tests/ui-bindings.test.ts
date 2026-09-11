@@ -122,6 +122,8 @@ describe("探索页视觉约束", () => {
     expect(wxml).toMatch(/liveOverlay && !routeMode/);
     expect(wxml).toMatch(/bindtap="onTapExpeditionWaypoint"/);
     expect(wxml).toMatch(/waypointCard\.image/);
+    expect(wxml).toMatch(/view-fallback.*scene\.plates\.hero/);
+    expect(wxml).not.toMatch(/view-fallback[^\n]*live-a-kala-patthar/);
     expect(wxml).toMatch(/class="exp-route-hint"/);
   });
 });

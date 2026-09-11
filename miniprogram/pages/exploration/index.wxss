@@ -563,22 +563,24 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(42, 33, 15, 0.55);
-  backdrop-filter: blur(8rpx);
+  background: rgba(3, 10, 18, 0.68);
+  backdrop-filter: blur(10rpx);
 }
 
 /* -- 引导 -- */
 .intro-card {
-  width: 640rpx;
-  max-height: 88vh;
+  width: 620rpx;
+  max-height: 82vh;
   overflow-y: auto;
-  background: #fffdf4;
-  border: 1rpx solid rgba(151, 124, 66, 0.2);
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(17, 39, 63, 0.98), rgba(7, 15, 27, 0.98) 86%);
+  border: 1rpx solid rgba(150, 211, 241, 0.28);
   border-radius: 24rpx;
-  padding: 48rpx 40rpx;
+  padding: 42rpx 38rpx 34rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.48), inset 0 1rpx 0 rgba(255, 255, 255, 0.08);
   animation: sheetIn 0.3s ease both;
 }
 @keyframes sheetIn {
@@ -586,8 +588,8 @@ page {
   to { transform: translateY(0); opacity: 1; }
 }
 .intro-ico { font-size: 88rpx; }
-.intro-title { font-size: 40rpx; font-weight: 800; color: #37311e; margin-top: 12rpx; letter-spacing: 2rpx; }
-.intro-sub { font-size: 26rpx; color: #a06a10; margin-top: 8rpx; text-align: center; }
+.intro-title { font-size: 38rpx; font-weight: 800; color: #f5f9fd; margin-top: 14rpx; letter-spacing: 2rpx; }
+.intro-sub { font-size: 25rpx; color: #9bdcf5; margin-top: 8rpx; text-align: center; }
 .intro-meta {
   display: flex;
   gap: 12rpx;
@@ -597,28 +599,29 @@ page {
 }
 .meta-chip {
   font-size: 22rpx;
-  color: #6f6547;
-  background: rgba(151,124,66,0.1);
-  padding: 8rpx 16rpx;
+  color: rgba(215, 235, 247, 0.88);
+  background: rgba(110, 174, 214, 0.14);
+  border: 1rpx solid rgba(150, 211, 241, 0.18);
+  padding: 7rpx 14rpx;
   border-radius: 10rpx;
 }
 .intro-desc {
   margin-top: 22rpx;
   font-size: 26rpx;
-  color: #4a4430;
+  color: rgba(224, 235, 245, 0.88);
   line-height: 1.7;
   text-align: left;
 }
 .btn-primary {
   margin-top: 32rpx;
   width: 100%;
-  height: 92rpx;
-  line-height: 92rpx;
+  height: 86rpx;
+  line-height: 86rpx;
   border-radius: 46rpx;
-  background: linear-gradient(135deg, #e3b04b, #b57f1f);
-  border: 2rpx solid #7a5510;
-  box-shadow: 0 6rpx 0 #7a5510;
-  color: #fffdf4;
+  background: linear-gradient(135deg, #36b5e3, #2c77d9);
+  border: 1rpx solid rgba(166, 231, 250, 0.7);
+  box-shadow: 0 5rpx 0 #185aa8, 0 8rpx 20rpx rgba(20, 116, 190, 0.22);
+  color: #f5fbff;
   font-size: 32rpx;
   font-weight: 700;
   letter-spacing: 2rpx;
@@ -627,7 +630,7 @@ page {
 .intro-hint {
   margin-top: 22rpx;
   font-size: 22rpx;
-  color: #94896a;
+  color: rgba(185, 207, 224, 0.66);
   text-align: center;
 }
 
@@ -657,76 +660,124 @@ page {
 .sb-name { font-size: 28rpx; color: #fff; font-weight: 700; }
 .sb-biome { font-size: 22rpx; color: #f0c05e; }
 
-/* ---------------- 途经点介绍卡 ---------------- */
-.wpc-mask {
-  position: fixed;
-  inset: 0;
-  z-index: 44;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(42, 33, 15, 0.55);
-  backdrop-filter: blur(6rpx);
-}
-.wpc-card {
-  width: 600rpx;
-  background: #fffdf4;
-  border: 1rpx solid rgba(151, 124, 66, 0.2);
-  border-radius: 24rpx;
-  padding: 34rpx 32rpx 32rpx;
+/* ---------------- Waypoint Discovery Card（地点知识卡） ----------------
+   半高 Bottom Sheet：不永久遮挡山体，上方仍能看到路线与当前所在位置。
+   图片点击 → wx.previewImage 全屏查看（原生支持双指缩放 / 多图左右切换）。 */
+.wpd-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 70vh;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
-  box-shadow: 0 16rpx 48rpx rgba(20, 14, 4, 0.3);
+  padding: 0 26rpx calc(env(safe-area-inset-bottom) + 18rpx);
+  background: linear-gradient(180deg, rgba(15, 22, 36, 0.95), rgba(5, 8, 14, 0.97) 46%);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.16);
+  border-radius: 28rpx 28rpx 0 0;
+  backdrop-filter: blur(14rpx);
+  box-shadow: 0 -18rpx 48rpx rgba(2, 6, 14, 0.55);
+  z-index: 30;
+  color: #ecf1f7;
+  animation: wpdIn 0.22s ease;
 }
-.wpc-image {
+@keyframes wpdIn {
+  from { transform: translateY(34rpx); opacity: 0.35; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.wpd-grip { padding: 14rpx 0 10rpx; display: flex; justify-content: center; }
+.wpd-grip-bar { width: 76rpx; height: 8rpx; border-radius: 8rpx; background: rgba(255, 255, 255, 0.3); }
+.wpd-head { display: flex; align-items: flex-start; gap: 12rpx; padding-bottom: 12rpx; }
+.wpd-head-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.wpd-name { font-size: 38rpx; font-weight: 800; color: #fff; letter-spacing: 1rpx; }
+.wpd-name-en { font-size: 19rpx; color: rgba(188, 212, 238, 0.74); letter-spacing: 2rpx; }
+.wpd-head-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4rpx; }
+.wpd-alt { font-size: 28rpx; font-weight: 800; color: #ffe19a; font-variant-numeric: tabular-nums; }
+.wpd-unlocked { font-size: 17rpx; color: #8fe0ff; }
+.wpd-locked { font-size: 17rpx; color: rgba(255, 255, 255, 0.5); }
+.wpd-close { flex-shrink: 0; padding: 0 6rpx; font-size: 30rpx; color: rgba(255, 255, 255, 0.6); }
+.wpd-scroll { flex: 1; min-height: 0; max-height: 46vh; }
+.wpd-media {
+  position: relative;
   width: 100%;
-  height: 220rpx;
-  border-radius: 16rpx;
-  object-fit: cover;
-  background: #d7e6f2;
+  height: 250rpx;
+  border-radius: 18rpx;
+  overflow: hidden;
+  background: #0b1220;
 }
-.wpc-head {
+.wpd-image { width: 100%; height: 100%; }
+.wpd-media-hint {
+  position: absolute;
+  right: 12rpx;
+  bottom: 12rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 14rpx;
+  font-size: 17rpx;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(8, 14, 26, 0.62);
+}
+.wpd-dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 14rpx;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16rpx;
+  gap: 10rpx;
+  padding: 5rpx 14rpx;
+  border-radius: 16rpx;
+  background: rgba(8, 14, 26, 0.55);
 }
-.wpc-name {
-  font-size: 32rpx;
-  font-weight: 800;
+.wpd-dot { width: 12rpx; height: 12rpx; border-radius: 50%; background: rgba(255, 255, 255, 0.34); }
+.wpd-dot-on { background: #ffd66b; }
+.wpd-credit { display: block; padding-top: 8rpx; font-size: 16rpx; color: rgba(178, 198, 224, 0.62); }
+.wpd-media-kind { display: inline-block; margin-top: 6rpx; padding: 3rpx 10rpx; border-radius: 12rpx; font-size: 15rpx; color: rgba(255, 226, 154, 0.88); background: rgba(255, 206, 90, 0.12); }
+.wpd-chips { display: flex; flex-wrap: wrap; gap: 10rpx; padding-top: 14rpx; }
+.wpd-chip {
+  padding: 5rpx 14rpx;
+  border-radius: 20rpx;
+  font-size: 19rpx;
+  color: #ffe9ad;
+  background: rgba(255, 206, 90, 0.16);
+  border: 1rpx solid rgba(255, 213, 110, 0.34);
+}
+.wpd-chip-soft {
+  color: rgba(214, 232, 250, 0.86);
+  background: rgba(120, 168, 220, 0.14);
+  border-color: rgba(140, 190, 235, 0.28);
+}
+.wpd-desc { display: block; padding-top: 14rpx; font-size: 25rpx; line-height: 1.6; color: #e8eef7; }
+.wpd-more { padding-top: 12rpx; }
+.wpd-more-t { font-size: 21rpx; color: #9fd8f5; }
+.wpd-detail { display: block; padding-top: 10rpx; font-size: 23rpx; line-height: 1.75; color: rgba(206, 220, 238, 0.84); }
+.wpd-facts { padding-top: 16rpx; display: flex; flex-direction: column; gap: 8rpx; }
+.wpd-facts-title { font-size: 19rpx; letter-spacing: 2rpx; color: rgba(160, 190, 220, 0.7); }
+.wpd-fact { display: flex; gap: 8rpx; }
+.wpd-fact-dot { color: #ffd66b; font-size: 23rpx; line-height: 1.5; }
+.wpd-fact-text { flex: 1; font-size: 22rpx; line-height: 1.6; color: rgba(226, 236, 248, 0.9); }
+.wpd-actions { display: flex; gap: 14rpx; padding-top: 18rpx; }
+.wpd-btn {
+  flex: 1;
+  height: 78rpx;
+  line-height: 78rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  font-weight: 600;
   letter-spacing: 1rpx;
 }
-.wpc-alt {
-  flex-shrink: 0;
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #a06a10;
-}
-.wpc-desc {
-  font-size: 25rpx;
-  color: #55503a;
-  line-height: 1.75;
-}
-.wpc-lock {
-  font-size: 21rpx;
-  color: #94896a;
-}
-.wpc-btn {
-  margin-top: 6rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 40rpx;
+.wpd-btn::after { border: none; }
+.wpd-btn-primary {
   background: linear-gradient(135deg, #e3b04b, #b57f1f);
+  color: #fffdf4;
   border: 2rpx solid #7a5510;
   box-shadow: 0 4rpx 0 #7a5510;
-  color: #fffdf4;
-  font-size: 28rpx;
-  font-weight: 600;
-  letter-spacing: 2rpx;
 }
-.wpc-btn::after { border: none; }
-.wpc-btn:active { transform: translateY(3rpx); box-shadow: 0 1rpx 0 #7a5510; }
+.wpd-btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #dce8f6;
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+}
+.wpd-btn:active { opacity: 0.88; }
 
 /* ---------------- 随堂 Quiz ---------------- */
 .quiz-mask {
@@ -1153,86 +1204,171 @@ page {
   z-index: 9;
 }
 
-/* 概念性山脊路线：不追求 DEM 像素命中，只负责让用户一眼看懂“沿哪条山脊走”。 */
+/* 山体路径（Terrain-Conforming Route）：路线贴在山体影像上，不是覆盖在屏幕上的折线。
+   图层带与山体影像相同的 transform（页面逐帧同源计算），故不影响坐标系语义：
+   这里的 % 坐标始终相对「承载山体的图层盒」。 */
 .concept-route {
   position: absolute;
   inset: 0;
   z-index: 10;
   pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform;
 }
+/* 折线：几何（left/top/width/height/rotate/opacity）全部由引擎按投影产出，
+   近端更粗更亮 / 远端更细更淡（透视），这里只提供材质与发光。 */
 .concept-route-seg {
   position: absolute;
-  height: 7rpx;
-  margin: -3.5rpx 0 0 -3.5rpx;
   transform-origin: 50% 50%;
   border-radius: 8rpx;
-  background: rgba(255, 238, 170, 0.62);
-  box-shadow: 0 0 8rpx rgba(255, 213, 91, 0.52);
 }
+/* 未来路线：弱化的浅色实线（仍在山体上可见，但不抢注意力）。
+   注：分段折线每段很短，不适合用 repeating 虚线（每段都会重启花格）→ 用纯色 + 分层透明度。 */
 .concept-route-seg-base {
-  border: 1rpx dashed rgba(255, 247, 202, 0.78);
-  background: repeating-linear-gradient(90deg, rgba(255, 230, 128, 0.9) 0 18rpx, rgba(255, 230, 128, 0.18) 18rpx 32rpx);
+  background: #ffe6ac;
+  box-shadow: 0 0 6rpx rgba(255, 213, 91, 0.3);
 }
+/* 已走路线：点亮 */
 .concept-route-seg-completed {
-  height: 10rpx;
-  margin-top: -5rpx;
-  margin-left: -5rpx;
   background: linear-gradient(90deg, #fff2b8, #f4b52d 75%, #e28e20);
-  border: 1rpx solid rgba(255, 255, 240, 0.96);
-  box-shadow: 0 0 14rpx rgba(255, 203, 77, 0.95), 0 1rpx 4rpx rgba(35, 22, 4, 0.72);
+  box-shadow: 0 0 13rpx rgba(255, 203, 77, 0.9), 0 1rpx 3rpx rgba(35, 22, 4, 0.6);
 }
+/* 当前段：极轻微的流动感（不改变几何，只做亮度呼吸） */
+.concept-route-seg-active {
+  animation: conceptSegFlow 1.15s ease-in-out infinite;
+}
+@keyframes conceptSegFlow {
+  0%, 100% { box-shadow: 0 0 11rpx rgba(255, 203, 77, 0.75), 0 1rpx 3rpx rgba(35, 22, 4, 0.55); }
+  50% { box-shadow: 0 0 20rpx rgba(255, 226, 132, 1), 0 1rpx 3rpx rgba(35, 22, 4, 0.55); }
+}
+/* Waypoint：路线上的真实地理节点（点击可回看地点知识卡） */
 .concept-route-point {
   position: absolute;
-  width: 34rpx;
-  height: 34rpx;
-  margin: -17rpx 0 0 -17rpx;
+  /* 72rpx 命中区约 36px；视觉圆点仍保持约 11–15px。父路线层放大时由
+     routeAnnotationScale 逆缩放，命中区和文字不会随山体变成巨型 UI。 */
+  width: 72rpx;
+  height: 72rpx;
+  margin: -36rpx 0 0 -36rpx;
   pointer-events: auto;
 }
 .concept-route-point-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   width: 22rpx;
   height: 22rpx;
-  margin: 6rpx;
+  margin: -11rpx;
   border-radius: 50%;
   background: rgba(255, 252, 226, 0.96);
   border: 3rpx solid rgba(239, 174, 47, 0.98);
   box-shadow: 0 0 0 5rpx rgba(255, 205, 85, 0.18), 0 0 10rpx rgba(255, 218, 110, 0.82);
 }
+/* completed：已到达——高亮、可回看 */
 .concept-route-point-completed .concept-route-point-dot { background: #ffd46b; }
+/* 峰顶节点：略大一点（并带小旗），在窄屏上也能与营地圆点区分 */
+.concept-route-point-summit .concept-route-point-dot {
+  width: 24rpx;
+  height: 24rpx;
+  margin: -12rpx;
+  border-color: #fff;
+}
+/* current：当前节点——最突出，轻微 pulse（不剧烈） */
 .concept-route-point-current .concept-route-point-dot {
   width: 30rpx;
   height: 30rpx;
-  margin: 2rpx;
+  margin: -15rpx;
   border-color: #fff;
   background: radial-gradient(circle, #fff 0 28%, #ffd66b 30% 56%, #d88c20 58% 100%);
   box-shadow: 0 0 0 8rpx rgba(255, 211, 93, 0.22), 0 0 18rpx rgba(255, 222, 128, 1);
+  animation: conceptPointPulse 1.9s ease-in-out infinite;
 }
+@keyframes conceptPointPulse {
+  0%, 100% { box-shadow: 0 0 0 8rpx rgba(255, 211, 93, 0.2), 0 0 16rpx rgba(255, 222, 128, 0.9); }
+  50% { box-shadow: 0 0 0 12rpx rgba(255, 211, 93, 0.12), 0 0 22rpx rgba(255, 222, 128, 1); }
+}
+/* upcoming：尚未到达——降透明度、不抢注意力 */
+.concept-route-point-upcoming .concept-route-point-dot {
+  background: rgba(255, 252, 226, 0.66);
+  border-color: rgba(233, 196, 122, 0.7);
+  box-shadow: 0 0 6rpx rgba(255, 218, 110, 0.4);
+}
+/* 峰顶：小旗（与营地节点的圆点区分；不引入 emoji） */
+.concept-route-point-flag {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 2rpx;
+  height: 30rpx;
+  margin-left: -1rpx;
+  background: linear-gradient(180deg, #ffffff, #ffd66b);
+}
+.concept-route-point-flag-cloth {
+  position: absolute;
+  left: 2rpx;
+  top: 0;
+  width: 20rpx;
+  height: 13rpx;
+  background: linear-gradient(135deg, #ff6b4a, #dc3317);
+}
+/* 标签：贴在山体上的一枚小牌，不遮山体主体 */
 .concept-route-point-label {
   position: absolute;
-  left: 22rpx;
-  bottom: 28rpx;
-  min-width: 88rpx;
-  padding: 4rpx 10rpx;
-  border-radius: 10rpx;
-  color: #fff8dc;
-  background: rgba(20, 31, 45, 0.72);
-  font-size: 18rpx;
-  line-height: 1.25;
+  left: 48rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  padding: 3rpx 9rpx;
+  border-radius: 9rpx;
+  background: rgba(12, 20, 32, 0.62);
   white-space: nowrap;
-  text-shadow: 0 1rpx 3rpx rgba(0,0,0,.65);
 }
-.concept-route-point-upcoming .concept-route-point-label { opacity: .72; }
+.concept-route-point-name {
+  color: #fff6dc;
+  font-size: 18rpx;
+  font-weight: 600;
+  text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.65);
+}
+.concept-route-point-alt { color: #ffe09a; font-size: 15rpx; }
+.concept-route-point-upcoming .concept-route-point-label { opacity: 0.6; }
+.concept-route-point-upcoming .concept-route-point-name { font-weight: 400; }
+.concept-route-point-completed .concept-route-point-name { color: #ffeec2; }
+.concept-route-point-current .concept-route-point-label {
+  background: rgba(40, 29, 6, 0.84);
+  border: 1rpx solid rgba(255, 213, 91, 0.52);
+}
+.concept-route-point-current .concept-route-point-name { color: #fffbe8; font-size: 20rpx; font-weight: 700; }
+/* Explorer Marker：用户当前在路线上的真实位置（沿路径插值而来） */
 .concept-route-marker {
   position: absolute;
-  width: 38rpx;
-  height: 38rpx;
-  margin: -19rpx 0 0 -19rpx;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 0 22%, #fff0ae 24% 42%, #efad2d 45% 100%);
-  border: 3rpx solid #fff;
-  box-shadow: 0 0 0 8rpx rgba(255, 214, 111, 0.22), 0 0 18rpx rgba(255, 209, 74, 1);
+  width: 28rpx;
+  height: 28rpx;
+  margin: -14rpx 0 0 -14rpx;
   pointer-events: none;
 }
-.concept-route-marker-moving { animation: conceptRoutePulse .85s ease-in-out infinite; }
+.concept-route-marker-core {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 20%, #fff0ae 22% 44%, #efad2d 46% 100%);
+  border: 3rpx solid #fff;
+  box-shadow: 0 0 0 8rpx rgba(255, 214, 111, 0.22), 0 0 20rpx rgba(255, 209, 74, 1);
+}
+.concept-route-marker-tag {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 8rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 10rpx;
+  font-size: 17rpx;
+  color: #fff8dc;
+  background: rgba(10, 17, 28, 0.74);
+  white-space: nowrap;
+}
+.concept-route-marker-moving .concept-route-marker-core { animation: conceptRoutePulse .85s ease-in-out infinite; }
 @keyframes conceptRoutePulse { 0%,100% { transform: scale(.86); } 50% { transform: scale(1.18); } }
 
 /* Gate 3.4：TERRAIN 科学地形上的路线重投影（2.5D 帆布，位于山体之上、HUD 之下）。
@@ -1430,27 +1566,40 @@ page {
 }
 .exp-back { flex-shrink: 0; color: #fff; font-size: 62rpx; line-height: 36rpx; }
 .exp-top-copy { display: flex; flex-direction: column; gap: 3rpx; }
-.exp-top-elev { margin-left: auto; color: #f5fbff; font-size: 24rpx; font-weight: 700; }
+/* 顶部右侧由微信原生胶囊占位；海拔已在峰顶提示 / 底部信息区展示，避免被原生胶囊遮挡。 */
+.exp-top-elev { display: none; }
 .exp-top-status { margin-top: 4rpx; color: #62c7f7; font-size: 17rpx; }
 
 /* 底部 30% 面板：视觉应向“轻量 overlay”收敛（背景更通透，层级仍主/次/路线） */
 .exp-sheet {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 12rpx;
+  right: 12rpx;
   bottom: 0;
   height: 40vh;
   box-sizing: border-box;
-  padding: 14rpx 26rpx calc(env(safe-area-inset-bottom) + 14rpx);
+  padding: 18rpx 22rpx calc(env(safe-area-inset-bottom) + 18rpx);
   display: flex;
   flex-direction: column;
   gap: 8rpx;
-  background: linear-gradient(180deg, rgba(14, 20, 34, 0.82), rgba(4, 7, 14, 0.92) 58%), linear-gradient(180deg, rgba(10, 16, 28, 0.55), rgba(5, 8, 14, 0.72) 55%);
-  border-top: 1rpx solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(12rpx);
+  background: linear-gradient(180deg, rgba(20, 48, 76, 0.58), rgba(8, 20, 36, 0.72) 58%, rgba(4, 11, 22, 0.82));
+  border: 1rpx solid rgba(180, 225, 247, 0.22);
+  border-radius: 28rpx 28rpx 22rpx 22rpx;
+  backdrop-filter: blur(20rpx) saturate(1.18);
   z-index: 11;
   color: #ecf1f7;
   overflow: hidden;
+  box-shadow: 0 0 0 1rpx rgba(5, 13, 24, 0.22), 0 -10rpx 34rpx rgba(3, 12, 23, 0.26), inset 0 1rpx 0 rgba(255, 255, 255, 0.12);
+}
+.exp-sheet::before {
+  content: "";
+  position: absolute;
+  left: 18rpx;
+  right: 18rpx;
+  top: 0;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent, rgba(195, 235, 252, 0.72), transparent);
+  opacity: 0.72;
 }
 
 /* Gate 3.3C.1 P1：hero 照片→exp-sheet 接缝暗化渐变（置于面板上缘上方，透明→暗，跨接缝消硬边） */
@@ -1547,6 +1696,10 @@ page {
   display: flex;
   align-items: stretch;
   gap: 8rpx;
+  padding: 10rpx 12rpx;
+  border: 1rpx solid rgba(186, 224, 244, 0.12);
+  border-radius: 16rpx;
+  background: rgba(4, 13, 25, 0.18);
 }
 .exp-stage {
   flex: 1 1 58%;
@@ -1614,11 +1767,13 @@ page {
   display: flex;
   gap: 12rpx;
   margin-top: auto;
+  padding-top: 12rpx;
+  border-top: 1rpx solid rgba(188, 224, 242, 0.14);
 }
 .exp-ctl {
   flex: 1;
-  height: 68rpx;
-  border-radius: 20rpx;
+  height: 72rpx;
+  border-radius: 999rpx;
   border: none;
   font-size: 22rpx;
   font-weight: 700;
@@ -1632,13 +1787,16 @@ page {
 .exp-ctl::after { border: none; }
 .exp-ctl:active { opacity: 0.85; transform: scale(0.97); }
 .exp-ctl-down {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.28);
   color: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.08);
 }
 .exp-ctl-route {
-  background: rgba(96, 156, 255, 0.24);
-  border: 1rpx solid rgba(150, 200, 255, 0.5);
+  background: rgba(54, 181, 227, 0.16);
+  border: 1rpx solid rgba(118, 213, 244, 0.58);
+  color: #d7f4ff;
+  box-shadow: inset 0 1rpx 0 rgba(190, 240, 255, 0.1);
 }
 .exp-ctl-up {
   background: linear-gradient(135deg, #2e9cff, #1f6fe0);
@@ -1649,7 +1807,8 @@ page {
 /* ---- 峰顶轻提示（非庆祝弹层；地形优先） ---- */
 .exp-summit-pill {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 118rpx);
+  /* 顶部 HUD / 模式切换 / 状态提示共用安全区；峰顶提示排在其下方，不能覆盖标题。 */
+  top: calc(env(safe-area-inset-top) + 232rpx);
   left: 28rpx;
   right: 28rpx;
   z-index: 14;
@@ -1819,7 +1978,7 @@ page {
 .stage-mark { width: 74rpx; height: 74rpx; border-radius: 50%; font-size: 20rpx; }
 .exp-stage-mark { width: 48rpx; height: 48rpx; border-radius: 50%; font-size: 16rpx; letter-spacing: 1rpx; }
 .sb-mark { width: 54rpx; height: 54rpx; border-radius: 50%; font-size: 17rpx; }
-.ico { width: 104rpx; height: 104rpx; display: flex; align-items: center; justify-content: center; border: 2rpx solid rgba(160, 106, 16, .45); border-radius: 50%; color: #a06a10; background: rgba(168,119,23,.1); font-size: 24rpx; font-weight: 800; letter-spacing: 3rpx; }
+.ico { width: 96rpx; height: 96rpx; display: flex; align-items: center; justify-content: center; border: 2rpx solid rgba(150, 211, 241, .58); border-radius: 50%; color: #a7e5fb; background: rgba(54, 181, 227, .14); box-shadow: inset 0 0 0 8rpx rgba(54, 181, 227, .05), 0 0 22rpx rgba(54, 181, 227, .12); font-size: 23rpx; font-weight: 800; letter-spacing: 3rpx; }
 .progress-ico { width: 28rpx; height: 28rpx; position: relative; filter: none; }
 .progress-ico::before { content: ""; position: absolute; left: 2rpx; bottom: 4rpx; width: 22rpx; height: 16rpx; border-left: 2rpx solid #ffe19a; border-top: 2rpx solid #ffe19a; transform: skewY(-28deg) rotate(18deg); }
 .g-mark { width: 74rpx; height: 74rpx; display: inline-flex; align-items: center; justify-content: center; border: 1rpx solid rgba(255, 220, 137, .56); border-radius: 50%; color: #ffe4a0; font-size: 18rpx; letter-spacing: 2rpx; animation: none; filter: none; }
