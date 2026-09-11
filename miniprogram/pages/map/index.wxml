@@ -1,54 +1,20 @@
 <view class="page">
-  <image wx:if="{{!mapImageFailed}}" class="map-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill" binderror="onMapImageError"></image>
-  <view wx:else class="map-image-fallback"></view>
-  <view class="map-shade"></view>
-
-  <view class="map-head">
-    <text class="map-back" bindtap="onBack">‹</text>
-    <view class="map-title-group">
-      <text class="map-title">珠穆朗玛峰</text>
-      <text class="map-title-en">Mount Everest</text>
-    </view>
-    <text class="map-more">•••</text>
+  <view class="world-map" aria-label="世界地图">
+    <canvas wx:if="{{!atlasOpen && !webglFailed}}" id="globeWebglCanvas" type="webgl" class="globe-webgl-canvas {{globeSelectedMode ? 'globe-canvas-selected' : ''}} {{globeEarthOnly ? 'globe-canvas-earth-only' : ''}}" bindtouchstart="onGlobeTouchStart" bindtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd"></canvas>
+    <canvas wx:if="{{!atlasOpen && webglFailed && !globeFailed}}" id="globeCanvas" type="2d" class="globe-canvas {{globeSelectedMode ? 'globe-canvas-selected' : ''}} {{globeEarthOnly ? 'globe-canvas-earth-only' : ''}}" bindtouchstart="onGlobeTouchStart" bindtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd"></canvas>
+    <image wx:if="{{globeFailed}}" class="world-map-fallback" src="/assets/world/world-map.svg" mode="aspectFill"></image>
+    <view wx:if="{{!globeEarthOnly}}" class="world-map-caption"><text class="caption-kicker">GEO EXPLORER</text><text class="caption-title">在地球上发现下一段旅程</text><text class="caption-sub">{{worldMarkerCount}} 个精选目的地 · {{atlasTotal}} 个地貌地点</text></view>
+    <view wx:if="{{!globeEarthOnly}}" class="globe-hint"><text class="globe-hint-dot"></text><text>拖拽旋转地球 · 点击地点</text></view>
+    <cover-view wx:if="{{!atlasOpen && !globeEarthOnly && (!webglFailed || globeFailed)}}" class="world-markers"><block wx:for="{{worldMarkers}}" wx:key="id"><cover-view wx:if="{{item.screenVisible}}" class="world-marker {{item.explorationId ? 'marker-open' : ''}} {{item.id === selectedMarkerId ? 'marker-selected' : ''}}" style="left:{{item.screenLeft}}%;top:{{item.screenTop}}%;opacity:{{item.screenOpacity}}" data-id="{{item.id}}" bindtap="onMapPointTap"><cover-view class="marker-pin">{{item.typeGlyph}}</cover-view><cover-view class="marker-label marker-label-visible"><cover-view>{{item.name}}</cover-view><cover-view>{{item.typeLabel}}</cover-view></cover-view></cover-view></block></cover-view>
   </view>
-
-  <view class="route-segments"><view wx:for="{{routeSegments}}" wx:key="index" class="route-segment" style="left:{{item.left}}%;top:{{item.top}}%;width:{{item.width}}%;transform:rotate({{item.rotate}}deg)"></view></view>
-  <view class="route-points">
-    <view wx:for="{{mapPoints}}" wx:key="id" class="route-point route-point-{{item.state}} route-point-{{item.side}} {{activePointId === item.id ? 'route-point-selected' : ''}}" style="top:{{item.top}}%;left:{{item.left}}%" data-id="{{item.id}}" bindtap="onMapPointTap">
-      <view class="route-dot"><view wx:if="{{item.isSummit}}" class="route-summit-mark"></view></view>
-      <view class="route-label">
-        <text class="route-state">{{item.stateLabel}}</text>
-        <text class="route-name">{{item.name}}</text>
-        <text class="route-alt">{{item.altitudeText}}</text>
-      </view>
-    </view>
-  </view>
-
-  <view class="map-tools">
-    <view class="tool" bindtap="onResetMap">⌖</view>
-    <view class="tool" bindtap="onToggleAtlas">图鉴</view>
-    <view class="tool tool-2d" bindtap="onToggleMapMode">{{mapMode}}</view>
-  </view>
-
-  <view class="map-place-card" wx:if="{{activePlace}}" bindtap="onOpenPlaceCard">
-    <image wx:if="{{!mapImageFailed}}" class="map-place-image" src="{{activePlace.image}}" mode="aspectFill" binderror="onMapImageError"></image>
-    <view wx:else class="map-place-image-fallback">地貌</view>
-    <view class="map-place-copy">
-      <text class="map-place-state">{{activePlace.stateLabel}}</text>
-      <text class="map-place-title">{{activePlace.name}}</text>
-      <text class="map-place-alt">{{activePlace.altitudeText}}</text>
-      <text class="map-place-desc">{{activePlace.description}}</text>
-    </view>
-    <text class="map-place-arrow">›</text>
-  </view>
-
-  <view wx:if="{{atlasOpen}}" class="atlas-drawer">
-    <view class="atlas-drawer-head"><view><text class="atlas-kicker">WORLD ATLAS</text><text class="atlas-title">地貌图鉴</text></view><text class="atlas-close" bindtap="onToggleAtlas">×</text></view>
-    <view class="atlas-search"><text class="atlas-search-mark">⌕</text><input value="{{query}}" placeholder="搜索地点或地貌" confirm-type="search" bindinput="onQueryInput" /><text wx:if="{{query}}" class="atlas-clear" bindtap="onQueryClear">清除</text></view>
-    <scroll-view class="atlas-types" scroll-x enhanced show-scrollbar="{{false}}"><view class="atlas-type-row"><text wx:for="{{types}}" wx:key="type" class="atlas-type {{activeType === item.type ? 'atlas-type-active' : ''}}" data-type="{{item.type}}" bindtap="onTypeTap">{{item.label}}</text></view></scroll-view>
-    <scroll-view class="atlas-list" scroll-y>
-      <view wx:if="{{atlas.length}}" class="atlas-grid"><view wx:for="{{atlas}}" wx:key="id" class="atlas-item" data-id="{{item.id}}" bindtap="onOpenPlace"><view class="atlas-item-mark">地貌</view><view class="atlas-item-copy"><text class="atlas-item-name">{{item.name}}</text><text class="atlas-item-meta">{{item.typeLabel}}{{item.exploration ? ' · 可探索' : ''}}</text><text class="atlas-item-desc">{{item.shortDescription}}</text></view><text class="atlas-item-arrow">›</text></view></view>
-      <view wx:else class="atlas-empty"><text>没有匹配的地点</text><text>试试其他关键词或分类</text></view>
-    </scroll-view>
-  </view>
+  <block wx:if="{{!globeEarthOnly}}">
+  <view class="map-head"><text class="map-back" bindtap="onBack">‹</text><view class="map-title-group"><text class="map-title">探索世界</text><text class="map-title-en">WORLD OVERVIEW</text></view><view class="map-head-note"><text>山川湖海 · 地球与我们</text><text>A MORE CURIOUS WORLD</text></view></view>
+  <view class="map-search"><text class="map-search-mark">⌕</text><input value="{{query}}" placeholder="搜索地点 / 地貌 / 山峰" confirm-type="search" bindinput="onQueryInput" /><text wx:if="{{query}}" class="map-clear" bindtap="onQueryClear">清除</text><text class="map-scan" bindtap="onResetGlobe">◎</text></view>
+  <view class="map-legend"><text class="legend-label">地图</text><text class="legend-item"><text class="legend-dot legend-open"></text>可探索</text><text class="legend-item"><text class="legend-dot"></text>精选地点</text><text class="legend-count">已显示 {{worldMarkerCount}}</text></view>
+  <cover-view wx:if="{{!atlasOpen}}" class="map-tools"><cover-view class="tool" bindtap="onResetGlobe">⌖</cover-view><cover-view class="tool" bindtap="onToggleAtlas">图鉴</cover-view><cover-view class="tool tool-2d" bindtap="onToggleMapMode">{{mapMode}}</cover-view></cover-view>
+  <cover-view wx:if="{{!atlasOpen}}" class="globe-side-readout"><cover-view class="readout-north">N</cover-view><cover-view class="readout-arrow">▲</cover-view><cover-view class="readout-scale"><cover-view></cover-view><cover-view></cover-view><cover-view></cover-view><cover-view class="readout-knob"></cover-view><cover-view></cover-view><cover-view></cover-view><cover-view></cover-view></cover-view><cover-view>23.5° N</cover-view><cover-view>142.1° E</cover-view></cover-view>
+  <view wx:if="{{!atlasOpen}}" class="recommendation-rail"><view class="recommendation-head"><view><text class="recommendation-kicker">FEATURED EXPLORATIONS</text><text class="recommendation-title">推荐探索</text></view><text class="recommendation-count">点击地点开始</text></view><scroll-view class="recommendation-scroll" scroll-x enhanced show-scrollbar="{{false}}"><view class="recommendation-row"><view wx:for="{{recommendations}}" wx:key="id" class="recommendation-card" data-id="{{item.id}}" bindtap="onMapPointTap"><image src="{{item.image}}" mode="aspectFill"></image><view class="recommendation-shade"></view><view class="recommendation-copy"><text class="recommendation-en">{{item.nameEn}}</text><text class="recommendation-name">{{item.name}}</text><text class="recommendation-metric">{{item.metricValue}}</text></view><view class="recommendation-cta"><text>{{item.actionLabel}}</text><text>›</text></view></view></view></scroll-view></view>
+  <view wx:if="{{atlasOpen}}" class="atlas-drawer"><view class="atlas-drawer-head"><view><text class="atlas-kicker">WORLD ATLAS</text><text class="atlas-title">地貌图鉴</text></view><text class="atlas-close" bindtap="onToggleAtlas">×</text></view><scroll-view class="atlas-types" scroll-x enhanced show-scrollbar="{{false}}"><view class="atlas-type-row"><text wx:for="{{types}}" wx:key="type" class="atlas-type {{activeType === item.type ? 'atlas-type-active' : ''}}" data-type="{{item.type}}" bindtap="onTypeTap">{{item.label}}</text></view></scroll-view><scroll-view class="atlas-list" scroll-y><view wx:if="{{atlas.length}}" class="atlas-grid"><view wx:for="{{atlas}}" wx:key="id" class="atlas-item" data-id="{{item.id}}" bindtap="onOpenPlace"><view class="atlas-item-mark">{{item.emoji}}</view><view class="atlas-item-copy"><text class="atlas-item-name">{{item.name}}</text><text class="atlas-item-meta">{{item.typeLabel}}{{item.exploration ? ' · 可探索' : ''}}</text><text class="atlas-item-desc">{{item.shortDescription}}</text></view><text class="atlas-item-arrow">›</text></view></view><view wx:else class="atlas-empty"><text>没有匹配的地点</text><text>试试其他关键词或分类</text></view></scroll-view></view>
+  </block>
+  <cover-view wx:if="{{selectedDestination && !atlasOpen}}" class="destination-overlay"><cover-view class="destination-preview" bindtap="onOpenDestination"><cover-view class="destination-panel-head"><cover-view class="destination-kicker">{{selectedDestination.typeLabel}} · {{selectedDestination.region}}</cover-view><cover-view class="destination-close" catchtap="onCloseDestination">×</cover-view></cover-view><cover-view class="destination-title">{{selectedDestination.name}}</cover-view><cover-view class="destination-en">{{selectedDestination.nameEn}}</cover-view><cover-view class="destination-metric">{{selectedDestination.metricLabel}} · {{selectedDestination.metricValue}}</cover-view><cover-view class="destination-action">{{selectedDestination.actionLabel}} <cover-view class="destination-arrow">›</cover-view></cover-view></cover-view></cover-view>
 </view>

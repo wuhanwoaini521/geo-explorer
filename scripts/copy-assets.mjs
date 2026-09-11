@@ -16,6 +16,7 @@ const ASSET_EXT = new Set([
   ".jpg",
   ".jpeg",
   ".webp",
+  ".svg",
 ]);
 
 async function walk(dir) {

@@ -15,11 +15,122 @@ const exploration_store_1 = require("../../services/exploration-store");
 const ui_bus_1 = require("../../services/ui-bus");
 const favorites_store_1 = require("../../services/favorites-store");
 const place_search_1 = require("../../utils/place-search");
+const globe_renderer_1 = require("../../engine/globe-renderer");
+const webgl_globe_renderer_1 = require("../../engine/webgl-globe-renderer");
 const COMING = [
     { id: "fuji", emoji: "🗻", title: "富士山", region: "日本 · 本州", basis: "海拔 3,776 m · 休眠火山" },
     { id: "sahara", emoji: "🏜️", title: "撒哈拉沙漠", region: "北非", basis: "世界最大热沙漠" },
 ];
 const ALL_TYPE = "all";
+const WORLD_DESTINATION_IDS = [
+    "p-everest",
+    "p-mariana",
+    "p-fuji",
+    "p-colorado",
+    "p-sahara",
+    "p-greenland",
+    "p-kilauea",
+    "p-qinghai",
+];
+const MARKER_GLYPHS = {
+    mountain: "▲",
+    ocean: "▼",
+    volcano: "△",
+    glacier: "◆",
+    canyon: "◇",
+    desert: "·",
+    plateau: "▰",
+};
+let webglRenderer = null;
+let canvasRenderer = null;
+let globeTouch = null;
+let globeVariant = "half";
+let initialSelectedId = "";
+let initialQuery = "";
+let globeCanvasOffsetX = 0;
+let globeCanvasOffsetY = 0;
+let globeCanvasWidth = 0;
+let globeCanvasHeight = 0;
+let globeEarthOnly = false;
+let globeMode = "";
+let globeSelectedMode = false;
+let forceCanvas = false;
+let globeBumpEnabled = true;
+let globeAtmosphereEnabled = true;
+let globeTextureScale = 2048;
+function activeGlobeRenderer() {
+    return webglRenderer !== null && webglRenderer !== void 0 ? webglRenderer : canvasRenderer;
+}
+function placeImage(place) {
+    if (place.id === "p-everest")
+        return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
+    if (place.id === "p-mariana" || place.type === "ocean")
+        return "/assets/world/mariana-card.png";
+    if (place.id === "p-fuji" || place.type === "volcano")
+        return "/assets/world/fuji-card.png";
+    if (place.id === "p-colorado" || place.type === "canyon" || place.type === "plateau")
+        return "/assets/world/grand-canyon-card.png";
+    if (place.type === "glacier" || place.type === "mountain")
+        return "/assets/world/everest-view-b.jpg";
+    return "/assets/world/grand-canyon-card.png";
+}
+function metricForPlace(place) {
+    if (place.elevationM < 0)
+        return { label: "最大深度", value: `约 ${Math.abs(place.elevationM).toLocaleString()} m` };
+    if (place.type === "canyon")
+        return { label: "谷底高程", value: `${place.elevationM.toLocaleString()} m` };
+    return { label: "最高点", value: `${place.elevationM.toLocaleString()} m` };
+}
+function worldMarker(place) {
+    var _a, _b, _c;
+    const left = Math.max(3, Math.min(97, ((place.longitude + 180) / 360) * 100));
+    const top = Math.max(8, Math.min(92, ((90 - place.latitude) / 180) * 100));
+    return {
+        id: place.id,
+        name: place.name,
+        nameEn: place.nameEn,
+        typeLabel: (_b = (_a = places_1.PLACE_TYPE_META.find((item) => item.type === place.type)) === null || _a === void 0 ? void 0 : _a.label) !== null && _b !== void 0 ? _b : "地貌",
+        typeGlyph: (_c = MARKER_GLYPHS[place.type]) !== null && _c !== void 0 ? _c : "·",
+        latitude: place.latitude,
+        longitude: place.longitude,
+        metricText: metricForPlace(place).value,
+        // 墨卡托式的简化世界图定位：用于发现入口，不作为测绘底图。
+        left,
+        top,
+        screenLeft: left,
+        screenTop: top,
+        screenOpacity: 1,
+        screenVisible: true,
+        explorationId: place.explorationId,
+        featured: Boolean(place.featured || place.explorationId),
+        state: place.explorationId && (0, exploration_store_1.getRecords)().some((record) => record.id === place.explorationId && record.completed)
+            ? "explored"
+            : "normal",
+    };
+}
+function destinationPreview(place) {
+    var _a, _b;
+    const metric = metricForPlace(place);
+    return {
+        id: place.id,
+        name: place.name,
+        nameEn: place.nameEn,
+        typeLabel: (_b = (_a = places_1.PLACE_TYPE_META.find((item) => item.type === place.type)) === null || _a === void 0 ? void 0 : _a.label) !== null && _b !== void 0 ? _b : "地貌",
+        region: place.region,
+        metricLabel: metric.label,
+        metricValue: metric.value,
+        description: place.explorationId
+            ? place.id === "p-mariana"
+                ? "从海面逐层下潜，穿过阳光带、黑暗带，直到挑战者深渊。"
+                : "从大本营沿真实路线前进，在环境变化中认识世界之巅。"
+            : place.description,
+        actionLabel: place.explorationId
+            ? place.id === "p-mariana" ? "开始下潜" : "开始攀登"
+            : "查看地点",
+        image: placeImage(place),
+        explorationId: place.explorationId,
+    };
+}
 Page({
     data: {
         open: [],
@@ -39,15 +150,58 @@ Page({
         activePointId: "",
         activePlace: null,
         mapImageFailed: false,
+        selectedDestination: null,
+        worldMarkers: [],
+        worldMarkerCount: 0,
+        recommendations: [],
+        selectedMarkerId: "",
+        globeSelectedMode: false,
+        webglFailed: false,
+        globeEarthOnly: false,
+        globeFailed: false,
     },
-    onLoad() {
+    onLoad(options) {
+        var _a, _b, _c;
+        globeMode = (_a = options === null || options === void 0 ? void 0 : options.globe) !== null && _a !== void 0 ? _a : "";
+        globeVariant = globeMode === "third" ? "third" : globeMode === "low" ? "low" : "half";
+        globeEarthOnly = globeMode === "earth-only" || globeMode === "no-bump" || globeMode === "with-bump" || globeMode === "no-atmosphere" || globeMode === "subtle-atmosphere" || globeMode.startsWith("variant-");
+        forceCanvas = globeMode === "canvas";
+        globeBumpEnabled = (options === null || options === void 0 ? void 0 : options.bump) !== "0" && globeMode !== "no-bump";
+        globeAtmosphereEnabled = (options === null || options === void 0 ? void 0 : options.atmosphere) !== "0" && globeMode !== "no-atmosphere";
+        globeTextureScale = (options === null || options === void 0 ? void 0 : options.texture) === "4096" ? 4096 : 2048;
+        if (globeMode === "no-bump")
+            globeBumpEnabled = false;
+        if (globeMode === "with-bump")
+            globeBumpEnabled = true;
+        if (globeMode === "no-atmosphere")
+            globeAtmosphereEnabled = false;
+        if (globeMode === "subtle-atmosphere")
+            globeAtmosphereEnabled = true;
+        initialSelectedId = (_b = options === null || options === void 0 ? void 0 : options.selected) !== null && _b !== void 0 ? _b : "";
+        initialQuery = (_c = options === null || options === void 0 ? void 0 : options.q) !== null && _c !== void 0 ? _c : "";
+        globeSelectedMode = Boolean(initialSelectedId || initialQuery);
+        this.setData({ globeEarthOnly, globeSelectedMode });
         this.refreshScenes();
-        this.refreshAtlas();
+        const query = initialQuery;
+        const activeType = (options === null || options === void 0 ? void 0 : options.type) && options.type !== ALL_TYPE
+            ? options.type
+            : ALL_TYPE;
+        if (query || activeType !== ALL_TYPE) {
+            this.setData({ query, activeType });
+            this.refreshAtlas();
+            this.focusGlobeQuery(query);
+        }
+        else {
+            this.refreshAtlas();
+        }
+    },
+    onReady() {
+        this.initGlobe();
     },
     onShow() {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 1 });
-        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: false });
+        (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: globeEarthOnly });
         // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
         const pending = (0, ui_bus_1.consumeTypeFilter)();
         const pendingQuery = (0, ui_bus_1.consumeSearchQuery)();
@@ -60,6 +214,130 @@ Page({
             this.setData(patch);
         this.refreshScenes();
         this.refreshAtlas();
+        if (!this.data.atlasOpen) {
+            (_e = activeGlobeRenderer()) === null || _e === void 0 ? void 0 : _e.resumeRotation();
+            (_f = activeGlobeRenderer()) === null || _f === void 0 ? void 0 : _f.start();
+        }
+    },
+    onHide() {
+        webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.stop();
+        canvasRenderer === null || canvasRenderer === void 0 ? void 0 : canvasRenderer.stop();
+    },
+    onUnload() {
+        webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
+        canvasRenderer === null || canvasRenderer === void 0 ? void 0 : canvasRenderer.stop();
+        webglRenderer = null;
+        canvasRenderer = null;
+        globeTouch = null;
+        globeCanvasOffsetX = 0;
+        globeCanvasOffsetY = 0;
+        globeCanvasWidth = 0;
+        globeCanvasHeight = 0;
+    },
+    initGlobe() {
+        const system = wx.getSystemInfoSync();
+        if (forceCanvas) {
+            this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+            return;
+        }
+        try {
+            wx.createSelectorQuery()
+                .select("#globeWebglCanvas")
+                .fields({ node: true, size: true })
+                .exec((result) => {
+                const canvasInfo = result[0];
+                if (!(canvasInfo === null || canvasInfo === void 0 ? void 0 : canvasInfo.node) || !canvasInfo.width || !canvasInfo.height) {
+                    this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+                    return;
+                }
+                globeCanvasWidth = canvasInfo.width;
+                globeCanvasHeight = canvasInfo.height;
+                globeCanvasOffsetX = initialSelectedId || initialQuery ? 0 : -canvasInfo.width / 11;
+                globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
+                try {
+                    const variantMode = this.data.globeEarthOnly ? "earth-only" : "default";
+                    const renderOptions = {
+                        earthOnly: globeEarthOnly,
+                        selectedMode: globeSelectedMode,
+                        bumpEnabled: globeBumpEnabled,
+                        atmosphereEnabled: globeAtmosphereEnabled,
+                        textureScale: globeTextureScale,
+                        bumpScale: globeMode === "variant-b" ? 1.02 : variantMode === "earth-only" ? 1.18 : globeVariant === "low" ? 0.94 : 1.18,
+                        atmosphereStrength: globeMode === "variant-c" ? 0.32 : 0.38,
+                    };
+                    webglRenderer = new webgl_globe_renderer_1.WebGLGlobeRenderer(canvasInfo.node, canvasInfo.width, canvasInfo.height, system.pixelRatio, globeVariant, renderOptions);
+                    const projectionListener = (projections) => {
+                        if (!this.data.worldMarkers.length || !globeCanvasWidth || !globeCanvasHeight)
+                            return;
+                        const projectionById = new Map(projections.map((projection) => [projection.id, projection]));
+                        const worldMarkers = this.data.worldMarkers.map((marker) => {
+                            const projection = projectionById.get(marker.id);
+                            if (!projection)
+                                return marker;
+                            return {
+                                ...marker,
+                                screenLeft: ((projection.screenX + globeCanvasOffsetX) / globeCanvasWidth) * 100,
+                                screenTop: ((projection.screenY + globeCanvasOffsetY) / Math.max(1, system.screenHeight)) * 100,
+                                screenOpacity: projection.opacity,
+                                screenVisible: projection.visible,
+                            };
+                        });
+                        this.setData({ worldMarkers });
+                    };
+                    webglRenderer.setProjectionListener(projectionListener);
+                    webglRenderer.setMarkers(this.data.worldMarkers);
+                    const initialPlace = places_1.PLACES.find((place) => place.id === initialSelectedId);
+                    if (initialPlace)
+                        this.focusGlobePlace(initialPlace);
+                    else if (initialQuery)
+                        this.focusGlobeQuery(initialQuery);
+                    webglRenderer.start();
+                }
+                catch (_a) {
+                    webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
+                    webglRenderer = null;
+                    this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+                }
+            });
+        }
+        catch (_a) {
+            this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+        }
+    },
+    initCanvasFallback() {
+        const system = wx.getSystemInfoSync();
+        try {
+            wx.createSelectorQuery()
+                .select("#globeCanvas")
+                .fields({ node: true, size: true })
+                .exec((result) => {
+                const canvasInfo = result[0];
+                if (!(canvasInfo === null || canvasInfo === void 0 ? void 0 : canvasInfo.node) || !canvasInfo.width || !canvasInfo.height) {
+                    this.setData({ globeFailed: true });
+                    return;
+                }
+                globeCanvasWidth = canvasInfo.width;
+                globeCanvasHeight = canvasInfo.height;
+                globeCanvasOffsetX = initialSelectedId || initialQuery ? 0 : -canvasInfo.width / 11;
+                globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
+                try {
+                    canvasRenderer = new globe_renderer_1.GlobeRenderer(canvasInfo.node, canvasInfo.width, canvasInfo.height, system.pixelRatio, globeVariant, globeSelectedMode);
+                    canvasRenderer.setMarkers(this.data.worldMarkers);
+                    canvasRenderer.start();
+                }
+                catch (_a) {
+                    canvasRenderer = null;
+                    this.setData({ globeFailed: true });
+                }
+            });
+        }
+        catch (_a) {
+            this.setData({ globeFailed: true });
+        }
+    },
+    syncGlobeMarkers() {
+        var _a;
+        (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setMarkers(this.data.worldMarkers);
     },
     refreshScenes() {
         var _a, _b, _c;
@@ -119,7 +397,18 @@ Page({
             routeSegments,
             activePointId,
             activePlace: this.placeCardForPoint(activePointId, mapPoints),
+            worldMarkers: WORLD_DESTINATION_IDS
+                .map((id) => places_1.PLACES.find((place) => place.id === id))
+                .filter((place) => Boolean(place))
+                .map(worldMarker),
+            worldMarkerCount: WORLD_DESTINATION_IDS.length,
+            recommendations: WORLD_DESTINATION_IDS
+                .slice(0, 2)
+                .map((id) => places_1.PLACES.find((place) => place.id === id))
+                .filter((place) => Boolean(place))
+                .map(destinationPreview),
         });
+        this.syncGlobeMarkers();
     },
     placeCardForPoint(id, points) {
         var _a;
@@ -153,7 +442,7 @@ Page({
         };
         return (_a = images[id]) !== null && _a !== void 0 ? _a : "/assets/world/everest-hero.jpg";
     },
-    refreshAtlas() {
+    refreshAtlas(afterUpdate) {
         const places = (0, place_search_1.queryPlaces)(places_1.PLACES, this.data.query, this.data.activeType);
         const atlas = places.map((p) => {
             var _a, _b;
@@ -167,7 +456,18 @@ Page({
                 exploration: Boolean(p.explorationId),
             });
         });
-        this.setData({ atlas, atlasEmpty: atlas.length === 0 });
+        const destinationPlaces = WORLD_DESTINATION_IDS
+            .map((id) => places_1.PLACES.find((place) => place.id === id))
+            .filter((place) => Boolean(place));
+        const worldPlaces = (0, place_search_1.queryPlaces)(destinationPlaces, this.data.query, this.data.activeType);
+        this.setData({
+            atlas,
+            atlasEmpty: atlas.length === 0,
+            worldMarkers: worldPlaces.map(worldMarker),
+            worldMarkerCount: worldPlaces.length,
+        });
+        this.syncGlobeMarkers();
+        afterUpdate === null || afterUpdate === void 0 ? void 0 : afterUpdate();
     },
     onTypeTap(e) {
         var _a, _b, _c;
@@ -179,12 +479,18 @@ Page({
     },
     onQueryInput(e) {
         var _a, _b;
-        this.setData({ query: String((_b = (_a = e.detail) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "") });
+        const query = String((_b = (_a = e.detail) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "");
+        this.setData({ query });
         this.refreshAtlas();
+        this.focusGlobeQuery(query);
     },
     onQueryClear() {
+        var _a;
         this.setData({ query: "" });
         this.refreshAtlas();
+        this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
+        globeCanvasOffsetX = -globeCanvasWidth / 11;
+        (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setSelected(null);
     },
     /** 路线图加载失败：隐藏图块并提示（不阻断流程） */
     onRouteImageError(e) {
@@ -218,16 +524,156 @@ Page({
         const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
         if (!id)
             return;
+        const place = places_1.PLACES.find((item) => item.id === id);
+        if (place) {
+            this.focusGlobePlace(place);
+            return;
+        }
         this.setData({
             activePointId: id,
             activePlace: this.placeCardForPoint(id, this.data.mapPoints),
         });
     },
+    onDestinationTap(e) {
+        var _a, _b, _c;
+        const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
+        const place = places_1.PLACES.find((item) => item.id === id);
+        if (!place)
+            return;
+        this.focusGlobePlace(place);
+    },
+    onOpenDestination() {
+        const destination = this.data.selectedDestination;
+        if (!destination)
+            return;
+        if (destination.explorationId) {
+            wx.navigateTo({ url: `/pages/exploration/index?id=${destination.explorationId}` });
+            return;
+        }
+        wx.navigateTo({ url: `/pages/place/index?id=${destination.id}` });
+    },
+    onCloseDestination() {
+        var _a;
+        this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
+        globeCanvasOffsetX = -globeCanvasWidth / 11;
+        (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setSelected(null);
+    },
+    globeTouchPoint(e) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        const detailX = (_a = e.detail) === null || _a === void 0 ? void 0 : _a.x;
+        const detailY = (_b = e.detail) === null || _b === void 0 ? void 0 : _b.y;
+        if (typeof detailX === "number" && typeof detailY === "number") {
+            return { x: detailX - globeCanvasOffsetX, y: detailY };
+        }
+        const touch = (_d = (_c = e.touches) === null || _c === void 0 ? void 0 : _c[0]) !== null && _d !== void 0 ? _d : (_e = e.changedTouches) === null || _e === void 0 ? void 0 : _e[0];
+        if (!touch)
+            return null;
+        return { x: ((_f = touch.x) !== null && _f !== void 0 ? _f : touch.clientX) - globeCanvasOffsetX, y: (_g = touch.y) !== null && _g !== void 0 ? _g : touch.clientY };
+    },
+    onGlobeTouchStart(e) {
+        var _a;
+        const point = this.globeTouchPoint(e);
+        if (!point)
+            return;
+        globeTouch = { ...point, moved: false, velocityX: 0, velocityY: 0 };
+        (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.pauseRotation();
+    },
+    onGlobeTouchMove(e) {
+        var _a;
+        const point = this.globeTouchPoint(e);
+        if (!point || !globeTouch)
+            return;
+        const deltaX = point.x - globeTouch.x;
+        const deltaY = point.y - globeTouch.y;
+        if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
+            (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.dragBy(deltaX, deltaY);
+            globeTouch.moved = globeTouch.moved || Math.hypot(deltaX, deltaY) > 7;
+            globeTouch.velocityX = deltaX;
+            globeTouch.velocityY = deltaY;
+            globeTouch.x = point.x;
+            globeTouch.y = point.y;
+        }
+    },
+    onGlobeTouchEnd(e) {
+        var _a, _b, _c;
+        const point = this.globeTouchPoint(e);
+        const touch = globeTouch;
+        globeTouch = null;
+        if (!point || !touch)
+            return;
+        if (!touch.moved) {
+            const id = (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.hitTest(point.x, point.y);
+            if (id)
+                this.openGlobeMarker(id);
+            else
+                (_b = activeGlobeRenderer()) === null || _b === void 0 ? void 0 : _b.resumeRotation();
+        }
+        else {
+            (_c = activeGlobeRenderer()) === null || _c === void 0 ? void 0 : _c.release(touch.velocityX, touch.velocityY);
+        }
+    },
+    openGlobeMarker(id) {
+        const place = places_1.PLACES.find((item) => item.id === id);
+        if (!place)
+            return;
+        this.focusGlobePlace(place);
+    },
+    focusGlobePlace(place) {
+        var _a, _b;
+        this.setData({ selectedDestination: destinationPreview(place), selectedMarkerId: place.id });
+        globeCanvasOffsetX = 0;
+        (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setSelected(place.id);
+        (_b = activeGlobeRenderer()) === null || _b === void 0 ? void 0 : _b.focusOnMarker(place.id);
+    },
+    focusGlobeQuery(query) {
+        var _a, _b;
+        if (query.trim().length < 2) {
+            this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
+            (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setSelected(null);
+            return;
+        }
+        const destinationPlaces = WORLD_DESTINATION_IDS
+            .map((id) => places_1.PLACES.find((place) => place.id === id))
+            .filter((place) => Boolean(place));
+        const place = (0, place_search_1.queryPlaces)(destinationPlaces, query, "all")[0];
+        if (place)
+            this.focusGlobePlace(place);
+        else {
+            this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
+            (_b = activeGlobeRenderer()) === null || _b === void 0 ? void 0 : _b.setSelected(null);
+        }
+    },
     onToggleAtlas() {
-        this.setData({ atlasOpen: !this.data.atlasOpen });
+        const opening = !this.data.atlasOpen;
+        if (opening) {
+            webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.stop();
+            canvasRenderer === null || canvasRenderer === void 0 ? void 0 : canvasRenderer.stop();
+            this.setData({
+                atlasOpen: true,
+                selectedDestination: null,
+                selectedMarkerId: "",
+                globeSelectedMode: false,
+            });
+            return;
+        }
+        // 图鉴关闭后重新创建 Canvas。原生 Canvas 被 wx:if 移除过，不能继续复用旧节点。
+        webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
+        canvasRenderer === null || canvasRenderer === void 0 ? void 0 : canvasRenderer.stop();
+        webglRenderer = null;
+        canvasRenderer = null;
+        globeTouch = null;
+        this.setData({ atlasOpen: false, webglFailed: false, globeFailed: false }, () => {
+            this.initGlobe();
+        });
     },
     onToggleMapMode() {
         this.setData({ mapMode: this.data.mapMode === "地形" ? "路线" : "地形" });
+    },
+    onResetGlobe() {
+        var _a;
+        this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
+        globeCanvasOffsetX = -globeCanvasWidth / 11;
+        (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.reset();
     },
     onResetMap() {
         var _a;

@@ -1,4 +1,5 @@
 {
   "navigationBarTitleText": "地图",
+  "navigationStyle": "custom",
   "usingComponents": {}
 }

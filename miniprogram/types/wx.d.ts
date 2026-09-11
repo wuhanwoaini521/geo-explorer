@@ -70,9 +70,9 @@ declare function getApp<T = { globalData: Record<string, unknown> }>(): T;
 interface PageEvent {
   target?: { dataset?: Record<string, unknown>; id?: string };
   currentTarget?: { dataset?: Record<string, unknown>; id?: string };
-  touches?: Array<{ clientX: number; clientY: number }>;
-  changedTouches?: Array<{ clientX: number; clientY: number }>;
-  detail?: Record<string, unknown> & { value?: unknown; index?: number };
+  touches?: Array<{ clientX: number; clientY: number; x?: number; y?: number }>;
+  changedTouches?: Array<{ clientX: number; clientY: number; x?: number; y?: number }>;
+  detail?: Record<string, unknown> & { value?: unknown; index?: number; x?: number; y?: number };
 }
 
 /* ---------- 定时器（wx 运行时提供） ---------- */
@@ -84,6 +84,13 @@ declare function clearTimeout(handle: number): void;
 /* ---------- wx API（本项目实际使用的子集） ---------- */
 
 declare interface WxApi {
+  createSelectorQuery(): {
+    select(selector: string): {
+      fields(fields: Record<string, boolean>): {
+        exec(callback: (result: unknown[]) => void): void;
+      };
+    };
+  };
   navigateTo(opts: {
     url: string;
     success?: () => void;
