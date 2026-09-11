@@ -1,17 +1,12 @@
 /**
- * 📖 知识页 —— 地理知识库（完整版）。
- *
- * 全量展示知识库条目，支持分类筛选与关键词搜索；
- * 「已在探索中解锁」联动：探索记录里的知识节点经 knowledgeId 映射点亮对应条目。
- * 筛选/联动均为纯函数（utils/knowledge-link），可在 Node 环境单测。
+ * 📖 知识页 —— 可浏览、可搜索、可从探索回到理解的地理知识库。
+ * 列表不再绑定少量固定栏目；分类和内容都从真实数据动态派生。
  */
-import { KNOWLEDGE } from "../../data/knowledge";
+import { KNOWLEDGE, KNOWLEDGE_CATEGORIES } from "../../data/knowledge";
+import { KNOWLEDGE_PROCESSES } from "../../data/processes";
 import { EXPLORATIONS } from "../../data/explorations/index";
 import { getRecords } from "../../services/exploration-store";
-import {
-  filterKnowledge,
-  unlockedLibraryIds,
-} from "../../utils/knowledge-link";
+import { filterKnowledge, unlockedLibraryIds } from "../../utils/knowledge-link";
 import type { Knowledge } from "../../types/models";
 
 interface KnowledgeItem extends Knowledge {
@@ -19,14 +14,18 @@ interface KnowledgeItem extends Knowledge {
   image: string;
 }
 
+interface ProcessCard {
+  id: string;
+  topicId: string;
+  kicker: string;
+  title: string;
+  question: string;
+  summary: string;
+  stepsText: string;
+  image: string;
+}
+
 const ALL_CATEGORY = "全部";
-const TABS = ["地质成因", "生态环境", "人文历史", "延伸阅读"];
-const TAB_IDS: Record<string, string[]> = {
-  "地质成因": ["k03", "k08"],
-  "生态环境": ["k01", "k04", "k07"],
-  "人文历史": ["k31", "k32"],
-  "延伸阅读": ["k02", "k09"],
-};
 
 function knowledgeImage(item: Knowledge): string {
   if (item.id === "k31") return "/assets/world/everest-history-1953.png";
@@ -40,13 +39,16 @@ function knowledgeImage(item: Knowledge): string {
 
 Page({
   data: {
-    categories: TABS,
+    categories: [ALL_CATEGORY, ...KNOWLEDGE_CATEGORIES],
     activeCategory: ALL_CATEGORY,
-    activeTab: "人文历史",
+    // 保留 activeTab 字段兼容现有调用与测试，实际筛选使用动态分类。
+    activeTab: ALL_CATEGORY,
     query: "",
     items: [] as KnowledgeItem[],
-    total: 0,
+    processCards: [] as ProcessCard[],
+    total: KNOWLEDGE.length,
     unlockedCount: 0,
+    processCount: KNOWLEDGE_PROCESSES.length,
     empty: false,
     failedImages: {} as Record<string, boolean>,
   },
@@ -54,58 +56,65 @@ Page({
   onShow() {
     this.getTabBar?.()?.setData({ selected: 2 });
     this.getTabBar?.()?.setData({ hidden: false });
-    const records = getRecords();
-    const unlocked = unlockedLibraryIds(records, EXPLORATIONS);
-    const items = this.filterForTab(this.data.activeTab, this.data.query, unlocked);
-    this.setData({
-      items,
-      total: KNOWLEDGE.length,
-      unlockedCount: unlocked.size,
-      empty: items.length === 0,
-    });
+    this.refresh();
+  },
+
+  refresh() {
+    const unlocked = unlockedLibraryIds(getRecords(), EXPLORATIONS);
+    const items = this.filterForTab(this.data.activeCategory, this.data.query, unlocked);
+    const processCards = KNOWLEDGE_PROCESSES.map((process) => ({
+      id: process.id,
+      topicId: process.topicId,
+      kicker: process.kicker,
+      title: process.title,
+      question: process.question,
+      summary: process.summary,
+      stepsText: `${process.steps.length} 个渐进步骤`,
+      image: knowledgeImage(KNOWLEDGE.find((item) => item.id === process.topicId) || KNOWLEDGE[0]),
+    }));
+    this.setData({ items, processCards, total: KNOWLEDGE.length, unlockedCount: unlocked.size, empty: items.length === 0 });
   },
 
   onCategoryTap(e: PageEvent) {
-    const tab = String(e.currentTarget?.dataset?.category ?? "人文历史");
-    this.setData({ activeTab: tab });
-    this.applyFilter(tab, this.data.query);
+    const category = String(e.currentTarget?.dataset?.category ?? ALL_CATEGORY);
+    this.setData({ activeCategory: category, activeTab: category });
+    this.applyFilter(category, this.data.query);
   },
 
   onQueryInput(e: PageEvent) {
     const query = String(e.detail?.value ?? "");
     this.setData({ query });
-    this.applyFilter(this.data.activeTab, query);
+    this.applyFilter(this.data.activeCategory, query);
   },
 
   onQueryClear() {
     this.setData({ query: "" });
-    this.applyFilter(this.data.activeTab, "");
+    this.applyFilter(this.data.activeCategory, "");
   },
 
-  /** 依据当前分类/关键词重算列表（联动解锁状态保持不变） */
   applyFilter(category: string, query: string) {
-    const records = getRecords();
-    const unlocked = unlockedLibraryIds(records, EXPLORATIONS);
+    const unlocked = unlockedLibraryIds(getRecords(), EXPLORATIONS);
     const items = this.filterForTab(category, query, unlocked);
     this.setData({ items, empty: items.length === 0 });
   },
 
-  filterForTab(tab: string, query: string, unlocked: Set<string>): KnowledgeItem[] {
-    const ids = TAB_IDS[tab] || [];
-    const source = ids.length
-      ? ids.map((id) => KNOWLEDGE.find((item) => item.id === id)).filter((item): item is Knowledge => Boolean(item))
-      : KNOWLEDGE;
-    return filterKnowledge(source, ALL_CATEGORY, query).slice(0, 8).map((k) => ({
-      ...k,
-      unlocked: unlocked.has(k.id),
-      image: knowledgeImage(k),
+  filterForTab(category: string, query: string, unlocked: Set<string>): KnowledgeItem[] {
+    return filterKnowledge(KNOWLEDGE, category, query).map((item) => ({
+      ...item,
+      unlocked: unlocked.has(item.id),
+      image: knowledgeImage(item),
     }));
   },
 
   onOpen(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
-    if (!id) return;
-    wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+    if (id) wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+  },
+
+  onOpenProcess(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    const process = KNOWLEDGE_PROCESSES.find((item) => item.id === id);
+    if (process) wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${process.topicId}&process=${process.id}` });
   },
 
   onImageError(e: PageEvent) {

@@ -1,16 +1,13 @@
 <view class="knowledge-page">
-  <view class="knowledge-head"><text class="knowledge-back" bindtap="onBack">‹</text><text class="knowledge-title">相关知识</text><text class="knowledge-more">•••</text></view>
+  <view class="knowledge-head"><text class="knowledge-back" bindtap="onBack">‹</text><view class="knowledge-heading"><text class="knowledge-title">知识</text><text class="knowledge-subtitle">KNOWLEDGE THROUGH EXPLORATION</text></view><text class="knowledge-more">•••</text></view>
   <view class="knowledge-search"><text class="knowledge-search-mark">⌕</text><input value="{{query}}" placeholder="搜索知识、地貌或关键词" confirm-type="search" bindinput="onQueryInput" /><text wx:if="{{query}}" bindtap="onQueryClear" class="knowledge-clear">清除</text></view>
-  <view class="knowledge-tabs"><text wx:for="{{categories}}" wx:key="*this" class="knowledge-tab {{activeTab === item ? 'knowledge-tab-active' : ''}}" data-category="{{item}}" bindtap="onCategoryTap">{{item}}</text></view>
-  <scroll-view class="knowledge-list" scroll-y="true">
-    <view wx:if="{{!empty}}">
-      <view class="knowledge-card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
-        <image wx:if="{{!failedImages[item.id]}}" class="knowledge-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onImageError"></image>
-        <view wx:else class="knowledge-image-fallback">知识</view>
-        <view class="knowledge-card-shade"></view>
-        <view class="knowledge-card-copy"><text class="knowledge-card-title">{{item.title}}</text><text class="knowledge-card-body">{{item.content}}</text></view>
-      </view>
-    </view>
-    <view wx:else class="knowledge-empty"><text>没有匹配的知识条目</text><text>试试其他关键词或分类</text></view>
+  <scroll-view class="knowledge-scroll" scroll-y="true">
+    <view class="knowledge-intro"><text class="intro-kicker">LEARN THE EARTH</text><text class="intro-title">从“看见”到“理解”</text><text class="intro-body">沿着地貌形成的过程，理解它为什么长成今天的样子。</text><view class="intro-stats"><view><text>{{total}}</text><text>知识主题</text></view><view><text>{{processCount}}</text><text>形成过程</text></view><view><text>{{unlockedCount}}</text><text>探索解锁</text></view></view></view>
+    <view class="section-heading"><view><text class="section-kicker">VISUAL EXPLANATION</text><text class="section-title">地貌课堂</text></view><text class="section-caption">保持同一个空间，逐步看它发生变化</text></view>
+    <scroll-view class="process-scroll" scroll-x enhanced show-scrollbar="{{false}}"><view class="process-row"><view wx:for="{{processCards}}" wx:key="id" class="process-card" data-id="{{item.id}}" bindtap="onOpenProcess"><image class="process-image" src="{{item.image}}" mode="aspectFill"></image><view class="process-shade"></view><view class="process-copy"><text class="process-kicker">{{item.kicker}}</text><text class="process-title">{{item.title}}</text><text class="process-question">{{item.question}}</text><text class="process-meta">{{item.stepsText}} ›</text></view></view></view></scroll-view>
+    <view class="section-heading library-heading"><view><text class="section-kicker">BROWSE LIBRARY</text><text class="section-title">全部知识</text></view><text class="section-caption">{{items.length}} / {{total}}</text></view>
+    <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}"><view class="category-row"><text wx:for="{{categories}}" wx:key="*this" class="category {{activeCategory === item ? 'category-active' : ''}}" data-category="{{item}}" bindtap="onCategoryTap">{{item}}</text></view></scroll-view>
+    <view wx:if="{{!empty}}" class="knowledge-grid"><view class="knowledge-card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen"><image wx:if="{{!failedImages[item.id]}}" class="knowledge-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onImageError"></image><view wx:else class="knowledge-image-fallback">{{item.emoji}}</view><view class="knowledge-card-shade"></view><view class="knowledge-card-copy"><view class="card-topline"><text class="knowledge-card-cat">{{item.category}}</text><text wx:if="{{item.unlocked}}" class="knowledge-unlocked">已解锁</text></view><text class="knowledge-card-title">{{item.title}}</text><text class="knowledge-card-body">{{item.summary}}</text></view></view></view>
+    <view wx:else class="knowledge-empty"><text>没有匹配的知识条目</text><text>试试其他关键词或分类</text></view><view class="knowledge-bottom-space"></view>
   </scroll-view>
 </view>

@@ -98,8 +98,10 @@ export interface Knowledge {
  category: KnowledgeCategory;
  emoji: string;
  relatedPlaceIds: string[];
- relatedLandformIds: string[];
- sources?: DataSource[];
+  relatedLandformIds: string[];
+  /** 可选的同空间渐进教学过程；详情页消费，旧条目无需迁移。 */
+  processId?: string;
+  sources?: DataSource[];
 }
 
 export interface Quiz {
