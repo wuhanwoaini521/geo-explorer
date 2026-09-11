@@ -363,7 +363,7 @@ Page({
           }
           globeCanvasWidth = canvasInfo.width;
           globeCanvasHeight = canvasInfo.height;
-          globeCanvasOffsetX = initialSelectedId || initialQuery ? 0 : -canvasInfo.width / 11;
+          globeCanvasOffsetX = 0;
           globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
           try {
             const variantMode = this.data.globeEarthOnly ? "earth-only" : "default";
@@ -431,7 +431,7 @@ Page({
           }
           globeCanvasWidth = canvasInfo.width;
           globeCanvasHeight = canvasInfo.height;
-          globeCanvasOffsetX = initialSelectedId || initialQuery ? 0 : -canvasInfo.width / 11;
+          globeCanvasOffsetX = 0;
           globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
           try {
             canvasRenderer = new GlobeRenderer(
@@ -612,7 +612,7 @@ Page({
     this.setData({ query: "" });
     this.refreshAtlas();
     this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
-    globeCanvasOffsetX = -globeCanvasWidth / 11;
+    globeCanvasOffsetX = 0;
     activeGlobeRenderer()?.setSelected(null);
   },
 
@@ -674,7 +674,7 @@ Page({
 
   onCloseDestination() {
     this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
-    globeCanvasOffsetX = -globeCanvasWidth / 11;
+    globeCanvasOffsetX = 0;
     activeGlobeRenderer()?.setSelected(null);
   },
 
@@ -786,7 +786,7 @@ Page({
 
   onResetGlobe() {
     this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
-    globeCanvasOffsetX = -globeCanvasWidth / 11;
+    globeCanvasOffsetX = 0;
     activeGlobeRenderer()?.reset();
   },
 

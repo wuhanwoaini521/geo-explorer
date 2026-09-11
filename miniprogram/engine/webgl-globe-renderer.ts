@@ -234,7 +234,7 @@ void main() {
   // 等距矩形贴图在两极会把同一处球面压成一条像素带。对极区使用
   // 稳定的中央经线采样，避免顶端出现扇形/人字形纹理伪影。
   float polarDistance = min(vUv.y, 1.0 - vUv.y);
-  float polarBlend = 1.0 - smoothstep(0.0, 0.13, polarDistance);
+  float polarBlend = 1.0 - smoothstep(0.0, 0.24, polarDistance);
   vec3 polarBase = (
     texture2D(uColorMap, vec2(0.125, vUv.y)).rgb
     + texture2D(uColorMap, vec2(0.375, vUv.y)).rgb
@@ -247,8 +247,8 @@ void main() {
     + texture2D(uHeightMap, vec2(0.625, vUv.y)).r
     + texture2D(uHeightMap, vec2(0.875, vUv.y)).r
   ) * 0.25;
-  vec3 base = mix(texture2D(uColorMap, vUv).rgb, polarBase, polarBlend * 0.92);
-  float height = mix(texture2D(uHeightMap, vUv).r, polarHeight, polarBlend * 0.92);
+  vec3 base = mix(texture2D(uColorMap, vUv).rgb, polarBase, polarBlend * 0.98);
+  float height = mix(texture2D(uHeightMap, vUv).r, polarHeight, polarBlend * 0.98);
   float heightRight = texture2D(uHeightMap, vUv + vec2(uTexel.x, 0.0)).r;
   float heightLeft = texture2D(uHeightMap, vUv - vec2(uTexel.x, 0.0)).r;
   float heightUp = texture2D(uHeightMap, vUv + vec2(0.0, uTexel.y)).r;
@@ -469,19 +469,19 @@ export class WebGLGlobeRenderer {
     this.pixelRatio = Math.max(1, pixelRatio);
     const earthOnly = options.earthOnly === true;
     const selectedMode = options.selectedMode === true;
-    // 普通地图 Canvas 横向放大到视口的 110% 并向左溢出 10%，以隐藏
-    // 原先右侧的矩形收口；这里同步回算中心，保持球体在页面中的位置。
-    this.centerX = earthOnly ? width * 0.5 : selectedMode ? width * 0.44 : variant === "third" ? width * 0.51 : variant === "low" ? width * 0.582 : width * 0.54;
-    this.centerY = earthOnly ? height * 0.52 : selectedMode ? height * 0.56 : variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.73;
+    // Canvas 始终保持在页面视口内。放大地球由球体半径控制，不再依赖
+    // “110% 宽度 + 负 left” 的裁剪技巧，否则会把左缘硬切并挤压右侧 HUD。
+    this.centerX = earthOnly ? width * 0.5 : selectedMode ? width * 0.5 : variant === "third" ? width * 0.51 : variant === "low" ? width * 0.56 : width * 0.5;
+    this.centerY = earthOnly ? height * 0.52 : selectedMode ? height * 0.43 : variant === "third" ? height * 1.2 : variant === "low" ? height * 1.08 : height * 0.66;
     this.radius = earthOnly
       ? Math.min(width * 0.72, height * 0.72)
       : selectedMode
-        ? Math.min(width * 0.82, height * 0.68)
+        ? Math.min(width * 0.50, height * 0.48)
       : variant === "third"
       ? Math.min(width * 0.73, height * 0.9)
       : variant === "low"
         ? Math.min(width * 0.73, height * 0.9)
-        : Math.min(width * 0.64, height * 0.60);
+        : Math.min(width * 0.52, height * 0.56);
     this.options = {
       earthOnly,
       selectedMode,

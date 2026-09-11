@@ -252,7 +252,7 @@ Page({
                 }
                 globeCanvasWidth = canvasInfo.width;
                 globeCanvasHeight = canvasInfo.height;
-                globeCanvasOffsetX = initialSelectedId || initialQuery ? 0 : -canvasInfo.width / 11;
+                globeCanvasOffsetX = 0;
                 globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
                 try {
                     const variantMode = this.data.globeEarthOnly ? "earth-only" : "default";
@@ -318,7 +318,7 @@ Page({
                 }
                 globeCanvasWidth = canvasInfo.width;
                 globeCanvasHeight = canvasInfo.height;
-                globeCanvasOffsetX = initialSelectedId || initialQuery ? 0 : -canvasInfo.width / 11;
+                globeCanvasOffsetX = 0;
                 globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
                 try {
                     canvasRenderer = new globe_renderer_1.GlobeRenderer(canvasInfo.node, canvasInfo.width, canvasInfo.height, system.pixelRatio, globeVariant, globeSelectedMode);
@@ -489,7 +489,7 @@ Page({
         this.setData({ query: "" });
         this.refreshAtlas();
         this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
-        globeCanvasOffsetX = -globeCanvasWidth / 11;
+        globeCanvasOffsetX = 0;
         (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setSelected(null);
     },
     /** 路线图加载失败：隐藏图块并提示（不阻断流程） */
@@ -555,7 +555,7 @@ Page({
     onCloseDestination() {
         var _a;
         this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
-        globeCanvasOffsetX = -globeCanvasWidth / 11;
+        globeCanvasOffsetX = 0;
         (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setSelected(null);
     },
     globeTouchPoint(e) {
@@ -672,7 +672,7 @@ Page({
     onResetGlobe() {
         var _a;
         this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
-        globeCanvasOffsetX = -globeCanvasWidth / 11;
+        globeCanvasOffsetX = 0;
         (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.reset();
     },
     onResetMap() {

@@ -160,22 +160,18 @@ export class GlobeRenderer {
     this.width = width;
     this.height = height;
     this.pixelRatio = Math.max(1, pixelRatio);
-    const legacyCenterX = variant === "third" ? width * 0.56 : variant === "low" ? width * 0.64 : width * 0.55;
-    const legacyCenterY = variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.92;
-    const legacyRadius = variant === "third"
-      ? Math.min(width * 0.8, height * 0.9)
-      : variant === "low"
-        ? Math.min(width * 0.8, height * 0.9)
-        : Math.min(width * 0.88, height * 0.98);
+    const legacyCenterX = width * 0.5;
+    const legacyCenterY = height * 0.43;
+    const legacyRadius = Math.min(width * 0.50, height * 0.48);
     // 默认地图状态必须让球体轮廓落在 Canvas 内部。此前把球心和半径
     // 放到视口外，真实贴图被 Canvas 矩形边界截断，产生明显的“裁剪图”感。
-    this.centerX = selectedMode ? legacyCenterX : variant === "third" ? width * 0.56 : variant === "low" ? width * 0.64 : width * 0.5;
+    this.centerX = selectedMode ? legacyCenterX : variant === "third" ? width * 0.56 : variant === "low" ? width * 0.56 : width * 0.5;
     this.centerY = selectedMode ? legacyCenterY : variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.6;
     this.radius = selectedMode ? legacyRadius : variant === "third"
-      ? Math.min(width * 0.8, height * 0.9)
+      ? Math.min(width * 0.50, height * 0.48)
       : variant === "low"
         ? Math.min(width * 0.8, height * 0.9)
-        : Math.min(width * 0.44, height * 0.4);
+        : Math.min(width * 0.52, height * 0.56);
     this.canvas.width = Math.round(width * this.pixelRatio);
     this.canvas.height = Math.round(height * this.pixelRatio);
     // Canvas 2D defaults vary between WeChat simulator versions. Set these
@@ -318,7 +314,13 @@ export class GlobeRenderer {
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius - 1, 0, Math.PI * 2);
     ctx.clip();
-    if (this.textureReady && this.texture) this.drawTexture();
+    if (this.textureReady && this.texture) {
+      this.drawTexture();
+      // 等距矩形贴图在两极会把多个经度压到同一个像素区域。兜底
+      // Canvas 无法像 WebGL 一样在极点做 UV 平均，因此用柔和的极冠
+      // 过渡压掉切片形成的 V 形条带，避免出现“破碎地球”。
+      this.drawPolarCaps();
+    }
     this.drawGrid();
     this.drawDirectionalLight();
     this.drawLimbDarkening();
@@ -366,9 +368,9 @@ export class GlobeRenderer {
     const ctx = this.ctx;
     const texture = this.texture;
     if (!texture || texture.width <= 0 || texture.height <= 0) return;
-    // 以逻辑像素控制横向采样，避免 8~10px 宽的条带把海岸线渲染成
-    // 台阶。2048px 纹理负责细节，Canvas DPR 负责最终 backing store 清晰度。
-    const step = Math.max(3, Math.min(5, Math.round(this.radius / 120)));
+    // 以更细的逻辑像素切片采样。兜底 Canvas 没有 WebGL 的球面 UV，
+    // 切片过宽会把经线和云层看成明显的条带，尤其是两极区域。
+    const step = Math.max(2, Math.min(3, Math.round(this.radius / 180)));
     const pitchScale = Math.cos(this.pitch);
     for (let localX = -this.radius; localX < this.radius; localX += step) {
       const localXEnd = Math.min(this.radius, localX + step);
@@ -400,6 +402,30 @@ export class GlobeRenderer {
       }
     }
     ctx.globalAlpha = 1;
+  }
+
+  private drawPolarCaps(): void {
+    const ctx = this.ctx;
+    const { centerX, centerY, radius } = this;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius - 1, 0, Math.PI * 2);
+    ctx.clip();
+
+    const north = ctx.createLinearGradient(0, centerY - radius, 0, centerY - radius * 0.58);
+    north.addColorStop(0, "rgba(236, 247, 247, .82)");
+    north.addColorStop(.58, "rgba(128, 184, 199, .18)");
+    north.addColorStop(1, "rgba(20, 66, 84, 0)");
+    ctx.fillStyle = north;
+    ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 0.48);
+
+    const south = ctx.createLinearGradient(0, centerY + radius, 0, centerY + radius * 0.58);
+    south.addColorStop(0, "rgba(236, 247, 247, .76)");
+    south.addColorStop(.58, "rgba(128, 184, 199, .16)");
+    south.addColorStop(1, "rgba(20, 66, 84, 0)");
+    ctx.fillStyle = south;
+    ctx.fillRect(centerX - radius, centerY + radius * 0.52, radius * 2, radius * 0.48);
+    ctx.restore();
   }
 
   private drawDirectionalLight(): void {
