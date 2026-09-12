@@ -163,6 +163,9 @@ const media = {
     assets: [
         {
             id: "live-a-kala-patthar",
+            entityType: "expedition",
+            entityId: "everest",
+            purpose: "hero",
             title: "Mount Everest from Kala Patthar",
             description: "Mount Everest, Khumbu Glacier and surrounding mountains seen with clear sky from Kala Patthar (≈5,545 m), 2019-04-24.",
             kind: "photograph",
@@ -177,7 +180,8 @@ const media = {
             dimensions: { width: 1080, height: 1920 },
             /* 运行时派生 sha256（quality=80；原始 sha256 见 design/world/everest-live/raw/） */
             hash: "15008117ff5f1715d3f0b7cb23b4613c9c78e90ff5cf2ee65e3d488bcbf695aa",
-            geographicRole: "Representative real-world image",
+            /* Kala Patthar 视角：真实珠峰影像，代表 expedition 场景，非 EBC 现场精确视角 */
+            geographicRole: "REPRESENTATIVE",
             overlayProjection: "CURATED",
             reviewStatus: "approved",
             tags: ["everest", "live", "kala-patthar"],

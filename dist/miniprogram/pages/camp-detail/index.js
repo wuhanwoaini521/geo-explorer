@@ -38,8 +38,8 @@ function buildDetail(id, activeTab = "概览") {
         id: point.id,
         title: isCamp3 ? "Camp III · 洛子壁" : point.name,
         range: isCamp3 ? "7,200 – 7,500 m" : `${Math.round(point.refM - 120)} – ${Math.round(point.refM + 120)} m`,
-        hero: "/assets/world/everest-view-b.jpg",
-        inlineImage: "/assets/world/everest-view-c.jpg",
+        hero: "/assets/expeditions/everest/waypoints/lhotse-face-camp-iii.jpg",
+        inlineImage: "/assets/expeditions/everest/waypoints/south-col-camp-iv.jpg",
         sectionTitle: copy.title,
         body: copy.body,
         facts: isCamp3

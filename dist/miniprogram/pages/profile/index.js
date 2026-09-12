@@ -25,7 +25,10 @@ Page({
         stats: { completed: 0, totalFound: 0, totalExplorations: index_1.EXPLORATIONS.length, totalKnowledge: knowledge_1.KNOWLEDGE.length },
         records: [],
         empty: false,
-        quiz: { totalPlays: 0, levels: [] },
+        quiz: {
+            totalPlays: 0,
+            levels: [],
+        },
         quizEmpty: true,
         favoritesList: [],
         favoritesEmpty: true,

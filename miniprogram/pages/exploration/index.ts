@@ -13,6 +13,8 @@ import {
   getExplorationById,
 } from "../../data/explorations/index";
 import { getExpeditionById } from "../../data/expeditions/index";
+import { RUNTIME_MANIFESTS } from "../../data/media/world-manifests";
+import { getMediaForEntity } from "../../engine/media-registry";
 import { PLACES } from "../../data/places";
 import {
   deriveState,
@@ -625,6 +627,49 @@ function buildFlora(emojis: string[]): FloraItem[] {
   }));
 }
 
+/**
+ * 运行时媒体解析（Long Run 2 · Gate 6 迁移）：
+ * MediaRegistry（approved-only）优先；未晋升实体返回空数组，由调用方回退 legacy images[]。
+ */
+function mediaKindToImageKind(kind: string): ExplorationImageKind {
+  return kind === "photograph" ? "photo" : kind === "terrain" ? "terrain" : "diagram";
+}
+
+function resolveWaypointMedia(id: string): {
+  images: string[];
+  credits: string[];
+  kinds: ExplorationImageKind[];
+} {
+  const assets = getMediaForEntity(RUNTIME_MANIFESTS, "waypoint", id);
+  if (assets.length) {
+    return {
+      images: assets.map((a) => a.localPath),
+      credits: assets.map((a) =>
+        a.attribution ?? (a.credit ? `${a.credit} · ${a.license}` : a.license),
+      ),
+      kinds: assets.map((a) => mediaKindToImageKind(a.kind)),
+    };
+  }
+  return { images: [], credits: [], kinds: [] };
+}
+
+/**
+ * 路线点的海拔/深度展示文本：altitude（攀登类）优先，其次 depth（下潜/下切类）。
+ * 数据驱动——同一处理适用于珠峰（altitude）、马里亚纳（depth）与大峡谷（altitude）。
+ */
+function waypointElevText(
+  point: Pick<ExplorationRouteWaypoint, "altitude" | "depth">,
+  unit = "m",
+): string {
+  if (point.altitude != null && !Number.isNaN(point.altitude)) {
+    return `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)} ${unit}`;
+  }
+  if (point.depth != null && !Number.isNaN(point.depth)) {
+    return `${formatNumber(point.depth, point.depth % 1 ? 2 : 0)} ${unit}`;
+  }
+  return "";
+}
+
 /** 路线位置由 Scene Data 的 progress 与坐标推导，页面不识别场景 id。 */
 function buildRouteState(
   route: ExplorationRoute,
@@ -665,9 +710,7 @@ function buildRouteState(
       id: point.id,
       name: point.name,
       shortName: point.shortName || point.name,
-      altitudeText: point.altitude
-        ? `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)}m`
-        : "",
+      altitudeText: waypointElevText(point),
       desc: point.desc,
       style: `left:${point.x}%;top:${point.y}%;`,
       state:
@@ -1132,7 +1175,8 @@ Page({
       ),
       metaPlace: exploration.meta.placeLabel,
       metaRegion: exploration.meta.region,
-      routeSub: "Mount Everest · South Col Route",
+      // 路线副标题由场景数据提供（不再硬编码珠峰路线名）
+      routeSub: exploration.route?.name ?? exploration.meta.typeLabel,
       estMinutes: exploration.estimatedMinutes,
       metaDesc: exploration.meta.description,
       ui: { ...DEFAULT_UI, ...(exploration.ui || {}) },
@@ -2505,7 +2549,17 @@ Page({
       wx.showToast({ title: `${point.name} · 继续攀登探索`, icon: "none" });
       return;
     }
-    const images = (point.images || []).filter(Boolean);
+    // Gate 6：运行时媒体（MediaRegistry）优先；未登记实体回退 legacy images[]。
+    const runtime = resolveWaypointMedia(point.id);
+    const images = runtime.images.length
+      ? runtime.images
+      : (point.images || []).filter(Boolean);
+    const imageCredits = runtime.images.length
+      ? runtime.credits
+      : point.imageCredits;
+    const imageKinds = runtime.images.length
+      ? runtime.kinds
+      : point.imageKinds;
     this.setData({
       waypointCard: {
         show: true,
@@ -2514,19 +2568,17 @@ Page({
         titleEn: point.nameEn,
         terrain: point.terrain,
         landform: landformLabel(point.id, point.name),
-        altitudeText: point.altitude
-          ? `${formatNumber(point.altitude, point.altitude % 1 ? 2 : 0)} ${this.data.ui.axisUnit}`
-          : "",
+        altitudeText: waypointElevText(point, this.data.ui.axisUnit),
         desc: point.desc,
         detail: point.detail,
         facts: point.facts || [],
         images,
         imageIndex: 0,
         image: images[0],
-        imageCredit: point.imageCredits ? point.imageCredits[0] : undefined,
-        imageCredits: point.imageCredits,
-        imageKinds: point.imageKinds,
-        imageKindLabel: imageKindLabel(point.imageKinds?.[0]),
+        imageCredit: imageCredits ? imageCredits[0] : undefined,
+        imageCredits,
+        imageKinds,
+        imageKindLabel: imageKindLabel(imageKinds?.[0]),
         imageCount: images.length,
         unlocked: true,
         knowledgeId: point.knowledgeId,
@@ -2551,7 +2603,11 @@ Page({
           | ExplorationRouteWaypoint
           | undefined);
     const unlocked = milestone.progress <= this.current + 1e-4;
-    const images = unlocked ? (content && content.images) || [] : [];
+    // Gate 6：运行时媒体（MediaRegistry）优先；未登记实体回退 legacy images[]。
+    const runtime = unlocked ? resolveWaypointMedia(id) : { images: [], credits: [], kinds: [] };
+    const images = runtime.images.length ? runtime.images : unlocked ? (content && content.images) || [] : [];
+    const creditSource = runtime.images.length ? runtime.credits : unlocked && content ? content.imageCredits : undefined;
+    const kindSource = runtime.images.length ? runtime.kinds : unlocked && content ? content.imageKinds : undefined;
     const imageIndex = 0;
     return {
       show: true,
@@ -2570,13 +2626,10 @@ Page({
       images,
       imageIndex,
       image: images[imageIndex],
-      imageCredit:
-        unlocked && content && content.imageCredits
-          ? content.imageCredits[imageIndex]
-          : undefined,
-      imageCredits: unlocked && content ? content.imageCredits : undefined,
-      imageKinds: unlocked && content ? content.imageKinds : undefined,
-      imageKindLabel: imageKindLabel(content?.imageKinds?.[imageIndex]),
+      imageCredit: creditSource ? creditSource[imageIndex] : undefined,
+      imageCredits: creditSource,
+      imageKinds: kindSource,
+      imageKindLabel: imageKindLabel(kindSource?.[imageIndex]),
       imageCount: images.length,
       unlocked,
       knowledgeId: unlocked && content ? content.knowledgeId : undefined,

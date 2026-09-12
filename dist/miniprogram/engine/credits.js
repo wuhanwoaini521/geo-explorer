@@ -51,9 +51,7 @@ function buildCredits(input) {
             credit: credit || undefined,
             url: a.sourceUrl || "",
             kind: "asset",
-            note: a.sourceUrl
-                ? undefined
-                : "未登记出处链接（评审与测试均不应通过）",
+            note: a.sourceUrl ? undefined : "未登记出处链接（评审与测试均不应通过）",
         });
     }
     if (input.liveStatus) {
@@ -68,7 +66,11 @@ function buildCredits(input) {
     }
     for (const s of input.sources) {
         const role = sourceRole(s);
-        const key = role === "科学地形（DEM）" ? "terrain" : role === "路线与坐标" ? "geometry" : "reference";
+        const key = role === "科学地形（DEM）"
+            ? "terrain"
+            : role === "路线与坐标"
+                ? "geometry"
+                : "reference";
         groups[key].push({
             id: `source-${s.name.slice(0, 12)}-${s.url}`,
             name: s.name,

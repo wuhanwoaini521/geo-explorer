@@ -9,8 +9,16 @@
     "clean": "node scripts/clean.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "content:validate": "vitest run tests/worlds-contract.test.ts",
     "wechat:screenshot": "node scripts/wechat-screenshot.cjs",
-    "everest:viewer": "npm --prefix tools/everest-route-calibrator run build && node tools/everest-route-calibrator/server.mjs"
+    "everest:viewer": "npm --prefix tools/everest-route-calibrator run build && node tools/everest-route-calibrator/server.mjs",
+    "content:report": "npx tsx scripts/content/report.ts",
+    "media:review": "npx tsx scripts/content/build-review-board.ts",
+    "media:download": "python3 scripts/content/download-candidates.py",
+    "quality:report": "npx tsx scripts/content/overnight-report.ts",
+    "media:review:serve": "npx tsx scripts/content/build-review-board.ts && node scripts/content/review-server.mjs",
+    "media:review:verify": "node scripts/content/verify-review-board-browser.mjs",
+    "release:report": "npx tsx scripts/content/release-readiness.ts"
   },
   "keywords": [
     "wechat",
@@ -22,6 +30,7 @@
   "devDependencies": {
     "@types/node": "^20.19.43",
     "miniprogram-automator": "^0.12.1",
+    "playwright-core": "^1.63.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.9"
   }

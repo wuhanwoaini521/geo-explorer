@@ -3,7 +3,7 @@
  *
  * 定位（相对 LIVE）：
  *   - LIVE：继承校准 route[]/anchors → 真影像上 EXACT 路线（schematic=false）；
- *   - TERRAIN：DEM 渲染三景（everest-view-a/b/c）未标定相机位姿 → 这里做的是
+ *   - TERRAIN：DEM 渲染场景（everest-expedition-hero-v1）未标定相机位姿 → 这里做的是
  *     「把真实 289 点路线重投影到归一化 9:16 画面」的*投影适配层*，
  *     包装为与 LiveOverlayUi 同构的地形路线结构，统一让 WXML 复用折线渲染。
  *

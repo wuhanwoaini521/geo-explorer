@@ -116,13 +116,17 @@ describe("精选 / 查询辅助", () => {
   it("已开放探索的场景（explorationId）只指向真实存在的探索场景", () => {
     for (const p of PLACES) {
       if (p.explorationId) {
-        expect(["everest", "mariana"]).toContain(p.explorationId);
+        expect(["everest", "mariana", "fuji", "colorado"]).toContain(
+          p.explorationId,
+        );
       }
     }
   });
 
-  it("everest 与 mariana 两个可探索地点已挂接场景", () => {
+  it("四个可探索地点已挂接场景（四世界）", () => {
     expect(getPlaceById("p-everest")?.explorationId).toBe("everest");
     expect(getPlaceById("p-mariana")?.explorationId).toBe("mariana");
+    expect(getPlaceById("p-fuji")?.explorationId).toBe("fuji");
+    expect(getPlaceById("p-colorado")?.explorationId).toBe("colorado");
   });
 });

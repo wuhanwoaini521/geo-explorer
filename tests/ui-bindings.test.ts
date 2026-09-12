@@ -14,9 +14,14 @@ const COMPONENTS_DIR = join(ROOT, "components");
 
 /* ---------------- 全局 mock ---------------- */
 (globalThis as Record<string, unknown>).wx = {
-  navigateTo: () => {}, switchTab: () => {}, navigateBack: () => {},
-  showToast: () => {}, showModal: () => {}, request: () => {},
-  getStorageSync: () => undefined, setStorageSync: () => {},
+  navigateTo: () => {},
+  switchTab: () => {},
+  navigateBack: () => {},
+  showToast: () => {},
+  showModal: () => {},
+  request: () => {},
+  getStorageSync: () => undefined,
+  setStorageSync: () => {},
   createIntersectionObserver: () => ({ observe: () => {} }),
 };
 const pageDefs = new Map<string, Record<string, any>>();
@@ -26,8 +31,13 @@ const pageDefs = new Map<string, Record<string, any>>();
   pageDefs.set(match ? match[1] : `__page_${pageDefs.size}`, def);
 };
 const componentDefs: Array<{ tag: string; def: Record<string, any> }> = [];
-(globalThis as Record<string, unknown>).Component = (def: Record<string, any>) => {
-  componentDefs.push({ tag: componentDefs.length === 0 ? "knowledge-popup" : "unknown", def });
+(globalThis as Record<string, unknown>).Component = (
+  def: Record<string, any>,
+) => {
+  componentDefs.push({
+    tag: componentDefs.length === 0 ? "knowledge-popup" : "unknown",
+    def,
+  });
 };
 (globalThis as Record<string, unknown>).App = () => {};
 (globalThis as Record<string, unknown>).getApp = () => ({ globalData: {} });
@@ -73,7 +83,9 @@ describe("WXML 事件绑定 ↔ 页面方法一致性", () => {
       for (const file of pageWxmlFiles(name)) {
         const wxml = readFileSync(file, "utf-8");
         for (const handler of extractHandlers(wxml)) {
-          expect(typeof def![handler], `${name} ← ${handler} (${file})`).toBe("function");
+          expect(typeof def![handler], `${name} ← ${handler} (${file})`).toBe(
+            "function",
+          );
         }
       }
     });
@@ -82,7 +94,10 @@ describe("WXML 事件绑定 ↔ 页面方法一致性", () => {
   it("knowledge-popup：组件 WXML 触发的事件都有 triggerEvent 定义或处理函数", () => {
     const comp = componentDefs[0];
     expect(comp).toBeTruthy();
-    const wxml = readFileSync(join(COMPONENTS_DIR, "knowledge-popup", "index.wxml"), "utf-8");
+    const wxml = readFileSync(
+      join(COMPONENTS_DIR, "knowledge-popup", "index.wxml"),
+      "utf-8",
+    );
     for (const handler of extractHandlers(wxml)) {
       const ok =
         typeof comp.def.methods?.[handler] === "function" ||
@@ -96,8 +111,13 @@ describe("WXML 事件绑定 ↔ 页面方法一致性", () => {
  *  该事件名应出现在页面 ts 的对应组件标签或被组件 triggerEvent —— 抽查 */
 describe("自定义组件事件命名", () => {
   it("knowledge-popup 触发的事件（triggerEvent）均为 close/continue", () => {
-    const ts = readFileSync(join(COMPONENTS_DIR, "knowledge-popup", "index.ts"), "utf-8");
-    const triggers = [...ts.matchAll(/triggerEvent\(["']([\w-]+)["']/g)].map((m) => m[1]);
+    const ts = readFileSync(
+      join(COMPONENTS_DIR, "knowledge-popup", "index.ts"),
+      "utf-8",
+    );
+    const triggers = [...ts.matchAll(/triggerEvent\(["']([\w-]+)["']/g)].map(
+      (m) => m[1],
+    );
     expect(triggers.length).toBeGreaterThanOrEqual(2);
     for (const t of triggers) expect(["close", "continue"]).toContain(t);
   });

@@ -1,4 +1,5 @@
 "use strict";
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 🏠 首页 —— 探索的起点（内容驱动，无硬编码业务数据）。
@@ -8,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const discoveries_1 = require("../../data/discoveries");
 const places_1 = require("../../data/places");
+const world_manifests_1 = require("../../data/media/world-manifests");
 const exploration_store_1 = require("../../services/exploration-store");
 const ui_bus_1 = require("../../services/ui-bus");
 const format_1 = require("../../utils/format");
@@ -20,19 +22,19 @@ const SCENE_CATALOG = [
         tags: ["高山地貌", "地貌观察"], target: "exploration",
     },
     {
-        id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,900 m", emoji: "🌊",
-        meta: "", badge: "", image: "/assets/world/mariana-card.png",
+        id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,935 m", emoji: "🌊",
+        meta: "", badge: "", image: (_a = (0, world_manifests_1.getPlaceHeroImage)("p-mariana")) !== null && _a !== void 0 ? _a : "",
         tags: ["海沟", "下潜"], target: "exploration",
     },
     {
-        id: "p-colorado", title: "大峡谷", subtitle: "穿越地球的历史", emoji: "🏜️",
-        meta: "", badge: "", image: "/assets/world/grand-canyon-card.png",
-        tags: ["峡谷", "探索"], target: "place",
+        id: "colorado", title: "科罗拉多大峡谷", subtitle: "下切 1,389 m · 穿越二十亿年", emoji: "🏞️",
+        meta: "", badge: "", image: (_b = (0, world_manifests_1.getPlaceHeroImage)("p-colorado")) !== null && _b !== void 0 ? _b : "",
+        tags: ["峡谷", "地质剖面"], target: "exploration",
     },
     {
-        id: "p-fuji", title: "富士山", subtitle: "火山与生命", emoji: "🌋",
-        meta: "", badge: "", image: "/assets/world/fuji-card.png",
-        tags: ["火山", "攀登"], target: "place",
+        id: "fuji", title: "富士山", subtitle: "攀登日本最高点 · 3,776 m", emoji: "🗻",
+        meta: "", badge: "", image: (_c = (0, world_manifests_1.getPlaceHeroImage)("p-fuji")) !== null && _c !== void 0 ? _c : "",
+        tags: ["火山", "攀登"], target: "exploration",
     },
 ];
 Page({

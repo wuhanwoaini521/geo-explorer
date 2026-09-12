@@ -8,6 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const places_1 = require("../../data/places");
 const knowledge_1 = require("../../data/knowledge");
 const index_1 = require("../../data/explorations/index");
+const world_manifests_1 = require("../../data/media/world-manifests");
 const favorites_store_1 = require("../../services/favorites-store");
 const format_1 = require("../../utils/format");
 const DETAIL_TABS = [
@@ -18,17 +19,16 @@ const DETAIL_TABS = [
     { id: "knowledge", label: "相关知识" },
 ];
 function placeImage(place) {
+    // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
+    const runtime = (0, world_manifests_1.getPlaceHeroImage)(place.id);
+    if (runtime)
+        return runtime;
     if (place.id === "p-everest")
         return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-    if (place.id === "p-fuji" || place.type === "volcano")
-        return "/assets/world/fuji-card.png";
-    if (place.id === "p-colorado" || place.type === "canyon" || place.type === "plateau")
-        return "/assets/world/grand-canyon-card.png";
-    if (place.id === "p-mariana" || place.type === "ocean" || place.type === "coast" || place.type === "lake")
-        return "/assets/world/mariana-card.png";
     if (place.type === "mountain" || place.type === "glacier")
-        return "/assets/world/everest-view-b.jpg";
-    return "/assets/world/grand-canyon-card.png";
+        return "/assets/world/everest-expedition-hero-v1.png";
+    // 其余类型（非四世界 place）返回空串 → 页面显示 emoji 占位（无 unknown-provenance 图）
+    return "";
 }
 /** 高程语义：海洋类显示深度，其余显示海拔/高程 */
 function elevDisplay(place) {

@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const index_1 = require("../../data/explorations/index");
 const index_2 = require("../../data/expeditions/index");
+const world_manifests_1 = require("../../data/media/world-manifests");
+const media_registry_1 = require("../../engine/media-registry");
 const places_1 = require("../../data/places");
 const exploration_engine_1 = require("../../engine/exploration-engine");
 const expedition_driver_1 = require("../../engine/expedition-driver");
@@ -231,6 +233,37 @@ function buildFlora(emojis) {
         size: 34 + ((i * 5) % 22),
     }));
 }
+/**
+ * 运行时媒体解析（Long Run 2 · Gate 6 迁移）：
+ * MediaRegistry（approved-only）优先；未晋升实体返回空数组，由调用方回退 legacy images[]。
+ */
+function mediaKindToImageKind(kind) {
+    return kind === "photograph" ? "photo" : kind === "terrain" ? "terrain" : "diagram";
+}
+function resolveWaypointMedia(id) {
+    const assets = (0, media_registry_1.getMediaForEntity)(world_manifests_1.RUNTIME_MANIFESTS, "waypoint", id);
+    if (assets.length) {
+        return {
+            images: assets.map((a) => a.localPath),
+            credits: assets.map((a) => { var _a; return (_a = a.attribution) !== null && _a !== void 0 ? _a : (a.credit ? `${a.credit} · ${a.license}` : a.license); }),
+            kinds: assets.map((a) => mediaKindToImageKind(a.kind)),
+        };
+    }
+    return { images: [], credits: [], kinds: [] };
+}
+/**
+ * 路线点的海拔/深度展示文本：altitude（攀登类）优先，其次 depth（下潜/下切类）。
+ * 数据驱动——同一处理适用于珠峰（altitude）、马里亚纳（depth）与大峡谷（altitude）。
+ */
+function waypointElevText(point, unit = "m") {
+    if (point.altitude != null && !Number.isNaN(point.altitude)) {
+        return `${(0, format_1.formatNumber)(point.altitude, point.altitude % 1 ? 2 : 0)} ${unit}`;
+    }
+    if (point.depth != null && !Number.isNaN(point.depth)) {
+        return `${(0, format_1.formatNumber)(point.depth, point.depth % 1 ? 2 : 0)} ${unit}`;
+    }
+    return "";
+}
 /** 路线位置由 Scene Data 的 progress 与坐标推导，页面不识别场景 id。 */
 function buildRouteState(route, progress) {
     const position = (0, route_1.routePositionAt)(route, progress);
@@ -264,9 +297,7 @@ function buildRouteState(route, progress) {
             id: point.id,
             name: point.name,
             shortName: point.shortName || point.name,
-            altitudeText: point.altitude
-                ? `${(0, format_1.formatNumber)(point.altitude, point.altitude % 1 ? 2 : 0)}m`
-                : "",
+            altitudeText: waypointElevText(point),
             desc: point.desc,
             style: `left:${point.x}%;top:${point.y}%;`,
             state: point.id === currentId
@@ -596,7 +627,7 @@ Page({
     celebrationTimer: null,
     /* ---------------- 生命周期 ---------------- */
     onLoad(query) {
-        var _a, _b, _c, _e, _f, _g;
+        var _a, _b, _c, _e, _f, _g, _h, _j;
         this.installMotionAudit();
         this.refreshSafeArea();
         const id = (query && query.id) || "";
@@ -686,7 +717,8 @@ Page({
             maxElevationText: (0, format_1.formatNumber)(exploration.maxElevation, exploration.maxElevation % 1 === 0 ? 0 : 2),
             metaPlace: exploration.meta.placeLabel,
             metaRegion: exploration.meta.region,
-            routeSub: "Mount Everest · South Col Route",
+            // 路线副标题由场景数据提供（不再硬编码珠峰路线名）
+            routeSub: (_j = (_h = exploration.route) === null || _h === void 0 ? void 0 : _h.name) !== null && _j !== void 0 ? _j : exploration.meta.typeLabel,
             estMinutes: exploration.estimatedMinutes,
             metaDesc: exploration.meta.description,
             ui: { ...DEFAULT_UI, ...(exploration.ui || {}) },
@@ -1886,7 +1918,6 @@ Page({
      * 打开同一套地点知识卡；位置来自场景数据，不涉山体路径。
      */
     onTapRouteWaypoint(e) {
-        var _a;
         const ex = this.exploration;
         if (!ex || !ex.route)
             return;
@@ -1908,7 +1939,17 @@ Page({
             wx.showToast({ title: `${point.name} · 继续攀登探索`, icon: "none" });
             return;
         }
-        const images = (point.images || []).filter(Boolean);
+        // Gate 6：运行时媒体（MediaRegistry）优先；未登记实体回退 legacy images[]。
+        const runtime = resolveWaypointMedia(point.id);
+        const images = runtime.images.length
+            ? runtime.images
+            : (point.images || []).filter(Boolean);
+        const imageCredits = runtime.images.length
+            ? runtime.credits
+            : point.imageCredits;
+        const imageKinds = runtime.images.length
+            ? runtime.kinds
+            : point.imageKinds;
         this.setData({
             waypointCard: {
                 show: true,
@@ -1917,19 +1958,17 @@ Page({
                 titleEn: point.nameEn,
                 terrain: point.terrain,
                 landform: landformLabel(point.id, point.name),
-                altitudeText: point.altitude
-                    ? `${(0, format_1.formatNumber)(point.altitude, point.altitude % 1 ? 2 : 0)} ${this.data.ui.axisUnit}`
-                    : "",
+                altitudeText: waypointElevText(point, this.data.ui.axisUnit),
                 desc: point.desc,
                 detail: point.detail,
                 facts: point.facts || [],
                 images,
                 imageIndex: 0,
                 image: images[0],
-                imageCredit: point.imageCredits ? point.imageCredits[0] : undefined,
-                imageCredits: point.imageCredits,
-                imageKinds: point.imageKinds,
-                imageKindLabel: imageKindLabel((_a = point.imageKinds) === null || _a === void 0 ? void 0 : _a[0]),
+                imageCredit: imageCredits ? imageCredits[0] : undefined,
+                imageCredits,
+                imageKinds,
+                imageKindLabel: imageKindLabel(imageKinds === null || imageKinds === void 0 ? void 0 : imageKinds[0]),
                 imageCount: images.length,
                 unlocked: true,
                 knowledgeId: point.knowledgeId,
@@ -1943,7 +1982,7 @@ Page({
      * 内容来自场景数据；未到达的节点只给名称与海拔，不提前剧透知识内容。
      */
     waypointCardFor(id) {
-        var _a, _b, _c;
+        var _a, _b;
         const core = this.expeditionCore;
         if (!core)
             return null;
@@ -1954,7 +1993,11 @@ Page({
             ? this.routeContent.get(id)
             : (_b = (_a = this.exploration) === null || _a === void 0 ? void 0 : _a.route) === null || _b === void 0 ? void 0 : _b.waypoints.find((w) => w.id === id);
         const unlocked = milestone.progress <= this.current + 1e-4;
-        const images = unlocked ? (content && content.images) || [] : [];
+        // Gate 6：运行时媒体（MediaRegistry）优先；未登记实体回退 legacy images[]。
+        const runtime = unlocked ? resolveWaypointMedia(id) : { images: [], credits: [], kinds: [] };
+        const images = runtime.images.length ? runtime.images : unlocked ? (content && content.images) || [] : [];
+        const creditSource = runtime.images.length ? runtime.credits : unlocked && content ? content.imageCredits : undefined;
+        const kindSource = runtime.images.length ? runtime.kinds : unlocked && content ? content.imageKinds : undefined;
         const imageIndex = 0;
         return {
             show: true,
@@ -1973,12 +2016,10 @@ Page({
             images,
             imageIndex,
             image: images[imageIndex],
-            imageCredit: unlocked && content && content.imageCredits
-                ? content.imageCredits[imageIndex]
-                : undefined,
-            imageCredits: unlocked && content ? content.imageCredits : undefined,
-            imageKinds: unlocked && content ? content.imageKinds : undefined,
-            imageKindLabel: imageKindLabel((_c = content === null || content === void 0 ? void 0 : content.imageKinds) === null || _c === void 0 ? void 0 : _c[imageIndex]),
+            imageCredit: creditSource ? creditSource[imageIndex] : undefined,
+            imageCredits: creditSource,
+            imageKinds: kindSource,
+            imageKindLabel: imageKindLabel(kindSource === null || kindSource === void 0 ? void 0 : kindSource[imageIndex]),
             imageCount: images.length,
             unlocked,
             knowledgeId: unlocked && content ? content.knowledgeId : undefined,

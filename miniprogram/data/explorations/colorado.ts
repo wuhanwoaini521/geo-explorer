@@ -1,0 +1,669 @@
+/**
+ * 🏞️ 下切科罗拉多大峡谷 —— 探索场景数据（第四场景·峡谷世界）。
+ *
+ * Journey：明亮天使步道（Bright Angel Trail）从南缘下到科罗拉多河畔，
+ * 教学轴 = 「谷深」（距南缘的下切深度）0 → 1,389 m；waypoint.altitude 保留真实海拔展示。
+ *
+ * 数据真实性：
+ *   - 峡谷长约 277 mi（≈446 km）、最深超过 1 英里（6,093 ft ≈ 1,857 m）。
+ *   - 现代峡谷约于 500–600 万年前开始贯通下切（Karlstrom et al., Nature Geoscience，
+ *     Wikipedia 现行采用"5–6 million years"）。
+ *   - 岩层剖面：谷缘凯巴布石灰岩约 270 Ma → 内峡维许努基岩约 17.5 亿年前强烈变质
+ *     （NPS：Vishnu schist intensely metamorphosed ~1,750 Ma）；「大不整合面」
+ *     在 17.5 亿年与 12.5 亿年间缺失沉积记录（Wikipedia / NPS）。
+ *   - 步道（NPS 2026 核对）：明亮天使步道至谷底营地 9.3 mi；南凯巴布步道 6.8 mi；
+ *     NPS 不建议单日「缘到谷底再返回」。
+ *   - 海拔（公开资料近似）：南缘步道口 ≈2,114 m；哈瓦苏派花园 ≈1,158 m；
+ *     幽灵牧场 ≈725 m（≈2,380 ft）；内峡夏季白昼常超 38 ℃（100 °F）。
+ *   - 各段地层年龄为公开通行的近似值（不同参考略有出入）。
+ */
+import type { DataSource, Exploration } from "../../types/exploration";
+
+const SRC_WIKI_CANYON: DataSource = {
+  name: "Wikipedia — Grand Canyon（长度/深度/地层/气候/鲍威尔）",
+  url: "https://en.wikipedia.org/wiki/Grand_Canyon",
+  verifiedAt: "2026-09-11",
+  approximate: true,
+};
+
+const SRC_NPS_GEOLOGY: DataSource = {
+  name: "美国国家公园管理局 NPS — Grand Canyon Geologic Formations（维许努岩 ~1,750 Ma、显生宙 550–250 Ma、近 40 岩层）",
+  url: "https://www.nps.gov/grca/learn/nature/geologicformations.htm",
+  verifiedAt: "2026-09-11",
+  approximate: false,
+};
+
+const SRC_NPS_TRAILS: DataSource = {
+  name: "NPS — Grand Canyon Hiking FAQ（明亮天使 9.3 mi / 南凯巴布 6.8 mi；不建议单日往返）",
+  url: "https://www.nps.gov/grca/planyourvisit/hiking-faq.htm",
+  verifiedAt: "2026-09-11",
+  approximate: false,
+};
+
+const SRC_LAPSE: DataSource = {
+  name: "大气温度模型（谷内下沉增温近似，南缘→谷底约 +10 ℃/km，公开资料近似）",
+  url: "https://en.wikipedia.org/wiki/Lapse_rate",
+  verifiedAt: "2026-09-11",
+  approximate: true,
+};
+
+export const COLORADO: Exploration = {
+  id: "colorado",
+  slug: "colorado",
+  title: "下切科罗拉多大峡谷",
+  subtitle: "从南缘到科罗拉多河 · 穿越二十亿年",
+  emoji: "🏞️",
+  meta: {
+    placeLabel: "科罗拉多大峡谷",
+    region: "美国 · 亚利桑那州",
+    typeLabel: "峡谷 / 地质剖面",
+    description:
+      "长约 446 km、最深约 1,857 m 的巨型河谷。沿明亮天使步道从南缘（约 2,114 m）下到谷底（约 725 m）：一路穿过约 40 个岩层，从 2.7 亿年前的浅海走到 17.5 亿年前的古山根。",
+    tags: ["世界之最", "河流侵蚀", "地质剖面", "科罗拉多河"],
+  },
+  palette: ["#3f7ec0", "#e0b478", "#a05a34"],
+  world: { style: "canyon" },
+  startElevation: 0,
+  maxElevation: 1389,
+  estimatedMinutes: 9,
+  baseTemperatureC: 27,
+  // 谷内下沉增温近似：每下切 1,000 m 气温约升高 9.5 ℃（南缘 27 ℃ → 谷底约 40 ℃）
+  lapseRateCPer1000: -9.5,
+  seaLevelPressureHpa: 1013.25,
+  vegetationTopM: 600,
+  climateSource: SRC_LAPSE,
+  source: SRC_WIKI_CANYON,
+  ui: {
+    axisLabel: "谷深",
+    axisUnit: "m",
+    forwardLabel: "下行",
+    forwardGlyph: "▼",
+    backLabel: "上攀",
+    backGlyph: "▲",
+    remainingLabel: "距谷底",
+    advanceHint: "上滑或点下方「下行 ▼」向谷底推进 · 每一段岩层都值得停留",
+    stagesLabel: "地质剖面",
+    extentWord: "最深",
+  },
+  destination: {
+    label: "科罗拉多河",
+    title: "抵达谷底！",
+    tagline: "科罗拉多河 · 谷深 1,389 m",
+    emoji: "🌊",
+  },
+  metrics: [
+    {
+      key: "temperature",
+      label: "气温",
+      icon: "🌡️",
+      unit: "°C",
+      digits: 1,
+      curve: [
+        [0, 27],
+        [400, 30.4],
+        [800, 34.2],
+        [1100, 37.4],
+        [1389, 40],
+      ],
+      source: SRC_LAPSE,
+    },
+    {
+      key: "pressure",
+      label: "大气压",
+      icon: "🎈",
+      unit: "hPa",
+      curve: [
+        [0, 760],
+        [1389, 924],
+      ],
+      source: SRC_WIKI_CANYON,
+    },
+    {
+      // HUD 上的「地质时钟」：当前所在岩层的形成年代（亿年）
+      // 谷缘 2.7 亿年 → 大不整合面处跳到 17.5 亿年
+      key: "rock-age",
+      label: "岩层年代",
+      icon: "⏳",
+      unit: "亿年",
+      digits: 1,
+      curve: [
+        [0, 2.7],
+        [400, 2.8],
+        [700, 3.4],
+        [1000, 5.0],
+        [1080, 5.25],
+        [1180, 17.5],
+        [1389, 17.5],
+      ],
+      source: SRC_NPS_GEOLOGY,
+    },
+    {
+      key: "green",
+      label: "植被覆盖",
+      icon: "🌲",
+      percent: true,
+      curve: [
+        [0, 0.8],
+        [200, 0.55],
+        [600, 0.15],
+        [1389, 0.05],
+      ],
+      source: SRC_NPS_GEOLOGY,
+    },
+  ],
+  route: {
+    id: "bright-angel-trail",
+    name: "明亮天使步道 · 南缘至谷底",
+    // 经典的缘到河下切线；progress 映射教学轴「谷深 0–1,389 m」，
+    // altitude 为各点的公开参考海拔（近似值），仅作展示。
+    waypoints: [
+      {
+        id: "rim-trailhead",
+        name: "南缘 · 明亮天使步道口",
+        nameEn: "Bright Angel Trailhead",
+        shortName: "步道口",
+        altitude: 2114,
+        progress: 0,
+        x: 22,
+        y: 12,
+        terrain: "林缘 / 谷缘观景",
+        desc: "峡谷村的心脏：步道从黄松林缘出发，第一眼就是 1,400 m 深的地质剖面。",
+        detail:
+          "明亮天使步道口位于大峡谷村（南缘，海拔约 2,114 m，近似）。脚下是黄松林与浅草，往前一步，1,300 多米深的岩层剖面在面前打开——这是全世界最完整的「地质时间之书」之一。步道至谷底营地全长 9.3 mi（约 15 km），NPS 明确不建议在一天之内下到谷底再爬回来。",
+        facts: [
+          "步道口海拔约 2,114 m（≈6,900 ft，近似）",
+          "明亮天使步道至谷底营地约 9.3 mi（NPS）",
+          "NPS 不建议单日「缘—谷底—缘」往返",
+        ],
+        environment: "南缘夏季白天约 27 ℃，夜晚可降到 10 ℃ 以下；冬季整条缘常被积雪覆盖。",
+        risk: "夏季中暑风险最高的是下午下坡段：脱水与热衰竭通常出现在返程上坡，而非下行时。",
+        history:
+          "1872–1900 年代，谷缘的采矿与旅游点逐步让位于国家公园（1919 年设立）；今日步道口旁的科尔布工作室仍是百年前的拍摄现场。",
+        whatToNotice: "出发前看一眼岩壁的「横带」：颜色突变的地方就是岩层的界线——每一条带都是一个地质时代。",
+        knowledgeIds: ["k06", "canyon-birth"],
+        sources: [SRC_NPS_TRAILS, SRC_WIKI_CANYON],
+        reviewStatus: "approved",
+        mediaIds: ["c1-trailhead"],
+      },
+      {
+        id: "mile-and-half",
+        name: "一英里半休息站",
+        nameEn: "Mile-and-a-half Resthouse",
+        shortName: "1.5 mi",
+        altitude: 1731,
+        progress: 0.18,
+        x: 30,
+        y: 24,
+        terrain: "蛇形折返 · 凯巴布灰岩",
+        desc: "第一个水源点：灰白色的凯巴布石灰岩从两侧包裹着折返的步道。",
+        detail:
+          "海拔约 1,731 m（≈5,480 ft，近似）。步道以「蛇形折返（switchback）」方式啃下第一段陡崖；两侧的灰白色岩层是凯巴布石灰岩——约 2.7 亿年前的浅海沉积。从这里开始，岩层像一本倒着读的书：越往下越老。",
+        facts: [
+          "海拔约 1,731 m（近似）",
+          "凯巴布石灰岩：约 2.7 亿年前（270 Ma）的浅海沉积",
+          "全谷壁共识别出近 40 个岩层（NPS）",
+        ],
+        environment: "比谷缘热 2–3 ℃；背风处的岩壁反光强烈，防晒与电解质补充从这段开始就要认真。",
+        risk: "骡队每日在此通行：遇到骡队时站内侧、保持安静，让队先行。",
+        history:
+          "沿线的休息站与取水设施多建于 1930 年代国家公园开发期（公共保护团时代工程，近似）；它们是早期「缓步下谷」安全理念的实物证据。",
+        whatToNotice: "摸一下岩壁：凯巴布灰岩里能找到海相化石碎屑——2.7 亿年前这里是一片浅海。",
+        knowledgeIds: ["kaibab-age"],
+        sources: [SRC_WIKI_CANYON, SRC_NPS_GEOLOGY],
+        reviewStatus: "approved",
+        mediaIds: ["c-resthouse-15"],
+      },
+      {
+        id: "three-mile",
+        name: "三英里休息站",
+        nameEn: "Three-Mile Resthouse",
+        shortName: "3 mi",
+        altitude: 1503,
+        progress: 0.32,
+        x: 41,
+        y: 34,
+        terrain: "白色砂岩崖 · 科科尼诺",
+        desc: "跨过纯白的科科尼诺砂岩：这是 2.6 亿年前的沙漠留下的沙丘岩。",
+        detail:
+          "海拔约 1,503 m（≈4,930 ft，近似）。脚下的白色陡崖是科科尼诺砂岩（Coconino Sandstone）——约 2.6 亿年前一片巨型沙漠的石化沙丘。风成沙丘的斜层理在崖面上清晰可见：每一道弧线都是 2 亿多年前一次沙丘的前进方向。它的上下分别是海相的托罗韦普组与陆相的赫米特页岩：短短几百万年，这里从沙漠变成浅海、又变回沙漠。",
+        facts: [
+          "海拔约 1,503 m（近似）",
+          "科科尼诺砂岩：约 2.6 亿年前的风成沙丘岩",
+          "斜层理记录着古沙丘的移动方向",
+        ],
+        environment: "气温约 32 ℃；岩壁把热反射回来，体感更接近谷底而不是谷缘。",
+        risk: "无遮蔽的白色砂岩崖段：夏季正午岩面温度可再高 10 ℃ 量级（近似），注意防晒。",
+        history:
+          "三英里休息站与上方的 1.5 mi 站同属早期步道时代的歇脚点，为骡队与徒步者提供取水与遮蔽，是「明亮天使」服务体系的组成部分。",
+        whatToNotice: "看崖面的斜层理（cross-bedding）：那是古沙漠的「沙丘倒影」，不是水流沉积的证据。",
+        knowledgeIds: ["kaibab-age"],
+        sources: [SRC_WIKI_CANYON, SRC_NPS_GEOLOGY],
+        reviewStatus: "approved",
+        mediaIds: ["c-resthouse-3mi"],
+      },
+      {
+        id: "havasupai-gardens",
+        name: "哈瓦苏派花园",
+        nameEn: "Havasupai Gardens（原 Indian Garden）",
+        shortName: "花园",
+        altitude: 1158,
+        progress: 0.5,
+        x: 52,
+        y: 46,
+        terrain: "绿洲 · 泉水阶地",
+        desc: "半山腰的一片绿洲：泉水滋养着杨树与菜园，是下到谷底前的最后补给站。",
+        detail:
+          "海拔约 1,158 m（≈3,800 ft，近似）。高原含水层在托罗韦普组一带渗出泉水，让这片内峡谷肩长成了真正的绿洲：杨树、柳树与泉水阶地。数百年来这里是哈瓦苏派人的种植园（原称 Indian Garden，2022 年官方恢复为 Havasupai Gardens）。从花园侧出约 1.6 km 可到高原观景点（Plateau Point），俯瞰内峡与科罗拉多河。",
+        facts: [
+          "海拔约 1,158 m（近似）",
+          "泉水来自高原含水层的层间渗流（NPS：C-aquifer）",
+          "2022 年官方恢复名称「Havasupai Gardens」",
+        ],
+        environment: "气温约 35 ℃；树荫与泉水让这里成为全步道最受欢迎的休息点。",
+        risk: "离开花园后的下段无水：背包客须在花园灌满全部水袋再下行。",
+        history:
+          "哈瓦苏派人世居峡谷侧谷，20 世纪初被迁移至台地后又逐步回归；花园的泉水阶地至今仍是他们种植传统的延续地。",
+        whatToNotice: "对比两侧的岩色：花园以下的页岩变软、变绿——那是 5 亿年前海底泥沙的颜色。",
+        knowledgeIds: ["tonto-platform"],
+        sources: [SRC_NPS_GEOLOGY, SRC_WIKI_CANYON],
+        reviewStatus: "approved",
+        mediaIds: ["c-indian-garden"],
+      },
+      {
+        id: "devils-corkscrew",
+        name: "魔鬼螺旋坡",
+        nameEn: "Devil's Corkscrew",
+        shortName: "螺旋坡",
+        altitude: 837,
+        progress: 0.72,
+        x: 47,
+        y: 62,
+        terrain: "红墙石灰岩 · 陡降",
+        desc: "步道沿红墙石灰岩的断崖螺旋下降：岩壁 3.4 亿年前的海相礁灰岩。",
+        detail:
+          "海拔约 837 m（≈2,745 ft，近似）。魔鬼螺旋坡是明亮天使步道最陡的一段：步道沿红墙石灰岩（Redwall Limestone，约 3.4 亿年前）的断崖螺旋下切。红墙是峡谷最醒目的红色崖壁——但石灰岩本身是灰白色，红色来自上方赫米特页岩冲刷下来的氧化铁染色。",
+        facts: [
+          "海拔约 837 m（近似）",
+          "红墙石灰岩约 3.4 亿年前（340 Ma）的海相沉积",
+          "红色来自上覆赫米特页岩的氧化铁染色",
+        ],
+        environment: "气温约 38 ℃；崖壁峡谷的回声与风声说明这里已接近内峡的入口。",
+        risk: "陡坡碎石与脚踝伤：下行时用登山杖减速，不要跑。",
+        history:
+          "明亮天使步道在 1890–1900 年代由矿道与旅游小径改建而成（公园官方沿革，近似）；魔鬼螺旋坡一带的陡降段为骡道通行而反复拓宽修整。",
+        whatToNotice: "看红墙崖壁的垂直溶沟（karren）：雨水沿灰岩裂隙溶蚀出的竖纹，证明这层岩在古山体里曾经淋过 3 亿年的雨。",
+        knowledgeIds: ["kaibab-age"],
+        sources: [SRC_WIKI_CANYON, SRC_NPS_GEOLOGY],
+        reviewStatus: "approved",
+        mediaIds: ["c2-devils-corkscrew"],
+      },
+      {
+        id: "river-side",
+        name: "科罗拉多河畔",
+        nameEn: "Colorado River at the Boat Beach",
+        shortName: "河畔",
+        altitude: 756,
+        progress: 0.86,
+        x: 55,
+        y: 74,
+        terrain: "河谷 · 急流",
+        desc: "谷深约 1,358 m：青绿色的河水从内峡深处涌出来，两岸是 17 亿年的黑色片岩。",
+        detail:
+          "河畔海拔约 756 m（≈2,480 ft，近似）。到这里，「谷深」轴已接近满刻度——从步道口算起，你已经下行了约 1,360 m。河水浑浊发绿（科罗拉多语「红河」因上游水库拦截后携泥沙色调变化）；对岸的深色陡壁就是内峡的维许努片岩。",
+        facts: [
+          "河畔海拔约 756 m（近似）",
+          "从步道口下切约 1,358 m（近似）",
+          "内峡夏季白昼常超 38 ℃（100 °F）",
+        ],
+        environment: "谷底气温约 40 ℃；河水冰凉（大坝放水后全年约 8–10 ℃，近似），切莫贸然下河。",
+        risk: "河水冰冷且流速快：戏水是峡谷最致命的事故来源之一。",
+        history:
+          "1869 年鲍威尔探险队曾顺流经过这一河段（Wikipedia 沿革）；上游大坝建成后，科罗拉多河由「红水」变成常年偏绿的调节水流。",
+        whatToNotice: "看河水的「绿」与两侧岩壁的「黑」：一个是泥沙与藻，一个是 17 亿年前的深成变质岩。",
+        knowledgeIds: ["inner-gorge-heat"],
+        sources: [SRC_WIKI_CANYON],
+        reviewStatus: "approved",
+        mediaIds: ["c-river-nps"],
+      },
+      {
+        id: "phantom-ranch",
+        name: "幽灵牧场",
+        nameEn: "Phantom Ranch",
+        shortName: "牧场",
+        altitude: 725,
+        progress: 1,
+        x: 62,
+        y: 85,
+        terrain: "谷底营地 · 溪流汇口",
+        desc: "谷底 725 m：明亮天使溪在此汇入科罗拉多河，石屋营地藏在 Cottonwood 之间。",
+        detail:
+          "幽灵牧场海拔约 725 m（≈2,380 ft，近似），坐落在明亮天使溪汇入科罗拉多河的三角洲上。建筑师玛丽·科尔特（Mary Colter）在 1920 年代设计了这组石屋营地；它至今只能步行或骡队抵达，也是全谷最抢手的过夜点。明亮天使溪的泉水（吼泉 Roaring Springs）自高原含水层渗出，流下 4,000 ft 的岩壁——这是峡谷最重要的淡水廊道之一。",
+        facts: [
+          "海拔约 725 m（≈2,380 ft，近似）",
+          "明亮天使溪由吼泉（Roaring Springs）补给",
+          "石屋营地由玛丽·科尔特于 1922 年设计（近似）",
+        ],
+        environment: "夏季夜间仍有 30 ℃ 上下；溪边比河畔凉爽，蛇类（含响尾蛇）在傍晚活跃。",
+        risk: "极端高温是谷底最大风险：NPS 规定夏季上午 10 点后停止向谷底下行。",
+        history:
+          "1919 年大峡谷成为国家公园；1922 年科尔特设计幽灵牧场（原名 Rust's Camp，后更名 Phantom Ranch）。1869 年鲍威尔探险队曾在此一带宿营。",
+        whatToNotice: "抬头看内峡两岸近乎平行的黑色岩墙：中间那条绿色条带（明亮天使溪谷）是整条峡谷最年轻的刻痕。",
+        knowledgeIds: ["river-confluence", "powell-1869"],
+        sources: [SRC_NPS_TRAILS, SRC_WIKI_CANYON],
+        reviewStatus: "approved",
+        mediaIds: ["c4-phantom-ranch"],
+      },
+    ],
+  },
+  stages: [
+    {
+      id: "south-rim",
+      elevation: 0,
+      name: "南缘",
+      biome: "黄松林 · 谷缘",
+      emoji: "🌲",
+      temperatureC: 27,
+      snow: 0,
+      fog: 0.05,
+      wind: 0.2,
+      palette: ["#3f7ec0", "#9cc8ec", "#f0ead8"],
+      terrainTint: ["#3a5a40", "#20301f"],
+      surfaceKind: "alpine",
+      flora: ["🌲", "🐿️", "🌼"],
+      description: "南缘海拔约 2,114 m：黄松林缘，脚下 1,389 m 是一部倒读的地质史。",
+    },
+    {
+      id: "kaibab",
+      elevation: 150,
+      name: "凯巴布灰岩段",
+      biome: "浅海石灰岩 · 2.7 亿年",
+      emoji: "🪨",
+      temperatureC: 28.4,
+      snow: 0,
+      fog: 0.05,
+      wind: 0.25,
+      palette: ["#4a7cb4", "#b0cfe0", "#e8ddc8"],
+      terrainTint: ["#c8b8a0", "#a08a70"],
+      surfaceKind: "barren",
+      flora: ["🪨", "🌵"],
+      description: "灰白色的凯巴布石灰岩（约 270 Ma）：这里曾是 2.7 亿年前的浅海。",
+    },
+    {
+      id: "coconino",
+      elevation: 350,
+      name: "科科尼诺砂岩",
+      biome: "白色砂岩崖 · 古沙漠",
+      emoji: "🏜️",
+      temperatureC: 30.5,
+      snow: 0,
+      fog: 0.05,
+      wind: 0.3,
+      palette: ["#4a7cb0", "#c4d8dc", "#f0e0c0"],
+      terrainTint: ["#e0d0b8", "#c0aa88"],
+      surfaceKind: "barren",
+      flora: ["🪨", "🌵", "🦎"],
+      description: "纯白的科科尼诺砂岩（约 260 Ma）：一片古沙漠的石化沙丘。",
+    },
+    {
+      id: "redwall",
+      elevation: 650,
+      name: "红墙段",
+      biome: "赤壁 · 海相石灰岩",
+      emoji: "🔴",
+      temperatureC: 34,
+      snow: 0,
+      fog: 0.05,
+      wind: 0.3,
+      palette: ["#4a709f", "#d8b088", "#c06a48"],
+      terrainTint: ["#b8543a", "#8a3a28"],
+      surfaceKind: "barren",
+      flora: ["🦅", "🪨", "🌵"],
+      description: "峡谷最醒目的红色崖壁：红墙石灰岩，约 3.4 亿年前的礁盘海。",
+    },
+    {
+      id: "tonto",
+      elevation: 1000,
+      name: "托托平台",
+      biome: "页岩缓台 · 5 亿年",
+      emoji: "🟤",
+      temperatureC: 37,
+      snow: 0,
+      fog: 0.05,
+      wind: 0.25,
+      palette: ["#456a94", "#d8b890", "#b07a4a"],
+      terrainTint: ["#a8814a", "#7a5c36"],
+      surfaceKind: "barren",
+      flora: ["🌵", "🦎", "🪨"],
+      description: "陡崖让位给缓台：明亮天使页岩（约 5 亿年前）铺出的开阔阶地。",
+    },
+    {
+      id: "inner-gorge",
+      elevation: 1180,
+      name: "内峡",
+      biome: "片岩峡谷 · 17.5 亿年",
+      emoji: "⛰️",
+      temperatureC: 38.8,
+      snow: 0,
+      fog: 0.02,
+      wind: 0.2,
+      palette: ["#3a5a80", "#a8886a", "#5a4030"],
+      terrainTint: ["#4a3a30", "#2a2018"],
+      surfaceKind: "barren",
+      flora: ["🪨", "🌊"],
+      description: "黑色的内峡：17.5 亿年前变质成形的古山根，大不整合面在此显形。",
+    },
+    {
+      id: "colorado-river",
+      elevation: 1389,
+      name: "科罗拉多河",
+      biome: "河谷急流 · 谷底",
+      emoji: "🌊",
+      temperatureC: 40,
+      snow: 0,
+      fog: 0.02,
+      wind: 0.15,
+      palette: ["#3a6a94", "#98a8b0", "#3a4a52"],
+      terrainTint: ["#3a4a52", "#22303a"],
+      surfaceKind: "barren",
+      flora: ["🌊", "🛶", "🐟"],
+      description: "谷底 725 m：冰冷的科罗拉多河与明亮天使溪在这里交汇。",
+    },
+  ],
+  knowledgeNodes: [
+    {
+      id: "canyon-birth",
+      knowledgeId: "k06", // 对应知识库「峡谷为何深如刀劈」
+      elevation: 200,
+      emoji: "🕳️",
+      title: "峡谷从什么时候开始被切开？",
+      category: "地形地貌",
+      summary: "科罗拉多河整合古老的古峡谷水道，约 500–600 万年前开始下切成今日大峡谷。",
+      detail:
+        "地质学界的主流观点认为：现代大峡谷约在 500–600 万年前，由科罗拉多河整合贯通更古老的古峡谷（palaeocanyons）后快速下切成形（Karlstrom et al., Nature Geoscience）。下切的动力来自「赛跑」——高原持续抬升给河流落差，河水携带砂砾持续磨蚀河床。峡谷长约 277 mi（≈446 km），最深超过 1 英里（6,093 ft ≈ 1,857 m）。",
+      facts: [
+        { label: "下切起始", value: "约 500–600 万年前", source: SRC_WIKI_CANYON },
+        { label: "长度", value: "277 mi ≈ 446 km", source: SRC_WIKI_CANYON },
+        { label: "最大深度", value: "6,093 ft ≈ 1,857 m", source: SRC_WIKI_CANYON },
+      ],
+      sources: [SRC_WIKI_CANYON, SRC_NPS_GEOLOGY],
+      quiz: {
+        id: "qz-canyon-birth",
+        lead: "刚讲完峡谷的年龄，考考你：",
+        question: "现代科罗拉多大峡谷的切割大约开始于？",
+        options: ["约 600 万年前", "约 6,000 万年前", "约 6 亿年前", "约 600 年前"],
+        answerIndex: 0,
+        explanation:
+          "科罗拉多河整合古水道后，约 500–600 万年前开始下切今日峡谷（Nature Geoscience 主流观点）。",
+        emoji: "🕳️",
+        source: SRC_WIKI_CANYON,
+      },
+    },
+    {
+      id: "kaibab-age",
+      knowledgeId: "k37", // 对应知识库「峡谷地层时间之书」
+      elevation: 400,
+      emoji: "🪨",
+      title: "崖顶的岩层：2.7 亿年前的海底",
+      category: "地质",
+      summary: "谷缘的凯巴布石灰岩约形成于 2.7 亿年前——当时这里是一片浅海。",
+      detail:
+        "谷缘最上层的凯巴布石灰岩（Kaibab Limestone）约形成于 2.7 亿年前（270 Ma）：那时这里是一片覆盖北美西南的浅海。往下依次是风成的科科尼诺砂岩、海相的红墙石灰岩……NPS 统计全谷壁共识别出近 40 个岩层，从 2.5 亿年前的海相灰岩一路排到 17 亿年前的基岩——整个古生代的海进海退史都写在谷壁上。",
+      facts: [
+        { label: "凯巴布石灰岩", value: "约 270 Ma（浅海沉积）", source: SRC_NPS_GEOLOGY },
+        { label: "岩层数", value: "近 40 个已识别岩层（NPS）", source: SRC_NPS_GEOLOGY },
+        { label: "显生宙剖面", value: "约 550–250 Ma 间沉积的砂岩/页岩/灰岩厚达 2,400–5,000 ft", source: SRC_NPS_GEOLOGY },
+      ],
+      sources: [SRC_NPS_GEOLOGY, SRC_WIKI_CANYON],
+      quiz: {
+        id: "qz-kaibab",
+        lead: "谷缘的灰白岩壁：",
+        question: "大峡谷谷缘最上层的凯巴布石灰岩形成于约？",
+        options: ["2.7 亿年前", "27 亿年前", "2,700 万年前", "270 万年前"],
+        answerIndex: 0,
+        explanation: "凯巴布石灰岩约 270 Ma（2.7 亿年前）的浅海沉积；当时北美西南部是一片浅海。",
+        emoji: "🪨",
+        source: SRC_NPS_GEOLOGY,
+      },
+    },
+    {
+      id: "tonto-platform",
+      elevation: 1000,
+      emoji: "🟤",
+      title: "托托平台：5 亿年前的海底泥",
+      category: "地质",
+      summary: "开阔的托托平台由明亮天使页岩与木瓦茨灰岩铺成——约 5 亿年前的海底。",
+      detail:
+        "下到约 1,000 m 谷深处，陡崖让位给一片开阔的缓台——托托平台（Tonto Platform）。它由约 5 亿年前的明亮天使页岩（Bright Angel Shale）与木瓦茨灰岩构成：当时这里是寒武纪浅海的大陆架，泥沙与碳酸盐一层层沉积。这段页岩软、易侵蚀，被河流侧向削出一个宽缓的「大平台」，内峡则以更硬的基岩直切而下。",
+      facts: [
+        { label: "岩性", value: "明亮天使页岩 / 木瓦茨灰岩（寒武系）", source: SRC_NPS_GEOLOGY },
+        { label: "年龄", value: "约 5 亿年前（≈505–500 Ma）", source: SRC_WIKI_CANYON },
+      ],
+      sources: [SRC_NPS_GEOLOGY, SRC_WIKI_CANYON],
+      quiz: {
+        id: "qz-tonto",
+        lead: "走过最开阔的一段平台：",
+        question: "托托平台的页岩大约沉积于哪个时代？",
+        options: ["寒武纪（约 5 亿年前）", "侏罗纪（约 1.5 亿年前）", "新生代", "太古宙"],
+        answerIndex: 0,
+        explanation:
+          "明亮天使页岩属于寒武系海相沉积，约 5 亿年前；托托平台正是由这套软质页岩削蚀成的缓台。",
+        emoji: "🟤",
+        source: SRC_WIKI_CANYON,
+      },
+    },
+    {
+      id: "great-unconformity",
+      knowledgeId: "k38", // 对应知识库「大不整合面」
+      elevation: 1120,
+      emoji: "⏳",
+      title: "站在大不整合面前：缺失的 12 亿年",
+      category: "地质",
+      summary: "内峡约 17.5 亿年的基岩与约 5 亿年的上覆岩层之间，缺失了约 12 亿年的地质记录。",
+      detail:
+        "内峡顶部有一条肉眼可见的接触面：深色的维许努片岩/花岗岩之上，直接覆着约 5.25 亿年前的塔皮茨砂岩（Tapeats Sandstone）。这就是著名的「大不整合面」（Great Unconformity）——约 17.5 亿年与 12.5 亿年之间没有任何沉积记录，中间缺失了约 12 亿年（Wikipedia/NPS 现行表述）。它可能是被剥蚀掉了，也可能根本没有沉积过——这是地质学悬而未决的问题之一。",
+      facts: [
+        { label: "空白时长", value: "约 12 亿年（17.5 → 5 亿年前区段缺失）", source: SRC_WIKI_CANYON },
+        { label: "接触面", value: "变质基岩直接覆盖塔皮茨砂岩（≈525 Ma）", source: SRC_NPS_GEOLOGY },
+      ],
+      sources: [SRC_WIKI_CANYON, SRC_NPS_GEOLOGY],
+      quiz: {
+        id: "qz-unconformity",
+        lead: "地质时间在此跳了个档：",
+        question: "大峡谷的「大不整合面」处，缺失的地质记录约有多长？",
+        options: ["约 1.2 亿年", "约 12 亿年", "约 12 万年", "没有缺失"],
+        answerIndex: 1,
+        explanation:
+          "约 17.5 亿年的基岩与约 5 亿年的塔皮茨砂岩直接接触，中间约 12 亿年的记录缺失——这就是大不整合面。",
+        emoji: "⏳",
+        source: SRC_WIKI_CANYON,
+      },
+    },
+    {
+      id: "inner-gorge-heat",
+      elevation: 1050,
+      emoji: "🥵",
+      title: "越往下越热：峡谷里的「逆温带」",
+      category: "气候",
+      summary: "下切 1.4 km，气温反而升高约 10 ℃ 以上——内峡夏季白昼常超 38 ℃。",
+      detail:
+        "普通山地的气温随海拔下降而升高，但峡谷把这个规律放大了：南缘（约 2,114 m）夏季白天约 27 ℃，下切约 1.4 km 到谷底（约 725 m）则常到 40 ℃ 以上——内峡夏季白昼频繁超过 100 °F（38 ℃）。谷底（幽灵牧场一带）年降水仅约 200 mm（8 in，近似），而高约 600 m 的北缘降水接近它的三倍、积雪可达 3.7 m。NPS 因此明确不建议单日「缘—谷底—缘」往返：返程上坡的下午正是最热的时段。",
+      facts: [
+        { label: "内峡夏季", value: "白昼常超 38 ℃（100 °F）", source: SRC_WIKI_CANYON },
+        { label: "谷底降水", value: "幽灵牧场约 200 mm/年（8 in，近似）", source: SRC_WIKI_CANYON },
+        { label: "北缘降水", value: "约 690 mm/年（27 in），积雪可达 3.7 m（144 in）", source: SRC_WIKI_CANYON },
+      ],
+      sources: [SRC_WIKI_CANYON],
+      quiz: {
+        id: "qz-heat",
+        lead: "「越往下越热」是峡谷的常识：",
+        question: "沿步道下到谷底，气温会？",
+        options: ["明显更高（下沉增温）", "更低", "不变", "先低后高"],
+        answerIndex: 0,
+        explanation:
+          "下切近 1.4 km，气温升高约 10 ℃ 以上：内峡夏季白昼常超 38 ℃，谷底比谷缘热得多。",
+        emoji: "🥵",
+        source: SRC_WIKI_CANYON,
+      },
+    },
+    {
+      id: "powell-1869",
+      elevation: 1250,
+      emoji: "🛶",
+      title: "1869：第一支顺流穿越的探险队",
+      category: "人文",
+      summary: "约翰·韦斯利·鲍威尔率队乘 4 条加固木船，完成首次科罗拉多河大峡谷漂流。",
+      detail:
+        "1869 年，独臂地质学家约翰·韦斯利·鲍威尔（John Wesley Powell）率九人队乘 4 条加固的白梣木船，从绿河出发完成了首次科罗拉多河大峡谷漂流——数段船毁粮尽、队员中途退出，但主队最终在同年 8 月穿出峡谷。这次探险第一次把峡谷的地理与地质带回公众视野。在鲍威尔之前，只有原住民真正认识峡谷：哈瓦苏派等部族世居侧谷，他们的绿洲（哈瓦苏派花园）至今仍是峡谷里的生活现场。",
+      facts: [
+        { label: "首漂", value: "1869 年", source: SRC_WIKI_CANYON },
+        { label: "船队", value: "4 条加固木船（芝加哥造，铁路运抵西线）", source: SRC_WIKI_CANYON },
+        { label: "先住民", value: "哈瓦苏派等部族世居峡谷侧谷", source: SRC_WIKI_CANYON },
+      ],
+      sources: [SRC_WIKI_CANYON],
+      quiz: {
+        id: "qz-powell",
+        lead: "谷底博物馆里的老照片：",
+        question: "首次率队漂流科罗拉多大峡谷的探险家是？",
+        options: ["刘易斯", "约翰·韦斯利·鲍威尔", "约翰·缪尔", "罗斯福"],
+        answerIndex: 1,
+        explanation:
+          "1869 年，独臂地质学家约翰·韦斯利·鲍威尔率队乘木船首次漂流穿越大峡谷。",
+        emoji: "🛶",
+        source: SRC_WIKI_CANYON,
+      },
+    },
+    {
+      id: "river-confluence",
+      elevation: 1389,
+      emoji: "🌊",
+      title: "谷底：明亮天使溪与科罗拉多河",
+      category: "水文",
+      summary: "吼泉的地下水穿过 4,000 ft 岩壁，在谷底汇成明亮天使溪、注入科罗拉多河。",
+      detail:
+        "明亮天使溪由吼泉（Roaring Springs）补给——高原含水层（C-aquifer）的地下水在科科尼诺砂岩底部的隔水层上横向渗流，在峡谷壁上以泉水形式涌出，落差超过 1,200 m 流入谷底。溪流与科罗拉多河的交汇处就是幽灵牧场一带。科罗拉多河本身因上游筑坝调沙，河水由「红」转「绿」，谷底河段全年冷冽（约 8–10 ℃，近似）。",
+      facts: [
+        { label: "补给泉", value: "吼泉（Roaring Springs）", source: SRC_NPS_GEOLOGY },
+        { label: "谷底水温", value: "约 8–10 ℃（大坝放水后，近似）", source: SRC_WIKI_CANYON },
+        { label: "谷底海拔", value: "约 725 m（近似）", source: SRC_WIKI_CANYON },
+      ],
+      sources: [SRC_NPS_GEOLOGY, SRC_WIKI_CANYON],
+      quiz: {
+        id: "qz-confluence",
+        lead: "最后一道水文题：",
+        question: "在幽灵牧场汇入科罗拉多河的支流是？",
+        options: ["小科罗拉多河", "明亮天使溪", "格林河", "圣胡安河"],
+        answerIndex: 1,
+        explanation:
+          "明亮天使溪由吼泉补给，沿明亮天使步道一侧的峡谷壁流下，在幽灵牧场一带汇入科罗拉多河。",
+        emoji: "🌊",
+        source: SRC_NPS_GEOLOGY,
+      },
+    },
+  ],
+};
+
+/** 大峡谷的可选探索区范围（供地图/摘要展示） */
+export const COLORADO_BAND = {
+  from: COLORADO.startElevation,
+  to: COLORADO.maxElevation,
+};

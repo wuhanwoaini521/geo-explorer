@@ -15,7 +15,9 @@ Page({
         const terrain = mode === "terrain";
         this.setData({
             terrain,
-            hero: terrain ? "/assets/world/everest-view-a.jpg" : "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+            hero: terrain
+                ? "/assets/world/everest-expedition-hero-v1.png"
+                : "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
         });
     },
     onBack() { wx.navigateBack({ delta: 1 }); },

@@ -24,7 +24,8 @@ const wxMock = {
   showToast: (...args: unknown[]) => record("showToast", args),
   showModal: (...args: unknown[]) => record("showModal", args),
   getStorageSync: (key: string) => wxStorage.get(key),
-  setStorageSync: (key: string, value: unknown) => void wxStorage.set(key, value),
+  setStorageSync: (key: string, value: unknown) =>
+    void wxStorage.set(key, value),
   clearStorageSync: () => void wxStorage.clear(),
 };
 (globalThis as Record<string, unknown>).wx = wxMock;
@@ -159,7 +160,9 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(v.currentName).toBeTruthy();
     expect(v.prevName).toBeTruthy();
     expect(v.nextName).toBeTruthy();
-    expect(Number(v.remainingVerticalText.replace(/,/g, ""))).toBeGreaterThan(0);
+    expect(Number(v.remainingVerticalText.replace(/,/g, ""))).toBeGreaterThan(
+      0,
+    );
     // C1 → 下一站为 C2（西库姆冰谷段）
     expect(v.currentName).toContain("C1");
     expect(v.nextName).toContain("C2");

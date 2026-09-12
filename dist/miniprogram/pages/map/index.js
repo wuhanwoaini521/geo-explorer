@@ -8,6 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 搜索/筛选为纯函数（utils/place-search），页面只负责装配。
  */
 const index_1 = require("../../data/explorations/index");
+const world_manifests_1 = require("../../data/media/world-manifests");
 const everest_1 = require("../../data/expeditions/everest");
 const expedition_observation_1 = require("../../engine/expedition-observation");
 const places_1 = require("../../data/places");
@@ -62,17 +63,15 @@ function activeGlobeRenderer() {
     return webglRenderer !== null && webglRenderer !== void 0 ? webglRenderer : canvasRenderer;
 }
 function placeImage(place) {
+    // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
+    const runtimeHero = (0, world_manifests_1.getPlaceHeroImage)(place.id);
+    if (runtimeHero)
+        return runtimeHero;
     if (place.id === "p-everest")
         return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-    if (place.id === "p-mariana" || place.type === "ocean")
-        return "/assets/world/mariana-card.png";
-    if (place.id === "p-fuji" || place.type === "volcano")
-        return "/assets/world/fuji-card.png";
-    if (place.id === "p-colorado" || place.type === "canyon" || place.type === "plateau")
-        return "/assets/world/grand-canyon-card.png";
     if (place.type === "glacier" || place.type === "mountain")
-        return "/assets/world/everest-view-b.jpg";
-    return "/assets/world/grand-canyon-card.png";
+        return "/assets/world/everest-expedition-hero-v1.png";
+    return "";
 }
 function metricForPlace(place) {
     if (place.elevationM < 0)
@@ -432,15 +431,15 @@ Page({
         var _a;
         const images = {
             "base-camp": "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-            "khumbu-icefall": "/assets/world/everest-view-a.jpg",
-            "camp-i": "/assets/world/everest-view-a.jpg",
-            "western-cwm-camp-ii": "/assets/world/everest-view-b.jpg",
-            "lhotse-face-camp-iii": "/assets/world/everest-view-b.jpg",
-            "south-col-camp-iv": "/assets/world/everest-view-c.jpg",
-            "south-summit": "/assets/world/everest-view-c.jpg",
-            summit: "/assets/world/everest-hero.jpg",
+            "khumbu-icefall": "/assets/expeditions/everest/waypoints/khumbu-icefall.jpg",
+            "camp-i": "/assets/expeditions/everest/waypoints/camp-i.jpg",
+            "western-cwm-camp-ii": "/assets/expeditions/everest/waypoints/western-cwm-camp-ii.jpg",
+            "lhotse-face-camp-iii": "/assets/expeditions/everest/waypoints/lhotse-face-camp-iii.jpg",
+            "south-col-camp-iv": "/assets/expeditions/everest/waypoints/south-col-camp-iv.jpg",
+            "south-summit": "/assets/expeditions/everest/waypoints/south-summit.jpg",
+            summit: "/assets/expeditions/everest/waypoints/summit.jpg",
         };
-        return (_a = images[id]) !== null && _a !== void 0 ? _a : "/assets/world/everest-hero.jpg";
+        return (_a = images[id]) !== null && _a !== void 0 ? _a : "/assets/world/everest-expedition-hero-v1.png";
     },
     refreshAtlas(afterUpdate) {
         const places = (0, place_search_1.queryPlaces)(places_1.PLACES, this.data.query, this.data.activeType);

@@ -7,7 +7,10 @@
  *  - live-a 相机 guess 必须取照片真实 EXIF GPS（Kala Patthar 北脊），而非 Kala 峰顶错误值
  */
 import { describe, it, expect } from "vitest";
-import { LANDMARKS, sceneById } from "../tools/everest-route-calibrator/src/scenes.js";
+import {
+  LANDMARKS,
+  sceneById,
+} from "../tools/everest-route-calibrator/src/scenes.js";
 import { guessGuideMarks } from "../tools/everest-route-calibrator/src/calibrate.js";
 import { geodToWorld } from "../tools/everest-route-calibrator/src/math/camera-math.js";
 
@@ -33,9 +36,15 @@ describe("Phase-2 地标数据库", () => {
       expect(lm.lon).toBeGreaterThan(86);
       expect(lm.lon).toBeLessThan(87.1);
       expect(lm.elevationM).toBeGreaterThan(4000);
-      const world = geodToWorld({ lat: lm.lat, lon: lm.lon, elevationM: lm.elevationM });
+      const world = geodToWorld({
+        lat: lm.lat,
+        lon: lm.lon,
+        elevationM: lm.elevationM,
+      });
       expect(
-        Number.isFinite(world.x) && Number.isFinite(world.y) && Number.isFinite(world.z),
+        Number.isFinite(world.x) &&
+          Number.isFinite(world.y) &&
+          Number.isFinite(world.z),
       ).toBe(true);
     }
     expect(LANDMARKS.length).toBeGreaterThanOrEqual(8);
@@ -69,7 +78,9 @@ describe("guessGuideMarks 引导投影", () => {
     for (const id of ["everest-summit", "lhotse-summit", "nptse-summit"]) {
       expect(ids.has(id), `引导缺失 ${id}`).toBe(true);
     }
-    const inFrame = marks.filter((m) => m.u >= 0 && m.u <= 1 && m.v >= 0 && m.v <= 1);
+    const inFrame = marks.filter(
+      (m) => m.u >= 0 && m.u <= 1 && m.v >= 0 && m.v <= 1,
+    );
     expect(inFrame.length).toBeGreaterThanOrEqual(5);
   });
 

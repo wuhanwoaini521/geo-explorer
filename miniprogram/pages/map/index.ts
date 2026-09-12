@@ -6,6 +6,7 @@
  * 搜索/筛选为纯函数（utils/place-search），页面只负责装配。
  */
 import { EXPLORATIONS } from "../../data/explorations/index";
+import { getPlaceHeroImage } from "../../data/media/world-manifests";
 import { EVEREST_EXPEDITION } from "../../data/expeditions/everest";
 import {
   buildObservationPoints,
@@ -178,12 +179,12 @@ function activeGlobeRenderer(): GlobeController | null {
 }
 
 function placeImage(place: Place): string {
+  // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
+  const runtimeHero = getPlaceHeroImage(place.id);
+  if (runtimeHero) return runtimeHero;
   if (place.id === "p-everest") return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-  if (place.id === "p-mariana" || place.type === "ocean") return "/assets/world/mariana-card.png";
-  if (place.id === "p-fuji" || place.type === "volcano") return "/assets/world/fuji-card.png";
-  if (place.id === "p-colorado" || place.type === "canyon" || place.type === "plateau") return "/assets/world/grand-canyon-card.png";
-  if (place.type === "glacier" || place.type === "mountain") return "/assets/world/everest-view-b.jpg";
-  return "/assets/world/grand-canyon-card.png";
+  if (place.type === "glacier" || place.type === "mountain") return "/assets/world/everest-expedition-hero-v1.png";
+  return "";
 }
 
 function metricForPlace(place: Place): { label: string; value: string } {
@@ -554,15 +555,15 @@ Page({
   mapPointImage(id: string): string {
     const images: Record<string, string> = {
       "base-camp": "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-      "khumbu-icefall": "/assets/world/everest-view-a.jpg",
-      "camp-i": "/assets/world/everest-view-a.jpg",
-      "western-cwm-camp-ii": "/assets/world/everest-view-b.jpg",
-      "lhotse-face-camp-iii": "/assets/world/everest-view-b.jpg",
-      "south-col-camp-iv": "/assets/world/everest-view-c.jpg",
-      "south-summit": "/assets/world/everest-view-c.jpg",
-      summit: "/assets/world/everest-hero.jpg",
+      "khumbu-icefall": "/assets/expeditions/everest/waypoints/khumbu-icefall.jpg",
+      "camp-i": "/assets/expeditions/everest/waypoints/camp-i.jpg",
+      "western-cwm-camp-ii": "/assets/expeditions/everest/waypoints/western-cwm-camp-ii.jpg",
+      "lhotse-face-camp-iii": "/assets/expeditions/everest/waypoints/lhotse-face-camp-iii.jpg",
+      "south-col-camp-iv": "/assets/expeditions/everest/waypoints/south-col-camp-iv.jpg",
+      "south-summit": "/assets/expeditions/everest/waypoints/south-summit.jpg",
+      summit: "/assets/expeditions/everest/waypoints/summit.jpg",
     };
-    return images[id] ?? "/assets/world/everest-hero.jpg";
+    return images[id] ?? "/assets/world/everest-expedition-hero-v1.png";
   },
 
   refreshAtlas(afterUpdate?: () => void) {

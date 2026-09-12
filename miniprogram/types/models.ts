@@ -4,9 +4,11 @@
  */
 
 import type { DataSource } from "./exploration";
+import type { ContentReviewStatus } from "./expedition";
 
 /** 供外部直接从 models 引入来源类型（数据文件统一 import 自此处） */
 export type { DataSource };
+export type { ContentReviewStatus };
 
 export type PlaceType =
  | "mountain"
@@ -99,8 +101,18 @@ export interface Knowledge {
  emoji: string;
  relatedPlaceIds: string[];
   relatedLandformIds: string[];
+  /** 相关知识 id（跨世界知识图谱边；单向声明，反向由报告层推导，避免双向维护冲突） */
+  relatedKnowledgeIds?: string[];
   /** 可选的同空间渐进教学过程；详情页消费，旧条目无需迁移。 */
   processId?: string;
+  /** 关联正式媒体 id（经 MediaRegistry 查询，approved-only；历史条目可缺省） */
+  mediaIds?: string[];
+  /** 内容审核状态（历史条目可缺省；新内容由 content validation 强约束） */
+  reviewStatus?: ContentReviewStatus;
+  /**
+   * 来源（历史条目可缺省，保持兼容；禁止为编译通过填充占位假来源）。
+   * 新增条目必须提供可溯源来源，由后续 content validation 强制。
+   */
   sources?: DataSource[];
 }
 

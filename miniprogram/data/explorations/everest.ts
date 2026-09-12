@@ -116,15 +116,18 @@ export const EVEREST: Exploration = {
           "帐篷区建在冰面上，会随冰体位移而需要重新平整",
           "南坡路线的补给与高原适应中枢",
         ],
-        images: [
-          "/assets/expeditions/everest/waypoints/base-camp.jpg",
-          "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-        ],
-        imageCredits: [
-          "Geo Explorer · 山体渲染局部（Copernicus DEM）",
-          "Matheus Hobold Sovernigo · CC BY-SA 4.0 · Wikimedia Commons",
-        ],
-        imageKinds: ["terrain", "photo"],
+        environment:
+          "海拔 5,364 m 的冰碛平台上，盛夏白天约 -8 ℃，夜间更低；空气含氧量约为海平面的 53%，多数人到这里的头两天以休息适应为主。",
+        risk:
+          "高原反应从徒步段就可能出现；大本营的帐篷城随冰川缓慢移动，地面持续变形，须留意帐绳与裂隙。上方冰瀑的崩塌声在夜里清晰可闻。",
+        history:
+          "1953 年希拉里与丹增首次登顶的远征以此为前进基地；此后 70 余年，南坡大本营一直是喜马拉雅攀登的标志性场景，营地本身建在缓慢流动的昆布冰川冰面上。",
+        whatToNotice:
+          "看脚下：营地的冰碛石来自冰川沿途搬运；凌晨与傍晚观察冰瀑方向的崩塌声与烟尘，那是冰体在移动的证据。",
+        knowledgeIds: ["k01", "k08", "khumbu-glacier"],
+        sources: [SRC_WIKI_EVEREST, SRC_GLACIER],
+        reviewStatus: "approved",
+        mediaIds: ["ev-terrain-base-camp"],
       },
       {
         id: "khumbu-icefall",
@@ -145,9 +148,18 @@ export const EVEREST: Exploration = {
           "多数队伍选择凌晨气温最低时通过，降低冰体崩塌风险",
           "跨越裂隙主要依靠铝梯与固定绳",
         ],
-        images: ["/assets/expeditions/everest/waypoints/khumbu-icefall.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "冰川陡坎上的移动冰塔区，海拔 5,400–6,000 m；气温在凌晨最低（约 -10 ℃ 级），此时冰体最稳定。",
+        risk:
+          "全路线最危险的一段：冰瀑崩塌、冰桥断裂与裂隙坠落构成持续威胁；多数队伍选择凌晨快速通过，不在此恋战。",
+        history:
+          "1950-51 年霍顿·赖特与夏尔巴向导首次确认可从冰瀑穿越进入西库姆——这条「冰电梯」正是南坡路线成立的前提；每年由「冰瀑医生」团队重新架设铝梯与固定绳。",
+        whatToNotice:
+          "观察冰塔的「层流」痕迹与裂隙走向：冰体沿基岩陡坎断裂成块，裂隙的排列方向暴露了冰川的流动方向。",
+        knowledgeIds: ["k08", "khumbu-glacier", "k24"],
+        sources: [SRC_GLACIER, SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-icefall-ladders", "ev-terrain-khumbu-icefall"],
       },
       {
         id: "camp-i",
@@ -167,9 +179,17 @@ export const EVEREST: Exploration = {
           "位于冰瀑之上、西库姆冰谷入口",
           "通常作为通过冰瀑后的第一个短停点",
         ],
-        images: ["/assets/expeditions/everest/waypoints/camp-i.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "海拔约 6,065 m 的雪原谷地，含氧量约为海平面的 47%；白天雪面反射强烈，夜间辐射冷却极快。",
+        risk: "冰瀑仍在头顶：C1 的危险性主要来自上方冰体；停留时间宜短，物资尽早转运。",
+        history:
+          "1952 年瑞士远征首次打通冰瀑抵达此处（未登顶）；自那以后 C1 一直是每个攀登季的第一个高海拔宿营点。",
+        whatToNotice:
+          "看谷地两侧的冰碛：珠峰西南壁与努子峰之间的谷底仍属冰川系统，冰面融水在正午形成小溪流。",
+        knowledgeIds: ["k08"],
+        sources: [SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-terrain-camp-i"],
       },
       {
         id: "western-cwm-camp-ii",
@@ -189,9 +209,18 @@ export const EVEREST: Exploration = {
           "两侧分别是珠峰西南壁与洛子峰北壁",
           "强烈日照反射使谷内体感温度偏高",
         ],
-        images: ["/assets/expeditions/everest/waypoints/western-cwm-camp-ii.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "海拔约 6,500 m 的宽阔雪谷：阳光经两侧冰雪强烈反射，谷内白昼体感温度可明显高于同海拔的开阔风区，紫外线几乎无衰减。",
+        risk:
+          "「雪盲」与脱水是西库姆的隐形风险；洛子壁下缘的雪崩通道需按通行窗口通过；夜间气温可到 -20 ℃ 量级。",
+        history:
+          "1952 年瑞士远征队率先进入西库姆（Shangri-La 之名即出自他们），这里从此成为南坡适应训练的核心营地。",
+        whatToNotice:
+          "留意两侧壁的对比：左侧珠峰西南壁陡峻，右侧洛子峰北壁平直高耸——洛子壁就是通往 C3 与南坳的「墙」。",
+        knowledgeIds: ["k02"],
+        sources: [SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-b1-western-cwm", "ev-terrain-western-cwm-camp-ii"],
       },
       {
         id: "lhotse-face-camp-iii",
@@ -211,9 +240,18 @@ export const EVEREST: Exploration = {
           "全程铺设固定绳，需使用冰爪与上升器",
           "进入南坳前最后一个常规营地",
         ],
-        images: ["/assets/expeditions/everest/waypoints/lhotse-face-camp-iii.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "连续陡峭冰壁上的窄平台，海拔约 7,200 m；含氧量约为海平面的 42%，气温常在 -15 ℃ 以下。",
+        risk:
+          "滑坠是最大威胁：硬冰雪坡全程依赖固定绳与上升器；洛子壁亦常有落石与流雪，C3 的帐篷挂在小平台上，暴露感极强。",
+        history:
+          "1953 年英国远征经此推进至南坳；C3 一带的地形自那以后变化不大，但冰况逐年不同，修路质量直接决定通过速度。",
+        whatToNotice:
+          "看固定绳的走向：绳路每隔数米打结固定在冰锥上，攀登者以「jumar（上升器）」逐结上移——冰壁的地形决定了绳的位置。",
+        knowledgeIds: ["k07"],
+        sources: [SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-c1-yellow-band", "ev-terrain-lhotse-face-camp-iii"],
       },
       {
         id: "south-col-camp-iv",
@@ -234,9 +272,18 @@ export const EVEREST: Exploration = {
           "位于珠峰与洛子峰之间，风大而暴露",
           "冲顶通常从此处凌晨出发",
         ],
-        images: ["/assets/expeditions/everest/waypoints/south-col-camp-iv.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "海拔约 7,906 m 的鞍部：常年强风，含氧量约为海平面的 40%，体感温度远低于气温——这里被称为「登山者的赌场」。",
+        risk:
+          "冲顶前最后的宿营点：强风掀翻帐篷、夜间冻结与急性高原反应都在这里发生；冲顶窗口一旦错过，就只能等待下一个周期。",
+        history:
+          "1952 年瑞士队首抵南坳（未登顶）；1953 年希拉里与丹增从南坳出发完成人类首次登顶。此后南坳成为所有南坡冲顶的起点与退守地。",
+        whatToNotice:
+          "看两侧：珠峰一侧是「黄色带」的岩层露头，洛子一侧是断崖；风从鞍部横穿而过，帐篷旗绳几乎始终指着同一方向。",
+        knowledgeIds: ["k07", "death-zone"],
+        sources: [SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-terrain-south-col-camp-iv"],
       },
       {
         id: "south-summit",
@@ -256,9 +303,18 @@ export const EVEREST: Exploration = {
           "雪脊两侧为陡崖，风大且暴露",
           "希拉里台阶位于南峰与主峰之间",
         ],
-        images: ["/assets/expeditions/everest/waypoints/south-summit.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "海拔约 8,749 m 的雪脊：含氧量约为海平面的 34%，风速大且暴露感极强；天气窗口极短。",
+        risk:
+          "雪脊两侧皆为千米断崖，风与缺氧在此叠满；2015 年地震后希拉里台阶地形发生变化，路线难度与风险相应调整。",
+        history:
+          "南峰是 1953 年首登路线的最后难关之一：希拉里正是在这段岩缝（后称「希拉里台阶」）完成了关键攀爬。",
+        whatToNotice:
+          "回头看一眼来路：南坳与洛子壁缩成一条线——这也是判断「是否还有体力继续」的最后参照点。",
+        knowledgeIds: ["k32", "k31"],
+        sources: [SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-terrain-south-summit"],
       },
       {
         id: "summit",
@@ -279,9 +335,18 @@ export const EVEREST: Exploration = {
           "峰顶气压约 335 hPa ≈ 海平面的三分之一",
           "停留时间通常仅数十分钟，天气窗口极短",
         ],
-        images: ["/assets/expeditions/everest/waypoints/summit.jpg"],
-        imageCredits: ["Geo Explorer · 山体渲染局部（Copernicus DEM）"],
-        imageKinds: ["terrain"],
+        environment:
+          "海拔 8,848.86 m：气压约 335 hPa（海平面约 1/3），含氧量不足海平面的 1/3，盛夏白昼气温也在 -25 ℃ 以下。",
+        risk:
+          "死亡区的顶端：高原肺水肿/脑水肿、失温与判断力下降随时可能发生；停留时间通常只有数十分钟，随后必须尽快下撤。",
+        history:
+          "1953-05-29 希拉里与丹增首次登顶；2020-12-08 中尼联合公布最新高程 8,848.86 m——峰顶曾是特提斯海的海底，如今是地球海拔最高的点。",
+        whatToNotice:
+          "看脚下的石灰岩：峰顶岩石是约 4 亿年前海底沉积的灰岩；向北望去，整个青藏高原在云层之上展开。",
+        knowledgeIds: ["k31", "k32", "summit-height"],
+        sources: [SRC_ZH_2020, SRC_WIKI_EVEREST],
+        reviewStatus: "approved",
+        mediaIds: ["ev-terrain-summit"],
       },
     ],
   },
@@ -755,6 +820,7 @@ export const EVEREST: Exploration = {
     },
     {
       id: "summit-height",
+      knowledgeId: "k31", // 对应知识库「1953 年首次登顶」（高程 + 登顶史互为注脚）
       elevation: 8848.86,
       emoji: "🇨🇳🇳🇵",
       title: "8848.86：中尼两国用了同一把尺",

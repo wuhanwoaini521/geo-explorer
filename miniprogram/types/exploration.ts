@@ -19,7 +19,7 @@ export interface ExplorationWorld {
   style: string;
 }
 
-import type { EvidenceType } from "./expedition";
+import type { ContentReviewStatus, EvidenceType } from "./expedition";
 
 /** 数据来源（内容真实性，见设计文档 §29） */
 export interface DataSource {
@@ -187,6 +187,11 @@ export interface ExplorationRouteWaypoint {
   shortName?: string;
   /** 该地标的真实/参考海拔，仅作展示，不参与 Exploration Axis 计算 */
   altitude?: number;
+  /**
+   * 深度类场景（海沟/洞穴/峡谷下切）的参考深度（m，正值）。
+   * 与 altitude 互斥使用：攀登场景填 altitude，下潜场景填 depth，均非必填。
+   */
+  depth?: number;
   /** 该点在本场景探索进度中的位置，范围 0–1，严格升序 */
   progress: number;
   /** 场景画布横坐标百分比（旧海拔轴场景使用） */
@@ -205,12 +210,31 @@ export interface ExplorationRouteWaypoint {
   detail?: string;
   /** 地点知识要点（1~3 条，Discovery Card facts 列表） */
   facts?: string[];
-  /** 地点实景图（第 1 张作卡片封面；可多张，支持全屏预览左右切换） */
+  /** ⚠️ legacy（Gate 1 兼容保留）：硬编码路径 + 平行 credits/kinds 数组，
+      探索页当前仍在消费；迁移目标 = mediaIds + MediaRegistry（Gate 6） */
   images?: string[];
   /** 与 images 一一对应的出处/许可说明（真实照片必须可溯源） */
   imageCredits?: string[];
   /** 与 images 一一对应的媒体类型；用于明确区分照片、地形渲染与示意图 */
   imageKinds?: ExplorationImageKind[];
+  /* ---------------- Waypoint 内容能力（Gate 1 起逐步填充） ---------------- */
+
+  /** 环境描述（温度/风/光照等当前环境；缺省=尚未填写） */
+  environment?: string;
+  /** 风险 / 特殊现象（如冰瀑崩塌、雪崩、缺氧） */
+  risk?: string;
+  /** 历史 / 探索故事（首次登顶、命名由来等） */
+  history?: string;
+  /** 到访者应该注意什么（观察建议） */
+  whatToNotice?: string;
+  /** 关联正式媒体 id（MediaRegistry 查询，approved-only；legacy images 的迁移目标） */
+  mediaIds?: string[];
+  /** 关联知识 id 集合（场景知识节点 / 全局知识库条目） */
+  knowledgeIds?: string[];
+  /** 内容来源（内容可溯源；缺省=尚未填写，由 content validation 强约束新内容） */
+  sources?: DataSource[];
+  /** 内容审核状态（历史节点可缺省，保持兼容） */
+  reviewStatus?: ContentReviewStatus;
 }
 
 /** Discovery Card 媒体类型：不把 DEM/渲染图误标为真实照片。 */

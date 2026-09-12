@@ -271,7 +271,7 @@ export const PLACES: Place[] = [
     region: "亚利桑那州",
     latitude: 36.106,
     longitude: -112.112,
-    elevationM: 800,
+    elevationM: 725,
     shortDescription: "地球的地质时间之书",
     description:
       "科罗拉多河用数百万年在大高原上切出的巨型峡谷，长约 446 km、最深处约 1,800 m。谷壁地层从 20 亿年前一路排到新生代，被称为「地质时间之书」。",
@@ -284,6 +284,7 @@ export const PLACES: Place[] = [
     ],
     tags: ["世界之最", "河流侵蚀", "地质剖面"],
     featured: true,
+    explorationId: "colorado",
     sources: [wiki("Grand Canyon")],
   },
   {
@@ -544,6 +545,7 @@ export const PLACES: Place[] = [
     ],
     tags: ["火山", "世界遗产", "亚洲"],
     featured: true,
+    explorationId: "fuji",
     sources: [wiki("Mount Fuji")],
   },
   {
@@ -1054,8 +1056,8 @@ export const PLACES: Place[] = [
     region: "关岛西南",
     latitude: 11.35,
     longitude: 142.2,
-    elevationM: -10912,
-    shortDescription: "地球最深渊",
+    elevationM: -10935,
+    shortDescription: "地球最深渊 · 10,935 m",
     description:
       "大洋板块俯冲形成的海沟，挑战者深渊最深约 1.1 万 m——把珠峰放进谷底还差 2 km 多才露出水面。深海热液与超深渊生物在此自成世界。",
     formation: "太平洋板块俯冲到菲律宾海板块之下，形成深海沟。",

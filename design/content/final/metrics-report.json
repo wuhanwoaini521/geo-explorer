@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-09-12",
+  "knowledge": {
+    "total": 41,
+    "withSource": 41,
+    "withoutSource": 0,
+    "abQualitySourced": 11,
+    "withMedia": 10,
+    "linkedToPlace": 35,
+    "linkedToWorld": 23,
+    "perWorld": {
+      "everest": 11,
+      "mariana": 4,
+      "fuji": 8,
+      "colorado": 4
+    }
+  },
+  "media": {
+    "totalCandidates": 48,
+    "perWorld": {
+      "everest": {
+        "candidates": 12,
+        "waypointPrimary": 9,
+        "knowledge": 2,
+        "placeHero": 0
+      },
+      "mariana": {
+        "candidates": 15,
+        "waypointPrimary": 1,
+        "knowledge": 11,
+        "placeHero": 2
+      },
+      "fuji": {
+        "candidates": 9,
+        "waypointPrimary": 5,
+        "knowledge": 3,
+        "placeHero": 1
+      },
+      "colorado": {
+        "candidates": 11,
+        "waypointPrimary": 7,
+        "knowledge": 3,
+        "placeHero": 1
+      },
+      "shared": {
+        "candidates": 1,
+        "waypointPrimary": 0,
+        "knowledge": 1,
+        "placeHero": 0
+      }
+    },
+    "waypointPrimaryCoverage": [
+      {
+        "world": "everest",
+        "waypointId": "base-camp",
+        "primaryCandidate": "ev-a2-ebc-pano",
+        "kind": "photograph"
+      },
+      {
+        "world": "everest",
+        "waypointId": "khumbu-icefall",
+        "primaryCandidate": "ev-icefall-ladders",
+        "kind": "photograph"
+      },
+      {
+        "world": "everest",
+        "waypointId": "camp-i",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "everest",
+        "waypointId": "western-cwm-camp-ii",
+        "primaryCandidate": "ev-b1-western-cwm",
+        "kind": "photograph"
+      },
+      {
+        "world": "everest",
+        "waypointId": "lhotse-face-camp-iii",
+        "primaryCandidate": "ev-c1-yellow-band",
+        "kind": "photograph"
+      },
+      {
+        "world": "everest",
+        "waypointId": "south-col-camp-iv",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "everest",
+        "waypointId": "south-summit",
+        "primaryCandidate": "ev-c3-balcony-pumori",
+        "kind": "photograph"
+      },
+      {
+        "world": "everest",
+        "waypointId": "summit",
+        "primaryCandidate": "ev-d1-summit",
+        "kind": "photograph"
+      },
+      {
+        "world": "mariana",
+        "waypointId": "surface-start",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "mariana",
+        "waypointId": "thermocline",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "mariana",
+        "waypointId": "twilight-end",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "mariana",
+        "waypointId": "deep-water",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "mariana",
+        "waypointId": "trench-rim",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "mariana",
+        "waypointId": "bottom-approach",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "mariana",
+        "waypointId": "challenger-bottom",
+        "primaryCandidate": "m2-limiting-factor-bottom",
+        "kind": "photograph"
+      },
+      {
+        "world": "fuji",
+        "waypointId": "gogome",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "fuji",
+        "waypointId": "rokugome",
+        "primaryCandidate": "f-forest-lower",
+        "kind": "photograph"
+      },
+      {
+        "world": "fuji",
+        "waypointId": "nanagome",
+        "primaryCandidate": "f-navy-trail",
+        "kind": "photograph"
+      },
+      {
+        "world": "fuji",
+        "waypointId": "hachigome",
+        "primaryCandidate": "f5-navy-climb",
+        "kind": "photograph"
+      },
+      {
+        "world": "fuji",
+        "waypointId": "hon-hachigome",
+        "primaryCandidate": "f-yoshida-huts",
+        "kind": "photograph"
+      },
+      {
+        "world": "fuji",
+        "waypointId": "kyugome",
+        "primaryCandidate": null,
+        "kind": null
+      },
+      {
+        "world": "fuji",
+        "waypointId": "kengamine",
+        "primaryCandidate": "f3-goraiko",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "rim-trailhead",
+        "primaryCandidate": "c1-trailhead",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "mile-and-half",
+        "primaryCandidate": "c-resthouse-15",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "three-mile",
+        "primaryCandidate": "c-resthouse-3mi",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "havasupai-gardens",
+        "primaryCandidate": "c-indian-garden",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "devils-corkscrew",
+        "primaryCandidate": "c2-devils-corkscrew",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "river-side",
+        "primaryCandidate": "c-river-nps",
+        "kind": "photograph"
+      },
+      {
+        "world": "colorado",
+        "waypointId": "phantom-ranch",
+        "primaryCandidate": "c4-phantom-ranch",
+        "kind": "photograph"
+      }
+    ],
+    "placeHero": [
+      {
+        "place": "p-everest",
+        "heroCandidate": null
+      },
+      {
+        "place": "p-colorado",
+        "heroCandidate": "c6-south-rim-panorama"
+      },
+      {
+        "place": "p-fuji",
+        "heroCandidate": "f1-yamanaka-view"
+      },
+      {
+        "place": "p-mariana",
+        "heroCandidate": "m6-maug-aerial"
+      }
+    ]
+  },
+  "quiz": {
+    "globalQuizzes": 23,
+    "sceneQuizNodes": 29
+  }
+}

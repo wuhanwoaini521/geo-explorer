@@ -237,7 +237,7 @@ describe("地点详情页", () => {
     inst.onLoad({ id: "p-mariana" });
     const data = inst.data as Record<string, any>;
     expect(data.place.elevLabel).toBe("深度");
-    expect(data.place.elevText).toBe("10,912 m");
+    expect(data.place.elevText).toBe("10,935 m");
     expect(data.place.explorationId).toBe("mariana");
   });
 

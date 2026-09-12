@@ -1,6 +1,6 @@
 /**
- * Quiz(挑战) Mock 数据 —— 20 道题，覆盖不同类别与难度。
- * 题面与解析均为公开地理常识，来源在解析文本中注明。
+ * Quiz(挑战) 数据 —— 23 道题，覆盖不同类别与难度（含四个探索世界的主题题）。
+ * 题面与解析均为公开地理常识；新增题目附可溯源 sources。
  */
 import type { Quiz } from "../types/models";
 
@@ -42,57 +42,75 @@ export const QUIZZES: Quiz[] = [
   },
   {
     id: "q04",
-    question: "2020 年中尼联合测量公布的世界最高峰海拔是？",
+    question: "珠峰高程 8,848.86 m 这一数字由谁公布？",
     type: "choice",
-    options: ["8,848.86 m", "8,848 m", "8,844.43 m", "8,798 m"],
+    options: [
+      "中国与尼泊尔联合公布",
+      "英国皇家地理学会",
+      "美国国家地理学会",
+      "尼泊尔单方面测算",
+    ],
     answerIndex: 0,
     explanation:
-      "2020 年 12 月，中国与尼泊尔联合宣布珠穆朗玛峰最新高程：8,848.86 m。",
+      "2020 年 12 月 8 日，中国与尼泊尔基于联合测量（GNSS、雪深雷达等）共同公布珠峰最新高程 8,848.86 m。",
     category: "世界地理",
     difficulty: 1,
     emoji: "🏔️",
   },
   {
     id: "q05",
-    question: "马里亚纳海沟最深处（地物深渊）的海深约为？",
+    question: "马里亚纳海沟最深处（挑战者深渊）的海深约为？",
     type: "choice",
     options: ["约 11,000 m", "约 7,000 m", "约 9,000 m", "约 13,000 m"],
     answerIndex: 0,
-    explanation: "马里亚纳海沟最深处约 10,900–11,000 m，比珠峰高度还大。",
+    explanation:
+      "挑战者深渊 2021 年测量约 10,935 ± 6 m（11,000 m 量级），比珠峰高度还大。",
     category: "世界地理",
     difficulty: 2,
     emoji: "🌊",
   },
   {
     id: "q06",
-    question: "珠峰峰顶的大气含氧量约为海平面的？",
+    question: "「死亡区」的界限海拔定在多少以上？",
     type: "choice",
-    options: ["约 1/3", "约 1/2", "约 1/5", "约 2/3"],
-    answerIndex: 0,
+    options: ["6,000 m", "7,000 m", "8,000 m", "9,000 m"],
+    answerIndex: 2,
     explanation:
-      "峰顶气压约 335 hPa，约为海平面（1,013 hPa）的三分之一，故 8,000 m 以上被称为“死亡区”。",
+      "约 8,000 m 以上气压仅剩海平面约 1/3（峰顶约 335 hPa），人体无法长期自我修复，故称死亡区。",
     category: "气候",
     difficulty: 2,
     emoji: "🫁",
   },
   {
     id: "q07",
-    question: "对流层内海拔每上升 1,000 m，气温约降低多少？",
+    question: "珠峰峰顶气温比同日山脚低几十度，主导原因是？",
     type: "choice",
-    options: ["约 6.5 ℃", "约 0.65 ℃", "约 15 ℃", "约 2 ℃"],
+    options: [
+      "海拔越高空气越稀薄、离地面热源越远",
+      "山顶风速带走热量",
+      "山顶离太阳更远",
+      "冰雪反射阳光",
+    ],
     answerIndex: 0,
-    explanation: "对流层平均温度直减率约 6.5 ℃/1000 m（近似值）。",
+    explanation:
+      "大气靠地面辐射加热，海拔每升 1,000 m 约降温 6.5 ℃（直减率）——山顶「离热源更远」是主因，风速只是叠加因素。",
     category: "气候",
     difficulty: 2,
     emoji: "🌡️",
   },
   {
     id: "q08",
-    question: "喜马拉雅南坡比北坡湿润得多，主要原因是？",
+    question: "同一海拔上，喜马拉雅北坡多是荒原而南坡是森林，决定这种差异的是？",
     type: "choice",
-    options: ["夏季风带来印度洋水汽", "高山冰川融化", "人工灌溉", "湖泊蒸发"],
+    options: [
+      "坡向：南坡迎夏季风成云致雨",
+      "北坡纬度更高",
+      "南坡火山土壤更肥沃",
+      "北坡人类放牧过度",
+    ],
     answerIndex: 0,
-    explanation: "南坡面对印度洋，夏季风抬升成云致雨，形成高降水带。",
+    explanation:
+      "南坡正对印度洋水汽来向，地形抬升致雨滋养森林；北坡处于背风雨影区，同为高山却荒原广布。",
     category: "气候",
     difficulty: 2,
     emoji: "🌧️",
@@ -135,7 +153,7 @@ export const QUIZZES: Quiz[] = [
     id: "q12",
     question: "攀登珠峰时须格外防范的突发风险是？",
     type: "choice",
-    options: ["雪崩与冰崩", "山体滑坡传染", "火山喷发", "地面沉降"],
+    options: ["雪崩与冰崩", "山体滑坡", "火山喷发", "地面沉降"],
     answerIndex: 0,
     explanation: "珠峰昆布冰瀑、雪崩与冰裂缝是攀登者最常面临的安全威胁。",
     category: "地形地貌",
@@ -144,19 +162,20 @@ export const QUIZZES: Quiz[] = [
   },
   {
     id: "q13",
-    question: "“丹霞”一词最早出自？",
+    question: "把珠穆朗玛峰整个放进马里亚纳海沟，会出现什么结果？",
     type: "choice",
     options: [
-      "东晋曹植《丹霞蔽日行》",
-      "现代科普栏目",
-      "外来音译词",
-      "唐代诗僧",
+      "峰顶距海面仍有约 2 km",
+      "峰顶恰好露出海面",
+      "峰顶超出海面 2 km",
+      "正好填平海沟",
     ],
     answerIndex: 0,
-    explanation: "“丹霞蔽日”出自曹植诗文，后成为该类红色砂岩地貌的名称。",
-    category: "地形地貌",
-    difficulty: 3,
-    emoji: "📜",
+    explanation:
+      "挑战者深渊约 10,935 m，珠峰 8,848.86 m——填进去后峰顶距海面仍有约 2 km。地球最深处的尺度远超最高峰。",
+    category: "世界地理",
+    difficulty: 2,
+    emoji: "🌊",
   },
   {
     id: "q14",
@@ -183,7 +202,7 @@ export const QUIZZES: Quiz[] = [
       "河流下切形成峡谷",
       "板块挤压生成山脉",
       "火山口由熔岩形成",
-      "冰山肚雪覆盖山脊",
+      "冰川积雪覆盖山脊",
     ],
     answerIndex: 0,
     explanation: "峡谷主要由流水侵蚀（外营力）形成，如雅鲁藏布大峡谷。",
@@ -205,15 +224,15 @@ export const QUIZZES: Quiz[] = [
   },
   {
     id: "q17",
-    question: "白天山谷山坡方向的气流运动通常表现为？",
+    question: "地球上哪种海底地形能够到达超深渊带的深度？",
     type: "choice",
-    options: ["谷风（沿坡上行）", "山风（沿坡下行）", "无规律", "只冬季出现"],
-    answerIndex: 0,
+    options: ["大陆架", "洋中脊", "深海平原", "海沟"],
+    answerIndex: 3,
     explanation:
-      "白天坡面升温快，热空气沿山坡上升形成谷风；夜间冷空气沿坡下沉为山风。",
-    category: "气候",
+      "只有板块俯冲形成的海沟能深过 6,000 m——超深渊带因此只在海沟出现，马里亚纳海沟是其中之最。",
+    category: "世界地理",
     difficulty: 2,
-    emoji: "💨",
+    emoji: "🕳️",
   },
   {
     id: "q18",
@@ -228,19 +247,15 @@ export const QUIZZES: Quiz[] = [
   },
   {
     id: "q19",
-    question: "森林垂直结构由高到低的正确排序是？",
+    question: "从富士山山脚到山顶依次穿过森林、草甸、火山砾荒原，这种分布叫？",
     type: "choice",
-    options: [
-      "乔木层→灌木层→草本层",
-      "灌木层→乔木层→草本层",
-      "草本层→灌木层→乔木层",
-      "乔木层→草本层→灌木层",
-    ],
+    options: ["垂直分带", "水平分带", "随机分布", "土壤分层"],
     answerIndex: 0,
-    explanation: "森林分乔木层、灌木层、草本层三层垂直分层结构。",
+    explanation:
+      "温度与降水随海拔分段变化，植被随之成带分布（垂直分带）；纬度地带性则是同一规律在南北方向上的展开。",
     category: "生态",
     difficulty: 1,
-    emoji: "🌳",
+    emoji: "🌲",
   },
   {
     id: "q20",
@@ -248,14 +263,74 @@ export const QUIZZES: Quiz[] = [
     type: "choice",
     options: [
       "永久积雪区的下界",
-      "雪融停下的位置",
+      "夏季融雪停止的位置",
       "全年下雪的纬度",
-      "简冰形成的上界",
+      "冰川形成的上界",
     ],
     answerIndex: 0,
     explanation: "雪线是常年积雪的下界，其上方地表终年积雪、冰雪累积成冰川。",
     category: "地形地貌",
     difficulty: 2,
     emoji: "❄️",
+  },
+  {
+    id: "q21",
+    question: "富士山最近一次喷发（宝永大喷发）发生在哪一年？",
+    type: "choice",
+    options: ["79 年", "1707 年", "1883 年", "1991 年"],
+    answerIndex: 1,
+    explanation:
+      "1707–1708 年的宝永大喷发是富士山迄今最后一次喷发，火山灰远落江户方向。",
+    category: "地质",
+    difficulty: 2,
+    emoji: "🌋",
+    sources: [
+      {
+        name: "Wikipedia — Mount Fuji（1707–08 Hōei eruption）",
+        url: "https://en.wikipedia.org/wiki/Mount_Fuji",
+        verifiedAt: "2026-09-11",
+        approximate: true,
+      },
+    ],
+  },
+  {
+    id: "q22",
+    question: "富士山顶部的火口直径约为？",
+    type: "choice",
+    options: ["约 78 m", "约 780 m", "约 2,800 m", "约 7.8 km"],
+    answerIndex: 1,
+    explanation:
+      "富士山主火口直径约 780 m、深约 240 m；沿火口缘绕行一周（お鉢巡り）约需 1 小时。",
+    category: "地形地貌",
+    difficulty: 3,
+    emoji: "🗻",
+    sources: [
+      {
+        name: "Wikipedia — Mount Fuji（crater 780 m diameter, 240 m deep）",
+        url: "https://en.wikipedia.org/wiki/Mount_Fuji",
+        verifiedAt: "2026-09-11",
+        approximate: true,
+      },
+    ],
+  },
+  {
+    id: "q23",
+    question: "科罗拉多大峡谷谷底暴露的最老岩石年龄约为？",
+    type: "choice",
+    options: ["2,700 万年", "2.7 亿年", "17.5 亿年", "6 亿年"],
+    answerIndex: 2,
+    explanation:
+      "内峡的维许努片岩等变质基岩约在 17.5 亿年前强烈变质（NPS），是谷壁最老的岩石。",
+    category: "地质",
+    difficulty: 2,
+    emoji: "🏞️",
+    sources: [
+      {
+        name: "NPS — Grand Canyon Geologic Formations（Vishnu schist ~1,750 Ma）",
+        url: "https://www.nps.gov/grca/learn/nature/geologicformations.htm",
+        verifiedAt: "2026-09-11",
+        approximate: false,
+      },
+    ],
   },
 ];

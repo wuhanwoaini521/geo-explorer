@@ -101,7 +101,10 @@ describe("LIVE-A MediaManifest 出处", () => {
     expect(asset!.sourceUrl).toContain("commons.wikimedia.org");
     expect(asset!.attribution).toContain("CC BY-SA");
     expect(asset!.capturedAt).toBe("2019-04-24");
-    expect(asset!.geographicRole).toBe("Representative real-world image");
+    expect(asset!.geographicRole).toBe("REPRESENTATIVE");
+    expect(asset!.entityType).toBe("expedition");
+    expect(asset!.entityId).toBe("everest");
+    expect(asset!.purpose).toBe("hero");
     expect(asset!.overlayProjection).toBe("CURATED");
     expect(asset!.originalResolution).toBe("5848\u00d74387");
     expect(asset!.dimensions).toEqual({ width: 1080, height: 1920 });

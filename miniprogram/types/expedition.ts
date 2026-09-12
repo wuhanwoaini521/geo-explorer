@@ -79,7 +79,7 @@ export interface CameraSegment {
    /** 该段在路线 progress 上的合法区间 [from, to]，单调递增、不重叠、覆盖全轴 */
    fromProgress: number;
    toProgress: number;
-   /** 渲染资源标识（相对 assets/world 的 key，如 everest-view-a） */
+   /** 渲染资源标识（相对 assets/world 的 key，如 everest-expedition-hero-v1） */
    asset: string;
    /** 聚焦点（画面注视点），可选 */
    focus?: CameraFocus;
@@ -340,18 +340,61 @@ export interface ComputedStage {
 }
 
 /* ------------------------------------------------------------------ */
-/*  5 · MediaManifest —— 媒体资源清单（图片/渲染/插图）                 */
+/*  5 · Media —— 媒体资产模型（Candidate → approved → MediaRegistry）    */
 /* ------------------------------------------------------------------ */
 
+/** 审核状态：Candidate 走 draft/review/rejected；正式资产恒为 approved */
 export type MediaReviewStatus = "draft" | "review" | "approved" | "rejected";
 
+/** 内容实体（Knowledge / Waypoint 等）与媒体共用同一套审核生命周期 */
+export type ContentReviewStatus = MediaReviewStatus;
+
+/** 媒体形态（kind 表达“这是什么媒介”；数据证据强度仍由 DataSource.evidence 表达） */
+export type MediaKind =
+   | "photograph"
+   | "render"
+   | "diagram"
+   | "illustration"
+   | "video"
+   | "satellite"
+   | "scientific"
+   | "terrain";
+
+/**
+ * 地理角色（受控枚举，禁止自由字符串）：
+ *   EXACT          —— 有可靠依据（GPS/官方描述等）证明媒体就是该实体本身；
+ *   REPRESENTATIVE —— 真实媒体，但只代表该实体的区域/环境/附近视角，
+ *                     不得声称是当前节点的现场精确视角。
+ */
+export type GeographicRole = "EXACT" | "REPRESENTATIVE";
+
+/** 媒体归属实体类型（stage 目前无独立媒体，仅保留模型能力） */
+export type MediaEntityType =
+   | "place"
+   | "knowledge"
+   | "expedition"
+   | "waypoint"
+   | "stage";
+
+/**
+ * 正式媒体资产（Runtime）：已通过审核、可进入产品的媒体。
+ *
+ * 强约束：localPath 必填、reviewStatus 恒为 approved（validateMediaManifest
+ * 与 MediaRegistry 双层保证非 approved 资产不会进入正式查询）。
+ */
 export interface MediaAsset {
    id: string;
+   /** 媒体归属的实体类型（entity ownership） */
+   entityType: MediaEntityType;
+   /** 归属实体 id（如 place id / waypoint id / 场景 id） */
+   entityId: string;
+   /** 用途（如 hero / gallery / knowledge-support）；缺省按声明顺序取首张为 hero */
+   purpose?: string;
    /** 原始标题（Commons 原始文件名/发布标题） */
    title: string;
    description: string;
-   /** 资源类型 */
-   kind: "photograph" | "render" | "diagram" | "illustration" | "video";
+   /** 资源形态 */
+   kind: MediaKind;
    /** 本地资源路径（相对 miniprogram/assets/...）；正式运行资产必填 */
    localPath: string;
    /** 版权/许可（如 "CC BY-SA 4.0"、"Public Domain"、"自有建模渲染"） */
@@ -372,13 +415,11 @@ export interface MediaAsset {
    dimensions?: { width: number; height: number };
    /** 文件 sha256（防来源混乱，管线产物指纹） */
    hash?: string;
-   /** 地理角色：Representative real-world image / Exact current viewpoint（§2） */
-   geographicRole?: string;
+   /** 地理角色：EXACT / REPRESENTATIVE（受控枚举，见类型注释） */
+   geographicRole: GeographicRole;
    /** 覆盖投影方式（EXACT/CURATED/NOT_AVAILABLE；无相机参数不得自称精确） */
    overlayProjection?: OverlayProjectionType;
-   /** 证据/示意标记 */
-   evidence?: EvidenceType;
-   /** 审核状态（历史图片默认 review，未确认不入正式清单） */
+   /** 审核状态（正式清单仅收录 approved；MediaRegistry 同层再过滤一次） */
    reviewStatus: MediaReviewStatus;
    tags?: string[];
 }
@@ -386,11 +427,52 @@ export interface MediaAsset {
 export interface MediaManifest {
    schemaVersion: number;
    id: string;
-   /** 关联 scene id（如 "everest"） */
+   /** 关联 scene id（如 "everest"）；资产级归属由 MediaAsset.entityType/entityId 表达 */
    sceneId: string;
    assets: MediaAsset[];
    /** 清单说明 / 待办 */
    notes?: string;
+}
+
+/**
+ * 候选媒体资产（Candidate）：服务于搜索/来源确认/版权确认/人工审核/候选比较。
+ *
+ * 与正式 MediaAsset 的边界：
+ *   - sourceUrl 必填（候选必须先说清来自哪里）；
+ *   - localPath 可选（不要求已下载到本地）；
+ *   - license 可选（版权未确认时保持缺失，禁止猜测）；
+ *   - reviewStatus 只允许 draft/review/rejected —— 一旦 approved，
+ *     应晋升为正式 MediaAsset 进入 MediaManifest，而不是留在候选区。
+ */
+export interface CandidateMediaAsset {
+   id: string;
+   entityType: MediaEntityType;
+   entityId: string;
+   /** 用途（如 hero / gallery / knowledge-support） */
+   purpose: string;
+   title: string;
+   description?: string;
+   kind: MediaKind;
+   /** 原始来源链接（候选期必填，是审核依据） */
+   sourceUrl: string;
+   /** 版权/许可（未确认时留空，禁止填占位假值） */
+   license?: string;
+   licenseUrl?: string;
+   credit?: string;
+   attribution?: string;
+   geographicRole: GeographicRole;
+   reviewStatus: Exclude<MediaReviewStatus, "approved">;
+   /** 已下载/已派生到本地的路径（可选） */
+   localPath?: string;
+   capturedAt?: string;
+   originalResolution?: string;
+   hash?: string;
+   tags: string[];
+   /**
+    * 晋升标记：该候选已按管线晋升为 runtime 资产（MediaManifest 中的 id）。
+    * 保留候选记录以维护候选库存与评审历史；runtime 以 MediaManifest 为唯一事实。
+    */
+   promotedRuntimeId?: string;
 }
 
 /* ------------------------------------------------------------------ */

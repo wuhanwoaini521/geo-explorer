@@ -4,7 +4,7 @@
 
 仓库：`geo-explorer`
 
-这是一个微信小程序，核心体验是地理探索、世界图鉴、珠峰攀登、马里亚纳海沟下潜、知识解锁和挑战问答。
+这是一个微信小程序，核心体验是地理探索（珠峰攀登 / 马里亚纳海沟下潜 / 富士山攀登 / 科罗拉多大峡谷下潜 四个探索世界）、世界图鉴、知识库（跨世界知识图谱）、随堂问答和挑战。
 
 始终使用简体中文回答；代码、命令、专有名词和用户明确要求保留的原文除外。
 
@@ -45,6 +45,10 @@ npm run wechat:screenshot
 - `npm test`：运行 Vitest 测试
 - `npm run wechat:screenshot`：通过微信自动化能力进行截图验证；只有当前环境提供可用自动化端点时才能执行
 - `npm run everest:viewer`：启动珠峰路线校准工具，仅在用户明确需要该工具时使用
+- `npm run content:validate`：内容完整性校验（四世界引用 / 媒体 / 图谱边 / 资产断链）
+- `npm run content:report`：知识/媒体覆盖指标（design/content/final/metrics-report.json）
+- `npm run quality:report`：夜间质检报告组（覆盖矩阵 / 知识图谱 / 来源质量 / remaining-work）
+- `npm run media:review`：重新生成 Linux 媒体评审板（design/content/media-review/index.html）
 
 不要因为修改了 `miniprogram/` 就直接声称微信页面已更新；开发者工具读取的是 `dist/miniprogram/`，必须先执行 `npm run build`。
 

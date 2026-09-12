@@ -22,7 +22,7 @@ export interface ExpeditionCameraFrame {
   segmentIndex: number;
   /** 当前段 id */
   segmentId: string;
-  /** 当前段资源 key（如 everest-view-a） */
+  /** 当前段资源 key（如 everest-expedition-hero-v1） */
   asset: string;
   /** 当前段内 0-1 局部进度（插值基准） */
   segmentLocal: number;

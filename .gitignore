@@ -15,6 +15,10 @@ design/world/everest-3d/work/
 design/world/everest-live/raw/
 design/world/everest-3d/blender/*.blend1
 
+# Long Run 2：媒体候选原始大图（原图不入 git；_metadata.json 与 review board 数据入仓）
+# 重新生成：python3 scripts/content/download-candidates.py
+media-source/
+
 # Gate temp working dirs / probes
 .gate1-tmp/
 .gate2-tmp/
@@ -41,3 +45,6 @@ project.private.config.json
 .ruff_cache/
 # WeChat mini-program screenshots (generated, never committed)
 artifacts/visual/
+
+# Windows QA 截图证据（QA report 记录路径，截图不入 Git）
+artifacts/windows-qa/

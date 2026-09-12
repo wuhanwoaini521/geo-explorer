@@ -5,6 +5,8 @@
 import { KNOWLEDGE, KNOWLEDGE_CATEGORIES } from "../../data/knowledge";
 import { KNOWLEDGE_PROCESSES } from "../../data/processes";
 import { EXPLORATIONS } from "../../data/explorations/index";
+import { RUNTIME_MANIFESTS } from "../../data/media/world-manifests";
+import { getMediaForEntity } from "../../engine/media-registry";
 import { getRecords } from "../../services/exploration-store";
 import { filterKnowledge, unlockedLibraryIds } from "../../utils/knowledge-link";
 import type { Knowledge } from "../../types/models";
@@ -27,13 +29,13 @@ interface ProcessCard {
 
 const ALL_CATEGORY = "全部";
 
+/** 运行时媒体优先（MediaRegistry），无登记媒体时回退分类占位（占位卡标记 UNKNOWN_PROVENANCE 债务）。 */
 function knowledgeImage(item: Knowledge): string {
-  if (item.id === "k31") return "/assets/world/everest-history-1953.png";
-  if (item.id === "k32") return "/assets/world/everest-climb-modern.png";
+  // runtime 媒体优先（MediaRegistry，approved-only）
+  const media = getMediaForEntity(RUNTIME_MANIFESTS, "knowledge", item.id);
+  if (media.length) return media[0].localPath;
+  // 无媒体知识的图鉴卡：显示地点实拍或 Everest 主视觉（无 unknown-provenance 资产）
   if (item.relatedPlaceIds.includes("p-everest")) return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-  if (item.relatedPlaceIds.includes("p-fuji")) return "/assets/world/fuji-card.png";
-  if (item.relatedPlaceIds.includes("p-colorado")) return "/assets/world/grand-canyon-card.png";
-  if (item.relatedPlaceIds.includes("p-mariana")) return "/assets/world/mariana-card.png";
   return "/assets/world/everest-expedition-hero-v1.png";
 }
 

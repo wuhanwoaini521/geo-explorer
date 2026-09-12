@@ -53,7 +53,10 @@ Page({
     stats: { completed: 0, totalFound: 0, totalExplorations: EXPLORATIONS.length, totalKnowledge: KNOWLEDGE.length },
     records: [] as RecordItem[],
     empty: false,
-    quiz: { totalPlays: 0, levels: [] as (QuizSummaryLevel & { stars: string; bestText: string })[] },
+    quiz: {
+      totalPlays: 0,
+      levels: [] as (QuizSummaryLevel & { stars: string; bestText: string })[],
+    },
     quizEmpty: true,
     favoritesList: [] as FavoriteItem[],
     favoritesEmpty: true,

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Exploration } from "../miniprogram/types/exploration";
 import { EVEREST } from "../miniprogram/data/explorations/everest";
 import { MARIANA } from "../miniprogram/data/explorations/mariana";
 import {
@@ -49,7 +50,13 @@ describe("场景路线", () => {
     );
   });
 
-  it("路线为可选 Scene Data，不影响无路线场景", () => {
-    expect(MARIANA.route).toBeUndefined();
+  it("马里亚纳下潜序列为合法路线；路线在模型中仍是可选字段", () => {
+    // Long Run 后马里亚纳补齐下潜路线；模型层 route?: ExplorationRoute 保持可选。
+    expect(MARIANA.route).toBeTruthy();
+    expect(MARIANA.route!.waypoints[0].progress).toBe(0);
+    expect(MARIANA.route!.waypoints[MARIANA.route!.waypoints.length - 1].progress).toBe(1);
+    // 类型层面的可选项：合成无路线对象仅验证数据形态不被引擎逻辑强绑
+    const noRoute: Exploration = { ...MARIANA, route: undefined };
+    expect(noRoute.route).toBeUndefined();
   });
 });

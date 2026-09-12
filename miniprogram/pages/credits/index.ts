@@ -55,12 +55,15 @@ Page({
       liveStatus:
         "首页 LIVE-A 当前为 REPRESENTATIVE（routeOverlay=false）：真像素标点由真人标注后升 CALIBRATED/VERIFIED，届时实景叠加才会启用；在此之前实景只展示照片本身（不做假路线）。",
     });
-    const vm = groups.reduce((acc, g) => {
-      if (g.items.length > 0) {
-        acc.push({ key: g.key, title: g.title, items: toItems(g) });
-      }
-      return acc;
-    }, [] as { key: string; title: string; items: ItemVM[] }[]);
+    const vm = groups.reduce(
+      (acc, g) => {
+        if (g.items.length > 0) {
+          acc.push({ key: g.key, title: g.title, items: toItems(g) });
+        }
+        return acc;
+      },
+      [] as { key: string; title: string; items: ItemVM[] }[],
+    );
     this.setData({
       groups: vm,
       total: vm.reduce((n, g) => n + g.items.length, 0),

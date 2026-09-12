@@ -51,8 +51,9 @@ describe("unlockedLibraryIds（探索记录 → 知识库解锁集合）", () =>
   });
 
   it("未映射到知识库的节点 id 被忽略；无记录返回空集", () => {
+    // summit-height 自 Long Run 起已映射 k31；改用仍无全局映射的节点验证「忽略」逻辑。
     const unlocked = unlockedLibraryIds(
-      [mkRecord({ knowledgeIds: ["summit-height"] })],
+      [mkRecord({ knowledgeIds: ["diving-history"] })],
       EXPLORATIONS,
     );
     expect(unlocked.size).toBe(0);

@@ -30,6 +30,9 @@ function visualDepsWithLiveA(): { deps: VisualResolveDeps } {
     assets: [
       {
         id: "live-a-real",
+        entityType: "expedition",
+        entityId: "everest",
+        purpose: "hero",
         title: "Everest Base Camp to Icefall view",
         description: "kunmb at base area, approved portrait derivative",
         kind: "photograph",
@@ -37,6 +40,7 @@ function visualDepsWithLiveA(): { deps: VisualResolveDeps } {
         license: "CC BY 4.0",
         credit: "Derived · Wikimedia Commons",
         sourceUrl: "https://commons.wikimedia.org/wiki/Everest",
+        geographicRole: "REPRESENTATIVE",
         reviewStatus: "approved",
       },
     ],
@@ -288,11 +292,15 @@ describe("validateVisualMode", () => {
       assets: [
         {
           id: "ok-img",
+          entityType: "expedition",
+          entityId: "everest",
+          purpose: "hero",
           title: "t",
           description: "d",
           kind: "photograph",
           localPath: "p.webp",
           license: "CC BY 4.0",
+          geographicRole: "REPRESENTATIVE",
           reviewStatus: "approved",
         },
       ],

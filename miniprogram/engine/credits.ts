@@ -113,9 +113,7 @@ export function buildCredits(input: CreditInput): CreditGroup[] {
       credit: credit || undefined,
       url: a.sourceUrl || "",
       kind: "asset",
-      note: a.sourceUrl
-        ? undefined
-        : "未登记出处链接（评审与测试均不应通过）",
+      note: a.sourceUrl ? undefined : "未登记出处链接（评审与测试均不应通过）",
     });
   }
   if (input.liveStatus) {
@@ -132,7 +130,11 @@ export function buildCredits(input: CreditInput): CreditGroup[] {
   for (const s of input.sources) {
     const role = sourceRole(s);
     const key: CreditGroupKey =
-      role === "科学地形（DEM）" ? "terrain" : role === "路线与坐标" ? "geometry" : "reference";
+      role === "科学地形（DEM）"
+        ? "terrain"
+        : role === "路线与坐标"
+          ? "geometry"
+          : "reference";
     groups[key].push({
       id: `source-${s.name.slice(0, 12)}-${s.url}`,
       name: s.name,

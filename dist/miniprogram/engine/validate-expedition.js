@@ -4,6 +4,7 @@ exports.validateRouteGeometryData = validateRouteGeometryData;
 exports.validateRouteIndex = validateRouteIndex;
 exports.validateCamera = validateCamera;
 exports.validateMediaManifest = validateMediaManifest;
+exports.validateCandidateMedia = validateCandidateMedia;
 exports.validateLiveCrop = validateLiveCrop;
 exports.validateLiveAnchors = validateLiveAnchors;
 exports.validateVisualMode = validateVisualMode;
@@ -173,11 +174,30 @@ const MEDIA_KINDS = [
     "diagram",
     "illustration",
     "video",
+    "satellite",
+    "scientific",
+    "terrain",
+];
+const MEDIA_ENTITY_TYPES = [
+    "place",
+    "knowledge",
+    "expedition",
+    "waypoint",
+    "stage",
+];
+const GEOGRAPHIC_ROLES = [
+    "EXACT",
+    "REPRESENTATIVE",
 ];
 const REVIEW_STATUSES = [
     "draft",
     "review",
     "approved",
+    "rejected",
+];
+const CANDIDATE_STATUSES = [
+    "draft",
+    "review",
     "rejected",
 ];
 function validateMediaManifest(m) {
@@ -199,8 +219,18 @@ function validateMediaManifest(m) {
             issue(issues, `media.assets[${i}].id`, `重复 ${a.id}`);
         else
             ids.add(a.id);
+        if (!a.entityType)
+            issue(issues, `media.assets[${i}].entityType`, "缺少 entityType");
+        else if (!MEDIA_ENTITY_TYPES.includes(a.entityType))
+            issue(issues, `media.assets[${i}].entityType`, `未知=${a.entityType}`);
+        if (!a.entityId)
+            issue(issues, `media.assets[${i}].entityId`, "缺少 entityId");
         if (!MEDIA_KINDS.includes(a.kind))
             issue(issues, `media.assets[${i}].kind`, `未知=${a.kind}`);
+        if (!a.geographicRole)
+            issue(issues, `media.assets[${i}].geographicRole`, "缺少 geographicRole");
+        else if (!GEOGRAPHIC_ROLES.includes(a.geographicRole))
+            issue(issues, `media.assets[${i}].geographicRole`, `非法=${a.geographicRole}（仅允许 EXACT / REPRESENTATIVE）`);
         if (!a.localPath)
             issue(issues, `media.assets[${i}].localPath`, "缺少 localPath");
         if (!a.license)
@@ -211,7 +241,52 @@ function validateMediaManifest(m) {
         else if (a.reviewStatus !== "approved") {
             issue(issues, `media.assets[${i}].reviewStatus`, "非 approved（正式清单仅收录批准项）", "warning");
         }
+        else {
+            /* approved 正式资产：出处必须齐全（本地文件 + 可溯源署名） */
+            if (!a.sourceUrl)
+                issue(issues, `media.assets[${i}].sourceUrl`, "approved 资产缺少 sourceUrl", "warning");
+            if (!a.attribution)
+                issue(issues, `media.assets[${i}].attribution`, "approved 资产缺少 attribution", "warning");
+        }
     });
+    return done(issues);
+}
+/**
+ * CandidateMediaAsset 校验：候选必须先说清“来自哪里”，但不要求已下载本地。
+ * 与 validateMediaManifest 的分工：候选允许 license 缺失（版权未确认），
+ * 不允许 approved 状态（approved 资产应晋升进正式清单）。
+ */
+function validateCandidateMedia(a) {
+    const issues = [];
+    if (!a) {
+        return done([{ level: "error", path: "candidate", message: "缺失" }]);
+    }
+    if (!a.id)
+        issue(issues, "candidate.id", "缺少 id");
+    if (!a.entityType)
+        issue(issues, "candidate.entityType", "缺少 entityType");
+    else if (!MEDIA_ENTITY_TYPES.includes(a.entityType))
+        issue(issues, "candidate.entityType", `未知=${a.entityType}`);
+    if (!a.entityId)
+        issue(issues, "candidate.entityId", "缺少 entityId");
+    if (!a.purpose)
+        issue(issues, "candidate.purpose", "缺少 purpose");
+    if (!a.title)
+        issue(issues, "candidate.title", "缺少 title");
+    if (!a.sourceUrl)
+        issue(issues, "candidate.sourceUrl", "缺少 sourceUrl");
+    if (!MEDIA_KINDS.includes(a.kind))
+        issue(issues, "candidate.kind", `未知=${a.kind}`);
+    if (!GEOGRAPHIC_ROLES.includes(a.geographicRole))
+        issue(issues, "candidate.geographicRole", `非法=${a.geographicRole}（仅允许 EXACT / REPRESENTATIVE）`);
+    if (!a.license)
+        issue(issues, "candidate.license", "license 未确认（待人工审核，禁止填占位假值）", "warning");
+    if (!CANDIDATE_STATUSES.includes(a.reviewStatus)) {
+        /* 运行时数据可能被手工写成 approved（类型层已排除），这里做防御性拦截 */
+        issue(issues, "candidate.reviewStatus", a.reviewStatus === "approved"
+            ? "候选不允许 approved（应晋升为正式 MediaAsset 进入清单）"
+            : `未知=${a.reviewStatus}`);
+    }
     return done(issues);
 }
 /* ------------------------------------------------------------------ */

@@ -1,0 +1,762 @@
+{
+  "generatedAt": "2026-09-12",
+  "screens": [
+    {
+      "world": "all",
+      "page": "home",
+      "waypoint": null,
+      "expectedTitle": "四世界入口卡（Everest/Mariana/Fuji/Colorado）",
+      "expectedMedia": [
+        "live-a-kala-patthar",
+        "m7-challenger-sonar",
+        "f1-yamanaka-view",
+        "c6-south-rim-panorama"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "无串景",
+        "卡片标题",
+        "点击进入正确场景"
+      ]
+    },
+    {
+      "world": "all",
+      "page": "map",
+      "waypoint": null,
+      "expectedTitle": "球体标记 + 图鉴",
+      "expectedMedia": [],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "四 marker 位置",
+        "Fuji≠Everest",
+        "Colorado≠Everest"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "place",
+      "waypoint": null,
+      "expectedTitle": "珠穆朗玛峰",
+      "expectedMedia": [
+        "live-a-kala-patthar"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "Hero 裁剪",
+        "探索 CTA"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "base-camp",
+      "expectedTitle": "南坡大本营",
+      "expectedMedia": [
+        "ev-terrain-base-camp"
+      ],
+      "expectedKnowledge": [
+        "khumbu-glacier"
+      ],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "khumbu-icefall",
+      "expectedTitle": "昆布冰瀑",
+      "expectedMedia": [
+        "ev-terrain-khumbu-icefall",
+        "ev-icefall-ladders"
+      ],
+      "expectedKnowledge": [
+        "khumbu-glacier"
+      ],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "camp-i",
+      "expectedTitle": "C1 营地",
+      "expectedMedia": [
+        "ev-terrain-camp-i"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "western-cwm-camp-ii",
+      "expectedTitle": "西库姆 · C2 营地",
+      "expectedMedia": [
+        "ev-terrain-western-cwm-camp-ii",
+        "ev-b1-western-cwm"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "lhotse-face-camp-iii",
+      "expectedTitle": "洛子壁 · C3 营地",
+      "expectedMedia": [
+        "ev-terrain-lhotse-face-camp-iii",
+        "ev-c1-yellow-band"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "south-col-camp-iv",
+      "expectedTitle": "南坳 · C4 营地",
+      "expectedMedia": [
+        "ev-terrain-south-col-camp-iv"
+      ],
+      "expectedKnowledge": [
+        "death-zone"
+      ],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "south-summit",
+      "expectedTitle": "南峰 · 最终雪脊",
+      "expectedMedia": [
+        "ev-terrain-south-summit"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "exploration",
+      "waypoint": "summit",
+      "expectedTitle": "珠峰峰顶",
+      "expectedMedia": [
+        "ev-terrain-summit"
+      ],
+      "expectedKnowledge": [
+        "summit-height"
+      ],
+      "specialChecks": [
+        "route/progress"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "place",
+      "waypoint": null,
+      "expectedTitle": "马里亚纳海沟",
+      "expectedMedia": [
+        "m7-challenger-sonar"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "Hero 裁剪",
+        "探索 CTA"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "surface-start",
+      "expectedTitle": "海面 · 出发",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "pressure"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "thermocline",
+      "expectedTitle": "温跃层",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "midnight-zone"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "twilight-end",
+      "expectedTitle": "微光带下界",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "bioluminescence",
+        "midnight-zone"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "deep-water",
+      "expectedTitle": "深层带水柱",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "abyss-zone"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "trench-rim",
+      "expectedTitle": "海沟坡",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "pressure",
+        "hadal-zone"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "bottom-approach",
+      "expectedTitle": "沟底接近段",
+      "expectedMedia": [
+        "m5-hirondellea"
+      ],
+      "expectedKnowledge": [
+        "pressure"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "exploration",
+      "waypoint": "challenger-bottom",
+      "expectedTitle": "挑战者深渊 · 坐底",
+      "expectedMedia": [
+        "m2-limiting-factor-bottom"
+      ],
+      "expectedKnowledge": [
+        "diving-history",
+        "challenger-deep"
+      ],
+      "specialChecks": [
+        "depth 语义",
+        "无图节点不空白"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "place",
+      "waypoint": null,
+      "expectedTitle": "富士山",
+      "expectedMedia": [
+        "f1-yamanaka-view"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "Hero 裁剪",
+        "探索 CTA"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "gogome",
+      "expectedTitle": "五合目 · 富士斯巴鲁线",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "trailhead-fifth-station"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "rokugome",
+      "expectedTitle": "六合目",
+      "expectedMedia": [
+        "f-forest-lower"
+      ],
+      "expectedKnowledge": [
+        "tree-line-volcano"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "nanagome",
+      "expectedTitle": "七合目",
+      "expectedMedia": [
+        "f-osunabashiri"
+      ],
+      "expectedKnowledge": [
+        "gravel-slope"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "hachigome",
+      "expectedTitle": "八合目",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "goraiko"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "hon-hachigome",
+      "expectedTitle": "本八合目",
+      "expectedMedia": [
+        "f-yoshida-huts",
+        "f5-navy-climb"
+      ],
+      "expectedKnowledge": [
+        "goraiko"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "kyugome",
+      "expectedTitle": "九合目",
+      "expectedMedia": [],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "exploration",
+      "waypoint": "kengamine",
+      "expectedTitle": "剑峰 · 日本最高点",
+      "expectedMedia": [
+        "f3-goraiko"
+      ],
+      "expectedKnowledge": [
+        "summit-crater",
+        "kengamine-3776"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "place",
+      "waypoint": null,
+      "expectedTitle": "科罗拉多大峡谷",
+      "expectedMedia": [
+        "c6-south-rim-panorama"
+      ],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "Hero 裁剪",
+        "探索 CTA"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "rim-trailhead",
+      "expectedTitle": "南缘 · 明亮天使步道口",
+      "expectedMedia": [
+        "c1-trailhead"
+      ],
+      "expectedKnowledge": [
+        "canyon-birth"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "mile-and-half",
+      "expectedTitle": "一英里半休息站",
+      "expectedMedia": [
+        "c-resthouse-15"
+      ],
+      "expectedKnowledge": [
+        "kaibab-age"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "three-mile",
+      "expectedTitle": "三英里休息站",
+      "expectedMedia": [
+        "c-resthouse-3mi"
+      ],
+      "expectedKnowledge": [
+        "kaibab-age"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "havasupai-gardens",
+      "expectedTitle": "哈瓦苏派花园",
+      "expectedMedia": [
+        "c-indian-garden"
+      ],
+      "expectedKnowledge": [
+        "tonto-platform"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "devils-corkscrew",
+      "expectedTitle": "魔鬼螺旋坡",
+      "expectedMedia": [
+        "c2-devils-corkscrew"
+      ],
+      "expectedKnowledge": [
+        "kaibab-age"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "river-side",
+      "expectedTitle": "科罗拉多河畔",
+      "expectedMedia": [
+        "c-river-nps"
+      ],
+      "expectedKnowledge": [
+        "inner-gorge-heat"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "exploration",
+      "waypoint": "phantom-ranch",
+      "expectedTitle": "幽灵牧场",
+      "expectedMedia": [
+        "c4-phantom-ranch"
+      ],
+      "expectedKnowledge": [
+        "powell-1869",
+        "river-confluence"
+      ],
+      "specialChecks": [
+        "无 Everest DEM"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k03",
+      "expectedTitle": "喜马拉雅是怎么长出来的？",
+      "expectedMedia": [
+        "k-subduction"
+      ],
+      "expectedKnowledge": [
+        "k03"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k11",
+      "expectedTitle": "地球最深的水在哪？",
+      "expectedMedia": [
+        "m1-gebco-bathymetry",
+        "m3-trieste-1960"
+      ],
+      "expectedKnowledge": [
+        "k11"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k31",
+      "expectedTitle": "1953 年首次登顶",
+      "expectedMedia": [
+        "k-hillary-tenzing"
+      ],
+      "expectedKnowledge": [
+        "k31"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k33",
+      "expectedTitle": "海洋的五个层带",
+      "expectedMedia": [
+        "m4-hadal-snailfish-map"
+      ],
+      "expectedKnowledge": [
+        "k33"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k34",
+      "expectedTitle": "深海生物为什么会发光？",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "k34"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k35",
+      "expectedTitle": "什么是复式火山？",
+      "expectedMedia": [
+        "f-cross-section"
+      ],
+      "expectedKnowledge": [
+        "k35"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k36",
+      "expectedTitle": "宝永大喷发：富士山的最后一次开口",
+      "expectedMedia": [
+        "f4-hoei-rim"
+      ],
+      "expectedKnowledge": [
+        "k36"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k37",
+      "expectedTitle": "大峡谷：一部地质「时间之书」",
+      "expectedMedia": [
+        "c3-kaibab-fossils"
+      ],
+      "expectedKnowledge": [
+        "k37"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k38",
+      "expectedTitle": "大不整合面：12 亿年的空白",
+      "expectedMedia": [
+        "c-vishnu-river"
+      ],
+      "expectedKnowledge": [
+        "k38"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k40",
+      "expectedTitle": "海雪：深渊的「食物快递」",
+      "expectedMedia": [
+        "k40-ifremer-snow"
+      ],
+      "expectedKnowledge": [
+        "k40"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k41",
+      "expectedTitle": "大峡谷的加州神鹫：从 27 只到重返天空",
+      "expectedMedia": [
+        "k-condor"
+      ],
+      "expectedKnowledge": [
+        "k41"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "knowledge",
+      "page": "knowledge-detail",
+      "waypoint": "k32",
+      "expectedTitle": "现代攀登",
+      "expectedMedia": [],
+      "expectedKnowledge": [
+        "k32"
+      ],
+      "specialChecks": [
+        "长中文滚动",
+        "图片高度",
+        "来源行"
+      ]
+    },
+    {
+      "world": "everest",
+      "page": "quiz",
+      "waypoint": null,
+      "expectedTitle": "观察珠穆朗玛峰地貌 随堂",
+      "expectedMedia": [],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "选择/反馈/完成"
+      ]
+    },
+    {
+      "world": "mariana",
+      "page": "quiz",
+      "waypoint": null,
+      "expectedTitle": "潜入马里亚纳海沟 随堂",
+      "expectedMedia": [],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "选择/反馈/完成"
+      ]
+    },
+    {
+      "world": "fuji",
+      "page": "quiz",
+      "waypoint": null,
+      "expectedTitle": "攀登富士山 随堂",
+      "expectedMedia": [],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "选择/反馈/完成"
+      ]
+    },
+    {
+      "world": "colorado",
+      "page": "quiz",
+      "waypoint": null,
+      "expectedTitle": "下切科罗拉多大峡谷 随堂",
+      "expectedMedia": [],
+      "expectedKnowledge": [],
+      "specialChecks": [
+        "选择/反馈/完成"
+      ]
+    }
+  ]
+}
