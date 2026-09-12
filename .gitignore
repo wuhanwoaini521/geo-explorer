@@ -43,6 +43,8 @@ images/
 project.private.config.json
 # py tool caches
 .ruff_cache/
+__pycache__/
+*.pyc
 # WeChat mini-program screenshots (generated, never committed)
 artifacts/visual/
 

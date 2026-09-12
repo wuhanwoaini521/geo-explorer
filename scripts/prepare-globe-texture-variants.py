@@ -11,7 +11,7 @@ from PIL import Image, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "miniprogram" / "assets" / "world" / "globe-texture-realistic-seamless-source.png"
+SOURCE = ROOT / "design" / "world" / "globe-texture-realistic-seamless-source.png"
 
 
 def build_variant(source: Image.Image, width: int, sharpen_radius: float, sharpen_percent: int) -> None:
