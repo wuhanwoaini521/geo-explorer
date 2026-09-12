@@ -82,7 +82,7 @@ export const FUJI: Exploration = {
     tags: ["火山", "复式火山", "世界遗产", "宝永喷发"],
   },
   palette: ["#3f74b0", "#93c3e6", "#eaf5ff"],
-  world: { style: "volcano" },
+  world: { style: "volcano", placeId: "p-fuji" },
   startElevation: 2305,
   maxElevation: 3776,
   estimatedMinutes: 8,

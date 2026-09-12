@@ -4,6 +4,7 @@
 import { KNOWLEDGE } from "../../data/knowledge";
 import { getKnowledgeProcess, processForTopic, type KnowledgeProcess } from "../../data/processes";
 import { getPlaceById, PLACE_TYPE_LABEL } from "../../data/places";
+import { knowledgeImages } from "../../utils/knowledge-media";
 import type { Knowledge } from "../../types/models";
 
 interface RelatedPlace {
@@ -21,6 +22,10 @@ Page({
     process: null as KnowledgeProcess | null,
     processIndex: 0,
     currentStep: null as KnowledgeProcess["steps"][number] | null,
+    /** 该知识的配图（实景优先）；点击可全屏预览，多图左右滑动看大图 */
+    images: [] as string[],
+    /** 主图解码失败 → 退回分类 emoji 占位 */
+    imageFailed: false,
   },
 
   onLoad(query: Record<string, string>) {
@@ -41,7 +46,15 @@ Page({
             shortDescription: p.shortDescription,
           }))
       : [];
-    this.setData({ item, relatedPlaces, process, processIndex: 0, currentStep: process?.steps[0] || null });
+    this.setData({
+      item,
+      relatedPlaces,
+      process,
+      processIndex: 0,
+      currentStep: process?.steps[0] || null,
+      images: item ? knowledgeImages(item) : [],
+      imageFailed: false,
+    });
     if (item) {
       wx.setNavigationBarTitle({ title: item.title });
     }
@@ -49,6 +62,25 @@ Page({
 
   onShow() {
     this.getTabBar?.()?.setData({ hidden: true });
+  },
+
+  /** 点击配图 → 全屏看大图（多张时可左右滑动切换）。 */
+  onPreviewImage() {
+    const urls = this.data.images.filter(Boolean);
+    if (!urls.length) return;
+    // SAFETY: 官方类型只覆盖本页用到的子集，先按方法名守卫再调用（同探索页地点卡）。
+    const preview = (wx as unknown as Record<string, unknown>)["previewImage"];
+    if (typeof preview === "function") {
+      (preview as (opts: { current: string; urls: string[] }) => void)({
+        current: urls[0],
+        urls,
+      });
+    }
+  },
+
+  onImageError() {
+    if (this.data.imageFailed) return;
+    this.setData({ imageFailed: true });
   },
 
   onOpenPlace(e: PageEvent) {

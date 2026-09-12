@@ -254,6 +254,11 @@ function resolveLiveOverlay(presentation, localProgress) {
 }
 /** §40：实景 info 一行文案（不写“精准路线”除非 VIEWED/已实调）。 */
 function liveSceneInfo(presentation) {
+    // 数据层声明的说明优先：非珠峰世界必须自带说明，
+    // 否则马里亚纳也会被标成「真实珠峰影像」。
+    const declared = presentation.scene && presentation.scene.infoText;
+    if (declared)
+        return declared;
     const cal = presentation.calibration;
     if (cal) {
         const s = cal.info.status;

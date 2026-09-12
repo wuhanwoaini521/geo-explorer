@@ -62,7 +62,7 @@ export const COLORADO: Exploration = {
     tags: ["世界之最", "河流侵蚀", "地质剖面", "科罗拉多河"],
   },
   palette: ["#3f7ec0", "#e0b478", "#a05a34"],
-  world: { style: "canyon" },
+  world: { style: "canyon", placeId: "p-colorado" },
   startElevation: 0,
   maxElevation: 1389,
   estimatedMinutes: 9,

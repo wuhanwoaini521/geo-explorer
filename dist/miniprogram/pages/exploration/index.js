@@ -91,6 +91,60 @@ const LANDFORM_LABELS = {
 function landformLabel(id, fallback = "地貌观察点") {
     return LANDFORM_LABELS[id] || fallback;
 }
+/**
+ * 动作文案：同一套沉浸机制在山岳是「攀登」、海洋是「下潜」、峡谷是「下切」。
+ * 具体动词由 ExpeditionAttachment.type 决定，不再对所有世界写死「攀登」。
+ */
+const EXPEDITION_ACTION = {
+    CLIMB: { verb: "攀登", ing: "攀登中" },
+    DIVE: { verb: "下潜", ing: "下潜中" },
+    CUTAWAY: { verb: "下切", ing: "下切中" },
+    TRAVERSE: { verb: "穿越", ing: "穿越中" },
+    FLYOVER: { verb: "飞越", ing: "飞越中" },
+};
+/** 终点文案：山岳是峰顶、海洋是海底、峡谷是谷底（模板与 HUD 共用）。 */
+const EXPEDITION_TERMINUS = {
+    CLIMB: {
+        label: "峰顶地貌",
+        top: "峰顶",
+        reached: "已抵达峰顶",
+        headline: "登顶成功",
+        kicker: "SUMMIT REACHED",
+        note: "你已抵达世界最高点",
+    },
+    DIVE: {
+        label: "海底地貌",
+        top: "海底",
+        reached: "已抵达海底",
+        headline: "深潜完成",
+        kicker: "BOTTOM REACHED",
+        note: "你已抵达海洋最深处",
+    },
+    CUTAWAY: {
+        label: "谷底地貌",
+        top: "谷底",
+        reached: "已抵达谷底",
+        headline: "下切完成",
+        kicker: "CANYON FLOOR REACHED",
+        note: "你已抵达峡谷最深处",
+    },
+    TRAVERSE: {
+        label: "终点地貌",
+        top: "终点",
+        reached: "已抵达终点",
+        headline: "穿越完成",
+        kicker: "ROUTE COMPLETE",
+        note: "你已抵达本次穿越终点",
+    },
+    FLYOVER: {
+        label: "终点地貌",
+        top: "终点",
+        reached: "已抵达终点",
+        headline: "观察完成",
+        kicker: "ROUTE COMPLETE",
+        note: "你已抵达本次观察终点",
+    },
+};
 function imageKindLabel(kind) {
     if (kind === "photo")
         return "现场照片";
@@ -346,13 +400,13 @@ function cloudSeaKey(kind, progress) {
         : "wisp";
 }
 /** 依据 进度/登顶态 生成场景图层（低频：阶段/雪量变化才换层；d 保留以备未来接入阶段氛围） */
-function buildScene(_d, progress, summitMode) {
+function buildScene(heroImage, _d, progress, summitMode) {
     // 8848.86：冲顶段渲染图 + 路线终点提示（旧峰顶全景插画已弃用）
     if (summitMode) {
         return {
             mode: "summit",
             plates: {
-                hero: EVEREST_CUSTOM_VISUAL,
+                hero: heroImage,
                 far: "",
                 main: "",
                 snow: "",
@@ -370,7 +424,7 @@ function buildScene(_d, progress, summitMode) {
     return {
         mode: "mnt",
         plates: {
-            hero: EVEREST_CUSTOM_VISUAL,
+            hero: heroImage,
             far: "",
             main: "",
             snow: "",
@@ -394,6 +448,17 @@ function buildScene(_d, progress, summitMode) {
 /** 视图分带（与 buildScene 同阈值）：0=A 远景，1=B 中景，2=C 冲顶 */
 function viewBand(progress) {
     return progress < 0.4 ? 0 : progress < 0.66 ? 1 : 2;
+}
+/**
+ * 非山岳世界的实景主视觉：从已晋升的地点 hero 资产解析（approved-only）。
+ * 山岳世界走 DEM 渲染，不在这里解析；无素材时返回空串，页面回退原 CSS 场景。
+ */
+function resolveWorldPhoto(ex) {
+    var _a;
+    const world = ex.world;
+    if (!world || world.style === "mountain" || !world.placeId)
+        return "";
+    return (_a = (0, world_manifests_1.getPlaceHeroImage)(world.placeId)) !== null && _a !== void 0 ? _a : "";
 }
 /* 界面文案 / 终点文案的兜底默认值（场景未声明时使用，措辞保持中性） */
 const DEFAULT_UI = {
@@ -444,6 +509,8 @@ Page({
         metricsOpen: false,
         worldMountain: false,
         worldOcean: false,
+        // 非山岳世界：实景主视觉（approved hero）；空串时回退原 CSS 渐变场景
+        worldPhoto: "",
         scene: SCENE_DEFAULT,
         mntScale: 100,
         // Gate 3.2/3.4：垂向缩放系数（把照片底部 DEM 山体带映射为整屏主体，下锚缩放）。
@@ -512,9 +579,11 @@ Page({
             biome: "",
             emoji: "",
         },
-        // Gate 3.4：攀登交互反馈（活动动画期间禁用重复触发，按钮文案随阶段变化）
+        // Gate 3.4：交互反馈（活动动画期间禁用重复触发，按钮文案随阶段变化）
         expClimbing: false,
         expClimbLabel: "攀登",
+        /** 终点文案（峰顶/海底/谷底），由世界类型决定 */
+        expTerminus: EXPEDITION_TERMINUS.CLIMB,
         expMoving: false,
         expMotionText: "",
         // 里程碑穿越（事件只触发一次；克制横幅复用 stage-banner 样式）
@@ -553,6 +622,10 @@ Page({
     },
     // ---- 内部实例状态（不参与渲染） ----
     exploration: null,
+    /** 该场景的主视觉资产：非珠峰世界用自己的实景照片，避免回落到珠峰渲染图 */
+    expeditionHeroImage: EVEREST_CUSTOM_VISUAL,
+    /** 该场景的动作动词（攀登 / 下潜 / 下切），由 ExpeditionAttachment.type 决定 */
+    expeditionVerb: { verb: "攀登", ing: "攀登中" },
     routeMode: false,
     expeditionCore: null,
     /** 山体路径投影配置（ExpeditionAttachment.routePath；无则不画山体路线） */
@@ -627,7 +700,7 @@ Page({
     celebrationTimer: null,
     /* ---------------- 生命周期 ---------------- */
     onLoad(query) {
-        var _a, _b, _c, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _e, _f, _g, _h, _j, _k, _l, _m, _o;
         this.installMotionAudit();
         this.refreshSafeArea();
         const id = (query && query.id) || "";
@@ -656,15 +729,20 @@ Page({
         this.routeGeometryKey = "";
         this.autoOpenedWaypoints = [];
         this.exploration = exploration;
+        // 主视觉跟随该世界的 routePath（非珠峰世界是实景照片，珠峰是自制 DEM 渲染图）
+        this.expeditionHeroImage =
+            (expedition && expedition.routePath && expedition.routePath.default.image) ||
+                EVEREST_CUSTOM_VISUAL;
+        this.expeditionVerb = (_e = EXPEDITION_ACTION[(_c = expedition === null || expedition === void 0 ? void 0 : expedition.type) !== null && _c !== void 0 ? _c : "CLIMB"]) !== null && _e !== void 0 ? _e : EXPEDITION_ACTION.CLIMB;
         // 地点内容索引：路线模式的 waypoint 位置来自山体路径，内容仍来自场景数据
         const routeContent = new Map();
         const routeWaypoints = (exploration.route && exploration.route.waypoints) || [];
         routeWaypoints.forEach((waypoint) => routeContent.set(waypoint.id, waypoint));
         this.routeContent = routeContent;
         // Gate 3.3C：Dual Visual Mode 会话初始化（无视觉配置的旧场景如 Mariana 保持 TERRAIN）
-        this.visualConfig = (_c = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) !== null && _c !== void 0 ? _c : null;
-        this.visualMedia = (_e = expedition === null || expedition === void 0 ? void 0 : expedition.media) !== null && _e !== void 0 ? _e : null;
-        this.visMode = (_g = (_f = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) === null || _f === void 0 ? void 0 : _f.defaultMode) !== null && _g !== void 0 ? _g : "TERRAIN";
+        this.visualConfig = (_f = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) !== null && _f !== void 0 ? _f : null;
+        this.visualMedia = (_g = expedition === null || expedition === void 0 ? void 0 : expedition.media) !== null && _g !== void 0 ? _g : null;
+        this.visMode = (_j = (_h = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) === null || _h === void 0 ? void 0 : _h.defaultMode) !== null && _j !== void 0 ? _j : "TERRAIN";
         this.visMountedSrc = "";
         this.visBroken = false;
         this.visLiveNoted = false;
@@ -718,13 +796,16 @@ Page({
             metaPlace: exploration.meta.placeLabel,
             metaRegion: exploration.meta.region,
             // 路线副标题由场景数据提供（不再硬编码珠峰路线名）
-            routeSub: (_j = (_h = exploration.route) === null || _h === void 0 ? void 0 : _h.name) !== null && _j !== void 0 ? _j : exploration.meta.typeLabel,
+            routeSub: (_l = (_k = exploration.route) === null || _k === void 0 ? void 0 : _k.name) !== null && _l !== void 0 ? _l : exploration.meta.typeLabel,
             estMinutes: exploration.estimatedMinutes,
             metaDesc: exploration.meta.description,
             ui: { ...DEFAULT_UI, ...(exploration.ui || {}) },
             destination: exploration.destination || DEFAULT_DESTINATION,
-            // Relay 模式：路由 HUD 初始态
+            // Relay 模式：路由 HUD 初始态（动作文案必须先按世界类型初始化，
+            // 不能只依赖 updateClimbUi——它要等用户动手才会被调用，首帧会显示硬编码的「攀登」）
             routeMode: this.routeMode,
+            expClimbLabel: this.expeditionVerb.verb,
+            expTerminus: (_o = EXPEDITION_TERMINUS[(_m = expedition === null || expedition === void 0 ? void 0 : expedition.type) !== null && _m !== void 0 ? _m : "CLIMB"]) !== null && _o !== void 0 ? _o : EXPEDITION_TERMINUS.CLIMB,
             // Gate 3.3C.1：请求 = 默认模式；首帧 sync 会把 active 纠正为实际渲染
             visMode: this.visMode,
             visActive: this.visMode,
@@ -733,8 +814,13 @@ Page({
             expedition: emptyExpeditionView(),
             expDeathZone: false,
             expSummit: null,
-            worldMountain: (exploration.world && exploration.world.style === "mountain") || false,
+            // 有 Expedition 附件（routePath）的世界同样走沉浸式地形分支：非山岳世界借此
+            // 复用相机推进、贴画面路线与实景/DEM 切换，而不是停留在抽象 CSS 场景。
+            worldMountain: (exploration.world && exploration.world.style === "mountain") ||
+                Boolean(expedition && expedition.routePath),
             worldOcean: (exploration.world && exploration.world.style === "ocean") || false,
+            // 非山岳世界：实景照片替代抽象 CSS 场景（2026-09-12 用户反馈）
+            worldPhoto: resolveWorldPhoto(exploration),
             // 海洋世界：一次性生成上浮气泡（低频，不复位）
             bubbles: (exploration.world && exploration.world.style === "ocean") || false
                 ? buildParticles(10)
@@ -1148,7 +1234,7 @@ Page({
                 ? (0, expedition_observation_1.formatObservationElevation)(drive.summitRefM, (_b = (_a = this.expeditionCore) === null || _a === void 0 ? void 0 : _a.maxElevation) !== null && _b !== void 0 ? _b : drive.summitRefM)
                 : (0, expedition_observation_1.formatObservationElevation)(drive.refM, (_e = (_c = this.expeditionCore) === null || _c === void 0 ? void 0 : _c.maxElevation) !== null && _e !== void 0 ? _e : drive.refM),
             prevName: drive.prev ? drive.prev.name : "—",
-            nextName: drive.next ? drive.next.name : "已抵达峰顶",
+            nextName: drive.next ? drive.next.name : this.data.expTerminus.reached,
             nextLandform: drive.next
                 ? landformLabel(drive.next.id, drive.next.name)
                 : "雪峰顶部",
@@ -1212,9 +1298,13 @@ Page({
                 altitudeText: (0, format_1.formatNumber)(drive.summitRefM, 2), // 唯一峰顶展示：8,848.86
                 latText: drive.lat.toFixed(4),
                 lonText: drive.lon.toFixed(4),
-                note: "你已抵达世界最高点",
+                note: this.data.expTerminus.note,
             },
             summaryStats: this.computeSummary(),
+            // 到达终点后收束途中反馈，避免普通“发现知识”卡和阶段横幅继续压住峰顶主视觉。
+            hint: { show: false, text: "" },
+            stageBanner: { show: false, title: "", biome: "", emoji: "" },
+            milestoneBanner: { show: false, title: "", biome: "", emoji: "" },
         });
         this.persistProgress();
     },
@@ -1574,7 +1664,7 @@ Page({
             nextCache.sceneKey = sKey;
             if (cache.sceneKey !== sKey) {
                 patch.scene = this.data.worldMountain
-                    ? buildScene(d, progress, summitMode)
+                    ? buildScene(this.expeditionHeroImage, d, progress, summitMode)
                     : SCENE_DEFAULT;
             }
         }
@@ -1732,7 +1822,7 @@ Page({
         if (this.motionAudit.active)
             this.motionAudit.frameCount += 1;
         if (frame.phase === "climbing") {
-            this.updateClimbUi(frame.phase, "攀登中");
+            this.updateClimbUi(frame.phase, this.expeditionVerb.ing);
             return;
         }
         if (frame.phase === "arrived") {
@@ -1749,7 +1839,7 @@ Page({
             }, 1400);
             return;
         }
-        this.updateClimbUi(frame.phase, frame.phase === "settling" ? "就位" : "攀登");
+        this.updateClimbUi(frame.phase, frame.phase === "settling" ? "就位" : this.expeditionVerb.verb);
     },
     /** 攀登 UI 只在阶段变化时 setData（避免每 tick 推送重复值） */
     updateClimbUi(phase, label) {
@@ -1758,16 +1848,17 @@ Page({
             return;
         cache.climbUi = phase;
         const climbing = phase === "climbing" || phase === "settling";
-        // 静止态按当前位置给按钮文案：起点「攀登」→ 途中「继续攀登」→ 终点「已到达」（§40）
+        // 静止态按当前位置给按钮文案：起点「攀登/下潜」→ 途中「继续…」→ 终点「已到达」（§40）
+        const verb = this.expeditionVerb.verb;
         const resting = this.current > 0.999
             ? "已到达"
             : this.current > 1e-4
-                ? "继续攀登"
-                : "攀登";
+                ? `继续${verb}`
+                : verb;
         this.setData({
             expClimbing: climbing,
             expClimbLabel: climbing
-                ? (label !== null && label !== void 0 ? label : (phase === "climbing" ? "攀登中" : "就位"))
+                ? (label !== null && label !== void 0 ? label : (phase === "climbing" ? this.expeditionVerb.ing : "就位"))
                 : resting,
         });
     },
@@ -1869,7 +1960,7 @@ Page({
             const toM = this.nextNodeDistanceM(1);
             if (toM === null || toM - fromM < 1) {
                 if (this.data.expedition.atSummit) {
-                    wx.showToast({ title: "已抵达峰顶", icon: "none" });
+                    wx.showToast({ title: this.data.expTerminus.reached, icon: "none" });
                 }
                 return;
             }
@@ -1936,7 +2027,10 @@ Page({
             return;
         }
         if (!point.desc) {
-            wx.showToast({ title: `${point.name} · 继续攀登探索`, icon: "none" });
+            wx.showToast({
+                title: `${point.name} · 继续${this.expeditionVerb.verb}探索`,
+                icon: "none",
+            });
             return;
         }
         // Gate 6：运行时媒体（MediaRegistry）优先；未登记实体回退 legacy images[]。
@@ -1960,6 +2054,7 @@ Page({
                 landform: landformLabel(point.id, point.name),
                 altitudeText: waypointElevText(point, this.data.ui.axisUnit),
                 desc: point.desc,
+                whatToNotice: point.whatToNotice,
                 detail: point.detail,
                 facts: point.facts || [],
                 images,
@@ -2009,7 +2104,8 @@ Page({
             altitudeText: `${(0, expedition_observation_1.formatObservationElevation)(milestone.refM, core.maxElevation)} m`,
             desc: unlocked
                 ? (content && content.desc) || "这里是一处值得观察的高山地貌。"
-                : "继续攀登至此处，即可解锁这个地点的实景图与知识。",
+                : `继续${this.expeditionVerb.verb}至此处，即可解锁这个地点的实景图与知识。`,
+            whatToNotice: unlocked && content ? content.whatToNotice : undefined,
             detail: unlocked && content ? content.detail : undefined,
             detailOpen: false,
             facts: unlocked && content && content.facts ? content.facts : [],
@@ -2109,7 +2205,7 @@ Page({
         const ex = this.exploration;
         const node = ex && ex.knowledgeNodes.find((n) => n.id === card.knowledgeId);
         if (!node || !this.discovered.has(node.id)) {
-            wx.showToast({ title: "继续攀登以解锁该知识", icon: "none" });
+            wx.showToast({ title: `继续${this.expeditionVerb.verb}以解锁该知识`, icon: "none" });
             return;
         }
         this.setData({ waypointCard: null, openNode: node, hint: { show: false, text: "" } });

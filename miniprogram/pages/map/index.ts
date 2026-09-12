@@ -22,10 +22,12 @@ import { favorites } from "../../services/favorites-store";
 import type { Place, PlaceType } from "../../types/models";
 import { queryPlaces } from "../../utils/place-search";
 import { GlobeRenderer, type GlobeVariant } from "../../engine/globe-renderer";
+import { markerScreenPercent } from "../../engine/globe-marker-projection";
 import {
   WebGLGlobeRenderer,
   type GlobeProjectionListener,
   type GlobeRenderOptions,
+  type ProjectedGlobeMarker,
 } from "../../engine/webgl-globe-renderer";
 
 /** 预告场景（尚未提供体验数据的路线占位） */
@@ -107,6 +109,7 @@ interface WorldMarker {
   screenTop: number;
   screenOpacity: number;
   screenVisible: boolean;
+  labelPlacement: "left" | "center" | "right";
   explorationId?: string;
   featured: boolean;
   state?: "normal" | "explored";
@@ -124,6 +127,27 @@ interface DestinationPreview {
   actionLabel: string;
   image: string;
   explorationId?: string;
+}
+
+interface GlobeLabelContext {
+  fillStyle: string;
+  font: string;
+  globalAlpha: number;
+  textAlign: "left" | "center" | "right";
+  textBaseline: "top" | "middle" | "bottom" | "alphabetic";
+  clearRect(x: number, y: number, width: number, height: number): void;
+  fillRect(x: number, y: number, width: number, height: number): void;
+  fillText(text: string, x: number, y: number): void;
+  measureText(text: string): { width: number };
+  save(): void;
+  restore(): void;
+  scale(x: number, y: number): void;
+}
+
+interface GlobeLabelCanvas {
+  width: number;
+  height: number;
+  getContext(type: "2d"): GlobeLabelContext;
 }
 
 const COMING: ComingScene[] = [
@@ -158,7 +182,15 @@ type GlobeController = Pick<GlobeRenderer, "setMarkers" | "setSelected" | "start
 
 let webglRenderer: WebGLGlobeRenderer | null = null;
 let canvasRenderer: GlobeRenderer | null = null;
-let globeTouch: { x: number; y: number; moved: boolean; velocityX: number; velocityY: number } | null = null;
+let globeTouch: {
+  x: number;
+  y: number;
+  startX: number;
+  startY: number;
+  moved: boolean;
+  velocityX: number;
+  velocityY: number;
+} | null = null;
 let globeVariant: GlobeVariant = "half";
 let initialSelectedId = "";
 let initialQuery = "";
@@ -173,9 +205,23 @@ let forceCanvas = false;
 let globeBumpEnabled = true;
 let globeAtmosphereEnabled = true;
 let globeTextureScale: 2048 | 4096 = 2048;
+let globeLabelContext: GlobeLabelContext | null = null;
+let globeLabelWidth = 0;
+let globeLabelHeight = 0;
+let latestGlobeProjections: ProjectedGlobeMarker[] = [];
 
 function activeGlobeRenderer(): GlobeController | null {
   return webglRenderer ?? canvasRenderer;
+}
+
+function mapHeaderTop(): number {
+  const runtime = wx as unknown as {
+    getSystemInfoSync?: () => { statusBarHeight?: number };
+    getMenuButtonBoundingClientRect?: () => { bottom?: number };
+  };
+  const statusBarHeight = runtime.getSystemInfoSync?.().statusBarHeight ?? 20;
+  const menuBottom = runtime.getMenuButtonBoundingClientRect?.().bottom ?? statusBarHeight + 32;
+  return Math.ceil(Math.max(statusBarHeight + 12, menuBottom + 10));
 }
 
 function placeImage(place: Place): string {
@@ -212,6 +258,7 @@ function worldMarker(place: Place): WorldMarker {
     screenTop: top,
     screenOpacity: 1,
     screenVisible: true,
+    labelPlacement: left < 24 ? "right" : left > 76 ? "left" : "center",
     explorationId: place.explorationId,
     featured: Boolean(place.featured || place.explorationId),
     state: place.explorationId && getRecords().some((record) => record.id === place.explorationId && record.completed)
@@ -275,9 +322,11 @@ Page({
     webglFailed: false,
     globeEarthOnly: false,
     globeFailed: false,
+    headerTop: 62,
   },
 
   onLoad(options?: { globe?: string; selected?: string; q?: string; type?: string; bump?: string; atmosphere?: string; texture?: string }) {
+    this.setData({ headerTop: mapHeaderTop() });
     globeMode = options?.globe ?? "";
     globeVariant = globeMode === "third" ? "third" : globeMode === "low" ? "low" : "half";
     globeEarthOnly = globeMode === "earth-only" || globeMode === "no-bump" || globeMode === "with-bump" || globeMode === "no-atmosphere" || globeMode === "subtle-atmosphere" || globeMode.startsWith("variant-");
@@ -323,6 +372,13 @@ Page({
     if (Object.keys(patch).length) this.setData(patch);
     this.refreshScenes();
     this.refreshAtlas();
+    // 首页分类/搜索入口跳转过来的意图是「看筛选结果」。筛选此前确实生效了，
+    // 但结果只在图鉴抽屉里渲染，不自动打开的话用户只看到地球，等同于点了没反应。
+    // 走 onToggleAtlas 而不是直接 setData：它同时负责停掉地球渲染并卸载 canvas 节点。
+    if (!this.data.atlasOpen && (pending !== null || pendingQuery !== null)) {
+      this.onToggleAtlas();
+      return;
+    }
     if (!this.data.atlasOpen) {
       activeGlobeRenderer()?.resumeRotation();
       activeGlobeRenderer()?.start();
@@ -344,6 +400,10 @@ Page({
     globeCanvasOffsetY = 0;
     globeCanvasWidth = 0;
     globeCanvasHeight = 0;
+    globeLabelContext = null;
+    globeLabelWidth = 0;
+    globeLabelHeight = 0;
+    latestGlobeProjections = [];
   },
 
   initGlobe() {
@@ -355,17 +415,24 @@ Page({
     try {
       wx.createSelectorQuery()
         .select("#globeWebglCanvas")
-        .fields({ node: true, size: true })
+        .fields({ node: true, size: true, rect: true })
         .exec((result) => {
-          const canvasInfo = result[0] as { node?: unknown; width?: number; height?: number } | undefined;
+          const canvasInfo = result[0] as {
+            node?: unknown;
+            width?: number;
+            height?: number;
+            left?: number;
+            top?: number;
+          } | undefined;
           if (!canvasInfo?.node || !canvasInfo.width || !canvasInfo.height) {
             this.setData({ webglFailed: true }, () => this.initCanvasFallback());
             return;
           }
           globeCanvasWidth = canvasInfo.width;
           globeCanvasHeight = canvasInfo.height;
-          globeCanvasOffsetX = 0;
-          globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
+          globeCanvasOffsetX = canvasInfo.left ?? 0;
+          globeCanvasOffsetY = canvasInfo.top
+            ?? (globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750);
           try {
             const variantMode = this.data.globeEarthOnly ? "earth-only" : "default";
             const renderOptions: GlobeRenderOptions = {
@@ -386,23 +453,37 @@ Page({
               renderOptions,
             );
             const projectionListener: GlobeProjectionListener = (projections) => {
+              latestGlobeProjections = projections;
+              this.drawGlobeLabels(projections);
               if (!this.data.worldMarkers.length || !globeCanvasWidth || !globeCanvasHeight) return;
               const projectionById = new Map(projections.map((projection) => [projection.id, projection]));
               const worldMarkers = this.data.worldMarkers.map((marker) => {
                 const projection = projectionById.get(marker.id);
                 if (!projection) return marker;
+                // X/Y 必须同基准（承载标记的容器）。此前高度误用整屏高度，
+                // 标记会整体上移、脱离球面飘到太空里。
+                const percent = markerScreenPercent(projection.screenX, projection.screenY, {
+                  width: system.windowWidth,
+                  height: system.windowHeight,
+                  offsetX: globeCanvasOffsetX,
+                  offsetY: globeCanvasOffsetY,
+                });
                 return {
                   ...marker,
-                  screenLeft: ((projection.screenX + globeCanvasOffsetX) / globeCanvasWidth) * 100,
-                  screenTop: ((projection.screenY + globeCanvasOffsetY) / Math.max(1, system.screenHeight)) * 100,
+                  screenLeft: percent.left,
+                  screenTop: percent.top,
                   screenOpacity: projection.opacity,
                   screenVisible: projection.visible,
+                  labelPlacement: percent.left < 24
+                    ? "right"
+                    : percent.left > 76 ? "left" : "center",
                 };
               });
               this.setData({ worldMarkers });
             };
             webglRenderer.setProjectionListener(projectionListener);
             webglRenderer.setMarkers(this.data.worldMarkers);
+            this.initGlobeLabelLayer();
             const initialPlace = PLACES.find((place) => place.id === initialSelectedId);
             if (initialPlace) this.focusGlobePlace(initialPlace);
             else if (initialQuery) this.focusGlobeQuery(initialQuery);
@@ -423,17 +504,24 @@ Page({
     try {
       wx.createSelectorQuery()
         .select("#globeCanvas")
-        .fields({ node: true, size: true })
+        .fields({ node: true, size: true, rect: true })
         .exec((result) => {
-          const canvasInfo = result[0] as { node?: unknown; width?: number; height?: number } | undefined;
+          const canvasInfo = result[0] as {
+            node?: unknown;
+            width?: number;
+            height?: number;
+            left?: number;
+            top?: number;
+          } | undefined;
           if (!canvasInfo?.node || !canvasInfo.width || !canvasInfo.height) {
             this.setData({ globeFailed: true });
             return;
           }
           globeCanvasWidth = canvasInfo.width;
           globeCanvasHeight = canvasInfo.height;
-          globeCanvasOffsetX = 0;
-          globeCanvasOffsetY = globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750;
+          globeCanvasOffsetX = canvasInfo.left ?? 0;
+          globeCanvasOffsetY = canvasInfo.top
+            ?? (globeEarthOnly || initialSelectedId || initialQuery ? 0 : system.windowWidth * 208 / 750);
           try {
             canvasRenderer = new GlobeRenderer(
               canvasInfo.node as ConstructorParameters<typeof GlobeRenderer>[0],
@@ -453,6 +541,83 @@ Page({
     } catch {
       this.setData({ globeFailed: true });
     }
+  },
+
+  initGlobeLabelLayer() {
+    try {
+      wx.createSelectorQuery()
+        .select("#globeLabelCanvas")
+        .fields({ node: true, size: true })
+        .exec((result) => {
+          const canvasInfo = result[0] as {
+            node?: GlobeLabelCanvas;
+            width?: number;
+            height?: number;
+          } | undefined;
+          if (!canvasInfo?.node || !canvasInfo.width || !canvasInfo.height) return;
+          const pixelRatio = Math.max(1, wx.getSystemInfoSync().pixelRatio);
+          canvasInfo.node.width = Math.round(canvasInfo.width * pixelRatio);
+          canvasInfo.node.height = Math.round(canvasInfo.height * pixelRatio);
+          const context = canvasInfo.node.getContext("2d");
+          context.scale(pixelRatio, pixelRatio);
+          globeLabelContext = context;
+          globeLabelWidth = canvasInfo.width;
+          globeLabelHeight = canvasInfo.height;
+          this.drawGlobeLabels(latestGlobeProjections);
+        });
+    } catch {
+      globeLabelContext = null;
+    }
+  },
+
+  drawGlobeLabels(projections: ProjectedGlobeMarker[] = latestGlobeProjections) {
+    const context = globeLabelContext;
+    if (!context || !globeLabelWidth || !globeLabelHeight) return;
+    context.clearRect(0, 0, globeLabelWidth, globeLabelHeight);
+    const markerById = new Map(this.data.worldMarkers.map((marker) => [marker.id, marker]));
+    projections
+      .filter((projection) => projection.visible && projection.opacity > 0.2)
+      .sort((a, b) => a.z - b.z)
+      .forEach((projection) => {
+        const marker = markerById.get(projection.id);
+        if (!marker) return;
+        const selected = marker.id === this.data.selectedMarkerId;
+        const title = marker.name;
+        const meta = `${marker.typeLabel} · ${marker.metricText}`;
+        context.save();
+        context.globalAlpha = selected ? 1 : Math.max(0.58, projection.opacity);
+        context.font = selected ? "700 13px sans-serif" : "600 12px sans-serif";
+        const titleWidth = context.measureText(title).width;
+        context.font = "500 10px sans-serif";
+        const metaWidth = context.measureText(meta).width;
+        const labelWidth = Math.min(168, Math.max(92, Math.max(titleWidth, metaWidth) + 22));
+        const labelHeight = selected ? 39 : 36;
+        const placeLeft = projection.screenX > globeLabelWidth * 0.64;
+        const left = Math.max(
+          8,
+          Math.min(
+            globeLabelWidth - labelWidth - 8,
+            placeLeft ? projection.screenX - labelWidth - 14 : projection.screenX + 14,
+          ),
+        );
+        const top = Math.max(
+          8,
+          Math.min(globeLabelHeight - labelHeight - 8, projection.screenY - labelHeight / 2),
+        );
+        context.fillStyle = selected ? "rgba(44, 24, 27, .96)" : "rgba(3, 21, 35, .92)";
+        context.fillRect(left, top, labelWidth, labelHeight);
+        context.fillStyle = selected ? "#ff8264" : "#66e4ef";
+        context.fillRect(placeLeft ? left + labelWidth - 3 : left, top, 3, labelHeight);
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.font = selected ? "700 13px sans-serif" : "600 12px sans-serif";
+        context.fillStyle = "#f4fbff";
+        context.fillText(title, left + 11, top + 5);
+        context.font = "500 10px sans-serif";
+        context.fillStyle = "#91d5e7";
+        context.fillText(meta, left + 11, top + 21);
+        context.restore();
+      });
   },
 
   syncGlobeMarkers() {
@@ -656,6 +821,23 @@ Page({
     });
   },
 
+  /**
+   * 推荐卡点击：直接进入对应体验（可探索 → 探索页，否则 → 地点详情）。
+   * 此前推荐卡绑的是 onMapPointTap，只会选中地球并弹出预览卡，
+   * 卡片上的「开始攀登 / 开始下潜」点了没有下文。
+   */
+  onOpenRecommendation(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    const place = PLACES.find((item) => item.id === id);
+    if (!place) return;
+    if (place.explorationId) {
+      wx.navigateTo({ url: `/pages/exploration/index?id=${place.explorationId}` });
+      return;
+    }
+    wx.navigateTo({ url: `/pages/place/index?id=${place.id}` });
+  },
+
   onDestinationTap(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     const place = PLACES.find((item) => item.id === id);
@@ -677,23 +859,36 @@ Page({
     this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
     globeCanvasOffsetX = 0;
     activeGlobeRenderer()?.setSelected(null);
+    this.drawGlobeLabels();
   },
 
   globeTouchPoint(e: PageEvent): { x: number; y: number } | null {
     const detailX = e.detail?.x;
     const detailY = e.detail?.y;
     if (typeof detailX === "number" && typeof detailY === "number") {
-      return { x: detailX - globeCanvasOffsetX, y: detailY };
+      // 自动化与 Canvas 自身的 detail 坐标已经是渲染器局部坐标。
+      return { x: detailX, y: detailY };
     }
     const touch = e.touches?.[0] ?? e.changedTouches?.[0];
     if (!touch) return null;
-    return { x: (touch.x ?? touch.clientX) - globeCanvasOffsetX, y: touch.y ?? touch.clientY };
+    // cover-view 触摸坐标以页面视口为基准，必须同时扣除 Canvas 的真实 left/top。
+    return {
+      x: touch.clientX - globeCanvasOffsetX,
+      y: touch.clientY - globeCanvasOffsetY,
+    };
   },
 
   onGlobeTouchStart(e: PageEvent) {
     const point = this.globeTouchPoint(e);
     if (!point) return;
-    globeTouch = { ...point, moved: false, velocityX: 0, velocityY: 0 };
+    globeTouch = {
+      ...point,
+      startX: point.x,
+      startY: point.y,
+      moved: false,
+      velocityX: 0,
+      velocityY: 0,
+    };
     activeGlobeRenderer()?.pauseRotation();
   },
 
@@ -704,7 +899,9 @@ Page({
     const deltaY = point.y - globeTouch.y;
     if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
       activeGlobeRenderer()?.dragBy(deltaX, deltaY);
-      globeTouch.moved = globeTouch.moved || Math.hypot(deltaX, deltaY) > 7;
+      // 用整段手势位移判定拖动，避免慢速拖动因每一帧位移不足阈值而被误判为点击。
+      globeTouch.moved = globeTouch.moved
+        || Math.hypot(point.x - globeTouch.startX, point.y - globeTouch.startY) > 6;
       globeTouch.velocityX = deltaX;
       globeTouch.velocityY = deltaY;
       globeTouch.x = point.x;
@@ -726,6 +923,13 @@ Page({
     }
   },
 
+  onGlobeTouchCancel() {
+    const touch = globeTouch;
+    globeTouch = null;
+    if (touch?.moved) activeGlobeRenderer()?.release(touch.velocityX, touch.velocityY);
+    else activeGlobeRenderer()?.resumeRotation();
+  },
+
   openGlobeMarker(id: string) {
     const place = PLACES.find((item) => item.id === id);
     if (!place) return;
@@ -733,7 +937,9 @@ Page({
   },
 
   focusGlobePlace(place: Place) {
-    this.setData({ selectedDestination: destinationPreview(place), selectedMarkerId: place.id });
+    this.setData({ selectedDestination: destinationPreview(place), selectedMarkerId: place.id }, () => {
+      this.drawGlobeLabels();
+    });
     globeCanvasOffsetX = 0;
     activeGlobeRenderer()?.setSelected(place.id);
     activeGlobeRenderer()?.focusOnMarker(place.id);

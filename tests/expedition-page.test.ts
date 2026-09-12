@@ -139,6 +139,7 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(card.altitudeText).toBe("6,065 m");
     expect(card.landform).toBe("冰川谷地");
     expect(card.terrain).toBeTruthy();
+    expect(card.whatToNotice).toBeTruthy();
     expect(card.facts.length).toBeGreaterThan(0);
     expect(card.image).toBe("/assets/expeditions/everest/waypoints/camp-i.jpg");
     expect(card.images.length).toBe(1);
@@ -233,6 +234,11 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(data.expSummit.latText.length).toBeGreaterThan(3);
     expect(data.expSummit.lonText.length).toBeGreaterThan(3);
     expect(data.expSummit.note).toContain("世界最高点");
+    expect(data.expTerminus.headline).toBe("登顶成功");
+    expect(data.expTerminus.kicker).toBe("SUMMIT REACHED");
+    expect(data.hint.show).toBe(false);
+    expect(data.stageBanner.show).toBe(false);
+    expect(data.milestoneBanner.show).toBe(false);
     // 旧大屏/庆祝标志绝不被置起（峰顶地形优先）
     expect(data.summit).toBe(false);
     expect(data.celebration).toBe(false);
@@ -351,27 +357,67 @@ describe("探索页路线模式（Everest V2）", () => {
   });
 });
 
-/* ---------------- Mariana（无 Expedition 附件）：旧探索兼容 ---------------- */
-describe("Mariana 兼容（无 V2 附件）", () => {
-  it("onLoad(id=mariana)：停留在旧海拔模式", () => {
+/**
+ * 契约变更（2026-09-12）：马里亚纳此前被明确列为「无 V2 附件的旧海拔轴场景」，
+ * 用户要求非珠峰世界也具备真实下潜效果后，它已接入 Expedition 附件。
+ * 这里断言新契约——若附件被摘掉，页面会静默退回抽象渐变，必须有测试拦住。
+ */
+describe("Mariana 已接入 V2 附件（下潜路线）", () => {
+  it("onLoad(id=mariana)：进入路线模式而非旧海拔模式", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "mariana" });
-    expect(inst.routeMode).toBe(false);
-    expect(inst.expeditionCore).toBeNull();
-    expect((inst.data as Record<string, any>).routeMode).toBe(false);
+    expect(inst.routeMode).toBe(true);
+    expect(inst.expeditionCore).not.toBeNull();
+    expect((inst.data as Record<string, any>).routeMode).toBe(true);
   });
 
-  it("旧模式 tickFrame 仍走海拔轴（不产出 Exhibition HUD 派生）", () => {
+  it("tickFrame 沿真实下潜里程推进，产出路线 HUD 派生", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "mariana" });
-    inst.current = 8000;
-    inst.target = 8000;
+    inst.current = 0.5;
+    inst.target = 0.5;
     inst.tickFrame();
     const data = inst.data as Record<string, any>;
-    expect(data.routeMode).toBe(false);
-    expect(data.maxElevation).toBeGreaterThan(8000);
-    // Expedition HUD 派生保持空态
-    expect(data.expedition.currentName).toBe("");
-    expect(data.expDeathZone).toBe(false);
+    expect(data.routeMode).toBe(true);
+    // 路线轴生效：当前位置/下一站由 routeIndex 派生，而不是旧海拔轴的空态
+    expect(data.expedition.currentName).not.toBe("");
+    expect(data.expedition.nextName).not.toBe("");
+  });
+});
+
+/* ---------------- 非珠峰世界的动作与终点文案 ---------------- */
+describe("动作与终点文案按世界类型区分", () => {
+  it("马里亚纳：下潜 / 海底地貌", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "mariana" });
+    const d = inst.data as Record<string, any>;
+    // 首帧就必须正确：旧实现只在用户动手后才刷新按钮文案，进页面一直显示「攀登」
+    expect(d.expClimbLabel).toBe("下潜");
+    expect(d.expTerminus.label).toBe("海底地貌");
+    expect(d.expTerminus.top).toBe("海底");
+  });
+
+  it("科罗拉多大峡谷：下切 / 谷底地貌", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "colorado" });
+    const d = inst.data as Record<string, any>;
+    expect(d.expClimbLabel).toBe("下切");
+    expect(d.expTerminus.label).toBe("谷底地貌");
+  });
+
+  it("富士山：攀登 / 峰顶地貌", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "fuji" });
+    const d = inst.data as Record<string, any>;
+    expect(d.expClimbLabel).toBe("攀登");
+    expect(d.expTerminus.label).toBe("峰顶地貌");
+  });
+
+  it("珠峰文案未被这次改动破坏", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "everest" });
+    const d = inst.data as Record<string, any>;
+    expect(d.expClimbLabel).toBe("攀登");
+    expect(d.expTerminus.top).toBe("峰顶");
   });
 });

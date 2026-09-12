@@ -5,10 +5,9 @@
 import { KNOWLEDGE, KNOWLEDGE_CATEGORIES } from "../../data/knowledge";
 import { KNOWLEDGE_PROCESSES } from "../../data/processes";
 import { EXPLORATIONS } from "../../data/explorations/index";
-import { RUNTIME_MANIFESTS } from "../../data/media/world-manifests";
-import { getMediaForEntity } from "../../engine/media-registry";
 import { getRecords } from "../../services/exploration-store";
 import { filterKnowledge, unlockedLibraryIds } from "../../utils/knowledge-link";
+import { knowledgeImage } from "../../utils/knowledge-media";
 import type { Knowledge } from "../../types/models";
 
 interface KnowledgeItem extends Knowledge {
@@ -25,19 +24,13 @@ interface ProcessCard {
   summary: string;
   stepsText: string;
   image: string;
+  /** 无配图时的占位（与该知识条目一致），避免流程卡出现空白块。 */
+  emoji: string;
 }
 
 const ALL_CATEGORY = "全部";
 
-/** 运行时媒体优先（MediaRegistry），无登记媒体时回退分类占位（占位卡标记 UNKNOWN_PROVENANCE 债务）。 */
-function knowledgeImage(item: Knowledge): string {
-  // runtime 媒体优先（MediaRegistry，approved-only）
-  const media = getMediaForEntity(RUNTIME_MANIFESTS, "knowledge", item.id);
-  if (media.length) return media[0].localPath;
-  // 无媒体知识的图鉴卡：显示地点实拍或 Everest 主视觉（无 unknown-provenance 资产）
-  if (item.relatedPlaceIds.includes("p-everest")) return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-  return "/assets/world/everest-expedition-hero-v1.png";
-}
+// 知识配图解析见 utils/knowledge-media.ts（列表页与详情页共用，避免两处维护同一份映射）。
 
 Page({
   data: {
@@ -64,16 +57,21 @@ Page({
   refresh() {
     const unlocked = unlockedLibraryIds(getRecords(), EXPLORATIONS);
     const items = this.filterForTab(this.data.activeCategory, this.data.query, unlocked);
-    const processCards = KNOWLEDGE_PROCESSES.map((process) => ({
-      id: process.id,
-      topicId: process.topicId,
-      kicker: process.kicker,
-      title: process.title,
-      question: process.question,
-      summary: process.summary,
-      stepsText: `${process.steps.length} 个渐进步骤`,
-      image: knowledgeImage(KNOWLEDGE.find((item) => item.id === process.topicId) || KNOWLEDGE[0]),
-    }));
+    const processCards = KNOWLEDGE_PROCESSES.map((process) => {
+      const topic =
+        KNOWLEDGE.find((item) => item.id === process.topicId) || KNOWLEDGE[0];
+      return {
+        id: process.id,
+        topicId: process.topicId,
+        kicker: process.kicker,
+        title: process.title,
+        question: process.question,
+        summary: process.summary,
+        stepsText: `${process.steps.length} 个渐进步骤`,
+        image: knowledgeImage(topic),
+        emoji: topic.emoji,
+      };
+    });
     this.setData({ items, processCards, total: KNOWLEDGE.length, unlockedCount: unlocked.size, empty: items.length === 0 });
   },
 

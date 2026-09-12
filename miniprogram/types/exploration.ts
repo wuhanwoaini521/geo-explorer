@@ -17,6 +17,11 @@ export type ExplorationSurfaceKind =
 /** 场景“世界风貌”主题（仅 UI 层）：style 例如 'mountain'（山岳）、'ocean'（洋）… */
 export interface ExplorationWorld {
   style: string;
+  /**
+   * 关联地点 id：用于解析该世界探索页的实景主视觉（approved hero 资产）。
+   * 非山岳世界没有 DEM 渲染图，靠它取真实照片替代抽象渐变场景。
+   */
+  placeId?: string;
 }
 
 import type { ContentReviewStatus, EvidenceType } from "./expedition";

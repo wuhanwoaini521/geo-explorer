@@ -243,28 +243,31 @@ describe("LIVE ⇔ TERRAIN 切换不动进度", () => {
   });
 });
 
-/* ---------------- Mariana：无 Expedition 附件 → 保持旧探索 ---------------- */
-describe("Mariana（无 V2 附件）保持旧模式", () => {
-  it("onLoad(id=mariana)：routeMode=false、无视觉配置、LIVE 层不装载", () => {
+/**
+ * 契约变更（2026-09-12）：马里亚纳已接入 V2 附件与 LIVE 视觉配置，
+ * 不再是「无 V2 附件」的旧模式场景。
+ */
+describe("Mariana 已接入 V2 附件（LIVE 视觉层启用）", () => {
+  it("onLoad(id=mariana)：routeMode=true，且带视觉配置与 LIVE 媒体", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "mariana" });
-    expect(inst.routeMode).toBe(false);
-    expect(inst.visualConfig).toBeNull();
-    expect(inst.visualMedia).toBeNull();
+    expect(inst.routeMode).toBe(true);
+    expect(inst.visualConfig).not.toBeNull();
+    expect(inst.visualMedia).not.toBeNull();
     const d = inst.data as Record<string, any>;
-    // 非 routeMode：即使误设 visLiveSrc 也没有 LIVE 层可渲染；这里应保持空
-    expect(d.visLiveSrc).toBe("");
+    // 首帧尚未装载实景图，但字段应为字符串（由 syncVisualMode 在 tick 时填充）
+    expect(typeof d.visLiveSrc).toBe("string");
   });
 
-  it("旧 tickFrame 仍走海拔轴（不产出 Expedition 派生）", () => {
+  it("tickFrame 沿下潜路线推进，产出 Expedition 派生", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "mariana" });
-    inst.current = 4000;
-    inst.target = 4000;
+    inst.current = 0.4;
+    inst.target = 0.4;
     inst.tickFrame();
     const d = inst.data as Record<string, any>;
-    expect(d.routeMode).toBe(false);
-    expect(d.expedition.currentName).toBe("");
+    expect(d.routeMode).toBe(true);
+    expect(d.expedition.currentName).not.toBe("");
   });
 });
 

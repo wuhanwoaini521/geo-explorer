@@ -399,6 +399,10 @@ export function resolveLiveOverlay(
 export function liveSceneInfo(
  presentation: Extract<ExpeditionVisualPresentation, { kind: "LIVE" }>,
 ): string | null {
+ // 数据层声明的说明优先：非珠峰世界必须自带说明，
+ // 否则马里亚纳也会被标成「真实珠峰影像」。
+ const declared = presentation.scene && presentation.scene.infoText;
+ if (declared) return declared;
  const cal = presentation.calibration;
  if (cal) {
   const s = cal.info.status;

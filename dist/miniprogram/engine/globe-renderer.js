@@ -53,18 +53,18 @@ class GlobeRenderer {
         this.width = width;
         this.height = height;
         this.pixelRatio = Math.max(1, pixelRatio);
-        const legacyCenterX = width * 0.5;
-        const legacyCenterY = height * 0.43;
-        const legacyRadius = Math.min(width * 0.50, height * 0.48);
+        const focusedCenterX = width * 0.5;
+        const focusedCenterY = height * 0.72;
+        const focusedRadius = Math.min(width * 0.45, height * 0.5);
         // 默认地图状态必须让球体轮廓落在 Canvas 内部。此前把球心和半径
         // 放到视口外，真实贴图被 Canvas 矩形边界截断，产生明显的“裁剪图”感。
-        this.centerX = selectedMode ? legacyCenterX : variant === "third" ? width * 0.56 : variant === "low" ? width * 0.56 : width * 0.5;
-        this.centerY = selectedMode ? legacyCenterY : variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.6;
-        this.radius = selectedMode ? legacyRadius : variant === "third"
+        this.centerX = selectedMode ? focusedCenterX : variant === "third" ? width * 0.56 : variant === "low" ? width * 0.56 : width * 0.5;
+        this.centerY = selectedMode ? focusedCenterY : variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.72;
+        this.radius = selectedMode ? focusedRadius : variant === "third"
             ? Math.min(width * 0.50, height * 0.48)
             : variant === "low"
                 ? Math.min(width * 0.8, height * 0.9)
-                : Math.min(width * 0.52, height * 0.56);
+                : Math.min(width * 0.45, height * 0.5);
         this.canvas.width = Math.round(width * this.pixelRatio);
         this.canvas.height = Math.round(height * this.pixelRatio);
         // Canvas 2D defaults vary between WeChat simulator versions. Set these

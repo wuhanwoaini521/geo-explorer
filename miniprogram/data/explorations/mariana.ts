@@ -103,7 +103,7 @@ export const MARIANA: Exploration = {
     tags: ["地球最深点", "万米海沟", "生物发光"],
   },
   palette: ["#3fa9ee", "#0b5fa3", "#05182f"],
-  world: { style: "ocean" },
+  world: { style: "ocean", placeId: "p-mariana" },
   startElevation: 0,
   maxElevation: 10935,
   estimatedMinutes: 11,

@@ -175,7 +175,8 @@ describe("核心页面交互控件确实渲染", () => {
     expect(home).toMatch(/featured/);
     expect(home).toMatch(/discovery.content/);
     expect(map).toMatch(/bindtap="onToggleAtlas"/);
-    expect(map).toMatch(/bindinput="onQueryInput"/);
+    expect(map).not.toMatch(/bindinput="onQueryInput"/);
+    expect(map).toMatch(/class="map-header-actions"/);
     expect(map).toMatch(/data-id="\{\{item\.id\}\}" bindtap="onMapPointTap"/);
     expect(map).toMatch(/wx:for="\{\{atlas\}\}"/);
     expect(knowledge).toMatch(/bindinput="onQueryInput"/);

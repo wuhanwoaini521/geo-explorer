@@ -7,22 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const knowledge_1 = require("../../data/knowledge");
 const processes_1 = require("../../data/processes");
 const index_1 = require("../../data/explorations/index");
-const world_manifests_1 = require("../../data/media/world-manifests");
-const media_registry_1 = require("../../engine/media-registry");
 const exploration_store_1 = require("../../services/exploration-store");
 const knowledge_link_1 = require("../../utils/knowledge-link");
+const knowledge_media_1 = require("../../utils/knowledge-media");
 const ALL_CATEGORY = "全部";
-/** 运行时媒体优先（MediaRegistry），无登记媒体时回退分类占位（占位卡标记 UNKNOWN_PROVENANCE 债务）。 */
-function knowledgeImage(item) {
-    // runtime 媒体优先（MediaRegistry，approved-only）
-    const media = (0, media_registry_1.getMediaForEntity)(world_manifests_1.RUNTIME_MANIFESTS, "knowledge", item.id);
-    if (media.length)
-        return media[0].localPath;
-    // 无媒体知识的图鉴卡：显示地点实拍或 Everest 主视觉（无 unknown-provenance 资产）
-    if (item.relatedPlaceIds.includes("p-everest"))
-        return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-    return "/assets/world/everest-expedition-hero-v1.png";
-}
+// 知识配图解析见 utils/knowledge-media.ts（列表页与详情页共用，避免两处维护同一份映射）。
 Page({
     data: {
         categories: [ALL_CATEGORY, ...knowledge_1.KNOWLEDGE_CATEGORIES],
@@ -47,16 +36,20 @@ Page({
     refresh() {
         const unlocked = (0, knowledge_link_1.unlockedLibraryIds)((0, exploration_store_1.getRecords)(), index_1.EXPLORATIONS);
         const items = this.filterForTab(this.data.activeCategory, this.data.query, unlocked);
-        const processCards = processes_1.KNOWLEDGE_PROCESSES.map((process) => ({
-            id: process.id,
-            topicId: process.topicId,
-            kicker: process.kicker,
-            title: process.title,
-            question: process.question,
-            summary: process.summary,
-            stepsText: `${process.steps.length} 个渐进步骤`,
-            image: knowledgeImage(knowledge_1.KNOWLEDGE.find((item) => item.id === process.topicId) || knowledge_1.KNOWLEDGE[0]),
-        }));
+        const processCards = processes_1.KNOWLEDGE_PROCESSES.map((process) => {
+            const topic = knowledge_1.KNOWLEDGE.find((item) => item.id === process.topicId) || knowledge_1.KNOWLEDGE[0];
+            return {
+                id: process.id,
+                topicId: process.topicId,
+                kicker: process.kicker,
+                title: process.title,
+                question: process.question,
+                summary: process.summary,
+                stepsText: `${process.steps.length} 个渐进步骤`,
+                image: (0, knowledge_media_1.knowledgeImage)(topic),
+                emoji: topic.emoji,
+            };
+        });
         this.setData({ items, processCards, total: knowledge_1.KNOWLEDGE.length, unlockedCount: unlocked.size, empty: items.length === 0 });
     },
     onCategoryTap(e) {
@@ -84,7 +77,7 @@ Page({
         return (0, knowledge_link_1.filterKnowledge)(knowledge_1.KNOWLEDGE, category, query).map((item) => ({
             ...item,
             unlocked: unlocked.has(item.id),
-            image: knowledgeImage(item),
+            image: (0, knowledge_media_1.knowledgeImage)(item),
         }));
     },
     onOpen(e) {

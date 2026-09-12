@@ -48,6 +48,31 @@ exports.EVEREST_CONTENT_MANIFEST = {
     sceneId: "everest",
     assets: [
         {
+            // 珠峰封面此前只登记在 expedition 实体上，place/p-everest 没有 hero，
+            // 地点页/首页靠硬编码路径兜底（绕过 approved 校验）。这里补齐地点封面登记，
+            // 使四个世界的地点 hero 契约一致（均为实景 photograph）。
+            id: "p-everest-kala-patthar",
+            entityType: "place",
+            entityId: "p-everest",
+            purpose: "hero",
+            title: "Mount Everest from Kala Patthar",
+            description: "珠峰地点封面：自 Kala Patthar（≈5,545 m）远眺珠峰与昆布冰川的实拍（与 expedition hero 同源）。",
+            kind: "photograph",
+            localPath: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+            license: "CC BY-SA 4.0",
+            licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+            credit: "Matheus Hobold Sovernigo",
+            attribution: "Matheus Hobold Sovernigo — Wikimedia Commons · CC BY-SA 4.0",
+            sourceUrl: "https://commons.wikimedia.org/wiki/File:Mount_Everest_from_Kala_Patthar.jpg",
+            capturedAt: "2019-04-24",
+            originalResolution: "5848×4387",
+            hash: "15008117ff5f1715d3f0b7cb23b4613c9c78e90ff5cf2ee65e3d488bcbf695aa",
+            geographicRole: "REPRESENTATIVE",
+            overlayProjection: "NOT_AVAILABLE",
+            reviewStatus: "approved",
+            tags: ["place-hero", "p-everest", "kala-patthar"],
+        },
+        {
             id: "ev-icefall-ladders",
             entityType: "waypoint",
             entityId: "khumbu-icefall",
@@ -188,6 +213,30 @@ exports.MARIANA_MANIFEST = {
     id: "mariana-media",
     sceneId: "mariana",
     assets: [
+        {
+            // 2026-09-12 用户反馈：地点封面不得使用声呐/测深等科研图，必须为实景照片。
+            // 复用已晋升的深海实拍（Ifremer：热液喷口 + 海雪），避免新增未核验素材。
+            id: "m8-mariana-deep-photo",
+            entityType: "place",
+            entityId: "p-mariana",
+            purpose: "hero",
+            title: "深海热液喷口与海雪（深海实拍）",
+            description: "深海热液喷口与飘落海雪的实拍影像，作为马里亚纳海沟地点封面的实景照片（替代此前的声呐测深图）。",
+            kind: "photograph",
+            localPath: "/assets/content/mariana/k40-ifremer-snow.jpg",
+            license: "CC BY 4.0",
+            licenseUrl: "https://creativecommons.org/licenses/by/4.0",
+            credit: "Ifremer",
+            attribution: "Ifremer — Wikimedia Commons · CC BY 4.0",
+            sourceUrl: "https://commons.wikimedia.org/wiki/File:Cheminée_hydrothermale_sous_une_pluie_de_neige_marine_(Ifremer_00401-51200).jpg",
+            capturedAt: "2010",
+            originalResolution: "见 media-source 元数据",
+            hash: "eb99cc27079eee59e0ba1372f6c273a951347acdb93aa95225d20a69f151adb0",
+            geographicRole: "REPRESENTATIVE",
+            overlayProjection: "NOT_AVAILABLE",
+            reviewStatus: "approved",
+            tags: ["user-feedback-2026-09-12", "p-mariana", "deep-sea-photo"],
+        },
         {
             id: "m2-limiting-factor-bottom",
             entityType: "waypoint",
@@ -368,7 +417,8 @@ exports.MARIANA_MANIFEST = {
             id: "m7-challenger-sonar",
             entityType: "place",
             entityId: "p-mariana",
-            purpose: "hero",
+            // 2026-09-12：地点封面改用实景照片后，声呐测深图降级为挑战者深渊的科学支撑图。
+            purpose: "secondary",
             title: "Challenger Deep EM124 Sonar Map and Diving History",
             description: "Single-panel EM124 sonar bathymetry of Challenger Deep with the three pools and the 1960/2012/2019 dive sites marked (Five Deeps Expedition 2019).",
             kind: "scientific",
@@ -384,10 +434,10 @@ exports.MARIANA_MANIFEST = {
             geographicRole: "EXACT",
             overlayProjection: "NOT_AVAILABLE",
             reviewStatus: "approved",
-            tags: ["final-acceptance", "p-mariana", "bathymetry-hero"],
+            tags: ["final-acceptance", "p-mariana", "bathymetry-support"],
         },
     ],
-    notes: "Final Acceptance：p-mariana hero = 官方声呐测深图（用户明确允许 scientific hero）；坐底 EXACT、k34/k40 教育图。",
+    notes: "2026-09-12 用户反馈：地点封面不用科研图（声呐/测深），p-mariana hero 改为深海实景照片（m8，复用 Ifremer 海雪实拍）；声呐图 m7 降级为科学支撑。坐底 EXACT、k34/k40 教育图不变。",
 };
 exports.FUJI_MANIFEST = {
     schemaVersion: 1,
@@ -825,8 +875,11 @@ exports.COLORADO_MANIFEST = {
 };
 /** 地点 hero 图（runtime 优先）：已晋升者返回真实媒体；未晋升返回 undefined（页面走占位兜底）。 */
 function getPlaceHeroImage(placeId) {
+    var _a;
     for (const m of exports.RUNTIME_MANIFESTS) {
-        const hero = m.assets.find((a) => a.entityType === "place" && a.entityId === placeId && a.reviewStatus === "approved");
+        const list = m.assets.filter((a) => a.entityType === "place" && a.entityId === placeId && a.reviewStatus === "approved");
+        // 只有 purpose==="hero" 才是封面；科学支撑类（如测深图）不得抢占地点主视觉。
+        const hero = (_a = list.find((a) => a.purpose === "hero")) !== null && _a !== void 0 ? _a : list[0];
         if (hero)
             return hero.localPath;
     }

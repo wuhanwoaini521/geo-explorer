@@ -611,6 +611,11 @@ export interface LiveSceneDef {
    stageIds: string[];
    /** 引用 MediaManifest 中本场景的正式影像（Gate 3.3B 绑定；无 = 兜底 TERRAIN） */
    assetId?: string;
+   /**
+    * LIVE 实景说明文案（HUD 上常显一行）。缺省时引擎按珠峰口径回退，
+    * 非珠峰世界必须声明，否则会显示成「真实珠峰影像」。
+    */
+   infoText?: string;
    /** 竖屏 crop（图片批准时必填，§12/§13） */
    crop?: LiveCrop;
    /** 覆盖锚点（图片批准后人工审核，§17） */
