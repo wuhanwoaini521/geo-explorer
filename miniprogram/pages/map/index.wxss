@@ -9,7 +9,6 @@
 .globe-hint { position: absolute; z-index: 35; left: 28rpx; top: calc(env(safe-area-inset-top) + 270rpx); display: flex; align-items: center; gap: 10rpx; padding: 9rpx 14rpx; border-radius: 999rpx; color: rgba(223, 247, 252, .86); background: rgba(3, 19, 34, .78); border: 1rpx solid rgba(130, 211, 229, .24); font-size: 17rpx; letter-spacing: .4rpx; }
 .globe-hint-dot { width: 10rpx; height: 10rpx; border: 2rpx solid #65e3ef; border-radius: 50%; box-shadow: 0 0 12rpx rgba(101, 227, 239, .8); }
 .map-head { position: absolute; left: 24rpx; right: 24rpx; display: flex; align-items: center; z-index: 30; }
-.map-back { width: 46rpx; flex-shrink: 0; font-size: 54rpx; line-height: 50rpx; color: #fff; }
 .map-title-group { display: flex; flex-direction: column; gap: 2rpx; }
 .map-title { font-size: 38rpx; line-height: 1.15; font-weight: 800; color: #fff; text-shadow: 0 2rpx 12rpx rgba(0,0,0,.5); }
 .map-title-en { color: rgba(221,247,255,.78); font-size: 18rpx; letter-spacing: 3rpx; }

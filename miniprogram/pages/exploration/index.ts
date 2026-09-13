@@ -1178,7 +1178,7 @@ Page({
       expedition || getExplorationById(id) || fallback || undefined;
     if (!exploration) {
       wx.showToast({ title: "场景不存在", icon: "none" });
-      wx.switchTab({ url: "/pages/home/index" });
+      wx.switchTab({ url: "/pages/map/index" });
       return;
     }
     this.routeMode = Boolean(expedition);
@@ -2992,7 +2992,7 @@ Page({
   },
 
   onBackHome() {
-    wx.switchTab({ url: "/pages/home/index" });
+    wx.switchTab({ url: "/pages/map/index" });
   },
 
   onGoProfile() {

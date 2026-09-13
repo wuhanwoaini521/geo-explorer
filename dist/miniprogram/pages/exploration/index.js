@@ -710,7 +710,7 @@ Page({
         const exploration = expedition || (0, index_1.getExplorationById)(id) || fallback || undefined;
         if (!exploration) {
             wx.showToast({ title: "场景不存在", icon: "none" });
-            wx.switchTab({ url: "/pages/home/index" });
+            wx.switchTab({ url: "/pages/map/index" });
             return;
         }
         this.routeMode = Boolean(expedition);
@@ -2346,7 +2346,7 @@ Page({
         wx.navigateTo({ url: `/pages/place/index?id=${id}` });
     },
     onBackHome() {
-        wx.switchTab({ url: "/pages/home/index" });
+        wx.switchTab({ url: "/pages/map/index" });
     },
     onGoProfile() {
         wx.switchTab({ url: "/pages/profile/index" });

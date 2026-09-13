@@ -40,7 +40,6 @@
 
   <block wx:if="{{!globeEarthOnly}}">
     <view class="map-head" style="top:{{headerTop}}px">
-      <text class="map-back" bindtap="onBack">‹</text>
       <view class="map-title-group"><text class="map-title">探索世界</text><text class="map-title-en">WORLD OVERVIEW</text></view>
       <view class="map-header-actions"><text bindtap="onResetGlobe">复位</text><text class="map-header-action-primary" bindtap="onToggleAtlas">图鉴</text></view>
     </view>

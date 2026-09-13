@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 🏠 首页 —— 探索的起点（内容驱动，无硬编码业务数据）。
  *
  * 结构：Hero（品牌 + 珠峰实景主视觉）→ 沉浸场景 → 精选目的地
- * → 按地貌探索（分类入口 → 地图页图鉴）→ 你知道吗（随机冷知识）→ 关于。
+ * → 按地貌探索（首页原地筛选）→ 你知道吗（随机冷知识）→ 关于。
  */
 const discoveries_1 = require("../../data/discoveries");
 const places_1 = require("../../data/places");
@@ -19,24 +19,53 @@ const SCENE_CATALOG = [
     {
         id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
         meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-        tags: ["高山地貌", "地貌观察"], target: "exploration",
+        tags: ["高山地貌", "地貌观察"], type: "mountain", target: "exploration",
     },
     {
         id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,935 m", emoji: "🌊",
         meta: "", badge: "", image: (_a = (0, world_manifests_1.getPlaceHeroImage)("p-mariana")) !== null && _a !== void 0 ? _a : "",
-        tags: ["海沟", "下潜"], target: "exploration",
+        tags: ["海沟", "下潜"], type: "ocean", target: "exploration",
     },
     {
         id: "colorado", title: "科罗拉多大峡谷", subtitle: "下切 1,389 m · 穿越二十亿年", emoji: "🏞️",
         meta: "", badge: "", image: (_b = (0, world_manifests_1.getPlaceHeroImage)("p-colorado")) !== null && _b !== void 0 ? _b : "",
-        tags: ["峡谷", "地质剖面"], target: "exploration",
+        tags: ["峡谷", "地质剖面"], type: "canyon", target: "exploration",
     },
     {
         id: "fuji", title: "富士山", subtitle: "攀登日本最高点 · 3,776 m", emoji: "🗻",
         meta: "", badge: "", image: (_c = (0, world_manifests_1.getPlaceHeroImage)("p-fuji")) !== null && _c !== void 0 ? _c : "",
-        tags: ["火山", "攀登"], target: "exploration",
+        tags: ["火山", "攀登"], type: "volcano", target: "exploration",
     },
 ];
+const TYPE_LABELS = new Map(places_1.PLACE_TYPE_META.map((item) => [item.type, item.label]));
+/** 首页分类结果使用完整地点库；有探索能力的地点仍直接进入对应沉浸场景。 */
+const PLACE_CATALOG = places_1.PLACES.map((place) => {
+    var _a, _b, _c, _d;
+    const typeLabel = (_a = TYPE_LABELS.get(place.type)) !== null && _a !== void 0 ? _a : "地貌";
+    const elevationText = place.elevationM < 0
+        ? `${(0, format_1.formatNumber)(Math.abs(place.elevationM), 0)} m 深`
+        : `${(0, format_1.formatNumber)(place.elevationM, 0)} m`;
+    return {
+        id: (_b = place.explorationId) !== null && _b !== void 0 ? _b : place.id,
+        title: place.name,
+        subtitle: `${place.shortDescription} · ${elevationText}`,
+        emoji: place.emoji,
+        meta: "",
+        badge: "",
+        image: (_c = (0, world_manifests_1.getPlaceHeroImage)(place.id)) !== null && _c !== void 0 ? _c : "",
+        tags: [typeLabel, place.explorationId ? "可沉浸探索" : ((_d = place.tags[0]) !== null && _d !== void 0 ? _d : "地点图鉴")],
+        type: place.type,
+        target: place.explorationId ? "exploration" : "place",
+    };
+});
+function scenesFor(type, query) {
+    const source = type === "all" ? SCENE_CATALOG : PLACE_CATALOG.filter((scene) => scene.type === type);
+    return (0, scene_search_1.filterScenes)(source, query);
+}
+function typeLabel(type) {
+    var _a;
+    return type === "all" ? "推荐探索" : `${(_a = TYPE_LABELS.get(type)) !== null && _a !== void 0 ? _a : "地貌"}地点`;
+}
 Page({
     data: {
         scenes: [],
@@ -48,18 +77,19 @@ Page({
         query: "",
         sceneEmpty: false,
         activeType: "all",
+        activeTypeLabel: "推荐探索",
         stats: { completed: 0, totalFound: 0 },
         placeCount: places_1.PLACES.length,
     },
     onShow() {
         var _a, _b, _c, _d;
-        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 0 });
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 1 });
         (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: false });
         this.refresh();
     },
     refresh() {
         var _a;
-        const scenes = (0, scene_search_1.filterScenes)(SCENE_CATALOG, this.data.query);
+        const scenes = scenesFor(this.data.activeType, this.data.query);
         const featured = places_1.PLACES.filter((p) => p.featured)
             .slice(0, 8)
             .map((p) => {
@@ -93,6 +123,7 @@ Page({
         this.setData({
             scenes,
             sceneEmpty: Boolean(this.data.query.trim()) && scenes.length === 0,
+            activeTypeLabel: typeLabel(this.data.activeType),
             featured,
             types,
             discovery: this.pickDiscovery(),
@@ -129,14 +160,20 @@ Page({
             return;
         wx.navigateTo({ url: `/pages/place/index?id=${id}` });
     },
-    /** 分类入口 → 地图页图鉴（带筛选） */
+    /** 首页分类 Tab：原地替换主列表，不改变页面与底部导航。 */
     onOpenType(e) {
         var _a, _b, _c;
-        const type = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.type) !== null && _c !== void 0 ? _c : "all");
-        this.setData({ activeType: type });
-        (0, ui_bus_1.setPendingTypeFilter)(type);
-        wx.switchTab({ url: "/pages/map/index" });
+        const raw = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.type) !== null && _c !== void 0 ? _c : "all");
+        const type = raw === "all" ? "all" : raw;
+        const scenes = scenesFor(type, this.data.query);
+        this.setData({
+            activeType: type,
+            activeTypeLabel: typeLabel(type),
+            scenes,
+            sceneEmpty: scenes.length === 0,
+        });
     },
+    /** 明确的“查看图鉴”入口才进入地图页。 */
     onOpenAtlas() {
         (0, ui_bus_1.setPendingTypeFilter)("all");
         wx.switchTab({ url: "/pages/map/index" });
@@ -155,11 +192,15 @@ Page({
     onQueryInput(e) {
         var _a, _b;
         const query = String((_b = (_a = e.detail) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "");
-        const scenes = (0, scene_search_1.filterScenes)(SCENE_CATALOG, query);
+        const scenes = scenesFor(this.data.activeType, query);
         this.setData({ query, scenes, sceneEmpty: Boolean(query.trim()) && scenes.length === 0 });
     },
     onQueryClear() {
-        this.setData({ query: "", scenes: SCENE_CATALOG, sceneEmpty: false });
+        this.setData({
+            query: "",
+            scenes: scenesFor(this.data.activeType, ""),
+            sceneEmpty: false,
+        });
     },
     onQueryConfirm() {
         var _a;

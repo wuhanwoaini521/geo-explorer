@@ -8,8 +8,8 @@ Component({
     selected: 0,
     hidden: false,
     tabs: [
-      { pagePath: "/pages/home/index", text: "探索" },
-      { pagePath: "/pages/map/index", text: "地图" },
+      { pagePath: "/pages/map/index", text: "探索" },
+      { pagePath: "/pages/home/index", text: "发现" },
       { pagePath: "/pages/knowledge/index", text: "知识" },
       { pagePath: "/pages/quiz/index", text: "挑战" },
       { pagePath: "/pages/profile/index", text: "我的" },

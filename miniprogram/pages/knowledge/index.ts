@@ -123,6 +123,6 @@ Page({
   },
 
   onBack() {
-    wx.switchTab({ url: "/pages/home/index" });
+    wx.switchTab({ url: "/pages/map/index" });
   },
 });

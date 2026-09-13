@@ -1,13 +1,7 @@
 /**
- * 首页分类入口 → 地图页「真的能看到筛选结果」—— 跨页面流程回归。
+ * 首页分类 Tab 原地筛选；只有明确的图鉴/搜索入口才切换地图页。
  *
- * 背景（用户实际报告）：「推荐 / 山峰 / 火山…」点了之后跳到一个还在转的地球，
- * 什么都没筛出来。旧测试只断言了「switchTab 到 /pages/map/index」和
- * 「activeType 被置位」，于是这个洞里藏着两个真实缺陷：
- *   - 图鉴抽屉没有自动打开，筛选结果渲染在关着的抽屉里；
- *   - 用户看到的地球照转，视觉上等同于「点了没反应」。
- *
- * 本文件断言的是**用户可见的最终状态**（图鉴打开 + 结果集正确），而不是中间态。
+ * 回归重点：点推荐/山峰/火山等分类时不允许 switchTab，列表必须在首页立即变化。
  */
 import { describe, expect, it, beforeAll } from "vitest";
 
@@ -71,37 +65,30 @@ beforeAll(async () => {
   map = lastPageDef!;
 });
 
-describe("首页分类入口 → 地图页展示筛选结果", () => {
-  it("点击「峡谷」：跳转地图，且落地后图鉴已打开、只剩峡谷", () => {
+describe("首页分类 Tab 原地筛选", () => {
+  it("点击「峡谷」：不跳页，首页列表立即只显示峡谷", () => {
     wxCalls.switchTab = [];
     const h = createInstance(home);
     h.onShow();
     tap(h, "onOpenType", { type: "canyon" });
-    expect(lastSwitchTabUrl()).toContain("/pages/map/index");
-
-    const m = createInstance(map);
-    m.onLoad();
-    expect(m.data.atlasOpen, "onLoad 不应自动打开图鉴").toBe(false);
-    m.onShow();
-
-    expect(m.data.activeType).toBe("canyon");
-    expect(m.data.atlasOpen, "用户必须能看到筛选结果，而不是一个还在转的地球").toBe(true);
-    const atlas = m.data.atlas as Array<{ typeLabel: string }>;
-    expect(atlas.length).toBeGreaterThan(0);
-    for (const place of atlas) expect(place.typeLabel).toBe("峡谷");
+    expect(lastSwitchTabUrl()).toBeNull();
+    expect(h.data.activeType).toBe("canyon");
+    expect(h.data.activeTypeLabel).toBe("峡谷地点");
+    const scenes = h.data.scenes as Array<{ type: string }>;
+    expect(scenes.length).toBeGreaterThan(0);
+    for (const scene of scenes) expect(scene.type).toBe("canyon");
   });
 
-  it("点击「推荐」：落地后图鉴打开且为全部类型", () => {
+  it("从分类切回「推荐」：不跳页，恢复四个推荐探索", () => {
+    wxCalls.switchTab = [];
     const h = createInstance(home);
     h.onShow();
-    tap(h, "onOpenAtlas", {});
-
-    const m = createInstance(map);
-    m.onLoad();
-    m.onShow();
-    expect(m.data.activeType).toBe("all");
-    expect(m.data.atlasOpen).toBe(true);
-    expect((m.data.atlas as unknown[]).length).toBe(m.data.atlasTotal);
+    tap(h, "onOpenType", { type: "mountain" });
+    tap(h, "onOpenType", { type: "all" });
+    expect(lastSwitchTabUrl()).toBeNull();
+    expect(h.data.activeType).toBe("all");
+    expect(h.data.activeTypeLabel).toBe("推荐探索");
+    expect((h.data.scenes as unknown[]).length).toBe(4);
   });
 
   it("首页搜索确认：落地后图鉴打开并应用关键词", () => {
@@ -126,15 +113,16 @@ describe("首页分类入口 → 地图页展示筛选结果", () => {
     expect(m.data.atlasOpen).toBe(false);
   });
 
-  it("图鉴打开后不再启动地球渲染（避免后台空转）", () => {
+  it("点击明确的『在地球上查看』：才切到地图并打开完整图鉴", () => {
     const h = createInstance(home);
     h.onShow();
-    tap(h, "onOpenType", { type: "desert" });
+    tap(h, "onOpenAtlas", {});
+    expect(lastSwitchTabUrl()).toContain("/pages/map/index");
     const m = createInstance(map);
     m.onLoad();
     m.onShow();
-    // 打开图鉴的分支必须提前 return，不能走到 resumeRotation/start
     expect(m.data.atlasOpen).toBe(true);
-    expect(m.data.globeSelectedMode).toBe(false);
+    expect(m.data.activeType).toBe("all");
+    expect((m.data.atlas as unknown[]).length).toBe(m.data.atlasTotal);
   });
 });

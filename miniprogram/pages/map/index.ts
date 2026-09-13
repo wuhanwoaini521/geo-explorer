@@ -361,7 +361,7 @@ Page({
   },
 
   onShow() {
-    this.getTabBar?.()?.setData({ selected: 1 });
+    this.getTabBar?.()?.setData({ selected: 0 });
     this.getTabBar?.()?.setData({ hidden: globeEarthOnly });
     // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
     const pending = consumeTypeFilter();
@@ -1001,10 +1001,6 @@ Page({
     const point = this.data.mapPoints.find((item: MapPoint) => item.state === "current") ?? this.data.mapPoints[0];
     if (!point) return;
     this.setData({ activePointId: point.id, activePlace: this.placeCardForPoint(point.id, this.data.mapPoints) });
-  },
-
-  onBack() {
-    wx.switchTab({ url: "/pages/home/index" });
   },
 
   onOpenPlaceCard() {

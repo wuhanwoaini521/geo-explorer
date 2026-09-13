@@ -104,14 +104,18 @@ describe("首页装配", () => {
     expect(after).not.toBe(before);
   });
 
-  it("点击精选卡 → navigateTo 地点详情；点击分类 → switchTab 地图并携带筛选", () => {
+  it("点击精选卡 → navigateTo 地点详情；点击分类 → 首页原地替换列表", () => {
     wxCalls.navigateTo = [];
     wxCalls.switchTab = [];
     const inst = createInstance(home);
     tap(inst, "onOpenFeatured", { id: "p-baikal" });
     expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=p-baikal");
     tap(inst, "onOpenType", { type: "desert" });
-    expect(lastNavUrl("switchTab")).toContain("/pages/map/index");
+    expect((inst.data as any).activeType).toBe("desert");
+    expect((inst.data as any).activeTypeLabel).toBe("沙漠地点");
+    expect((inst.data as any).scenes.length).toBeGreaterThan(0);
+    expect((inst.data as any).scenes.every((scene: any) => scene.type === "desert")).toBe(true);
+    expect(lastNavUrl("switchTab")).toBeNull();
   });
 
   it("首页搜索确认 → switchTab 地图并传递关键词", () => {

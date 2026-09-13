@@ -214,7 +214,7 @@ Page({
     },
     onShow() {
         var _a, _b, _c, _d, _e, _f;
-        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 1 });
+        (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 0 });
         (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: globeEarthOnly });
         // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
         const pending = (0, ui_bus_1.consumeTypeFilter)();
@@ -833,9 +833,6 @@ Page({
         if (!point)
             return;
         this.setData({ activePointId: point.id, activePlace: this.placeCardForPoint(point.id, this.data.mapPoints) });
-    },
-    onBack() {
-        wx.switchTab({ url: "/pages/home/index" });
     },
     onOpenPlaceCard() {
         var _a;
