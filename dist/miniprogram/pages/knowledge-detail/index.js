@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const knowledge_1 = require("../../data/knowledge");
 const processes_1 = require("../../data/processes");
 const places_1 = require("../../data/places");
+const knowledge_media_1 = require("../../utils/knowledge-media");
 Page({
     data: {
         item: null,
@@ -13,6 +14,10 @@ Page({
         process: null,
         processIndex: 0,
         currentStep: null,
+        /** 该知识的配图（实景优先）；点击可全屏预览，多图左右滑动看大图 */
+        images: [],
+        /** 主图解码失败 → 退回分类 emoji 占位 */
+        imageFailed: false,
     },
     onLoad(query) {
         const id = query.id || "";
@@ -32,7 +37,15 @@ Page({
                 shortDescription: p.shortDescription,
             }))
             : [];
-        this.setData({ item, relatedPlaces, process, processIndex: 0, currentStep: (process === null || process === void 0 ? void 0 : process.steps[0]) || null });
+        this.setData({
+            item,
+            relatedPlaces,
+            process,
+            processIndex: 0,
+            currentStep: (process === null || process === void 0 ? void 0 : process.steps[0]) || null,
+            images: item ? (0, knowledge_media_1.knowledgeImages)(item) : [],
+            imageFailed: false,
+        });
         if (item) {
             wx.setNavigationBarTitle({ title: item.title });
         }
@@ -40,6 +53,25 @@ Page({
     onShow() {
         var _a, _b;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ hidden: true });
+    },
+    /** 点击配图 → 全屏看大图（多张时可左右滑动切换）。 */
+    onPreviewImage() {
+        const urls = this.data.images.filter(Boolean);
+        if (!urls.length)
+            return;
+        // SAFETY: 官方类型只覆盖本页用到的子集，先按方法名守卫再调用（同探索页地点卡）。
+        const preview = wx["previewImage"];
+        if (typeof preview === "function") {
+            preview({
+                current: urls[0],
+                urls,
+            });
+        }
+    },
+    onImageError() {
+        if (this.data.imageFailed)
+            return;
+        this.setData({ imageFailed: true });
     },
     onOpenPlace(e) {
         var _a, _b, _c;

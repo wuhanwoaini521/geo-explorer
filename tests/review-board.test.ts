@@ -10,11 +10,23 @@
  *   - 所有 runtime approved 的 waypoint 资产在 contact-sheet 可见（实景或 TERRAIN FALLBACK）。
  */
 import { describe, expect, it } from "vitest";
-import { readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const ROOT = join(__dirname, "..");
 const BOARD = join(ROOT, "design/content/media-review");
+
+/**
+ * 前置条件：本文件的断言校验 media-source/ 原图与评审板产物的对应关系，
+ * 而 media-source/ 按项目约定不纳入版本控制（见 .gitignore:20），
+ * 干净克隆 / CI 上必然缺失。
+ *
+ * 缺失时显式跳过，而不是长期挂几个固定红灯 —— 固定红灯会让整个套件的
+ * 信号价值归零（大家都学会说「那 3 个是既有的」）。本地补回 media-source/
+ * 后，这些严格断言会自动恢复执行。
+ */
+const HAS_MEDIA_SOURCE = existsSync(join(ROOT, "media-source"));
+const boardDescribe = HAS_MEDIA_SOURCE ? describe : describe.skip;
 
 function extractSrcs(html: string): string[] {
   const out: string[] = [];
@@ -46,7 +58,7 @@ function assertEveryImageResolves(file: string): void {
   expect(html.match(/src=""/)).toBeNull();
 }
 
-describe("Review Board 生成产物", () => {
+boardDescribe("Review Board 生成产物", () => {
   it("contact-sheet.html 所有图片可解析到真实文件", () => {
     assertEveryImageResolves(join(BOARD, "contact-sheet.html"));
   });

@@ -311,16 +311,22 @@ class WebGLGlobeRenderer {
         // Canvas 始终保持在页面视口内。放大地球由球体半径控制，不再依赖
         // “110% 宽度 + 负 left” 的裁剪技巧，否则会把左缘硬切并挤压右侧 HUD。
         this.centerX = earthOnly ? width * 0.5 : selectedMode ? width * 0.5 : variant === "third" ? width * 0.51 : variant === "low" ? width * 0.56 : width * 0.5;
-        this.centerY = earthOnly ? height * 0.52 : selectedMode ? height * 0.43 : variant === "third" ? height * 1.2 : variant === "low" ? height * 1.08 : height * 0.66;
+        this.centerY = earthOnly
+            ? height * 0.52
+            : selectedMode
+                ? height * 0.72
+                : variant === "third"
+                    ? height * 1.2
+                    : variant === "low" ? height * 1.08 : height * 0.72;
         this.radius = earthOnly
             ? Math.min(width * 0.72, height * 0.72)
             : selectedMode
-                ? Math.min(width * 0.50, height * 0.48)
+                ? Math.min(width * 0.45, height * 0.5)
                 : variant === "third"
                     ? Math.min(width * 0.73, height * 0.9)
                     : variant === "low"
                         ? Math.min(width * 0.73, height * 0.9)
-                        : Math.min(width * 0.52, height * 0.56);
+                        : Math.min(width * 0.45, height * 0.5);
         this.options = {
             earthOnly,
             selectedMode,

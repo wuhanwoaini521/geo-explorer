@@ -8,11 +8,15 @@
 import type { ExpeditionAttachment } from "../../types/expedition";
 import type { Exploration } from "../../types/exploration";
 import { EVEREST_EXPEDITION } from "./everest";
+import { WORLD_EXPEDITIONS } from "./worlds";
 
 /** 具有 V2 附件（真实路线驱动）的探索对象 */
 export type ExpeditionExploration = Exploration & ExpeditionAttachment;
 
-const REGISTRY: ExpeditionExploration[] = [EVEREST_EXPEDITION];
+const REGISTRY: ExpeditionExploration[] = [
+  EVEREST_EXPEDITION,
+  ...WORLD_EXPEDITIONS,
+];
 
 /** 按 id 获取带有 V2 附件的探索（无附件返回 undefined → 走旧海拔轴） */
 export function getExpeditionById(id: string): ExpeditionExploration | undefined {

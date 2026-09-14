@@ -153,13 +153,16 @@ describe("核心页面交互控件确实渲染", () => {
     const app = JSON.parse(readFileSync(join(ROOT, "app.json"), "utf-8"));
     const tabPaths = app.tabBar.list.map((item: { pagePath: string }) => item.pagePath);
     expect(tabPaths).toEqual([
-      "pages/home/index", "pages/map/index", "pages/knowledge/index",
+      "pages/map/index", "pages/home/index", "pages/knowledge/index",
       "pages/quiz/index", "pages/profile/index",
     ]);
+    expect(app.pages[0]).toBe("pages/map/index");
     const tabWxml = readFileSync(join(ROOT, "custom-tab-bar", "index.wxml"), "utf-8");
     const tabTs = readFileSync(join(ROOT, "custom-tab-bar", "index.ts"), "utf-8");
     expect((tabTs.match(/pagePath: \"\/pages\//g) ?? []).length).toBe(5);
     expect(tabWxml).toContain("selected * 20");
+    expect(readFileSync(join(PAGES_DIR, "map", "index.ts"), "utf-8")).toContain("selected: 0");
+    expect(readFileSync(join(PAGES_DIR, "home", "index.ts"), "utf-8")).toContain("selected: 1");
     expect(readFileSync(join(PAGES_DIR, "quiz", "index.ts"), "utf-8")).toContain("selected: 3");
     expect(readFileSync(join(PAGES_DIR, "profile", "index.ts"), "utf-8")).toContain("selected: 4");
   });
@@ -175,7 +178,8 @@ describe("核心页面交互控件确实渲染", () => {
     expect(home).toMatch(/featured/);
     expect(home).toMatch(/discovery.content/);
     expect(map).toMatch(/bindtap="onToggleAtlas"/);
-    expect(map).toMatch(/bindinput="onQueryInput"/);
+    expect(map).not.toMatch(/bindinput="onQueryInput"/);
+    expect(map).toMatch(/class="map-header-actions"/);
     expect(map).toMatch(/data-id="\{\{item\.id\}\}" bindtap="onMapPointTap"/);
     expect(map).toMatch(/wx:for="\{\{atlas\}\}"/);
     expect(knowledge).toMatch(/bindinput="onQueryInput"/);

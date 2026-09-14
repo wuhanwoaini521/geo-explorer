@@ -59,3 +59,11 @@
 .place-link { background: #ffffff; border-color: #d5e2e9; box-shadow: 0 8rpx 20rpx rgba(16,44,61,.05); }
 .place-link-mark { color: #168bb9; border-color: #b9ddea; }
 .place-link-name { color: #102c3d; }
+
+/* 知识配图（与列表卡片同源；点击全屏看大图） */
+.media { margin-top: 26rpx; }
+.media-image { display: block; width: 100%; height: 400rpx; border-radius: 18rpx; background: #e5f3f8; }
+.media-image-fallback { display: flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #dceff3, #8db9c4); font-size: 64rpx; }
+.media-foot { display: flex; align-items: center; padding: 10rpx 6rpx 0; }
+.media-count { color: #168bb9; font-size: 20rpx; }
+.media-hint { margin-left: auto; color: #8da1ad; font-size: 20rpx; }

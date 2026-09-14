@@ -48,7 +48,9 @@ describe("Gate 3.5A：canonical 观察信任", () => {
     const exploration = readFileSync("miniprogram/pages/exploration/index.wxml", "utf8");
     const profile = readFileSync("miniprogram/pages/profile/index.wxml", "utf8");
     const quiz = readFileSync("miniprogram/pages/quiz/index.wxml", "utf8");
-    expect(exploration).toContain("点击“攀登”前进");
+    // 前进提示已按世界类型动态化（攀登/下潜/下切），断言提示仍在且绑定了动作词
+    expect(exploration).toContain("expClimbLabel");
+    expect(exploration).toContain("前进；可用“上一个”回看");
     expect(exploration).toContain("context-elevation");
     expect(profile).toContain("清空本地数据");
     expect(quiz).toContain("继续学习");

@@ -104,14 +104,18 @@ describe("首页装配", () => {
     expect(after).not.toBe(before);
   });
 
-  it("点击精选卡 → navigateTo 地点详情；点击分类 → switchTab 地图并携带筛选", () => {
+  it("点击精选卡 → navigateTo 地点详情；点击分类 → 首页原地替换列表", () => {
     wxCalls.navigateTo = [];
     wxCalls.switchTab = [];
     const inst = createInstance(home);
     tap(inst, "onOpenFeatured", { id: "p-baikal" });
     expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=p-baikal");
     tap(inst, "onOpenType", { type: "desert" });
-    expect(lastNavUrl("switchTab")).toContain("/pages/map/index");
+    expect((inst.data as any).activeType).toBe("desert");
+    expect((inst.data as any).activeTypeLabel).toBe("沙漠地点");
+    expect((inst.data as any).scenes.length).toBeGreaterThan(0);
+    expect((inst.data as any).scenes.every((scene: any) => scene.type === "desert")).toBe(true);
+    expect(lastNavUrl("switchTab")).toBeNull();
   });
 
   it("首页搜索确认 → switchTab 地图并传递关键词", () => {
@@ -186,6 +190,24 @@ describe("地图页图鉴", () => {
     setPendingTypeFilter("all");
     inst.onShow();
     expect((inst.data as Record<string, any>).activeType).toBe("all");
+  });
+
+  it("推荐卡点击 → 直接进入对应探索（此前只弹预览卡，点「开始下潜」没有下文）", () => {
+    wxCalls.navigateTo = [];
+    const inst = createInstance(map);
+    inst.onLoad();
+    tap(inst, "onOpenRecommendation", { id: "p-mariana" });
+    expect(lastNavUrl("navigateTo")).toContain(
+      "/pages/exploration/index?id=mariana",
+    );
+  });
+
+  it("没有可探索体验的地点 → 进入地点详情", () => {
+    wxCalls.navigateTo = [];
+    const inst = createInstance(map);
+    inst.onLoad();
+    tap(inst, "onOpenRecommendation", { id: "p-baikal" });
+    expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=p-baikal");
   });
 
   it("点击当前观察卡 → navigateTo 对应探索与节点", () => {

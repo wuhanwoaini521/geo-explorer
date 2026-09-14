@@ -6,6 +6,16 @@
     <text class="head-cat">{{item.category}}</text>
   </view>
 
+  <!-- 知识配图：点击全屏看大图（多张时可左右滑动） -->
+  <view wx:if="{{images.length}}" class="media">
+    <image wx:if="{{!imageFailed}}" class="media-image" mode="aspectFill" src="{{images[0]}}" bindtap="onPreviewImage" binderror="onImageError"></image>
+    <view wx:else class="media-image media-image-fallback" bindtap="onPreviewImage">{{item.emoji}}</view>
+    <view class="media-foot">
+      <text wx:if="{{images.length > 1}}" class="media-count">共 {{images.length}} 张</text>
+      <text class="media-hint">点击看大图</text>
+    </view>
+  </view>
+
   <view wx:if="{{process && currentStep}}" class="process-explorer">
     <view class="process-head"><view><text class="section-title">地貌课堂</text><text class="process-question">{{process.question}}</text></view><text class="process-count">{{processIndex + 1}} / {{process.steps.length}}</text></view>
     <view class="process-steps"><view wx:for="{{process.steps}}" wx:key="id" class="process-step-dot {{index < processIndex ? 'complete' : ''}} {{index === processIndex ? 'current' : ''}}"><text>{{item.label}}</text></view></view>

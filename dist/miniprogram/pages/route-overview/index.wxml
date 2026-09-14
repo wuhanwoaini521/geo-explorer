@@ -1,13 +1,68 @@
 <view class="route-page">
-  <view class="route-head"><text class="route-back" bindtap="onBack">‹</text><text class="route-title">地貌观察索引</text><text class="route-more">•••</text></view>
-  <view class="route-progress"><text>{{progressText}}</text><text class="route-progress-cta" bindtap="onContinue">继续观察 ›</text></view>
-  <scroll-view class="route-list" scroll-y="true">
-    <view class="route-spine"></view>
-    <view wx:for="{{rows}}" wx:key="id" class="route-row route-row-{{item.state}}" data-id="{{item.id}}" bindtap="onRowTap">
-      <view class="route-node"></view>
-      <image class="route-thumb" src="{{item.image}}" mode="aspectFill"></image>
-      <view class="route-copy"><text class="route-row-state route-row-state-{{item.state}}">{{item.stateLabel}}</text><text class="route-row-title">{{item.title}}</text><text class="route-row-elev">{{item.elevation}}</text></view>
-      <text class="route-arrow">›</text>
+  <view class="route-head">
+    <text class="route-back" bindtap="onBack">‹</text>
+    <view class="route-head-copy">
+      <text class="route-head-kicker">路线回顾</text>
+      <text class="route-title">{{routeTitle}}</text>
+    </view>
+  </view>
+
+  <scroll-view class="route-scroll" scroll-y="true">
+    <view class="route-hero">
+      <image class="route-hero-image" src="{{heroImage}}" mode="aspectFill"></image>
+      <view class="route-hero-shade"></view>
+      <view class="route-hero-copy">
+        <text class="route-hero-kicker">MOUNT EVEREST · SOUTH COL</text>
+        <text class="route-hero-title">从大本营到世界之巅</text>
+        <text class="route-hero-sub">{{routeSubtitle}}</text>
+        <view class="route-progress-track">
+          <view class="route-progress-fill" style="width:{{progressPct}}%"></view>
+        </view>
+        <view class="route-progress-meta">
+          <text>{{progressText}}</text>
+          <text>{{progressPct}}%</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="route-stats">
+      <view class="route-stat"><text class="route-stat-value">{{distanceText}}</text><text class="route-stat-label">路线长度</text></view>
+      <view class="route-stat"><text class="route-stat-value">{{elevationSpanText}}</text><text class="route-stat-label">海拔跨度</text></view>
+      <view class="route-stat"><text class="route-stat-value">{{nodeCountText}}</text><text class="route-stat-label">关键节点</text></view>
+    </view>
+
+    <view class="route-explain">
+      <view class="route-explain-mark"><view class="route-explain-line"></view><view class="route-explain-dot"></view></view>
+      <view class="route-explain-copy">
+        <text class="route-explain-title">这是你的攀登路线回顾</text>
+        <text class="route-explain-text">下方按“峰顶 → 大本营”排列关键节点；状态表示你是否已经抵达，点击任一节点可查看地点详情。</text>
+      </view>
+    </view>
+
+    <view class="route-section-head">
+      <view><text class="route-section-kicker">ROUTE WAYPOINTS</text><text class="route-section-title">沿途节点</text></view>
+      <text class="route-section-meta">由终点向起点回看</text>
+    </view>
+
+    <view class="route-list">
+      <view class="route-spine"></view>
+      <view wx:for="{{rows}}" wx:key="id" class="route-row route-row-{{item.state}}" data-id="{{item.id}}" bindtap="onRowTap">
+        <view class="route-node"><view wx:if="{{item.state === 'current'}}" class="route-node-core"></view></view>
+        <view class="route-thumb-wrap">
+          <image class="route-thumb" src="{{item.image}}" mode="aspectFill"></image>
+          <text class="route-thumb-kind">{{item.imageLabel}}</text>
+        </view>
+        <view class="route-copy">
+          <view class="route-row-top"><text class="route-role">{{item.roleLabel}}</text><text class="route-row-state route-row-state-{{item.state}}">{{item.stateLabel}}</text></view>
+          <text class="route-row-title">{{item.title}}</text>
+          <text class="route-row-meta">{{item.landform}} · {{item.elevation}}</text>
+        </view>
+        <text class="route-arrow">›</text>
+      </view>
     </view>
   </scroll-view>
+
+  <view class="route-footer">
+    <button class="route-continue" bindtap="onContinue">返回地貌观察</button>
+  </view>
 </view>

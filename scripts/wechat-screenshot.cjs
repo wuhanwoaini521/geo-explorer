@@ -13,7 +13,7 @@
  * Env overrides:
  *   WECHAT_AUTOMATION_WS  automation websocket (default ws://127.0.0.1:9420)
  *   WECHAT_PAGE           page path to capture, e.g. pages/map/index
- *                         (when set, uses miniProgram.reLaunch(page))
+ *                         (omitted: capture app.json's launch page)
  *
  * Output:
  *   artifacts/visual/current.png
@@ -38,7 +38,10 @@ const OUT_IMG = path.join(OUT_DIR, "current.png");
 const WS_DEFAULT = "ws://127.0.0.1:9420";
 const wsUrl = process.env.WECHAT_AUTOMATION_WS || WS_DEFAULT;
 const pagePath = (process.env.WECHAT_PAGE || "").trim();
-const targetPage = pagePath || "pages/home/index";
+const appConfig = JSON.parse(
+  fs.readFileSync(path.join(PROJECT_ROOT, "dist", "miniprogram", "app.json"), "utf8"),
+);
+const targetPage = pagePath || appConfig.pages[0];
 
 // Timeouts (ms). Env-overridable, bounded so tests can never hang forever.
 const CONNECT_MS = Math.min(
@@ -147,29 +150,22 @@ function fail(msg) {
 
     await waitAppReady(mini, READY_MS);
 
-    const relaunchTo = pagePath || null;
-    if (relaunchTo) {
-      log(`reLaunch -> ${relaunchTo}`);
-      try {
-        await withTimeout(
-          // miniprogram-automator 的 reLaunch 会再次包装参数；这里直接调用
-          // App.callWxMethod，确保传给微信的是 { url: string }，支持带 query 的探索页。
-          mini.callWxMethod("reLaunch", { url: `/${relaunchTo}` }),
-          STEP_MS,
-          "reLaunch",
-        );
-      } catch (err) {
-        throw new Error(
-          `WECHAT_PAGE=${relaunchTo}: navigation failed (${err.message}). ` +
-            "The app stayed on the current page; screenshots of the currently " +
-            "displayed page still work (omit WECHAT_PAGE to capture the active page).",
-        );
-      }
-      await sleep(RENDER_MS);
-    } else {
-      log(`capturing ${targetPage}`);
-      await sleep(RENDER_MS);
+    log(`reLaunch -> ${targetPage}`);
+    try {
+      await withTimeout(
+        // miniprogram-automator 的 reLaunch 会再次包装参数；这里直接调用
+        // App.callWxMethod，确保传给微信的是 { url: string }，支持带 query 的探索页。
+        mini.callWxMethod("reLaunch", { url: `/${targetPage}` }),
+        STEP_MS,
+        "reLaunch",
+      );
+    } catch (err) {
+      throw new Error(
+        `${pagePath ? `WECHAT_PAGE=${pagePath}` : `launch page=${targetPage}`}: ` +
+          `navigation failed (${err.message}).`,
+      );
     }
+    await sleep(RENDER_MS);
 
     log("capturing miniProgram.screenshot() ...");
     const res = await withTimeout(

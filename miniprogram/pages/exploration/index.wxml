@@ -107,6 +107,9 @@
 
   <!-- ===== 通用世界（非山岳：Marian 等） ===== -->
   <block wx:else>
+    <!-- 世界实景照片（approved hero）：替代抽象 CSS 场景，让非山岳世界也有真实地貌主视觉 -->
+    <image wx:if="{{worldPhoto}}" class="world-photo" mode="aspectFill" src="{{worldPhoto}}" style="transform:translate3d(0,-{{par.ground * 0.4}}px,0)"></image>
+
     <!-- 海洋专属：表层光柱 + 上浮气泡（山脊/山峰不适用于水中） -->
     <block wx:if="{{worldOcean}}">
       <view class="ocean-rays" style="opacity:{{rayOpacity}}">
@@ -118,6 +121,8 @@
         <view wx:for="{{bubbles}}" wx:key="id" class="bubble" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration + 3}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
       </view>
     </block>
+    <!-- 无实景素材时回退原 CSS 2.5D 场景 -->
+    <block wx:if="{{!worldPhoto}}">
     <view wx:if="{{!worldOcean}}" class="ridge far" style="transform:translate3d(0,-{{par.far}}px,0)">
       <view class="peak peak-a">▲</view>
       <view class="peak peak-b">◥</view>
@@ -132,15 +137,16 @@
       <view class="ground-glare"></view>
     </view>
     <view class="flora-layer" style="transform:translate3d(0,-{{par.near}}px,0)"></view>
+    </block>
   </block>
 
-  <!-- 风雪粒子（强度=雪量，档位化；山岳世界 DEM 照片自带雪景，不再叠加粒子避免盖脸） -->
-  <view wx:if="{{!worldMountain}}" class="snow-layer">
+  <!-- 风雪粒子（强度=雪量，档位化；山岳 DEM 与实景照片自带氛围，不再叠加粒子避免盖脸） -->
+  <view wx:if="{{!worldMountain && !worldPhoto}}" class="snow-layer">
     <view wx:for="{{particles}}" wx:key="id" class="snow-flake" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
   </view>
 
-  <!-- 云雾罩（山岳世界用照片自带氛围，不再叠加） -->
-  <view wx:if="{{!worldMountain}}" class="fog" style="opacity:{{fogOpacity}}"></view>
+  <!-- 云雾罩（山岳 DEM 与实景照片自带氛围，不再叠加） -->
+  <view wx:if="{{!worldMountain && !worldPhoto}}" class="fog" style="opacity:{{fogOpacity}}"></view>
 
   <!-- ===== 路线模式 HUD（Gate 3：Expedition 附件 → 真实路线驱动；地形优先 + 底部 30% 暗色限流 UI） ===== -->
   <block wx:if="{{routeMode}}">
@@ -158,7 +164,7 @@
     </view>
 
     <!-- 底部 40% 面板：对齐探索进度参考图（位置/海拔 → 距顶峰 → 环境 → 进度 → 操作） -->
-    <view class="exp-sheet {{expDeathZone ? 'exp-death' : ''}}">
+    <view class="exp-sheet {{expDeathZone ? 'exp-death' : ''}} {{expedition.atSummit ? 'exp-summit-sheet' : ''}}">
       <!-- 位置 + 海拔（隐藏 REFERENCE 徽标，避免干扰） -->
       <view class="exp-pos">
         <view class="exp-pos-l">
@@ -171,8 +177,11 @@
       <!-- 下一观察点（不再使用“距顶峰”的登山目标文案） -->
       <view class="exp-goal">
         <view class="exp-goal-row">
-          <text class="exp-goal-k">下一观察点 · {{expedition.nextLandform}}</text>
-          <text class="exp-goal-v">{{expedition.nextGapText === '—' ? '已抵达' : '还有 ' + expedition.nextGapText}}</text>
+          <text wx:if="{{expedition.atSummit}}" class="exp-goal-k">路线终点 · {{expedition.currentLandform}}</text>
+          <text wx:else class="exp-goal-k">下一观察点 · {{expedition.nextLandform}}</text>
+          <text wx:if="{{expedition.atSummit}}" class="exp-goal-v">{{expTerminus.headline}}</text>
+          <text wx:elif="{{expedition.nextGapText === '—'}}" class="exp-goal-v">已抵达</text>
+          <text wx:else class="exp-goal-v">还有 {{expedition.nextGapText}}</text>
         </view>
       </view>
 
@@ -200,6 +209,8 @@
         </view>
       </view>
 
+      <text wx:if="{{!expedition.atSummit && expedition.stageIntro}}" class="exp-stage-intro">{{expedition.stageIntro}}</text>
+
       <!-- 地貌观察序列（只表达已观察范围） -->
       <view class="exp-route">
         <view class="exp-route-track">
@@ -209,9 +220,31 @@
       <view class="exp-route-meta">
         <text class="exp-route-label">起点</text>
         <text class="exp-route-pct">{{expedition.pct}}%</text>
-        <text class="exp-route-label">峰顶地貌</text>
+        <text class="exp-route-label">{{expTerminus.label}}</text>
       </view>
-      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在切换观察点…' : '点击“攀登”前进；可用“上一个”回看'}}</text>
+
+      <!-- 终点完成摘要：占用登顶后释放出的引导空间，给出明确的路线终点与成果反馈。 -->
+      <view wx:if="{{expedition.atSummit && summaryStats}}" class="exp-finish">
+        <view class="exp-finish-copy">
+          <text class="exp-finish-kicker">{{expTerminus.kicker}}</text>
+          <text class="exp-finish-title">{{expTerminus.note}}</text>
+        </view>
+        <view class="exp-finish-stats">
+          <view class="exp-finish-stat">
+            <text class="exp-finish-stat-v">{{summaryStats.durationText}}</text>
+            <text class="exp-finish-stat-k">探索用时</text>
+          </view>
+          <view class="exp-finish-stat">
+            <text class="exp-finish-stat-v">{{expedition.distanceText}}</text>
+            <text class="exp-finish-stat-k">完成路线</text>
+          </view>
+          <view class="exp-finish-stat">
+            <text class="exp-finish-stat-v">{{summaryStats.unlocked}}/{{summaryStats.nodeTotal}}</text>
+            <text class="exp-finish-stat-k">知识发现</text>
+          </view>
+        </view>
+      </view>
+      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在切换观察点…' : '点击“' + expClimbLabel + '”前进；可用“上一个”回看'}}</text>
       </view>
 
       <!-- 死亡区克制提示（配色/文案/降低对比度；不弹窗不震屏） -->
@@ -220,13 +253,18 @@
       </view>
 
       <!-- 底部操作：上一个地貌 / 地貌索引 / 下一个地貌 -->
-      <view class="exp-actions">
+      <view wx:if="{{expedition.atSummit}}" class="exp-actions exp-actions-finish">
+        <button class="exp-ctl exp-ctl-down" bindtap="onStepDown">回看路线</button>
+        <button class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">路线回顾</button>
+        <button class="exp-ctl exp-ctl-up exp-ctl-achievement" bindtap="onGoProfile">查看成就</button>
+      </view>
+      <view wx:else class="exp-actions">
         <button
           class="exp-ctl exp-ctl-down"
           bindtap="onStepDown"
           disabled="{{expClimbing}}"
         >上一个</button>
-        <button class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">地貌索引</button>
+        <button class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">路线概览</button>
         <button
           class="exp-ctl exp-ctl-up"
           bindtap="onStepUp"
@@ -238,16 +276,20 @@
     <!-- Gate 3.3C.1 P1：hero→面板 跨接缝照片暗化渐变（不挪/不加高面板；在面板上缘铺淡出，消除硬接缝） -->
     <view class="exp-sheet-fade"></view>
 
-    <!-- 峰顶轻提示：无庆祝大横幅，保证峰顶地形优先可见 -->
+    <!-- 终点徽章：不遮住主地形，但必须让用户一眼确认旅程已完成。 -->
     <view wx:if="{{expSummit && expSummit.show}}" class="exp-summit-pill">
-      <view class="exp-summit-txt">
+      <view class="exp-summit-row">
+        <view class="exp-summit-emblem">
+          <view class="exp-summit-flag-pole"></view>
+          <view class="exp-summit-flag"></view>
+        </view>
+        <view class="exp-summit-copy">
+          <text class="exp-summit-kicker">{{expTerminus.kicker}}</text>
+          <text class="exp-summit-title">{{expTerminus.headline}}</text>
+        </view>
         <text class="exp-summit-alt">{{expSummit.altitudeText}} m</text>
       </view>
-      <text class="exp-summit-note">{{expSummit.note}}</text>
-      <view class="exp-summit-actions">
-        <text class="exp-summit-act" bindtap="onGoProfile">查看成就</text>
-        <text class="exp-summit-act" bindtap="onBackHome">返回首页</text>
-      </view>
+      <text class="exp-summit-note">{{expSummit.note}} · 路线完成 100%</text>
     </view>
   </block>
 
@@ -332,7 +374,7 @@
       <text wx:elif="{{item.state === 'current'}}" class="rn rn-current">◎</text>
       <text wx:else class="rn rn-upcoming">·</text>
     </view>
-    <text class="rail-cap rail-cap-top">峰顶</text>
+    <text class="rail-cap rail-cap-top">{{expTerminus.top}}</text>
     <text class="rail-cap rail-cap-bottom">起点</text>
   </view>
 
@@ -471,7 +513,13 @@
     <scroll-view class="wpd-scroll" scroll-y>
       <view wx:if="{{waypointCard.image}}" class="wpd-media" bindtap="onPreviewWaypointImage">
         <image class="wpd-image" mode="aspectFill" src="{{waypointCard.image}}"></image>
-        <text class="wpd-media-hint">点击查看大图 · 双指缩放</text>
+        <view class="wpd-media-shade"></view>
+        <text wx:if="{{waypointCard.imageKindLabel}}" class="wpd-media-kind">{{waypointCard.imageKindLabel}}</text>
+        <text class="wpd-media-hint">查看大图 ↗</text>
+        <view class="wpd-media-caption">
+          <text class="wpd-media-caption-k">画面地点</text>
+          <text class="wpd-media-caption-v">{{waypointCard.title}} · {{waypointCard.landform}}</text>
+        </view>
         <view wx:if="{{waypointCard.imageCount > 1}}" class="wpd-dots">
           <view
             wx:for="{{waypointCard.images}}"
@@ -483,7 +531,14 @@
         </view>
       </view>
       <text wx:if="{{waypointCard.imageCredit}}" class="wpd-credit">{{waypointCard.imageCredit}}</text>
-      <text wx:if="{{waypointCard.imageKindLabel}}" class="wpd-media-kind">{{waypointCard.imageKindLabel}}</text>
+
+      <view wx:if="{{waypointCard.whatToNotice}}" class="wpd-observe">
+        <view class="wpd-observe-mark"></view>
+        <view class="wpd-observe-copy">
+          <text class="wpd-observe-k">看图提示</text>
+          <text class="wpd-observe-v">{{waypointCard.whatToNotice}}</text>
+        </view>
+      </view>
 
       <view wx:if="{{waypointCard.terrain || waypointCard.landform}}" class="wpd-chips">
         <text wx:if="{{waypointCard.terrain}}" class="wpd-chip">{{waypointCard.terrain}}</text>

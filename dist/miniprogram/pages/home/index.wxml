@@ -19,16 +19,24 @@
 
   <scroll-view class="filters" scroll-x enhanced show-scrollbar="{{false}}">
     <view class="filter-row">
-      <text class="filter {{activeType === 'all' ? 'filter-on' : ''}}" data-type="all" bindtap="onOpenAtlas">推荐</text>
+      <text class="filter {{activeType === 'all' ? 'filter-on' : ''}}" data-type="all" bindtap="onOpenType">推荐</text>
       <text wx:for="{{types}}" wx:key="type" class="filter {{activeType === item.type ? 'filter-on' : ''}}" data-type="{{item.type}}" bindtap="onOpenType">{{item.label}} {{item.count}}</text>
     </view>
   </scroll-view>
 
+  <view class="destination-heading">
+    <view class="destination-heading-copy">
+      <text class="destination-heading-title">{{activeTypeLabel}}</text>
+      <text class="destination-heading-count">{{scenes.length}} 个地点</text>
+    </view>
+    <text class="destination-heading-link" bindtap="onOpenAtlas">在地球上查看 ›</text>
+  </view>
+
   <view class="destination-list">
     <view wx:if="{{sceneEmpty}}" class="scene-empty"><text>没有找到相关地点</text><text>试试“珠峰”“海沟”或其他地貌关键词</text><text class="scene-empty-clear" bindtap="onQueryClear">清除搜索</text></view>
     <view class="destination" wx:for="{{scenes}}" wx:key="id" data-id="{{item.id}}" data-target="{{item.target}}" bindtap="onOpenScene">
-      <image wx:if="{{!failedImages[item.id]}}" class="destination-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onSceneImageError"></image>
-      <view wx:else class="destination-image-fallback">{{item.title}}</view>
+      <image wx:if="{{item.image && !failedImages[item.id]}}" class="destination-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onSceneImageError"></image>
+      <view wx:else class="destination-image-fallback"><text>{{item.emoji}}</text></view>
       <view class="destination-shade"></view>
       <view class="destination-copy">
         <text class="destination-title">{{item.title}}</text>
