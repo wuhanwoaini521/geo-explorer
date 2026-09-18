@@ -229,8 +229,8 @@ export class GlobeRenderer {
 
   dragBy(deltaX: number, deltaY = 0): void {
     this.cancelFocus();
-    this.rotation += (deltaX / Math.max(1, this.width)) * 2.2;
-    this.pitch = Math.max(-0.38, Math.min(0.38, this.pitch - (deltaY / Math.max(1, this.height)) * 1.2));
+    this.rotation -= (deltaX / Math.max(1, this.width)) * 2.2;
+    this.pitch = Math.max(-0.38, Math.min(0.38, this.pitch + (deltaY / Math.max(1, this.height)) * 1.2));
     this.draw();
   }
 
@@ -244,8 +244,8 @@ export class GlobeRenderer {
     }
     this.rotating = false;
     this.momentumTimer = setInterval(() => {
-      this.rotation += (momentumX / Math.max(1, this.width)) * 0.42;
-      this.pitch = Math.max(-0.38, Math.min(0.38, this.pitch - (momentumY / Math.max(1, this.height)) * 0.16));
+      this.rotation -= (momentumX / Math.max(1, this.width)) * 0.42;
+      this.pitch = Math.max(-0.38, Math.min(0.38, this.pitch + (momentumY / Math.max(1, this.height)) * 0.16));
       momentumX *= 0.86;
       momentumY *= 0.86;
       this.draw();
