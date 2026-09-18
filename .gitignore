@@ -41,6 +41,9 @@ images/
 .vscode/
 *.swp
 project.private.config.json
+.env.local
+.env*.local
+
 # py tool caches
 .ruff_cache/
 __pycache__/
