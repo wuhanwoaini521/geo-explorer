@@ -2,7 +2,7 @@
  * optimize-images —— 把 media-source 原图生成 runtime 优化资产。
  *
  * 输入：media-source/<world>/<id>.<ext>（原始文件，已校验 sha256）
- * 输出：miniprogram/assets/content/<world>/<id>.jpg
+ * 输出：media-remote/content/<world>/<id>.jpg
  *   - hero 1080 宽（竖屏卡片/主视觉）；card 640 宽（小图/卡图）；knowledge 800 宽
  *   - quality 80 JPEG（保持比例，不做裁切——裁切语义由 UI 的 aspectFill + focus 完成）
  *   - 白底 PNG（diagram）转 JPG 白底
@@ -76,7 +76,7 @@ for (const meta of META) {
   // Runtime 用途规格：waypoint hero → 1080；place hero → 640 卡图；knowledge → 800
   const spec: string = meta.id.startsWith("k-") ? "knowledge-support" : "hero";
   const width = spec === "hero" ? 1080 : 800;
-  const outDir = join(ROOT, "miniprogram/assets/content", meta.world);
+  const outDir = join(ROOT, "media-remote/content", meta.world);
   const outPath = join(outDir, `${meta.id}.jpg`);
   if (!existsSync(dirname(outPath))) execFileSync("mkdir", ["-p", dirname(outPath)]);
 

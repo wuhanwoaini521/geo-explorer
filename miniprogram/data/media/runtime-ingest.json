@@ -8,7 +8,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/everest/ev-icefall-ladders.jpg",
     "sourceSha256": "dcc2a09d7f5f7c02984e675a376f24a7fe64fe8219d27f7133caaf6e91856229",
-    "runtimeSha256": "355442e86116ef55c670cf973819bb003e70ecc506a866af7b44299832c26a86",
+    "runtimeSha256": "aa95ef478536e49e1d40c9eb90062021baa2fc03125dd0d887a7a15c8e16adab",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -21,7 +21,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/everest/ev-b1-western-cwm.jpg",
     "sourceSha256": "cd176f464cf58e7028512fcf83ea4a00e5cfaf8788dbbfc77f386da0f98fae99",
-    "runtimeSha256": "3e26f179db8bc71820c1abe415b639dd86e1759f8dd8c544fd89093be8cddc88",
+    "runtimeSha256": "288b1d1c09c6d19f7d2ac641338ef7928be5a4593028f77ef605b4a4f8d356ab",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -34,7 +34,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/everest/ev-c1-yellow-band.jpg",
     "sourceSha256": "564babbce6b42edbd56555e4a978408115a1f56b7e0f8058ce04da9a98319925",
-    "runtimeSha256": "41b87b258a735eec1f433973880e9a08476af88fde334248d0f4d504226fbd2f",
+    "runtimeSha256": "fdc23c3530a32787f314705f78c094a87c5748bf46b5a370e4c1a3d21584c36b",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -47,7 +47,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/m1-gebco-bathymetry.jpg",
     "sourceSha256": "59eaf770e6cc06f233c6b9204f05fe3db3d2c1bd1363fe40de35dbf27e923f59",
-    "runtimeSha256": "3278f86c10137c124d6f271def1c021e063f65bd2a4a837090623ffbd76c8a69",
+    "runtimeSha256": "2002d5b13f3d3df63f11dd87461becc0c2fe4ef7e0515e4d34dbd7f45818ed8d",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -60,7 +60,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/m2-limiting-factor-bottom.jpg",
     "sourceSha256": "48d28d9a2fa4f91932d71398a60135589117029359cd15fd8d01192ad286728e",
-    "runtimeSha256": "612a6a860bc5079f5ff3d2ccaff2d99f1ea5703678fb80e5a64aab79e4e06167",
+    "runtimeSha256": "38acda4c06dfd3fcbf809f5cb909ec4cdd08f659bfe9877eff3bb1a86c009cb8",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -73,7 +73,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/m3-trieste-1960.jpg",
     "sourceSha256": "79df6ccfc77c0da612d37c0db55e606a3bff4189f94c4309ecb07f9c8917b99b",
-    "runtimeSha256": "37f272fab9099801c313dec98a9620f54860bd96b33baec935a458f9a518e98d",
+    "runtimeSha256": "6f5d50b30c20ca9590c1a4786c4d7e7222833fcde4121ec3bae900334c2d4cfd",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -86,7 +86,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/m4-hadal-snailfish-map.jpg",
     "sourceSha256": "6662032345567cb732ac2a104fdb22e7bc2c91481ea1a8c8c62d08f4c36ed2ec",
-    "runtimeSha256": "a4b19681eb83166ef7cd3c85af59f28b07fa7e2b6fceae6ee1e07d582238b8d9",
+    "runtimeSha256": "df465fef6ae9f9c04a891003116219ff7493fc4da9c84a2155e8acec49facda9",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -99,22 +99,9 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/m5-hirondellea.jpg",
     "sourceSha256": "348a916f42f9edbc674f8de1d023f5992e3515c9742be8c9b79d1518d860b5d1",
-    "runtimeSha256": "5c3a4f8481df3b95a70e6091bbf2ddaa11de4c6024f60e296a93c2b0c58ec15c",
+    "runtimeSha256": "4ed7a74647c6c3a3330de6d8b73093f2023490c88f066b2c4dce1674a20f195d",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
-  },
-  "k-marine-snow": {
-    "candidateId": "k-marine-snow",
-    "world": "mariana",
-    "entityType": "knowledge",
-    "entityId": "k40",
-    "purpose": "knowledge-support",
-    "kind": "runtime",
-    "runtimePath": "/assets/content/mariana/k-marine-snow.jpg",
-    "sourceSha256": "0bf1350f0d824608b21b2b9cd1eda690d0037b8b41614cfdf60daa41459fbe9e",
-    "runtimeSha256": "014b3461331bea1b042e107a2bd47b6d046ff93bf153d359feb5d52e37554ea5",
-    "width": 800,
-    "processing": "imagemagick: auto-orient, resize 800w, q80"
   },
   "k-subduction": {
     "candidateId": "k-subduction",
@@ -125,7 +112,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/everest/k-subduction.jpg",
     "sourceSha256": "f0ad036d861e92f3ce13029f717df37ade3d33a4a20a62e94d029b9b1a0aa024",
-    "runtimeSha256": "ab3d504957bafc15e83fea69c3a7cbbf77703fdef414b22891e9239e99e1f3e8",
+    "runtimeSha256": "451eae844e312cf5a31f8aa98ecccb71b3fa59767180406b0afe53dbab4739d9",
     "width": 800,
     "processing": "imagemagick: auto-orient, resize 800w, q80"
   },
@@ -138,7 +125,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/everest/k-hillary-tenzing.jpg",
     "sourceSha256": "54415cdb2608c654d1096f4545e10685f7138e3569abdb3bb1c473d529755c1e",
-    "runtimeSha256": "bd99438af797ad329cd740fa9214b79bd4a8d093a18060c1ad41e1db44032065",
+    "runtimeSha256": "00562ca5d81e9616affb22e02f574df214f38d6d25d8875ae3de2a4d6f67d511",
     "width": 800,
     "processing": "imagemagick: auto-orient, resize 800w, q80"
   },
@@ -151,7 +138,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f3-goraiko.jpg",
     "sourceSha256": "a597bb9a747346324983aaa8310368e8296fa6febe51ded69b6bad5ff634e934",
-    "runtimeSha256": "119fc52cd8bd99c8efa4c4087668f058e5b938feb5846862862c96836c82f8a2",
+    "runtimeSha256": "3512c82afa0a6200c2d8a3be5f3775461b2294efbafdb4d603e48bb7e4300b8f",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -164,7 +151,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f-yoshida-huts.jpg",
     "sourceSha256": "2a2a59ca01a1de3ed3d2ad9578a4665b12243d09fccc829ea61e26c9d241cb0a",
-    "runtimeSha256": "8b77f75d8cfb28ca2de120a5a4645bc0088fd8e5186751f225945219faaeba3f",
+    "runtimeSha256": "f9d6f03aa4d126731a7e3230b3f82304570bc48ca667da83fd502b3f44ece5e2",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -177,7 +164,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f4-hoei-rim.jpg",
     "sourceSha256": "aca976ea7722e80a180f05d13587dcfd0d1ec6a5b71bef8ff86808d9afb234bf",
-    "runtimeSha256": "05fc369a08aebc90fc59ab612dae462564b1a1c5a9327ceaeffbaac076b3a7af",
+    "runtimeSha256": "38ac95e05698daae2401b4ad28f816aab8066a330694ceff03c151719d7c1c3f",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -190,7 +177,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f-forest-lower.jpg",
     "sourceSha256": "bf983d9da4161407db6975a0f003aefef0bfad49a97cc56e6be575aeb8df088d",
-    "runtimeSha256": "1398a9f19c6b42667bdb98bd6b88603c07eb04b0d4036e3b379e0daf55832d10",
+    "runtimeSha256": "239d727f2c72bedc6d22920aea3e542c8f74eaf0d3475fc688609c2d60f61104",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -203,7 +190,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f1-yamanaka-view.jpg",
     "sourceSha256": "afa306f76704ac4f24ddf08f621e4002037ac17382347fcba3d6b67b042b5e4f",
-    "runtimeSha256": "0d481d65258a8cf0cf67f8f94c6626f8df6f6ba9575290f99930ee301962e6e3",
+    "runtimeSha256": "06c0430066dc1dc2a0749e72d351b4e5f3b613192a33b9afdfc41ac79ef1f7b5",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -216,7 +203,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c4-phantom-ranch.jpg",
     "sourceSha256": "2da9c39d2c1e65a51b6b20a889178034acd4e2e0730f8082d304fcdc8d01b207",
-    "runtimeSha256": "39bb7fc41d58727147168f73b5511676c8a513aa3733de4ac04c2a419ef224fc",
+    "runtimeSha256": "0d74b3620ec1b9ecf58861a6723e9935c470c58ac94efddd3bd14890604f0a89",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -229,7 +216,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c-vishnu-river.jpg",
     "sourceSha256": "9fa37c4efd0d088910ab055028adb5a6458434e41d1a26cbd44886e96b0c5411",
-    "runtimeSha256": "16d393807ffe99b90d3164c8e2485e01c8401ef47d09f0b82b069294005610a2",
+    "runtimeSha256": "7a324616a7ff29ce2a2171da131bc0246f57d3e3c57b3b5de7af792f918c01e4",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -242,7 +229,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f-cross-section.jpg",
     "sourceSha256": "e36b57dda2f30b1f29c49ef7d00dbd05c8c1dc8e4e5136c73303ee18855ed85f",
-    "runtimeSha256": "8c97a265739eab46b6f96ecfb163f55eea7347657d660b0860c42805c508b66d",
+    "runtimeSha256": "1b02bd1fcc9703fd627576cd5cd8138ea3a5afd9c9f03e93a3ecbfdfcaa2ebc1",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -255,7 +242,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f-osunabashiri.jpg",
     "sourceSha256": "4387534c72d04b808b14222fad3f4c5aae6d24e1b03e9dcd6ad51d197a12a2ff",
-    "runtimeSha256": "671316b0240142149b1c75e449b89045ad8b927bef93097278e6ec057088c662",
+    "runtimeSha256": "df93b1a983c766d67c20f1130c1c3544c571f797dcba70dae94140e2ea76e869",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -268,7 +255,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c3-kaibab-fossils.jpg",
     "sourceSha256": "8cbbf94368316f2d31e5e794431a14b3cd797f82ecdb34b12bb179fdfdff00c1",
-    "runtimeSha256": "0a3c8219b1188c1b823287fbd1c56b3c1aa612497f4664667d6ab09466f076c4",
+    "runtimeSha256": "9dd793334a8b462f3c3604d293adcc35871908423d590c5c4a56487f3ac1118f",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -281,7 +268,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/k-pelagic-zones.jpg",
     "sourceSha256": "f00058a7ed2146b225b7279e523631a207f20edd16c6552357423218a55e6ba9",
-    "runtimeSha256": "164bd7f8332ecd6c729a5d48c66f37cc7231c11c16e3db13120ea8b6ae24b2a0",
+    "runtimeSha256": "6914db07f723ebde79274d02d787d5bb6b022f870578b7745205f51928cbb408",
     "width": 800,
     "processing": "imagemagick: auto-orient, resize 800w, q80"
   },
@@ -294,7 +281,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/k-condor.jpg",
     "sourceSha256": "adde63600a95172c59e0738e2e27aa88e8d58e6ddfa1ac4e95ea3088a4550fd3",
-    "runtimeSha256": "218d3dc28071d05ab2da71311b6d7f0a36a08ad7e7a0b418db8012e68cdf0e1e",
+    "runtimeSha256": "1976eea1b1f00f6728952b4026792e88e307222e3983d0826187a892abfb2342",
     "width": 800,
     "processing": "imagemagick: auto-orient, resize 800w, q80"
   },
@@ -307,7 +294,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c-resthouse-15.jpg",
     "sourceSha256": "cca46d0744e00b16cc8f8e02470b2c4425d0edba4e801d1f27693330ad23fd05",
-    "runtimeSha256": "408c9a24327a5f4d5f5ab965b78839e5f7dae7dffe2faba3152e1f85d3d72ad6",
+    "runtimeSha256": "8f76a7c8bed4b5c7e34ae2ca2798463b5dc164d143cc8413f4c20590e286c50f",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -320,7 +307,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c-resthouse-3mi.jpg",
     "sourceSha256": "35e39d2deb5002366f45ebc636ae4b12c80bc86861448815f052942e534fe253",
-    "runtimeSha256": "d0b1604a303943a06ebc78882aef078d0eaeb0882659ddbbbd016599056ed857",
+    "runtimeSha256": "faab1bdc831ffcf380318ceffe7c44293e4d800e225c187152b5bc605eb0359b",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -333,7 +320,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c1-trailhead.jpg",
     "sourceSha256": "1c525883befd54c4900bd18f74d970055a91fe6c6ea5e08dbebe3aff88f87a76",
-    "runtimeSha256": "5f34f546e5b7689937cb070406016e47a9faff136548f080b3ff6078077fc016",
+    "runtimeSha256": "6069306869d660e1626efec3ebe5585643e646e1c23c168d141b7dfc76bb08ea",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -346,7 +333,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c2-devils-corkscrew.jpg",
     "sourceSha256": "16bbd759e7660cded53b083fe2e0978a30f346730f5979a8c3b9e441e456dd29",
-    "runtimeSha256": "c1fd99b047e804665b0f4320d7b56496162c25ab5485eb6bfcdb12528bb4d57f",
+    "runtimeSha256": "1bfa6bab3539a311336da78a6a1294d5a8b947e5ddea20b816e3dc1f36d92f19",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -359,7 +346,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c-indian-garden.jpg",
     "sourceSha256": "e39e4be5bcb056b2574b8b62a4d53051405644e5feab96a314f27c3ced9b0905",
-    "runtimeSha256": "8c506e6f3e55ea9892678feeca0b5f57ba63254c0d78c4590873f96055834dbf",
+    "runtimeSha256": "c5477a4f6e2f45b7d9a5ffcf6b919ac7e239550b56c7bf06d09c0823580cfe55",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -372,20 +359,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c-river-nps.jpg",
     "sourceSha256": "da1bcd26c95745826c65707dc87f7e841b6cb27058acc30d189f8fd5bba207c7",
-    "runtimeSha256": "2557d1e07f4bf1e2e63fef827d9c80344a8b5994269268c24f4b46988750725a",
-    "width": 1080,
-    "processing": "imagemagick: auto-orient, resize 1080w, q80"
-  },
-  "f-navy-trail": {
-    "candidateId": "f-navy-trail",
-    "world": "fuji",
-    "entityType": "waypoint",
-    "entityId": "nanagome",
-    "purpose": "hero",
-    "kind": "runtime",
-    "runtimePath": "/assets/content/fuji/f-navy-trail.jpg",
-    "sourceSha256": "e3d36ba2ce3c75cb14744a71ce268e75efca19f562544ebd588472b7019e3516",
-    "runtimeSha256": "5b69d360f2768bc02224aee6d31fdd64716b938f331e7752a8f5c7ebcc149795",
+    "runtimeSha256": "5b36f08fc0e23e0caca63a3661e38b3252d1b65796ddb264ada089e9219e8cb6",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -398,7 +372,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/fuji/f5-navy-climb.jpg",
     "sourceSha256": "480f8dff0c1d696ff166e55ea436bbc256cd53e557d62d5cb415a4c45d306229",
-    "runtimeSha256": "ccd45274a5530e18685f76125b04e3c47ad8931b3fff814547f460fa2dfb4ce7",
+    "runtimeSha256": "4274a30dde67d2edae204ce1ede71c726ac1316d6a49c8a88a1676834c2d5e2f",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -411,7 +385,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/k34-noctiluca-glow.jpg",
     "sourceSha256": "eaf074aaa019cd5be1baf9350b3a84fc97afd396621ec0e9fc79f6319ea0cdb9",
-    "runtimeSha256": "9bd2d9215eb7e13b44b7f87c7187b2417e2c7d3f762f80cf679b177a61678380",
+    "runtimeSha256": "d29f085566e5f7cdacdf7acd5884e0d6dedfc4a33943793e4ae291f4aa983c6a",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -424,7 +398,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/k40-ifremer-snow.jpg",
     "sourceSha256": "a13a5da1aed8104caabd246bfe2c3f52b72e97d0840c43cdced59805c8389dec",
-    "runtimeSha256": "eb99cc27079eee59e0ba1372f6c273a951347acdb93aa95225d20a69f151adb0",
+    "runtimeSha256": "c1348668bc1855b8d78b76600c57f3888a20346f5941656a5f4b94417c6a7e0e",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -437,7 +411,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/mariana/m7-challenger-sonar.jpg",
     "sourceSha256": "6dbfbcc01a2897ed664e1de60df8860c952b1ac55492db519022b670b4d2c500",
-    "runtimeSha256": "8106dd3bb91ef9a9f1968f10884c9e280b3fc35702522a1ade6f61559681c313",
+    "runtimeSha256": "169820891abe803b444bda497e8e0efce54918211b580bdaf03e1f43d046641b",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -450,7 +424,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/colorado/c6-south-rim-panorama.jpg",
     "sourceSha256": "fd6205c4c0247f55701ae06e3fe27e53d3ce6a93675a970a31f780b02e629ec2",
-    "runtimeSha256": "f32c332ea06c2a1af81dfd271a8183e1203b4362105f4f5c3529cb076139a684",
+    "runtimeSha256": "5458d7198935e57b977c7b2290dd5738a22ea40370994bd91da4acf14417bc3c",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   },
@@ -463,7 +437,7 @@
     "kind": "runtime",
     "runtimePath": "/assets/content/everest/k32-modern-climb.jpg",
     "sourceSha256": "dcc2a09d7f5f7c02984e675a376f24a7fe64fe8219d27f7133caaf6e91856229",
-    "runtimeSha256": "355442e86116ef55c670cf973819bb003e70ecc506a866af7b44299832c26a86",
+    "runtimeSha256": "aa95ef478536e49e1d40c9eb90062021baa2fc03125dd0d887a7a15c8e16adab",
     "width": 1080,
     "processing": "imagemagick: auto-orient, resize 1080w, q80"
   }

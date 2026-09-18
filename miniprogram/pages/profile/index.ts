@@ -113,7 +113,7 @@ Page({
   onOpenFavorite(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
-    wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+    wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${id}` });
   },
 
   /** 从列表快速取消收藏 */
@@ -126,7 +126,7 @@ Page({
 
   /** 数据来源与许可页 */
   onOpenCredits() {
-    wx.navigateTo({ url: "/pages/credits/index" });
+    wx.navigateTo({ url: "/pkg-detail/pages/credits/index" });
   },
 
   onClear() {

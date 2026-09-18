@@ -29,9 +29,11 @@ import {
   summarizeIssues,
   knowledgeCompleteness,
 } from "../miniprogram/engine/validate-content";
-import { deriveState, knowledgeUnlockedOnMove } from "../miniprogram/engine/exploration-engine";
+import { deriveState, knowledgeUnlockedOnMove } from "../miniprogram/pkg-explore/engine/exploration-engine";
+import { mediaSourcePath } from "../scripts/media-ownership.mjs";
 
 const ROOT = join(__dirname, "..", "miniprogram");
+const REPO_ROOT = join(__dirname, "..");
 
 const WORLD_IDS = ["everest", "mariana", "fuji", "colorado"] as const;
 
@@ -290,9 +292,12 @@ describe("静态资源引用扫描", () => {
   it("源码引用的全部 /assets/ 图片真实存在（.ts/.wxml/.wxss/.json）", () => {
     const refs = collectLocalImageRefs(ROOT);
     expect(refs.length).toBeGreaterThan(10);
-    const missing = [...new Set(refs)].filter(
-      (ref) => !existsSync(join(ROOT, ref.slice("/".length))),
-    );
+    // Gate 4：媒体分两处保存——远端媒体在 media-remote/，包内资源在 miniprogram/assets/。
+    // 本断言保证「源码里写到的每个资源都能在仓库里找到源文件」，不因迁移而失效。
+    const missing = [...new Set(refs)].filter((ref) => {
+      const key = ref.replace(/^\/assets\//, "");
+      return !existsSync(join(REPO_ROOT, mediaSourcePath(key)));
+    });
     expect(missing).toEqual([]);
   });
 });

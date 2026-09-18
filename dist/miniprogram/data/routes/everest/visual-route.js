@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EVEREST_HERO_IMAGE = void 0;
 exports.buildEverestRoutePath = buildEverestRoutePath;
+const media_service_1 = require("../../../services/media-service");
 /** TERRAIN（远征主视觉 everest-expedition-hero-v1.png，1024×1536） */
 const TERRAIN_SPINE = [
     // 大本营：冰川前缘的平坦冰碛/冰面（画面下缘，底部信息面板之上）
@@ -91,7 +92,7 @@ function resolveSpine(defs, index) {
     return points;
 }
 /** 远征主视觉（页面 TERRAIN 模式的承载影像） */
-exports.EVEREST_HERO_IMAGE = "/assets/world/everest-expedition-hero-v1.png";
+exports.EVEREST_HERO_IMAGE = (0, media_service_1.resolveMediaSrc)("world/everest-expedition-hero-v1.jpg");
 /** TERRAIN 承载图 natural 宽高比（1024 × 1536） */
 const HERO_IMAGE_ASPECT = 1024 / 1536;
 /** LIVE 承载图 natural 宽高比（1080 × 1920） */
@@ -111,7 +112,7 @@ function buildEverestRoutePath(index) {
     };
     const live = {
         id: "LIVE",
-        image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+        image: (0, media_service_1.resolveMediaSrc)("expeditions/everest/live/live-a-kala-patthar.jpg"),
         imageAspect: LIVE_IMAGE_ASPECT,
         // 与 visualMode.liveScenes[0].crop 的焦点保持一致（同一裁剪的唯一声明在数据层）
         focusX: 0.5,

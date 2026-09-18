@@ -201,7 +201,7 @@ const media: MediaManifest = {
       description:
         "Mount Everest, Khumbu Glacier and surrounding mountains seen with clear sky from Kala Patthar (≈5,545 m), 2019-04-24.",
       kind: "photograph",
-      localPath: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+      mediaKey: "expeditions/everest/live/live-a-kala-patthar.jpg",
       license: "CC BY-SA 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
       credit: "Matheus Hobold Sovernigo",
@@ -213,7 +213,7 @@ const media: MediaManifest = {
       originalResolution: "5848\u00d74387",
       dimensions: { width: 1080, height: 1920 },
       /* 运行时派生 sha256（quality=80；原始 sha256 见 design/world/everest-live/raw/） */
-      hash: "15008117ff5f1715d3f0b7cb23b4613c9c78e90ff5cf2ee65e3d488bcbf695aa",
+      hash: "ae4844a4e21c5b27fc090871b926332db5a292124ab35a94439846958908806e",
       /* Kala Patthar 视角：真实珠峰影像，代表 expedition 场景，非 EBC 现场精确视角 */
       geographicRole: "REPRESENTATIVE",
       overlayProjection: "CURATED",

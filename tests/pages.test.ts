@@ -72,7 +72,7 @@ beforeAll(async () => {
   home = lastPageDef!;
   await import("../miniprogram/pages/map/index");
   map = lastPageDef!;
-  await import("../miniprogram/pages/place/index");
+  await import("../miniprogram/pkg-detail/pages/place/index");
   place = lastPageDef!;
 });
 
@@ -109,7 +109,7 @@ describe("首页装配", () => {
     wxCalls.switchTab = [];
     const inst = createInstance(home);
     tap(inst, "onOpenFeatured", { id: "p-baikal" });
-    expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=p-baikal");
+    expect(lastNavUrl("navigateTo")).toContain("/pkg-detail/pages/place/index?id=p-baikal");
     tap(inst, "onOpenType", { type: "desert" });
     expect((inst.data as any).activeType).toBe("desert");
     expect((inst.data as any).activeTypeLabel).toBe("沙漠地点");
@@ -198,7 +198,7 @@ describe("地图页图鉴", () => {
     inst.onLoad();
     tap(inst, "onOpenRecommendation", { id: "p-mariana" });
     expect(lastNavUrl("navigateTo")).toContain(
-      "/pages/exploration/index?id=mariana",
+      "/pkg-explore/pages/exploration/index?id=mariana",
     );
   });
 
@@ -207,7 +207,7 @@ describe("地图页图鉴", () => {
     const inst = createInstance(map);
     inst.onLoad();
     tap(inst, "onOpenRecommendation", { id: "p-baikal" });
-    expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=p-baikal");
+    expect(lastNavUrl("navigateTo")).toContain("/pkg-detail/pages/place/index?id=p-baikal");
   });
 
   it("点击当前观察卡 → navigateTo 对应探索与节点", () => {
@@ -296,9 +296,9 @@ describe("地点详情页", () => {
     inst.onLoad({ id: "p-everest" });
     const data = inst.data as Record<string, any>;
     tap(inst, "onOpenRelated", { id: data.related[0].id });
-    expect(lastNavUrl("navigateTo")).toContain("/pages/place/index?id=");
+    expect(lastNavUrl("navigateTo")).toContain("/pkg-detail/pages/place/index?id=");
     tap(inst, "onOpenKnowledge", { id: data.knowledge[0].id });
-    expect(lastNavUrl("navigateTo")).toContain("/pages/knowledge-detail/index?id=");
+    expect(lastNavUrl("navigateTo")).toContain("/pkg-detail/pages/knowledge-detail/index?id=");
   });
 
   it("详情页五个标签是真实状态切换", () => {

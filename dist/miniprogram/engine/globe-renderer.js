@@ -8,8 +8,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GlobeRenderer = void 0;
 exports.projectGlobePoint = projectGlobePoint;
+const globe_texture_source_1 = require("./globe-texture-source");
 const DEG = Math.PI / 180;
-const TEXTURE_SRC = "/assets/world/globe-texture-realistic-2048.png";
+const TEXTURE_SRC = (0, globe_texture_source_1.globeColorTextureSrc)();
 const STAR_FIELD = [
     [0.08, 0.12, 1.4], [0.19, 0.24, 0.9], [0.31, 0.08, 1.1], [0.47, 0.18, 0.8],
     [0.63, 0.1, 1.2], [0.78, 0.22, 0.9], [0.91, 0.09, 1.4], [0.12, 0.48, 0.8],

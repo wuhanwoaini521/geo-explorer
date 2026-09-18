@@ -15,7 +15,7 @@ import {
   segmentsCovered,
   spineMissesMilestones,
   splinePointAtProgress,
-} from "../miniprogram/engine/route-path";
+} from "../miniprogram/pkg-explore/engine/route-path";
 import type {
   RouteCoverFrame,
   RouteSpinePoint,

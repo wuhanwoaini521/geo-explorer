@@ -379,8 +379,13 @@ export type MediaEntityType =
 /**
  * 正式媒体资产（Runtime）：已通过审核、可进入产品的媒体。
  *
- * 强约束：localPath 必填、reviewStatus 恒为 approved（validateMediaManifest
+ * 强约束：mediaKey 必填、reviewStatus 恒为 approved（validateMediaManifest
  * 与 MediaRegistry 双层保证非 approved 资产不会进入正式查询）。
+ *
+ * mediaKey 是**逻辑资源键**（相对 assets/ 的路径，例如
+ * "content/fuji/f-forest-lower.jpg"），**不代表包内所有权**。实际可加载地址由
+ * services/media-service.ts 的 resolveMediaSrc() 解析为远端 URL 或包内路径；
+ * 正式包不携带 CONTENT_REMOTE 类媒体（见 docs/media-ownership-gate4.md）。
  */
 export interface MediaAsset {
    id: string;
@@ -395,8 +400,8 @@ export interface MediaAsset {
    description: string;
    /** 资源形态 */
    kind: MediaKind;
-   /** 本地资源路径（相对 miniprogram/assets/...）；正式运行资产必填 */
-   localPath: string;
+   /** 逻辑资源键（相对 assets/，如 "content/fuji/x.jpg"）；正式运行资产必填 */
+   mediaKey: string;
    /** 版权/许可（如 "CC BY-SA 4.0"、"Public Domain"、"自有建模渲染"） */
    license: string;
    /** 许可链接（如 creativecommons.org/licenses/by-sa/4.0） */

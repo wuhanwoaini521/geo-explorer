@@ -18,7 +18,7 @@ import {
   nodeCovered,
   skyGradient,
   deriveState,
-} from "../miniprogram/engine/exploration-engine";
+} from "../miniprogram/pkg-explore/engine/exploration-engine";
 import { clamp } from "../miniprogram/utils/format";
 
 describe("clamp / 数值工具", () => {

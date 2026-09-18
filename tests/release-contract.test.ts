@@ -16,6 +16,7 @@ import { QUIZZES } from "../miniprogram/data/quizzes";
 import { MEDIA_CANDIDATES } from "../miniprogram/data/media/candidates";
 import { RUNTIME_MANIFESTS, validateRuntimeManifests } from "../miniprogram/data/media/world-manifests";
 import { validateContent } from "../miniprogram/engine/validate-content";
+import { mediaSourcePath } from "../scripts/media-ownership.mjs";
 
 const ROOT = join(__dirname, "..");
 const RELEASE = { worlds: 4, waypoints: 29, knowledge: 41 };
@@ -70,7 +71,10 @@ describe("Release 孤儿与引用完整性", () => {
 
   it("无无效 / 未知 / 重复 media", () => {
     expect(validateRuntimeManifests()).toEqual([]);
-    const issues = validateContent((p) => existsSync(join(ROOT, "miniprogram", p)));
+    // Gate 4：媒体分两处保存，用所有权规则把 /assets/<key> 还原成仓库里的源文件位置
+    const issues = validateContent((p) =>
+      existsSync(join(ROOT, mediaSourcePath(p.replace(/^\/assets\//, "")))),
+    );
     expect(issues.filter((i) => i.level === "error")).toEqual([]);
     const ids = RUNTIME_MANIFESTS.flatMap((m) => m.assets.map((a) => a.id));
     expect(new Set(ids).size).toBe(ids.length);
@@ -86,7 +90,8 @@ describe("Release 孤儿与引用完整性", () => {
   it("runtime hash 全部可实算复核（防篡改）", () => {
     for (const m of RUNTIME_MANIFESTS) {
       for (const a of m.assets) {
-        const p = join(ROOT, "miniprogram", a.localPath);
+        // Gate 4：媒体由「源码位置」定位——远端媒体在 media-remote/，其余在 miniprogram/assets/
+        const p = join(ROOT, mediaSourcePath(a.mediaKey));
         expect(existsSync(p), a.id).toBe(true);
         if (!a.hash) continue; // 自产历史资产豁免
         const actual = createHash("sha256").update(readFileSync(p)).digest("hex");

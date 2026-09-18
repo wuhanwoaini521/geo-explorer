@@ -45,7 +45,7 @@ describe("Gate 3.5A：canonical 观察信任", () => {
   });
 
   it("关键 P0/P1 文案和确认控件真实存在于 WXML", () => {
-    const exploration = readFileSync("miniprogram/pages/exploration/index.wxml", "utf8");
+    const exploration = readFileSync("miniprogram/pkg-explore/pages/exploration/index.wxml", "utf8");
     const profile = readFileSync("miniprogram/pages/profile/index.wxml", "utf8");
     const quiz = readFileSync("miniprogram/pages/quiz/index.wxml", "utf8");
     // 前进提示已按世界类型动态化（攀登/下潜/下切），断言提示仍在且绑定了动作词

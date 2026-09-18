@@ -1,6 +1,6 @@
 <view class="page">
   <view class="home-hero">
-    <image wx:if="{{!heroImageFailed}}" class="home-hero-image" src="/assets/expeditions/everest/live/live-a-kala-patthar.jpg" mode="aspectFill" binderror="onHeroImageError"></image>
+    <image wx:if="{{!heroImageFailed}}" class="home-hero-image" src="{{heroImage}}" mode="aspectFill" binderror="onHeroImageError"></image>
     <view wx:else class="home-hero-fallback"></view>
     <view class="home-hero-shade"></view>
     <view class="home-topbar">

@@ -5,12 +5,17 @@
  * 为什么要派生而不是新找图：
  *   每个 waypoint 的卡片图片必须与该地点强相关（冰瀑/雪谷/陡壁/南坳…）。
  *   仓库里唯一可自由使用的珠峰山体影像，是本项目自制的远征主视觉
- *   （everest-expedition-hero-v1.png，由 Copernicus DEM + Blender 渲染，
- *   见 design/world/everest-3d/SOURCE.md）。因此这里从该渲染图裁出
- *   各地点所在的山体区域——同一座山、同一光线，内容与地点对得上。
+ *   （由 Copernicus DEM + Blender 渲染，见 design/world/everest-3d/SOURCE.md）。
+ *   因此这里从该渲染图裁出各地点所在的山体区域——同一座山、同一光线，
+ *   内容与地点对得上。
+ *
+ * 取源：design/world/everest-expedition-hero-v1.png（无损母版，不进小程序代码包）。
+ *   运行时使用的 miniprogram/assets/world/everest-expedition-hero-v1.jpg 是它的
+ *   Gate 2 派生结果（q85 JPEG）。裁切必须从母版取源，否则会把 JPEG 的压缩损失
+ *   再叠加到 waypoint 卡片上。
  *
  * 用法：node scripts/waypoints/build-waypoint-images.cjs
- * 输出：miniprogram/assets/expeditions/everest/waypoints/<id>.jpg（900×600）
+ * 输出：media-remote/expeditions/everest/waypoints/<id>.jpg（900×600）
  *
  * 注意：坐标是**归一化 0..1**（与 data/routes/everest/visual-route.ts 同一坐标系），
  * 改动山体路径标定后如发现卡片取景偏移，只需调整下方区域表。
@@ -22,11 +27,11 @@ const Jimp = require("jimp");
 const ROOT = path.join(__dirname, "..", "..");
 const SRC = path.join(
   ROOT,
-  "miniprogram/assets/world/everest-expedition-hero-v1.png",
+  "design/world/everest-expedition-hero-v1.png",
 );
 const OUT_DIR = path.join(
   ROOT,
-  "miniprogram/assets/expeditions/everest/waypoints",
+  "media-remote/expeditions/everest/waypoints",
 );
 
 const OUT_W = 900;

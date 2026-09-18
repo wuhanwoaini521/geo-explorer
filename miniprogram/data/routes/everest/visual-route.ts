@@ -24,6 +24,7 @@ import type {
   RouteIndex,
   RouteSpinePoint,
 } from "../../../types/expedition";
+import { resolveMediaSrc } from "../../../services/media-service";
 
 /**
  * 控制点声明：`milestone` 的进度直接由 RouteIndex 解析（保证精确吸附），
@@ -136,7 +137,7 @@ function resolveSpine(defs: SpineDef[], index: RouteIndex): RouteSpinePoint[] {
 
 /** 远征主视觉（页面 TERRAIN 模式的承载影像） */
 export const EVEREST_HERO_IMAGE =
-  "/assets/world/everest-expedition-hero-v1.png";
+  resolveMediaSrc("world/everest-expedition-hero-v1.jpg");
 
 /** TERRAIN 承载图 natural 宽高比（1024 × 1536） */
 const HERO_IMAGE_ASPECT = 1024 / 1536;
@@ -161,7 +162,7 @@ export function buildEverestRoutePath(
   };
   const live: ExpeditionRouteProjection = {
     id: "LIVE",
-    image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+    image: resolveMediaSrc("expeditions/everest/live/live-a-kala-patthar.jpg"),
     imageAspect: LIVE_IMAGE_ASPECT,
     // 与 visualMode.liveScenes[0].crop 的焦点保持一致（同一裁剪的唯一声明在数据层）
     focusX: 0.5,

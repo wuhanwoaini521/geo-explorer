@@ -13,9 +13,9 @@ import {
   resolveExpeditionVisual,
   visualFallbackWarning,
   type VisualResolveDeps,
-} from "../miniprogram/engine/expedition-visual";
+} from "../miniprogram/pkg-explore/engine/expedition-visual";
 import { validateVisualMode } from "../miniprogram/engine/validate-expedition";
-import { routeOverlayAllowed } from "../miniprogram/engine/calibration-validate";
+import { routeOverlayAllowed } from "../miniprogram/pkg-explore/engine/calibration-validate";
 import type {
   ExpeditionVisualModeConfig,
   MediaManifest,
@@ -36,7 +36,7 @@ function visualDepsWithLiveA(): { deps: VisualResolveDeps } {
         title: "Everest Base Camp to Icefall view",
         description: "kunmb at base area, approved portrait derivative",
         kind: "photograph",
-        localPath: "/assets/expeditions/everest/live/live-a.webp",
+        mediaKey: "expeditions/everest/live/live-a.webp",
         license: "CC BY 4.0",
         credit: "Derived · Wikimedia Commons",
         sourceUrl: "https://commons.wikimedia.org/wiki/Everest",
@@ -298,7 +298,7 @@ describe("validateVisualMode", () => {
           title: "t",
           description: "d",
           kind: "photograph",
-          localPath: "p.webp",
+          mediaKey: "p.webp",
           license: "CC BY 4.0",
           geographicRole: "REPRESENTATIVE",
           reviewStatus: "approved",

@@ -12,5 +12,14 @@
     "noUnusedParameters": true
   },
   "include": ["miniprogram/**/*.ts"],
-  "exclude": ["tests/**/*.ts"]
+  "exclude": [
+    "tests/**/*.ts",
+    "miniprogram/data/media/candidates.ts",
+    "miniprogram/engine/calibration-solver.ts",
+    "miniprogram/engine/expedition-planner.ts",
+    "miniprogram/engine/projection-math.ts",
+    "miniprogram/engine/terrain-projection.ts",
+    "miniprogram/engine/world-frame.ts",
+    "miniprogram/engine/validate-content.ts"
+  ]
 }

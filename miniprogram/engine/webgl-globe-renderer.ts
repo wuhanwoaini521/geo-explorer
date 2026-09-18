@@ -12,6 +12,7 @@ import {
   GlobeVariant,
   projectGlobePoint,
 } from "./globe-renderer";
+import { ResolvedGlobeTextures, resolveGlobeTextures } from "./globe-texture-source";
 
 interface ImageLike {
   width: number;
@@ -453,6 +454,8 @@ export class WebGLGlobeRenderer {
   private momentumTimer: ReturnType<typeof setInterval> | null = null;
   private resumeTimer: ReturnType<typeof setTimeout> | null = null;
   private rotating = true;
+  /** 实际生效的贴图档位与地址（4096 无远端基址时降级为包内 2048） */
+  private readonly globeTextures: ResolvedGlobeTextures;
 
   constructor(
     canvas: WebGLCanvasLike,
@@ -497,6 +500,7 @@ export class WebGLGlobeRenderer {
       atmosphereStrength: Math.max(0, Math.min(1, options.atmosphereStrength ?? 0.62)),
       textureScale: options.textureScale ?? 2048,
     };
+    this.globeTextures = resolveGlobeTextures(this.options.textureScale);
     this.canvas.width = Math.round(width * this.pixelRatio);
     this.canvas.height = Math.round(height * this.pixelRatio);
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
@@ -745,13 +749,7 @@ export class WebGLGlobeRenderer {
 
   private loadTextures(): void {
     if (!this.canvas.createImage) return;
-    const suffix = this.options.textureScale;
-    const sources: Array<{ key: keyof TextureSet; src: string }> = [
-      { key: "color", src: `/assets/world/globe-texture-realistic-${suffix}.png` },
-      { key: "height", src: `/assets/world/globe-height-${suffix}.png` },
-      { key: "specular", src: `/assets/world/globe-specular-${suffix}.png` },
-    ];
-    sources.forEach(({ key, src }, index) => {
+    this.globeTextures.sources.forEach(({ key, src }, index) => {
       const image = this.canvas.createImage?.();
       if (!image) return;
       image.onload = () => {
@@ -790,7 +788,7 @@ export class WebGLGlobeRenderer {
     gl.uniform2f(this.centerLocation, this.centerX * this.pixelRatio, this.centerY * this.pixelRatio);
     gl.uniform2f(this.resolutionLocation, this.canvas.width, this.canvas.height);
     gl.uniform1f(this.radiusLocation, this.radius * this.pixelRatio);
-    gl.uniform2f(this.texelLocation, 1 / this.options.textureScale, 1 / (this.options.textureScale / 2));
+    gl.uniform2f(this.texelLocation, 1 / this.globeTextures.size, 1 / (this.globeTextures.size / 2));
     gl.uniform3f(this.lightLocation, -0.42, 0.60, 0.68);
     gl.uniform1f(this.bumpEnabledLocation, this.options.bumpEnabled ? 1 : 0);
     gl.uniform1f(this.bumpScaleLocation, this.options.bumpScale);

@@ -13,6 +13,7 @@ import type { PlaceType } from "../../types/models";
 import { formatNumber } from "../../utils/format";
 import { randomDiscovery } from "../../utils/discovery";
 import { filterScenes } from "../../utils/scene-search";
+import { resolveMediaSrc } from "../../services/media-service";
 
 interface SceneCard {
   id: string;
@@ -105,6 +106,8 @@ Page({
     featured: [] as FeaturedCard[],
     types: [] as TypeEntry[],
     discovery: null as (Discovery & { index: number }) | null,
+    // Gate 4：hero 图也必须经媒体解析边界，不能把包内绝对路径写死在 WXML 里
+    heroImage: resolveMediaSrc("expeditions/everest/live/live-a-kala-patthar.jpg"),
     heroImageFailed: false,
     failedImages: {} as Record<string, boolean>,
     query: "",
@@ -176,15 +179,15 @@ Page({
     const target = String(e.currentTarget?.dataset?.target ?? "exploration");
     wx.navigateTo({
       url: target === "place"
-        ? `/pages/place/index?id=${id}`
-        : `/pages/exploration/index?id=${id}`,
+        ? `/pkg-detail/pages/place/index?id=${id}`
+        : `/pkg-explore/pages/exploration/index?id=${id}`,
     });
   },
 
   onOpenFeatured(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
-    wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+    wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${id}` });
   },
 
   /** 首页分类 Tab：原地替换主列表，不改变页面与底部导航。 */

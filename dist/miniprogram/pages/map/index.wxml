@@ -50,7 +50,7 @@
       <scroll-view class="recommendation-scroll" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="recommendation-row">
           <view wx:for="{{recommendations}}" wx:key="id" class="recommendation-card" data-id="{{item.id}}" bindtap="onOpenRecommendation">
-            <image src="{{item.image}}" mode="aspectFill"></image><view class="recommendation-shade"></view>
+            <image wx:if="{{item.image && !failedImages[item.id]}}" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onImageError"></image><view class="recommendation-shade"></view>
             <view class="recommendation-copy"><text class="recommendation-en">{{item.nameEn}}</text><text class="recommendation-name">{{item.name}}</text><text class="recommendation-metric">{{item.metricValue}}</text></view>
             <view class="recommendation-cta"><text>{{item.actionLabel}}</text><text>›</text></view>
           </view>

@@ -45,7 +45,7 @@ function createInstance(def: PageDef): PageDef {
 let detail: PageDef;
 
 beforeAll(async () => {
-  await import("../miniprogram/pages/knowledge-detail/index");
+  await import("../miniprogram/pkg-detail/pages/knowledge-detail/index");
   detail = lastPageDef!;
 });
 

@@ -29,6 +29,7 @@ import {
   type GlobeRenderOptions,
   type ProjectedGlobeMarker,
 } from "../../engine/webgl-globe-renderer";
+import { resolveMediaSrc } from "../../services/media-service";
 
 /** 预告场景（尚未提供体验数据的路线占位） */
 interface ComingScene {
@@ -228,8 +229,8 @@ function placeImage(place: Place): string {
   // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
   const runtimeHero = getPlaceHeroImage(place.id);
   if (runtimeHero) return runtimeHero;
-  if (place.id === "p-everest") return "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
-  if (place.type === "glacier" || place.type === "mountain") return "/assets/world/everest-expedition-hero-v1.png";
+  if (place.id === "p-everest") return resolveMediaSrc("expeditions/everest/live/live-a-kala-patthar.jpg");
+  if (place.type === "glacier" || place.type === "mountain") return resolveMediaSrc("world/everest-expedition-hero-v1.jpg");
   return "";
 }
 
@@ -317,6 +318,8 @@ Page({
     worldMarkers: [] as WorldMarker[],
     worldMarkerCount: 0,
     recommendations: [] as DestinationPreview[],
+    /** 远端媒体加载失败的条目（Gate 4：失败时隐藏图片，卡片其余内容仍可用） */
+    failedImages: {} as Record<string, boolean>,
     selectedMarkerId: "",
     globeSelectedMode: false,
     webglFailed: false,
@@ -719,16 +722,16 @@ Page({
 
   mapPointImage(id: string): string {
     const images: Record<string, string> = {
-      "base-camp": "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-      "khumbu-icefall": "/assets/expeditions/everest/waypoints/khumbu-icefall.jpg",
-      "camp-i": "/assets/expeditions/everest/waypoints/camp-i.jpg",
-      "western-cwm-camp-ii": "/assets/expeditions/everest/waypoints/western-cwm-camp-ii.jpg",
-      "lhotse-face-camp-iii": "/assets/expeditions/everest/waypoints/lhotse-face-camp-iii.jpg",
-      "south-col-camp-iv": "/assets/expeditions/everest/waypoints/south-col-camp-iv.jpg",
-      "south-summit": "/assets/expeditions/everest/waypoints/south-summit.jpg",
-      summit: "/assets/expeditions/everest/waypoints/summit.jpg",
+      "base-camp": resolveMediaSrc("expeditions/everest/live/live-a-kala-patthar.jpg"),
+      "khumbu-icefall": resolveMediaSrc("expeditions/everest/waypoints/khumbu-icefall.jpg"),
+      "camp-i": resolveMediaSrc("expeditions/everest/waypoints/camp-i.jpg"),
+      "western-cwm-camp-ii": resolveMediaSrc("expeditions/everest/waypoints/western-cwm-camp-ii.jpg"),
+      "lhotse-face-camp-iii": resolveMediaSrc("expeditions/everest/waypoints/lhotse-face-camp-iii.jpg"),
+      "south-col-camp-iv": resolveMediaSrc("expeditions/everest/waypoints/south-col-camp-iv.jpg"),
+      "south-summit": resolveMediaSrc("expeditions/everest/waypoints/south-summit.jpg"),
+      summit: resolveMediaSrc("expeditions/everest/waypoints/summit.jpg"),
     };
-    return images[id] ?? "/assets/world/everest-expedition-hero-v1.png";
+    return images[id] ?? resolveMediaSrc("world/everest-expedition-hero-v1.jpg");
   },
 
   refreshAtlas(afterUpdate?: () => void) {
@@ -793,14 +796,14 @@ Page({
   onOpenPlace(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
-    wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+    wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${id}` });
   },
 
   /** 进入探索（场景数据已就绪） */
   onGo(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     if (!id) return;
-    wx.navigateTo({ url: `/pages/exploration/index?id=${id}` });
+    wx.navigateTo({ url: `/pkg-explore/pages/exploration/index?id=${id}` });
   },
 
   onMapImageError() {
@@ -832,10 +835,10 @@ Page({
     const place = PLACES.find((item) => item.id === id);
     if (!place) return;
     if (place.explorationId) {
-      wx.navigateTo({ url: `/pages/exploration/index?id=${place.explorationId}` });
+      wx.navigateTo({ url: `/pkg-explore/pages/exploration/index?id=${place.explorationId}` });
       return;
     }
-    wx.navigateTo({ url: `/pages/place/index?id=${place.id}` });
+    wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${place.id}` });
   },
 
   onDestinationTap(e: PageEvent) {
@@ -849,10 +852,10 @@ Page({
     const destination = this.data.selectedDestination;
     if (!destination) return;
     if (destination.explorationId) {
-      wx.navigateTo({ url: `/pages/exploration/index?id=${destination.explorationId}` });
+      wx.navigateTo({ url: `/pkg-explore/pages/exploration/index?id=${destination.explorationId}` });
       return;
     }
-    wx.navigateTo({ url: `/pages/place/index?id=${destination.id}` });
+    wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${destination.id}` });
   },
 
   onCloseDestination() {
@@ -962,6 +965,12 @@ Page({
     }
   },
 
+  /** 远端图片加载失败 → 记入 failedImages，模板用 wx:if 隐藏该图，不阻断页面 */
+  onImageError(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (id) this.setData({ [`failedImages.${id}`]: true } as Record<string, unknown>);
+  },
+
   onToggleAtlas() {
     const opening = !this.data.atlasOpen;
     if (opening) {
@@ -1006,6 +1015,6 @@ Page({
   onOpenPlaceCard() {
     const id = this.data.activePlace?.id;
     if (!id) return;
-    wx.navigateTo({ url: `/pages/exploration/index?id=everest&waypointId=${id}` });
+    wx.navigateTo({ url: `/pkg-explore/pages/exploration/index?id=everest&waypointId=${id}` });
   },
 });

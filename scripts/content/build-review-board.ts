@@ -70,7 +70,7 @@ const TERRAIN_ABS = new Map(
     "south-summit",
     "summit",
   ].map((id) => {
-    const abs = resolve(ROOT, "miniprogram/assets/expeditions/everest/waypoints", `${id}.jpg`);
+    const abs = resolve(ROOT, "media-remote/expeditions/everest/waypoints", `${id}.jpg`);
     return [id, isFile(abs) ? abs : null] as const;
   }),
 );

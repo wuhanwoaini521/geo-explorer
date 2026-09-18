@@ -11,7 +11,7 @@
 输出：
   design/world/everest-live/preview/live-crop-{a,b,c}.jpg
         —— 3 个 9:16 竖屏候选（开发比较，不全部进运行时）
-  miniprogram/assets/expeditions/everest/live/live-a-kala-patthar.jpg
+  media-remote/expeditions/everest/live/live-a-kala-patthar.jpg
         —— 选定的运行时派生（crop-b 中心构图）
 stdout 打印每个产物尺寸 / 字节 / sha256（供 MediaManifest provenance 引用）。
 

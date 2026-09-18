@@ -19,7 +19,7 @@ import {
   createClimbRequest,
   milestonesCrossedBetween,
   MilestoneCrossTracker,
-} from "../miniprogram/engine/expedition-climb";
+} from "../miniprogram/pkg-explore/engine/expedition-climb";
 
 const total = EVEREST_EXPEDITION.routeIndex.totalDistanceM;
 

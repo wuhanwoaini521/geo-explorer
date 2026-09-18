@@ -26,7 +26,7 @@ import {
   pendingNodesNear,
   quizForNode,
   progressFor,
-} from "../miniprogram/engine/exploration-engine";
+} from "../miniprogram/pkg-explore/engine/exploration-engine";
 import {
   createMemoryStorage,
   getExplorationStats,
@@ -36,7 +36,7 @@ import {
 import {
   computeAchievements,
   summarizeRun,
-} from "../miniprogram/utils/summary";
+} from "../miniprogram/pkg-explore/utils/summary";
 
 const M_NODES = MARIANA.knowledgeNodes;
 const M_STAGES = MARIANA.stages;

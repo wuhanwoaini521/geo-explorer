@@ -23,6 +23,7 @@ import type {
   MediaKind,
   MediaManifest,
 } from "../types/expedition";
+import { mediaLocalPath } from "../services/media-service";
 
 export type IssueLevel = "error" | "warning" | "info";
 
@@ -531,17 +532,17 @@ export function validateMedia(
           message: `${at} 缺少 attribution`,
         });
       }
-      if (!a.localPath) {
+      if (!a.mediaKey) {
         issues.push({
           level: "error",
           code: "missing-local-path",
-          message: `${at} 缺少 localPath`,
+          message: `${at} 缺少 mediaKey`,
         });
-      } else if (fileExists && !fileExists(a.localPath)) {
+      } else if (fileExists && !fileExists(mediaLocalPath(a.mediaKey))) {
         issues.push({
           level: "error",
           code: "broken-asset",
-          message: `${at} 的 localPath 不存在：${a.localPath}`,
+          message: `${at} 的 mediaKey 对应文件不存在：${a.mediaKey}`,
         });
       }
       if (a.geographicRole === "EXACT") {

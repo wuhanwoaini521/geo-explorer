@@ -1,40 +1,24 @@
 """Create render-ready globe texture variants from the checked-in source.
 
-The original 1024px image is kept as the audit baseline. The cleaned source
-removes the duplicated vertical strip before the variants use Lanczos
-resampling plus a restrained unsharp pass for a large partial globe.
+standard 档位（2048）写进 miniprogram/assets/world/ 作为运行时贴图（JPEG）；
+high 档位（4096）只写到 design/world/，不进微信代码包（见 scripts/world_textures.py）。
 """
 
+from __future__ import annotations
+
+import sys
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "design" / "world" / "globe-texture-realistic-seamless-source.png"
-
-
-def build_variant(source: Image.Image, width: int, sharpen_radius: float, sharpen_percent: int) -> None:
-    height = width // 2
-    resized = source.resize((width, height), Image.Resampling.LANCZOS)
-    enhanced = resized.filter(
-        ImageFilter.UnsharpMask(
-            radius=sharpen_radius,
-            percent=sharpen_percent,
-            threshold=3,
-        )
-    )
-    output = SOURCE.with_name(f"globe-texture-realistic-{width}.png")
-    enhanced.save(output, format="PNG", optimize=True)
-    print(f"wrote {output} ({width}x{height})")
+from scripts.world_textures import HIGH_SIZE, STANDARD_SIZE, color_raster, save_color
 
 
 def main() -> None:
-    if not SOURCE.exists():
-        raise SystemExit(f"missing source: {SOURCE}")
-    source = Image.open(SOURCE).convert("RGB")
-    build_variant(source, 2048, 1.05, 28)
-    build_variant(source, 4096, 1.45, 22)
+    for width in (STANDARD_SIZE, HIGH_SIZE):
+        image = color_raster(width)
+        out = save_color(image, width)
+        print(f"wrote {out} ({width}x{width // 2})")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ const ui_bus_1 = require("../../services/ui-bus");
 const format_1 = require("../../utils/format");
 const discovery_1 = require("../../utils/discovery");
 const scene_search_1 = require("../../utils/scene-search");
+const media_service_1 = require("../../services/media-service");
 const SCENE_CATALOG = [
     {
         id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
@@ -72,6 +73,8 @@ Page({
         featured: [],
         types: [],
         discovery: null,
+        // Gate 4：hero 图也必须经媒体解析边界，不能把包内绝对路径写死在 WXML 里
+        heroImage: (0, media_service_1.resolveMediaSrc)("expeditions/everest/live/live-a-kala-patthar.jpg"),
         heroImageFailed: false,
         failedImages: {},
         query: "",
@@ -149,8 +152,8 @@ Page({
         const target = String((_f = (_e = (_d = e.currentTarget) === null || _d === void 0 ? void 0 : _d.dataset) === null || _e === void 0 ? void 0 : _e.target) !== null && _f !== void 0 ? _f : "exploration");
         wx.navigateTo({
             url: target === "place"
-                ? `/pages/place/index?id=${id}`
-                : `/pages/exploration/index?id=${id}`,
+                ? `/pkg-detail/pages/place/index?id=${id}`
+                : `/pkg-explore/pages/exploration/index?id=${id}`,
         });
     },
     onOpenFeatured(e) {
@@ -158,7 +161,7 @@ Page({
         const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
         if (!id)
             return;
-        wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+        wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${id}` });
     },
     /** 首页分类 Tab：原地替换主列表，不改变页面与底部导航。 */
     onOpenType(e) {

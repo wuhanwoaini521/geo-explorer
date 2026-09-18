@@ -16,8 +16,8 @@ import {
   statusFromReprojection,
   routeOverlayAllowed,
   diagPct,
-} from "../miniprogram/engine/calibration-validate";
-import { buildCalibratedLiveOverlay } from "../miniprogram/engine/route-calibration";
+} from "../miniprogram/pkg-explore/engine/calibration-validate";
+import { buildCalibratedLiveOverlay } from "../miniprogram/pkg-explore/engine/route-calibration";
 
 describe("world-frame（坐标系统一）", () => {
   it("route 点真值抽查：south-col.json 前/中/末点与世界系一致", () => {

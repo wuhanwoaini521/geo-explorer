@@ -39,7 +39,7 @@ Component({
             const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.kid) !== null && _c !== void 0 ? _c : "");
             if (!id)
                 return;
-            wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+            wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${id}` });
         },
         noop() {
             /* 阻止 touch 冒泡传给滑动层 */

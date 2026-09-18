@@ -87,7 +87,7 @@ Page({
         const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
         if (!id)
             return;
-        wx.navigateTo({ url: `/pages/place/index?id=${id}` });
+        wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${id}` });
     },
     /** 从列表快速取消收藏 */
     onRemoveFavorite(e) {
@@ -100,7 +100,7 @@ Page({
     },
     /** 数据来源与许可页 */
     onOpenCredits() {
-        wx.navigateTo({ url: "/pages/credits/index" });
+        wx.navigateTo({ url: "/pkg-detail/pages/credits/index" });
     },
     onClear() {
         wx.showModal({

@@ -17,7 +17,7 @@ import {
   type DemGrid,
 } from "../tools/everest-route-calibrator/src/math/occlusion.js";
 import { statusFromStats, representativeReport } from "../tools/everest-route-calibrator/src/calibrate.js";
-import { routeOverlayAllowed } from "../miniprogram/engine/calibration-validate.js";
+import { routeOverlayAllowed } from "../miniprogram/pkg-explore/engine/calibration-validate.js";
 const W = 1080;
 const H = 1920;
 const CX = W / 2;

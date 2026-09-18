@@ -29,7 +29,7 @@ function createInstance(): PageDef {
 }
 
 beforeAll(async () => {
-  await import("../miniprogram/pages/route-overview/index");
+  await import("../miniprogram/pkg-explore/pages/route-overview/index");
 });
 
 describe("路线概览页", () => {
@@ -52,7 +52,7 @@ describe("路线概览页", () => {
     instance.onLoad({ progress: "0.5" });
     instance.onRowTap({ currentTarget: { dataset: { id: "camp-i" } } });
     expect(navigateCalls[navigateCalls.length - 1]?.url).toBe(
-      "/pages/camp-detail/index?id=camp-i",
+      "/pkg-explore/pages/camp-detail/index?id=camp-i",
     );
   });
 });

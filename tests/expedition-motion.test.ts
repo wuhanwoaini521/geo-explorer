@@ -64,7 +64,7 @@ function driveTo(inst: PageDef, p: number): void {
 let pageDef: PageDef;
 
 beforeAll(async () => {
-  await import("../miniprogram/pages/exploration/index");
+  await import("../miniprogram/pkg-explore/pages/exploration/index");
   pageDef = lastPageDef!;
 });
 

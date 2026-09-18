@@ -6,7 +6,7 @@ import {
   currentRouteWaypoint,
   nextRouteWaypoint,
   routePositionAt,
-} from "../miniprogram/utils/route";
+} from "../miniprogram/pkg-explore/utils/route";
 
 describe("场景路线", () => {
   const route = EVEREST.route!;

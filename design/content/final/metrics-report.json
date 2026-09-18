@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12",
+  "generatedAt": "2026-09-18",
   "knowledge": {
     "total": 41,
     "withSource": 41,
@@ -16,16 +16,16 @@
     }
   },
   "media": {
-    "totalCandidates": 48,
+    "totalCandidates": 50,
     "perWorld": {
       "everest": {
-        "candidates": 12,
+        "candidates": 13,
         "waypointPrimary": 9,
         "knowledge": 2,
-        "placeHero": 0
+        "placeHero": 1
       },
       "mariana": {
-        "candidates": 15,
+        "candidates": 16,
         "waypointPrimary": 1,
         "knowledge": 11,
         "placeHero": 2
@@ -228,7 +228,7 @@
     "placeHero": [
       {
         "place": "p-everest",
-        "heroCandidate": null
+        "heroCandidate": "p-everest-kala-patthar"
       },
       {
         "place": "p-colorado",

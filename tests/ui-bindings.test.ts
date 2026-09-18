@@ -3,14 +3,58 @@
  * 替代「必须打开开发者工具才能发现绑定丢失」：任何 bindtap/catchtap
  * 引用的处理函数必须真实存在于页面定义中，否则测试失败。
  * （本测试同时 mock wx/Page/Component 以便在 Node 中 import 页面模块。）
+ *
+ * Gate 3：页面已分布到主包 + pkg-explore + pkg-detail。本文件不再硬编码
+ * `miniprogram/pages`，而是从 app.json 解析所有包根，顺带断言：
+ *   - 每个 pages / subpackages 条目都真实对应一个页面目录（navigation 路径有效）
+ *   - tabBar 的 5 个页面都在主包（微信要求）
  */
 import { describe, expect, it, beforeAll } from "vitest";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = join(__dirname, "..", "miniprogram");
-const PAGES_DIR = join(ROOT, "pages");
 const COMPONENTS_DIR = join(ROOT, "components");
+const APP_JSON = JSON.parse(readFileSync(join(ROOT, "app.json"), "utf-8")) as {
+  pages: string[];
+  subpackages?: Array<{ root: string; name: string; pages: string[] }>;
+  tabBar: { list: Array<{ pagePath: string }> };
+};
+
+/** 包根 → 该包下的页面路径（相对包根） */
+interface PageEntry {
+  pkg: string;
+  /** 相对 miniprogram/ 的页面目录，例如 pkg-explore/pages/exploration */
+  dir: string;
+  /** app.json 里登记的路径，例如 pkg-explore/pages/exploration/index */
+  route: string;
+}
+
+const PAGE_ENTRIES: PageEntry[] = [];
+/** route 形如 <pkg>/pages/<name>/index → 页面目录 <pkg>/pages/<name> */
+function dirOf(route: string): string {
+  return route.split("/").slice(0, -1).join("/");
+}
+for (const route of APP_JSON.pages) {
+  PAGE_ENTRIES.push({ pkg: "main", dir: dirOf(route), route });
+}
+for (const sub of APP_JSON.subpackages ?? []) {
+  for (const p of sub.pages) {
+    const route = `${sub.root}/${p}`;
+    PAGE_ENTRIES.push({ pkg: sub.root, dir: dirOf(route), route });
+  }
+}
+
+/** 页面短名（app.json 里的最后一段父目录名），与 Page() mock 的栈提取保持一致 */
+function shortName(route: string): string {
+  const parts = route.split("/");
+  return parts[parts.length - 2];
+}
+const pageDir = (name: string): string => {
+  const e = PAGE_ENTRIES.find((x) => shortName(x.route) === name);
+  if (!e) throw new Error(`未知页面：${name}`);
+  return join(ROOT, e.dir);
+};
 
 /* ---------------- 全局 mock ---------------- */
 (globalThis as Record<string, unknown>).wx = {
@@ -43,10 +87,8 @@ const componentDefs: Array<{ tag: string; def: Record<string, any> }> = [];
 (globalThis as Record<string, unknown>).getApp = () => ({ globalData: {} });
 
 beforeAll(async () => {
-  for (const name of readdirSync(PAGES_DIR) as string[]) {
-    const dir = join(PAGES_DIR, name);
-    if (!statSync(dir).isDirectory()) continue;
-    await import(`../miniprogram/pages/${name}/index`);
+  for (const e of PAGE_ENTRIES) {
+    await import(`../miniprogram/${e.dir}/index`);
   }
   // @ts-expect-error —— 组件由全局 Component() 注册，非 ES 模块（仅运行时加载）
   await import("../miniprogram/components/knowledge-popup/index");
@@ -63,11 +105,46 @@ function extractHandlers(wxml: string): string[] {
 
 /** 列出某页面目录下全部 wxml（含组件引用 wxml 不在本页 —— 仅本页 wxml） */
 function pageWxmlFiles(page: string): string[] {
-  const dir = join(PAGES_DIR, page);
+  const dir = pageDir(page);
   return readdirSync(dir)
     .filter((f: string) => f.endsWith(".wxml"))
     .map((f) => join(dir, f));
 }
+
+describe("Gate 3 包结构", () => {
+  it("app.json 的每个页面条目都对应真实页面目录（四件套齐全）", () => {
+    expect(PAGE_ENTRIES.length).toBe(13);
+    for (const e of PAGE_ENTRIES) {
+      for (const ext of [".ts", ".json", ".wxml", ".wxss"]) {
+        const f = join(ROOT, `${e.dir}/index${ext}`);
+        expect(existsSync(f), `${e.route}${ext} 缺失（app.json 登记但文件不存在）`).toBe(true);
+      }
+    }
+  });
+
+  it("tabBar 的 5 个页面全部留在主包（微信要求）", () => {
+    const tabPaths = APP_JSON.tabBar.list.map((i) => i.pagePath);
+    for (const p of tabPaths) {
+      expect(APP_JSON.pages, `${p} 必须在主包 pages 中`).toContain(p);
+    }
+    for (const sub of APP_JSON.subpackages ?? []) {
+      for (const p of sub.pages) {
+        expect(tabPaths, `${sub.root}/${p} 不能是 tabBar 页面`).not.toContain(
+          `${sub.root}/${p}`,
+        );
+      }
+    }
+  });
+
+  it("分包根目录与主包页面目录不重叠", () => {
+    const roots = (APP_JSON.subpackages ?? []).map((s) => s.root);
+    expect(roots).toEqual(["pkg-explore", "pkg-detail"]);
+    for (const r of roots) {
+      expect(APP_JSON.pages.some((p) => p.startsWith(`${r}/`))).toBe(false);
+      expect(existsSync(join(ROOT, r))).toBe(true);
+    }
+  });
+});
 
 describe("WXML 事件绑定 ↔ 页面方法一致性", () => {
   it("页面模块均已注册（13 页 + 1 组件）", () => {
@@ -75,9 +152,9 @@ describe("WXML 事件绑定 ↔ 页面方法一致性", () => {
     expect(componentDefs.length).toBe(1);
   });
 
-  for (const name of readdirSync(PAGES_DIR) as string[]) {
-    if (!statSync(join(PAGES_DIR, name)).isDirectory()) continue;
-    it(`pages/${name}：WXML 引用的处理函数都存在`, () => {
+  for (const entry of PAGE_ENTRIES) {
+    const name = shortName(entry.route);
+    it(`${entry.pkg}:${name}：WXML 引用的处理函数都存在`, () => {
       const def = pageDefs.get(name);
       expect(def, `页面 ${name} 已注册`).toBeTruthy();
       for (const file of pageWxmlFiles(name)) {
@@ -125,14 +202,14 @@ describe("自定义组件事件命名", () => {
 
 describe("探索页视觉约束", () => {
   it("不再渲染与当前界面不匹配的人形装饰", () => {
-    const wxml = readFileSync(join(PAGES_DIR, "exploration", "index.wxml"), "utf-8");
-    const wxss = readFileSync(join(PAGES_DIR, "exploration", "index.wxss"), "utf-8");
+    const wxml = readFileSync(join(pageDir("exploration"), "index.wxml"), "utf-8");
+    const wxss = readFileSync(join(pageDir("exploration"), "index.wxss"), "utf-8");
     expect(wxml).not.toMatch(/climber|hillman|🧗|🤿/);
     expect(wxss).not.toMatch(/\.climber|\.hillman|\.m-climber/);
   });
 
   it("探索进度 HUD 保留路线核心信息，不用长文案/链接堆满底部视野", () => {
-    const wxml = readFileSync(join(PAGES_DIR, "exploration", "index.wxml"), "utf-8");
+    const wxml = readFileSync(join(pageDir("exploration"), "index.wxml"), "utf-8");
     expect(wxml).not.toMatch(/class="exp-current-copy"/);
     expect(wxml).not.toMatch(/class="exp-links"/);
     expect(wxml).not.toMatch(/class="exp-step"/);
@@ -161,17 +238,17 @@ describe("核心页面交互控件确实渲染", () => {
     const tabTs = readFileSync(join(ROOT, "custom-tab-bar", "index.ts"), "utf-8");
     expect((tabTs.match(/pagePath: \"\/pages\//g) ?? []).length).toBe(5);
     expect(tabWxml).toContain("selected * 20");
-    expect(readFileSync(join(PAGES_DIR, "map", "index.ts"), "utf-8")).toContain("selected: 0");
-    expect(readFileSync(join(PAGES_DIR, "home", "index.ts"), "utf-8")).toContain("selected: 1");
-    expect(readFileSync(join(PAGES_DIR, "quiz", "index.ts"), "utf-8")).toContain("selected: 3");
-    expect(readFileSync(join(PAGES_DIR, "profile", "index.ts"), "utf-8")).toContain("selected: 4");
+    expect(readFileSync(join(pageDir("map"), "index.ts"), "utf-8")).toContain("selected: 0");
+    expect(readFileSync(join(pageDir("home"), "index.ts"), "utf-8")).toContain("selected: 1");
+    expect(readFileSync(join(pageDir("quiz"), "index.ts"), "utf-8")).toContain("selected: 3");
+    expect(readFileSync(join(pageDir("profile"), "index.ts"), "utf-8")).toContain("selected: 4");
   });
 
   it("首页/地图/知识/地点详情的关键控件都有实际绑定", () => {
-    const home = readFileSync(join(PAGES_DIR, "home", "index.wxml"), "utf-8");
-    const map = readFileSync(join(PAGES_DIR, "map", "index.wxml"), "utf-8");
-    const knowledge = readFileSync(join(PAGES_DIR, "knowledge", "index.wxml"), "utf-8");
-    const place = readFileSync(join(PAGES_DIR, "place", "index.wxml"), "utf-8");
+    const home = readFileSync(join(pageDir("home"), "index.wxml"), "utf-8");
+    const map = readFileSync(join(pageDir("map"), "index.wxml"), "utf-8");
+    const knowledge = readFileSync(join(pageDir("knowledge"), "index.wxml"), "utf-8");
+    const place = readFileSync(join(pageDir("place"), "index.wxml"), "utf-8");
     expect(home).toMatch(/bindinput="onQueryInput"/);
     expect(home).toMatch(/bindtap="onOpenType"/);
     expect(home).toMatch(/stats.completed/);

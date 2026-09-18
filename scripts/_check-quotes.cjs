@@ -1,5 +1,5 @@
 const fs=require("fs");
-const s=fs.readFileSync("miniprogram/pages/exploration/index.ts","utf8");
+const s=fs.readFileSync("miniprogram/pkg-explore/pages/exploration/index.ts","utf8");
 const lines=s.split(String.fromCharCode(10));
 let bad=[];
 lines.forEach((l,i)=>{ if(/[\u201C\u201D]/.test(l)){ const code=l.split("//")[0]; if(/[\u201C\u201D]/.test(code)) bad.push((i+1)+": "+l.trim());} });

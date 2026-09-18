@@ -201,7 +201,7 @@ async function main() {
   console.log("STATUS: BLOCKED ⚠️");
   console.log("Neither EdgeOne delivery base URL nor COS credentials configured.");
   console.log("  - For EdgeOne public check: GEO_MEDIA_BASE_URL=https://... npm run media:check");
-  console.log("  - For COS Origin check: Set COS_SECRET_ID and COS_SECRET_KEY in environment or .env.local.");
+  console.log("  - For COS Origin check: Set COS credentials in environment or .env.local.");
   process.exit(1);
 }
 

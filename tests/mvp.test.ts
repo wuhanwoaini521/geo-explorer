@@ -11,7 +11,7 @@ import {
   knowledgeUnlockedOnMove,
   pendingNodesNear,
   quizForNode,
-} from "../miniprogram/engine/exploration-engine";
+} from "../miniprogram/pkg-explore/engine/exploration-engine";
 import type { ExplorationKnowledgeNode } from "../miniprogram/types/exploration";
 import {
   createMemoryStorage,
@@ -24,7 +24,7 @@ import {
   computeAchievements,
   quizAccuracy,
   summarizeRun,
-} from "../miniprogram/utils/summary";
+} from "../miniprogram/pkg-explore/utils/summary";
 
 const NODES = EVEREST.knowledgeNodes;
 const STAGES = EVEREST.stages;

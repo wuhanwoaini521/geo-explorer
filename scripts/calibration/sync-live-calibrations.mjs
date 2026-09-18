@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SRC_DIR = join(ROOT, "design/world/everest-live/calibration");
-const OUT_DIR = join(ROOT, "miniprogram/data/calibrations/everest");
+const OUT_DIR = join(ROOT, "miniprogram/pkg-explore/data/calibrations/everest");
 
 /** 评审状态 → 运行时 info.note（§40 文案：REPRESENTATIVE 不说“精准路线”） */
 const NOTE_BY_STATUS = {

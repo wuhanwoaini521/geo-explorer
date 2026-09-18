@@ -11,7 +11,7 @@ import { EVEREST_EXPEDITION } from "../miniprogram/data/expeditions/everest";
 import {
   cameraFrameAt,
   emptyCameraFrame,
-} from "../miniprogram/engine/expedition-camera";
+} from "../miniprogram/pkg-explore/engine/expedition-camera";
 
 const camera = EVEREST_EXPEDITION.camera;
 

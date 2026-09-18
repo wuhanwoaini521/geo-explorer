@@ -231,8 +231,8 @@ function validateMediaManifest(m) {
             issue(issues, `media.assets[${i}].geographicRole`, "缺少 geographicRole");
         else if (!GEOGRAPHIC_ROLES.includes(a.geographicRole))
             issue(issues, `media.assets[${i}].geographicRole`, `非法=${a.geographicRole}（仅允许 EXACT / REPRESENTATIVE）`);
-        if (!a.localPath)
-            issue(issues, `media.assets[${i}].localPath`, "缺少 localPath");
+        if (!a.mediaKey)
+            issue(issues, `media.assets[${i}].mediaKey`, "缺少 mediaKey");
         if (!a.license)
             issue(issues, `media.assets[${i}].license`, "缺少 license");
         if (!REVIEW_STATUSES.includes(a.reviewStatus)) {

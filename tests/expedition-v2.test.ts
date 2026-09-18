@@ -106,7 +106,7 @@ describe("validate-* 校验器", () => {
           title: "t",
           description: "d",
           kind: "render",
-          localPath: "a.png",
+          mediaKey: "a.png",
           reviewStatus: "draft",
         } as unknown as MediaManifest["assets"][number],
       ],

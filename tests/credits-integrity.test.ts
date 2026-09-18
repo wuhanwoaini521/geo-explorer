@@ -13,8 +13,9 @@ import { join } from "node:path";
 import {
   buildCredits,
   CREDIT_GROUP_KEYS,
-} from "../miniprogram/engine/credits.js";
+} from "../miniprogram/pkg-detail/engine/credits.js";
 import { EVEREST_EXPEDITION } from "../miniprogram/data/expeditions/everest.js";
+import { mediaSourcePath } from "../scripts/media-ownership.mjs";
 
 const ROOT = join(__dirname, "..");
 
@@ -47,8 +48,8 @@ describe("credits-integrity：来源/素材必须有出处", () => {
 
   it("登记的本地素材必须真实存在于磁盘（不得有悬空 asset path）", () => {
     for (const a of EVEREST_EXPEDITION.media.assets) {
-      if (a.localPath) {
-        const abs = join(ROOT, "miniprogram", a.localPath.replace(/^\//, ""));
+      if (a.mediaKey) {
+        const abs = join(ROOT, mediaSourcePath(a.mediaKey));
         expect(existsSync(abs), `${a.id} 缺失：${abs}`).toBe(true);
       }
     }

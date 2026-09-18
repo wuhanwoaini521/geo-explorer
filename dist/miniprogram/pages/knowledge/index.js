@@ -84,14 +84,14 @@ Page({
         var _a, _b, _c;
         const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
         if (id)
-            wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+            wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${id}` });
     },
     onOpenProcess(e) {
         var _a, _b, _c;
         const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
         const process = processes_1.KNOWLEDGE_PROCESSES.find((item) => item.id === id);
         if (process)
-            wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${process.topicId}&process=${process.id}` });
+            wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${process.topicId}&process=${process.id}` });
     },
     onImageError(e) {
         var _a, _b, _c;

@@ -108,13 +108,13 @@ Page({
 
   onOpen(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
-    if (id) wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+    if (id) wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${id}` });
   },
 
   onOpenProcess(e: PageEvent) {
     const id = String(e.currentTarget?.dataset?.id ?? "");
     const process = KNOWLEDGE_PROCESSES.find((item) => item.id === id);
-    if (process) wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${process.topicId}&process=${process.id}` });
+    if (process) wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${process.topicId}&process=${process.id}` });
   },
 
   onImageError(e: PageEvent) {

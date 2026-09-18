@@ -9,7 +9,7 @@
  */
 import { describe, expect, it, beforeAll } from "vitest";
 import { getExpeditionById } from "../miniprogram/data/expeditions/index";
-import { deriveState } from "../miniprogram/engine/exploration-engine";
+import { deriveState } from "../miniprogram/pkg-explore/engine/exploration-engine";
 
 /* ---------------- wx / Page 全局 mock ---------------- */
 const wxCalls: Record<string, unknown[][]> = {};
@@ -64,7 +64,7 @@ function driveTo(inst: PageDef, p: number): void {
 let pageDef: PageDef;
 
 beforeAll(async () => {
-  await import("../miniprogram/pages/exploration/index");
+  await import("../miniprogram/pkg-explore/pages/exploration/index");
   pageDef = lastPageDef!;
 });
 

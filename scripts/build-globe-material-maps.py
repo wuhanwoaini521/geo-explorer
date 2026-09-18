@@ -3,19 +3,30 @@
 The colour map remains the source of truth. The height map is deliberately a
 low-amplitude relief cue (not a DEM replacement) and the specular map gives
 water, land and ice different light responses.
+
+standard 档位（2048）写进 miniprogram/assets/world/ 作为运行时贴图（JPEG）；
+high 档位（4096）只写到 design/world/。
+
+注意：high 档位的材质图是把 standard 的颜色栅格**放大**得到的，本身不携带
+2048 之外的信息——这也是它在 Gate 2 被移出代码包的原因之一。
 """
 
 from __future__ import annotations
 
 import math
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageFilter
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-ROOT = Path(__file__).resolve().parents[1]
-WORLD = ROOT / "miniprogram" / "assets" / "world"
-SOURCE = WORLD / "globe-texture-realistic-2048.png"
+from scripts.world_textures import (
+    HIGH_SIZE,
+    STANDARD_SIZE,
+    color_raster,
+    save_material,
+)
 
 
 def lon_distance(a: float, b: float) -> float:
@@ -30,7 +41,9 @@ def ridge(lon: float, lat: float, center_lon: float, center_lat: float, lon_widt
 
 
 def build_maps(size: int) -> None:
-    source = Image.open(SOURCE).convert("RGB").resize((size, size // 2), Image.Resampling.LANCZOS)
+    source = color_raster(STANDARD_SIZE).resize(
+        (size, size // 2), Image.Resampling.LANCZOS
+    )
     pixels = source.load()
     width, height = source.size
     height_bytes = bytearray(width * height)
@@ -72,15 +85,15 @@ def build_maps(size: int) -> None:
 
     height_image = Image.frombytes("L", (width, height), bytes(height_bytes)).filter(ImageFilter.GaussianBlur(1.15))
     specular_image = Image.frombytes("L", (width, height), bytes(specular_bytes)).filter(ImageFilter.GaussianBlur(0.65))
-    height_image.save(WORLD / f"globe-height-{size}.png", optimize=True)
-    specular_image.save(WORLD / f"globe-specular-{size}.png", optimize=True)
+    for name, image in (("globe-height", height_image), ("globe-specular", specular_image)):
+        out = save_material(image, size, name)
+        print(f"wrote {out} ({width}x{height})")
 
 
 def main() -> None:
-    build_maps(2048)
-    build_maps(4096)
+    build_maps(STANDARD_SIZE)
+    build_maps(HIGH_SIZE)
 
 
 if __name__ == "__main__":
     main()
-

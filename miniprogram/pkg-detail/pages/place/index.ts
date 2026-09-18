@@ -1,0 +1,230 @@
+/**
+ * 📍 地点详情页 —— 地理图鉴的单点详情。
+ * 数据全部来自 data/places（GeoPlace），页面只做组装与跳转：
+ * Overview / Formation / Climate / Facts / 相关地点 / 关联知识 / 进入沉浸探索。
+ */
+import { PLACES, getPlaceById, PLACE_TYPE_LABEL } from "../../../data/places";
+import { KNOWLEDGE } from "../../../data/knowledge";
+import { getExplorationById } from "../../../data/explorations/index";
+import { getPlaceHeroImage } from "../../../data/media/world-manifests";
+import { favorites } from "../../../services/favorites-store";
+import type { Place } from "../../../types/models";
+import { formatNumber } from "../../../utils/format";
+import { resolveMediaSrc } from "../../../services/media-service";
+
+interface PlaceVM {
+  id: string;
+  name: string;
+  nameEn: string;
+  emoji: string;
+  typeLabel: string;
+  country: string;
+  region: string;
+  shortDescription: string;
+  placeNoun: string;
+  description: string;
+  formation: string;
+  climate?: string;
+  geologicalAge?: string;
+  facts: string[];
+  tags: string[];
+  /** 高程展示（含单位与语义标签，如「海拔」「深度」） */
+  elevLabel: string;
+  elevText: string;
+  coordText: string;
+  /** 是否有可进入的沉浸探索场景 */
+  explorationId?: string;
+  explorationTitle?: string;
+  heroImage: string;
+}
+
+interface RelatedItem {
+  id: string;
+  name: string;
+  emoji: string;
+  shortDescription: string;
+}
+
+interface KnowledgeLinkItem {
+  id: string;
+  title: string;
+  emoji: string;
+  category: string;
+}
+
+const DETAIL_TABS = [
+  { id: "overview", label: "概览" },
+  { id: "environment", label: "环境" },
+  { id: "terrain", label: "地形" },
+  { id: "history", label: "历史" },
+  { id: "knowledge", label: "相关知识" },
+] as const;
+
+function placeImage(place: Place): string {
+  // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
+  const runtime = getPlaceHeroImage(place.id);
+  if (runtime) return runtime;
+  if (place.id === "p-everest") return resolveMediaSrc("expeditions/everest/live/live-a-kala-patthar.jpg");
+  if (place.type === "mountain" || place.type === "glacier") return resolveMediaSrc("world/everest-expedition-hero-v1.jpg");
+  // 其余类型（非四世界 place）返回空串 → 页面显示 emoji 占位（无 unknown-provenance 图）
+  return "";
+}
+
+/** 高程语义：海洋类显示深度，其余显示海拔/高程 */
+function elevDisplay(place: Place): { label: string; text: string } {
+  const digits = Math.abs(place.elevationM) % 1 === 0 ? 0 : 2;
+  if (place.elevationM < 0) {
+    return { label: "深度", text: `${formatNumber(Math.abs(place.elevationM), digits)} m` };
+  }
+  return { label: "海拔", text: `${formatNumber(place.elevationM, digits)} m` };
+}
+
+function placeNoun(place: Place): string {
+  const nouns: Partial<Record<Place["type"], string>> = {
+    mountain: "这座山",
+    volcano: "这座火山",
+    glacier: "这片冰川",
+    canyon: "这条峡谷",
+    desert: "这片荒漠",
+    ocean: "这条海沟",
+    coast: "这片极地",
+    river: "这条河流",
+    lake: "这座湖泊",
+    waterfall: "这道瀑布",
+    plateau: "这片高原",
+  };
+  return nouns[place.type] || "这个地点";
+}
+
+/** 相关地点：同类型优先，其次共享标签；最多 4 个 */
+function relatedPlaces(place: Place, all: Place[]): RelatedItem[] {
+  const scored = all
+    .filter((p) => p.id !== place.id)
+    .map((p) => {
+      const sharedTags = p.tags.filter((t) => place.tags.includes(t)).length;
+      const score = (p.type === place.type ? 10 : 0) + sharedTags;
+      return { p, score };
+    })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score || a.p.name.localeCompare(b.p.name, "zh"));
+  return scored.slice(0, 4).map(({ p }) => ({
+    id: p.id,
+    name: p.name,
+    emoji: p.emoji,
+    shortDescription: p.shortDescription,
+  }));
+}
+
+/** 关联知识库条目（knowledge.relatedPlaceIds 反查） */
+function relatedKnowledge(placeId: string): KnowledgeLinkItem[] {
+  return KNOWLEDGE.filter((k) => k.relatedPlaceIds.includes(placeId)).map((k) => ({
+    id: k.id,
+    title: k.title,
+    emoji: k.emoji,
+    category: k.category,
+  }));
+}
+
+Page({
+  data: {
+    place: null as PlaceVM | null,
+    favorited: false,
+    related: [] as RelatedItem[],
+    knowledge: [] as KnowledgeLinkItem[],
+    detailTabs: DETAIL_TABS,
+    activeDetailTab: "overview" as (typeof DETAIL_TABS)[number]["id"],
+    imageFailed: false,
+  },
+
+  onLoad(query: Record<string, string>) {
+    const id = String(query?.id ?? "");
+    const place = getPlaceById(id);
+    if (!place) {
+      wx.showToast({ title: "未找到该地点", icon: "none" });
+      setTimeout(() => wx.navigateBack({ delta: 1 }), 600);
+      return;
+    }
+    const elev = elevDisplay(place);
+    const ex = place.explorationId ? getExplorationById(place.explorationId) : undefined;
+    const vm: PlaceVM = {
+      id: place.id,
+      name: place.name,
+      nameEn: place.nameEn,
+      emoji: place.emoji,
+      typeLabel: PLACE_TYPE_LABEL[place.type],
+      country: place.country,
+      region: place.region,
+      shortDescription: place.shortDescription,
+      placeNoun: placeNoun(place),
+      description: place.description,
+      formation: place.formation,
+      climate: place.climate,
+      geologicalAge: place.geologicalAge,
+      facts: place.facts,
+      tags: place.tags,
+      elevLabel: elev.label,
+      elevText: elev.text,
+      coordText: `${place.latitude.toFixed(2)}°, ${place.longitude.toFixed(2)}°`,
+      explorationId: place.explorationId,
+      explorationTitle: ex?.title,
+      heroImage: placeImage(place),
+    };
+    this.setData({
+      place: vm,
+      favorited: favorites.isFavorite(place.id),
+      related: relatedPlaces(place, PLACES),
+      knowledge: relatedKnowledge(place.id),
+      activeDetailTab: "overview",
+      imageFailed: false,
+    });
+  },
+
+  onShow() {
+    this.getTabBar?.()?.setData({ hidden: true });
+    const id = this.data.place?.id;
+    if (id) this.setData({ favorited: favorites.isFavorite(id) });
+  },
+
+  onToggleFavorite() {
+    const place = this.data.place;
+    if (!place) return;
+    const added = favorites.toggle(place.id);
+    this.setData({ favorited: added });
+    wx.showToast({ title: added ? "已加入收藏" : "已取消收藏", icon: "none" });
+  },
+
+  onOpenRelated(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    wx.navigateTo({ url: `/pkg-detail/pages/place/index?id=${id}` });
+  },
+
+  onOpenKnowledge(e: PageEvent) {
+    const id = String(e.currentTarget?.dataset?.id ?? "");
+    if (!id) return;
+    wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${id}` });
+  },
+
+  onStartExploration() {
+    const id = this.data.place?.explorationId;
+    if (!id) return;
+    wx.navigateTo({ url: `/pkg-explore/pages/exploration/index?id=${id}` });
+  },
+
+  onOpenMap() {
+    wx.switchTab({ url: "/pages/map/index" });
+  },
+
+  onDetailTabTap(e: PageEvent) {
+    const tab = String(e.currentTarget?.dataset?.tab ?? "overview");
+    if (DETAIL_TABS.some((item) => item.id === tab)) this.setData({ activeDetailTab: tab });
+  },
+
+  onImageError() {
+    this.setData({ imageFailed: true });
+  },
+
+  onBack() {
+    wx.navigateBack({ delta: 1 });
+  },
+});

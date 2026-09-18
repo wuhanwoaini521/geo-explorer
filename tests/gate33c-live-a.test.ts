@@ -8,11 +8,12 @@
  *  5. LIVE ⇔ TERRAIN 切换前后 progress 完全一致（不建立第二套进度）
  *  6. Mariana 无 Expedition 附件 → 维持旧探索（海拔轴，LIVE 层不装载）
  *
- * 另含 MediaManifest 出处验证（localPath/许可/署名/hash 与磁盘文件一致）。
+ * 另含 MediaManifest 出处验证（mediaKey/许可/署名/hash 与源文件一致）。
  */
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
+import { mediaSourcePath } from "../scripts/media-ownership.mjs";
 import { describe, expect, it, beforeAll } from "vitest";
 import {
   buildLiveRouteOverlay,
@@ -20,7 +21,7 @@ import {
   liveSceneInfo,
   resolveExpeditionVisual,
   resolveLiveOverlay,
-} from "../miniprogram/engine/expedition-visual";
+} from "../miniprogram/pkg-explore/engine/expedition-visual";
 import { getExpeditionById } from "../miniprogram/data/expeditions/index";
 
 /* ---------------- wx / Page 全局 mock（与 expedition-page.test.ts 同款） ---------------- */
@@ -64,12 +65,14 @@ function createInstance(def: PageDef): PageDef {
   return inst;
 }
 
-/** LIVE-A 运行时资产路径（与 manifest.localPath 一致） */
+/** LIVE-A 运行时资产：manifest 里存逻辑键，渲染侧由 resolveMediaSrc 还原为 /assets/... */
+const REPO_ROOT = join(__dirname, "..");
+const HERO_KEY = "expeditions/everest/live/live-a-kala-patthar.jpg";
 const HERO_IMG = "/assets/expeditions/everest/live/live-a-kala-patthar.jpg";
 
 let pageDef: PageDef;
 beforeAll(async () => {
-  await import("../miniprogram/pages/exploration/index");
+  await import("../miniprogram/pkg-explore/pages/exploration/index");
   pageDef = lastPageDef!;
 });
 
@@ -90,7 +93,7 @@ describe("LIVE-A MediaManifest 出处", () => {
   it("资产已登记 approved 且被 liveScenes[0] 引用", () => {
     expect(asset).toBeTruthy();
     expect(asset!.reviewStatus).toBe("approved");
-    expect(asset!.localPath).toBe(HERO_IMG);
+    expect(asset!.mediaKey).toBe(HERO_KEY);
     expect(exp.visualMode.liveScenes[0].assetId).toBe("live-a-kala-patthar");
   });
 
@@ -111,20 +114,10 @@ describe("LIVE-A MediaManifest 出处", () => {
   });
 
   it("hash == 磁盘派生文件 sha256（可复现、未篡改）", () => {
-    const p = join(
-      __dirname,
-      "..",
-      "miniprogram",
-      "assets",
-      "expeditions",
-      "everest",
-      "live",
-      "live-a-kala-patthar.jpg",
-    );
+    // Gate 4：媒体源文件由媒体所有权规则定位（远端媒体在 media-remote/，包内资源在 miniprogram/assets/）
+    const p = join(REPO_ROOT, mediaSourcePath(HERO_KEY));
     if (!existsSync(p)) {
-      throw new Error(
-        "runtime asset missing: miniprogram/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
-      );
+      throw new Error(`runtime asset missing: ${mediaSourcePath(HERO_KEY)}`);
     }
     const sha = createHash("sha256").update(readFileSync(p)).digest("hex");
     expect(asset!.hash).toBe(sha);

@@ -3,7 +3,7 @@
  *
  * 覆盖：approved 可查 / draft·review·rejected 不可查 / 不存在 ID 空结果 /
  *       entity 归属隔离 / hero·gallery 确定性 / GeographicRole 受控 /
- *       approved 必须有 localPath / candidate 允许无 localPath。
+ *       approved 必须有 mediaKey / candidate 允许无 mediaKey。
  */
 import { describe, it, expect } from "vitest";
 import {
@@ -36,7 +36,7 @@ function asset(
     title: `t-${overrides.id}`,
     description: `d-${overrides.id}`,
     kind: "photograph",
-    localPath: `/assets/test/${overrides.id}.jpg`,
+    mediaKey: `test/${overrides.id}.jpg`,
     license: "CC BY-SA 4.0",
     geographicRole: "REPRESENTATIVE",
     reviewStatus: "approved",
@@ -193,14 +193,14 @@ describe("MediaAsset validation（正式清单强约束）", () => {
     }
   });
 
-  it("approved asset 缺 localPath → validation failure", () => {
+  it("approved asset 缺 mediaKey → validation failure", () => {
     const a = asset({ id: "no-file" });
-    delete (a as Record<"localPath", unknown>).localPath;
+    delete (a as Record<"mediaKey", unknown>).mediaKey;
     const r = validateMediaManifest(manifestOf(a));
     expect(r.ok).toBe(false);
     expect(
       r.issues.some(
-        (i) => i.path.includes("localPath") && i.level === "error",
+        (i) => i.path.includes("mediaKey") && i.level === "error",
       ),
     ).toBe(true);
   });
@@ -222,7 +222,7 @@ describe("MediaAsset validation（正式清单强约束）", () => {
 });
 
 describe("CandidateMediaAsset validation（候选期弱约束）", () => {
-  it("最小候选（无 localPath、license 未确认）允许通过，license 仅 warning", () => {
+  it("最小候选（无 mediaKey、license 未确认）允许通过，license 仅 warning", () => {
     const r = validateCandidateMedia(candidate({ id: "cand-1" }));
     expect(r.ok).toBe(true);
     expect(

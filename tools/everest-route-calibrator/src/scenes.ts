@@ -156,7 +156,7 @@ export const SCENES: SceneDef[] = [
   {
     id: "live-a",
     label: "LIVE-A · Kala Patthar",
-    assetPath: "miniprogram/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+    assetPath: "media-remote/expeditions/everest/live/live-a-kala-patthar.jpg",
     width: 1080,
     height: 1920,
     cameraGuesses: {
@@ -175,7 +175,7 @@ export const SCENES: SceneDef[] = [
   {
     id: "live-b",
     label: "LIVE-B · Khumbu 谷",
-    assetPath: "miniprogram/assets/expeditions/everest/live/live-b-khumbu.jpg",
+    assetPath: "media-remote/expeditions/everest/live/live-b-khumbu.jpg",
     width: 1080,
     height: 1920,
     note: "未收录录像。",
@@ -183,7 +183,7 @@ export const SCENES: SceneDef[] = [
   {
     id: "live-c",
     label: "LIVE-C · 大本营",
-    assetPath: "miniprogram/assets/expeditions/everest/live/live-c.jpg",
+    assetPath: "media-remote/expeditions/everest/live/live-c.jpg",
     width: 1080,
     height: 1920,
     note: "未实现。",
@@ -191,7 +191,7 @@ export const SCENES: SceneDef[] = [
   {
     id: "live-d",
     label: "LIVE-D · 南峰",
-    assetPath: "miniprogram/assets/expeditions/everest/live/live-d.jpg",
+    assetPath: "media-remote/expeditions/everest/live/live-d.jpg",
     width: 1080,
     height: 1920,
     note: "未实现。",

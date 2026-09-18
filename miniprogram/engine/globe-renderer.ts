@@ -5,6 +5,8 @@
  * 光照和经纬度投影，不连接在线地图服务，也不把地点 Marker 当成独立 UI 图层。
  */
 
+import { globeColorTextureSrc } from "./globe-texture-source";
+
 export interface GlobeMarker {
   id: string;
   name: string;
@@ -89,7 +91,7 @@ interface RenderedMarker extends GlobeMarker {
 }
 
 const DEG = Math.PI / 180;
-const TEXTURE_SRC = "/assets/world/globe-texture-realistic-2048.png";
+const TEXTURE_SRC = globeColorTextureSrc();
 
 const STAR_FIELD: Array<[number, number, number]> = [
   [0.08, 0.12, 1.4], [0.19, 0.24, 0.9], [0.31, 0.08, 1.1], [0.47, 0.18, 0.8],

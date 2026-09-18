@@ -36,7 +36,7 @@ Component({
     onOpenLibrary(e: PageEvent) {
       const id = String(e.currentTarget?.dataset?.kid ?? "");
       if (!id) return;
-      wx.navigateTo({ url: `/pages/knowledge-detail/index?id=${id}` });
+      wx.navigateTo({ url: `/pkg-detail/pages/knowledge-detail/index?id=${id}` });
     },
     noop() {
       /* 阻止 touch 冒泡传给滑动层 */

@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "generator": "scripts/media-manifest.mjs",
+  "version": "v1",
+  "pathContract": "mediaKey 与远端对象键一一对应：<remoteBase><mediaKey>",
+  "count": 46,
+  "totalBytes": 5112904,
+  "files": [
+    {
+      "mediaKey": "content/colorado/c-indian-garden.jpg",
+      "repoPath": "media-remote/content/colorado/c-indian-garden.jpg",
+      "bytes": 156006,
+      "sha256": "c5477a4f6e2f45b7d9a5ffcf6b919ac7e239550b56c7bf06d09c0823580cfe55"
+    },
+    {
+      "mediaKey": "content/colorado/c-resthouse-15.jpg",
+      "repoPath": "media-remote/content/colorado/c-resthouse-15.jpg",
+      "bytes": 141380,
+      "sha256": "8f76a7c8bed4b5c7e34ae2ca2798463b5dc164d143cc8413f4c20590e286c50f"
+    },
+    {
+      "mediaKey": "content/colorado/c-resthouse-3mi.jpg",
+      "repoPath": "media-remote/content/colorado/c-resthouse-3mi.jpg",
+      "bytes": 97358,
+      "sha256": "faab1bdc831ffcf380318ceffe7c44293e4d800e225c187152b5bc605eb0359b"
+    },
+    {
+      "mediaKey": "content/colorado/c-river-nps.jpg",
+      "repoPath": "media-remote/content/colorado/c-river-nps.jpg",
+      "bytes": 98894,
+      "sha256": "5b36f08fc0e23e0caca63a3661e38b3252d1b65796ddb264ada089e9219e8cb6"
+    },
+    {
+      "mediaKey": "content/colorado/c-vishnu-river.jpg",
+      "repoPath": "media-remote/content/colorado/c-vishnu-river.jpg",
+      "bytes": 193989,
+      "sha256": "7a324616a7ff29ce2a2171da131bc0246f57d3e3c57b3b5de7af792f918c01e4"
+    },
+    {
+      "mediaKey": "content/colorado/c1-trailhead.jpg",
+      "repoPath": "media-remote/content/colorado/c1-trailhead.jpg",
+      "bytes": 147746,
+      "sha256": "6069306869d660e1626efec3ebe5585643e646e1c23c168d141b7dfc76bb08ea"
+    },
+    {
+      "mediaKey": "content/colorado/c2-devils-corkscrew.jpg",
+      "repoPath": "media-remote/content/colorado/c2-devils-corkscrew.jpg",
+      "bytes": 117880,
+      "sha256": "1bfa6bab3539a311336da78a6a1294d5a8b947e5ddea20b816e3dc1f36d92f19"
+    },
+    {
+      "mediaKey": "content/colorado/c3-kaibab-fossils.jpg",
+      "repoPath": "media-remote/content/colorado/c3-kaibab-fossils.jpg",
+      "bytes": 146801,
+      "sha256": "9dd793334a8b462f3c3604d293adcc35871908423d590c5c4a56487f3ac1118f"
+    },
+    {
+      "mediaKey": "content/colorado/c4-phantom-ranch.jpg",
+      "repoPath": "media-remote/content/colorado/c4-phantom-ranch.jpg",
+      "bytes": 176022,
+      "sha256": "0d74b3620ec1b9ecf58861a6723e9935c470c58ac94efddd3bd14890604f0a89"
+    },
+    {
+      "mediaKey": "content/colorado/c6-south-rim-panorama.jpg",
+      "repoPath": "media-remote/content/colorado/c6-south-rim-panorama.jpg",
+      "bytes": 38224,
+      "sha256": "5458d7198935e57b977c7b2290dd5738a22ea40370994bd91da4acf14417bc3c"
+    },
+    {
+      "mediaKey": "content/colorado/k-condor.jpg",
+      "repoPath": "media-remote/content/colorado/k-condor.jpg",
+      "bytes": 72010,
+      "sha256": "1976eea1b1f00f6728952b4026792e88e307222e3983d0826187a892abfb2342"
+    },
+    {
+      "mediaKey": "content/everest/ev-b1-western-cwm.jpg",
+      "repoPath": "media-remote/content/everest/ev-b1-western-cwm.jpg",
+      "bytes": 91858,
+      "sha256": "288b1d1c09c6d19f7d2ac641338ef7928be5a4593028f77ef605b4a4f8d356ab"
+    },
+    {
+      "mediaKey": "content/everest/ev-c1-yellow-band.jpg",
+      "repoPath": "media-remote/content/everest/ev-c1-yellow-band.jpg",
+      "bytes": 50901,
+      "sha256": "fdc23c3530a32787f314705f78c094a87c5748bf46b5a370e4c1a3d21584c36b"
+    },
+    {
+      "mediaKey": "content/everest/ev-icefall-ladders.jpg",
+      "repoPath": "media-remote/content/everest/ev-icefall-ladders.jpg",
+      "bytes": 77577,
+      "sha256": "aa95ef478536e49e1d40c9eb90062021baa2fc03125dd0d887a7a15c8e16adab"
+    },
+    {
+      "mediaKey": "content/everest/k-hillary-tenzing.jpg",
+      "repoPath": "media-remote/content/everest/k-hillary-tenzing.jpg",
+      "bytes": 55193,
+      "sha256": "00562ca5d81e9616affb22e02f574df214f38d6d25d8875ae3de2a4d6f67d511"
+    },
+    {
+      "mediaKey": "content/everest/k-subduction.jpg",
+      "repoPath": "media-remote/content/everest/k-subduction.jpg",
+      "bytes": 28007,
+      "sha256": "451eae844e312cf5a31f8aa98ecccb71b3fa59767180406b0afe53dbab4739d9"
+    },
+    {
+      "mediaKey": "content/everest/k32-modern-climb.jpg",
+      "repoPath": "media-remote/content/everest/k32-modern-climb.jpg",
+      "bytes": 77577,
+      "sha256": "aa95ef478536e49e1d40c9eb90062021baa2fc03125dd0d887a7a15c8e16adab"
+    },
+    {
+      "mediaKey": "content/fuji/f-cross-section.jpg",
+      "repoPath": "media-remote/content/fuji/f-cross-section.jpg",
+      "bytes": 37745,
+      "sha256": "1b02bd1fcc9703fd627576cd5cd8138ea3a5afd9c9f03e93a3ecbfdfcaa2ebc1"
+    },
+    {
+      "mediaKey": "content/fuji/f-forest-lower.jpg",
+      "repoPath": "media-remote/content/fuji/f-forest-lower.jpg",
+      "bytes": 182884,
+      "sha256": "239d727f2c72bedc6d22920aea3e542c8f74eaf0d3475fc688609c2d60f61104"
+    },
+    {
+      "mediaKey": "content/fuji/f-osunabashiri.jpg",
+      "repoPath": "media-remote/content/fuji/f-osunabashiri.jpg",
+      "bytes": 129539,
+      "sha256": "df93b1a983c766d67c20f1130c1c3544c571f797dcba70dae94140e2ea76e869"
+    },
+    {
+      "mediaKey": "content/fuji/f-yoshida-huts.jpg",
+      "repoPath": "media-remote/content/fuji/f-yoshida-huts.jpg",
+      "bytes": 128078,
+      "sha256": "f9d6f03aa4d126731a7e3230b3f82304570bc48ca667da83fd502b3f44ece5e2"
+    },
+    {
+      "mediaKey": "content/fuji/f1-yamanaka-view.jpg",
+      "repoPath": "media-remote/content/fuji/f1-yamanaka-view.jpg",
+      "bytes": 99552,
+      "sha256": "06c0430066dc1dc2a0749e72d351b4e5f3b613192a33b9afdfc41ac79ef1f7b5"
+    },
+    {
+      "mediaKey": "content/fuji/f3-goraiko.jpg",
+      "repoPath": "media-remote/content/fuji/f3-goraiko.jpg",
+      "bytes": 33723,
+      "sha256": "3512c82afa0a6200c2d8a3be5f3775461b2294efbafdb4d603e48bb7e4300b8f"
+    },
+    {
+      "mediaKey": "content/fuji/f4-hoei-rim.jpg",
+      "repoPath": "media-remote/content/fuji/f4-hoei-rim.jpg",
+      "bytes": 97647,
+      "sha256": "38ac95e05698daae2401b4ad28f816aab8066a330694ceff03c151719d7c1c3f"
+    },
+    {
+      "mediaKey": "content/fuji/f5-navy-climb.jpg",
+      "repoPath": "media-remote/content/fuji/f5-navy-climb.jpg",
+      "bytes": 32403,
+      "sha256": "4274a30dde67d2edae204ce1ede71c726ac1316d6a49c8a88a1676834c2d5e2f"
+    },
+    {
+      "mediaKey": "content/mariana/k-pelagic-zones.jpg",
+      "repoPath": "media-remote/content/mariana/k-pelagic-zones.jpg",
+      "bytes": 36728,
+      "sha256": "6914db07f723ebde79274d02d787d5bb6b022f870578b7745205f51928cbb408"
+    },
+    {
+      "mediaKey": "content/mariana/k34-noctiluca-glow.jpg",
+      "repoPath": "media-remote/content/mariana/k34-noctiluca-glow.jpg",
+      "bytes": 27121,
+      "sha256": "d29f085566e5f7cdacdf7acd5884e0d6dedfc4a33943793e4ae291f4aa983c6a"
+    },
+    {
+      "mediaKey": "content/mariana/k40-ifremer-snow.jpg",
+      "repoPath": "media-remote/content/mariana/k40-ifremer-snow.jpg",
+      "bytes": 54586,
+      "sha256": "c1348668bc1855b8d78b76600c57f3888a20346f5941656a5f4b94417c6a7e0e"
+    },
+    {
+      "mediaKey": "content/mariana/m1-gebco-bathymetry.jpg",
+      "repoPath": "media-remote/content/mariana/m1-gebco-bathymetry.jpg",
+      "bytes": 127313,
+      "sha256": "2002d5b13f3d3df63f11dd87461becc0c2fe4ef7e0515e4d34dbd7f45818ed8d"
+    },
+    {
+      "mediaKey": "content/mariana/m2-limiting-factor-bottom.jpg",
+      "repoPath": "media-remote/content/mariana/m2-limiting-factor-bottom.jpg",
+      "bytes": 71940,
+      "sha256": "38acda4c06dfd3fcbf809f5cb909ec4cdd08f659bfe9877eff3bb1a86c009cb8"
+    },
+    {
+      "mediaKey": "content/mariana/m3-trieste-1960.jpg",
+      "repoPath": "media-remote/content/mariana/m3-trieste-1960.jpg",
+      "bytes": 104690,
+      "sha256": "6f5d50b30c20ca9590c1a4786c4d7e7222833fcde4121ec3bae900334c2d4cfd"
+    },
+    {
+      "mediaKey": "content/mariana/m4-hadal-snailfish-map.jpg",
+      "repoPath": "media-remote/content/mariana/m4-hadal-snailfish-map.jpg",
+      "bytes": 106497,
+      "sha256": "df465fef6ae9f9c04a891003116219ff7493fc4da9c84a2155e8acec49facda9"
+    },
+    {
+      "mediaKey": "content/mariana/m5-hirondellea.jpg",
+      "repoPath": "media-remote/content/mariana/m5-hirondellea.jpg",
+      "bytes": 32010,
+      "sha256": "4ed7a74647c6c3a3330de6d8b73093f2023490c88f066b2c4dce1674a20f195d"
+    },
+    {
+      "mediaKey": "content/mariana/m7-challenger-sonar.jpg",
+      "repoPath": "media-remote/content/mariana/m7-challenger-sonar.jpg",
+      "bytes": 66037,
+      "sha256": "169820891abe803b444bda497e8e0efce54918211b580bdaf03e1f43d046641b"
+    },
+    {
+      "mediaKey": "expeditions/everest/live/live-a-kala-patthar.jpg",
+      "repoPath": "media-remote/expeditions/everest/live/live-a-kala-patthar.jpg",
+      "bytes": 517192,
+      "sha256": "ae4844a4e21c5b27fc090871b926332db5a292124ab35a94439846958908806e"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/base-camp.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/base-camp.jpg",
+      "bytes": 93207,
+      "sha256": "93c83fd5e151ccca938088448061bd3f4f44e77719f8aab5643f4085dd18dd7a"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/camp-i.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/camp-i.jpg",
+      "bytes": 97380,
+      "sha256": "6aeb76e568abb738aa07bdf38111dc548b17be8ea72a829b1fc17902556b94dd"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/khumbu-icefall.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/khumbu-icefall.jpg",
+      "bytes": 92630,
+      "sha256": "6000a3568429068d28cc08ca3ae9ff197f50c7d3b4046233cc7a14337e94347b"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/lhotse-face-camp-iii.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/lhotse-face-camp-iii.jpg",
+      "bytes": 85336,
+      "sha256": "f78d02096c8d471fbe73cee35e30c954d0b359a0189dd24de05501535d08f34b"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/south-col-camp-iv.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/south-col-camp-iv.jpg",
+      "bytes": 88830,
+      "sha256": "2d0b9a832299b314f44b38f44f04573e3845c6e4dc0a78b561a8a1eb300eefa2"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/south-summit.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/south-summit.jpg",
+      "bytes": 65451,
+      "sha256": "e9733730f1be114d2aac6b0bc7d59d0635604f7b6e1569adf7db164a9bf8508e"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/summit.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/summit.jpg",
+      "bytes": 40073,
+      "sha256": "bf4987bf873abf282f4f074f1b3b904c09797e50e901e12bd33a85957264bd89"
+    },
+    {
+      "mediaKey": "expeditions/everest/waypoints/western-cwm-camp-ii.jpg",
+      "repoPath": "media-remote/expeditions/everest/waypoints/western-cwm-camp-ii.jpg",
+      "bytes": 96044,
+      "sha256": "377bfe85d5da7b729228fdce56c34e8e21a7fcc31abf706e03dd8ab7a48bc5dc"
+    },
+    {
+      "mediaKey": "world/everest-expedition-hero-v1.jpg",
+      "repoPath": "media-remote/world/everest-expedition-hero-v1.jpg",
+      "bytes": 357645,
+      "sha256": "7d6cfe849af7d1cd6db16878bc18aea3a57e6a07aa5db4a7e97e5fe756cbe47d"
+    },
+    {
+      "mediaKey": "world/globe-height-2048.jpg",
+      "repoPath": "media-remote/world/globe-height-2048.jpg",
+      "bytes": 133730,
+      "sha256": "0d8d5f50089bdaffcf3caabc90e5ad87264024a0dc8b8a96831f6ad1d67ab986"
+    },
+    {
+      "mediaKey": "world/globe-specular-2048.jpg",
+      "repoPath": "media-remote/world/globe-specular-2048.jpg",
+      "bytes": 309470,
+      "sha256": "a987bc1eb35cf12eb6c0510272594730824df855aae2e9e1c30bf8fccfd55a92"
+    }
+  ]
+}
