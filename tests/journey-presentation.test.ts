@@ -35,5 +35,7 @@ describe("探索旅程投影", () => {
     expect(state.nodes[0].value).toBe("2,114");
     expect(state.nodes.at(-1)?.value).toBe("725");
     expect(state.complete).toBe(true);
+    expect(state.canyonLayer?.name).toBe("内峡基底岩");
+    expect(state.canyonLayer?.age).toContain("17–18 亿");
   });
 });

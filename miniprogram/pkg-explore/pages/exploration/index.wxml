@@ -144,7 +144,7 @@
     <!-- 顶部：地貌观察标题（路线只作为观察顺序，不是登山导航） -->
     <view class="exp-top" style="top:{{capTop}}px">
       <text class="exp-back" bindtap="onBackHome">‹</text>
-      <view class="exp-top-copy"><text class="exp-top-title">{{worldOcean ? '深海下潜' : '地貌观察'}}</text><text class="exp-top-meta">{{metaPlace}}</text><text wx:if="{{expMoving || expMotionText}}" class="exp-top-status">{{expMotionText || (worldOcean ? '正在下潜' : '正在切换观察点')}} · {{expedition.nextLandform}}</text></view>
+      <view class="exp-top-copy"><text class="exp-top-title">{{journey ? journey.sceneLabel : '地貌探索'}}</text><text class="exp-top-meta">{{metaPlace}}</text><text wx:if="{{expMoving || expMotionText}}" class="exp-top-status">{{expMotionText || (worldOcean ? '正在下潜' : worldCanyon ? '正在下降' : '正在切换观察点')}} · {{expedition.nextLandform}}</text></view>
       <text class="exp-top-elev">{{expedition.currentElevText}} m</text>
     </view>
 
@@ -155,6 +155,7 @@
     </view>
 
     <include src="journey-dock.wxml" />
+    <include src="journey-canyon.wxml" />
 
     <!-- Gate 3.3C.1 P1：hero→面板 跨接缝照片暗化渐变（不挪/不加高面板；在面板上缘铺淡出，消除硬接缝） -->
     <view class="exp-sheet-fade"></view>
@@ -173,7 +174,7 @@
           <text class="exp-summit-kicker">{{expTerminus.kicker}}</text>
           <text class="exp-summit-title">{{expTerminus.headline}}</text>
         </view>
-        <text class="exp-summit-alt">{{worldOcean ? '深度 ' : ''}}{{expSummit.altitudeText}} m</text>
+        <text class="exp-summit-alt">{{worldOcean ? '深度 ' : worldCanyon ? '下切 ' : ''}}{{expSummit.altitudeText}} m</text>
       </view>
       <text class="exp-summit-note">{{expSummit.note}} · 路线完成 100%</text>
     </view>

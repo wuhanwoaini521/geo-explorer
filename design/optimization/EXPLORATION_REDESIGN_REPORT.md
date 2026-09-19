@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-进行中，阶段一 checkpoint：在 `codex/exploration-redesign` 重建探索页的总览/局部视角、旅程控制台和马里亚纳垂直下潜示意。保留路线引擎、内容、媒体注册、知识解锁和记录系统。用户已有 `project.config.json` 改动保留且不提交；本地开发者工具读取 `dist-local/miniprogram/`，两套构建均同步。
+阶段二 checkpoint：在 `codex/exploration-redesign` 重建探索页的总览/局部视角、旅程控制台和马里亚纳垂直下潜示意，并完成大峡谷地层实验与珠峰轻量迁移。保留路线引擎、内容、媒体注册、知识解锁和记录系统。用户已有 `project.config.json` 改动保留且不提交；本地开发者工具读取 `dist-local/miniprogram/`，两套构建均同步。
 
 ## Current Problem
 
@@ -21,11 +21,11 @@
 
 ## Everest
 
-保留实景、DEM、现有相机与路线数据。共享旅程控制台与总览/局部切换；后续阶段将继续检查路线、媒体和终点截图。
+保留实景、DEM、现有相机与路线数据。共享旅程控制台与总览/局部切换；路线节点、当前海拔、下一站、沿途观察和终点报告形成同一条操作链。起点、中段、峰顶及 360×640 小屏截图已检查。
 
 ## Grand Canyon
 
-阶段二计划：复用旅程模型，实验实景节点与路线/地层关系，不改底层内容模型。
+已完成实验版：复用相同 routeIndex，但用“实景路线 + 当前岩层 + 从新到老的岩层时间轴”建立独立表达。局部视角显示当前位置对应岩层与年代；总览展开五层地质时间；向下拖动与下切方向一致。主数值显示实际海拔，辅助指标显示累计下切深度，避免混淆。
 
 ## Whole View / Detail View
 
@@ -40,15 +40,17 @@
 截图目录：`artifacts/visual/exploration-redesign/`（按项目约定不提交图片）。
 
 - `before/`：改版前代码基线。
-- `round-1/`：第一轮 Mariana/Everest 起点、全部站点、总览终点。
+- `round-1/`：第一轮 Mariana/Everest 起点、全部站点、总览终点及大峡谷基线。
+- `round-2/`：Mariana、Everest、Colorado 的起点、全部节点、总览起终点，共 28 张，390×844。
+- `round-2-small/`：同一矩阵，共 28 张，360×640；用于检查紧凑视口、底部安全区与长文案裁切。
 - `scripts/exploration-headless.cjs` 使用真实编译 Page + 源 WXML/WXSS，后台 Chromium 渲染。属于浏览器适配预览，不是微信原生模拟器。
 - 适配器已检查并修复 page 选择器、内联 rpx、WXML include、text 选择器的转换；不得将适配器转换问题误判为产品问题。
 - 微信原生截图阻塞：`ws://127.0.0.1:9420` 无法建立自动化会话；没有自动打开可见窗口。
 
 ## Validation
 
-阶段一：`npm test` 58 个测试文件通过，649 项通过、7 项跳过；typecheck/build/build:local-media 通过。新增行为回归覆盖视角切换不改状态、拖动方向、内容卡防误触、到站提示与终点报告/重开。其余全量审计待最终阶段执行。
+阶段一：`npm test` 58 个测试文件通过，649 项通过、7 项跳过；typecheck/build/build:local-media 通过。阶段二定向 56 项通过。新增行为回归覆盖视角切换不改状态、Mariana/Colorado 拖动方向、岩层投影、内容卡防误触、到站提示与终点报告/重开。最终全量命令待收尾阶段执行。
 
 ## Remaining Issues
 
-进行中：第二轮截图、Everest polish、大峡谷实验、全量审计和小屏检查。微信原生会话、正式媒体 CDN 域名/凭据仍为外部条件，当前不宣称原生视觉通过或正式发布可用。
+进行中：最终全量审计、报告整理与微信端点重试。微信原生会话、正式媒体 CDN 域名/凭据仍为外部条件，当前不宣称原生视觉通过或正式发布可用。

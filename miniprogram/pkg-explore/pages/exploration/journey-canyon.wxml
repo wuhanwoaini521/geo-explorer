@@ -1,0 +1,18 @@
+<view wx:if="{{worldCanyon && journey && journey.canyonLayer}}" class="canyon-geology canyon-geology-{{journeyView}}" style="top:{{capBottom + 86}}px">
+  <view class="canyon-geology-head">
+    <text class="journey-eyebrow">ROCK TIME / 岩层时间</text>
+    <text class="canyon-geology-mode">{{journeyView === 'overview' ? '从新到老' : '当前岩层'}}</text>
+  </view>
+  <view class="canyon-geology-current canyon-tone-{{journey.canyonLayer.tone}}">
+    <text class="canyon-geology-name">{{journey.canyonLayer.name}}</text>
+    <text class="canyon-geology-age">{{journey.canyonLayer.age}}</text>
+  </view>
+  <view wx:if="{{journeyView === 'overview'}}" class="canyon-strata-list">
+    <view class="canyon-stratum canyon-tone-limestone"><text>凯巴布灰岩</text><text>2.7 亿年</text></view>
+    <view class="canyon-stratum canyon-tone-sandstone"><text>科科尼诺砂岩</text><text>2.6 亿年</text></view>
+    <view class="canyon-stratum canyon-tone-redwall"><text>红墙灰岩</text><text>3.4 亿年</text></view>
+    <view class="canyon-stratum canyon-tone-shale"><text>托ント页岩</text><text>5.05 亿年</text></view>
+    <view class="canyon-stratum canyon-tone-schist"><text>维许努片岩</text><text>17 亿年</text></view>
+  </view>
+  <text class="canyon-geology-foot">下降越深，读到的岩层通常越古老</text>
+</view>

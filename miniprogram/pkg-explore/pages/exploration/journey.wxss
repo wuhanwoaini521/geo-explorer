@@ -96,6 +96,23 @@
 .descent-overview .descent-station-depth { font-size: 22rpx; }
 .descent-overview .descent-station { height: 66rpx; margin-top: -33rpx; }
 .journey-page.ocean-mode .exp-sheet-fade { display: none; }
+.canyon-geology { position: absolute; left: 28rpx; z-index: 12; width: 255rpx; padding: 17rpx; border-radius: 16rpx; color: #fff8e8; background: rgba(38, 24, 18, .82); border: 1rpx solid rgba(244, 213, 160, .38); box-shadow: 0 8rpx 24rpx rgba(21, 11, 6, .25); backdrop-filter: blur(10rpx); }
+.canyon-geology-head { display: flex; justify-content: space-between; gap: 8rpx; align-items: flex-start; }
+.canyon-geology .journey-eyebrow { color: #e8c991; font-size: 14rpx; }
+.canyon-geology-mode { font-size: 16rpx; color: #d5b77d; white-space: nowrap; }
+.canyon-geology-current { margin-top: 12rpx; padding: 12rpx 13rpx; border-left: 7rpx solid #d8b785; background: rgba(255,255,255,.07); }
+.canyon-geology-name { display: block; font-size: 23rpx; font-weight: 650; }
+.canyon-geology-age { display: block; margin-top: 3rpx; font-size: 17rpx; color: #ead7b7; }
+.canyon-strata-list { margin-top: 10rpx; overflow: hidden; border-radius: 9rpx; }
+.canyon-stratum { display: flex; justify-content: space-between; gap: 10rpx; padding: 7rpx 10rpx; font-size: 15rpx; color: #2b211b; }
+.canyon-geology-foot { display: block; margin-top: 10rpx; color: #d7bea0; font-size: 15rpx; line-height: 1.45; }
+.canyon-tone-limestone { border-color: #e0d0a7; background: #d8caa5; }
+.canyon-tone-sandstone { border-color: #e3d3b1; background: #e4d9bf; }
+.canyon-tone-redwall { border-color: #c2704f; background: #bd7557; }
+.canyon-tone-shale { border-color: #87916d; background: #9ca17f; }
+.canyon-tone-schist, .canyon-tone-basement { border-color: #4f4a4e; background: #6c6467; color: #fff; }
+.canyon-geology-focus { width: 238rpx; }
+.canyon-geology-overview { width: 284rpx; }
 @media (max-height: 720px) {
   .journey-page { --journey-dock-height: 480rpx; }
   .journey-dock { padding-top: 18rpx; gap: 10rpx; }

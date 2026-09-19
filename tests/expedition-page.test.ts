@@ -85,6 +85,15 @@ describe("Journey 交互回归", () => {
     inst.onTouchStart({touches:[{clientY:200}]});inst.onTouchMove({touches:[{clientY:400}]});
     expect(inst.target).toBe(target);inst.onUnload();
   });
+  it("大峡谷向下拖动会沿路线下降，并显示当前岩层", () => {
+    const inst=createInstance(pageDef);inst.onLoad({id:"colorado"});inst.onStartClimb();driveTo(inst,0);
+    inst.onTouchStart({touches:[{clientY:200}]});inst.onTouchMove({touches:[{clientY:300}]});
+    expect(inst.target).toBeGreaterThan(0);
+    driveTo(inst,0.72);
+    expect(inst.data.journey.canyonLayer.name).toBe("红墙石灰岩");
+    expect(inst.data.journey.canyonLayer.age).toContain("3.4 亿");
+    inst.onUnload();
+  });
   it("抵达邀请不遮住场景，查看发现才打开卡片；未抵底不能打开完成报告", () => {
     const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,0);
     inst.onJourneySummary();expect(inst.data.summit).toBe(false);

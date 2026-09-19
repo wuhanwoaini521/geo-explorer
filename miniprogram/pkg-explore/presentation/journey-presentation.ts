@@ -3,6 +3,16 @@ import type { ExplorationRouteWaypoint } from "../../types/exploration";
 
 export type JourneyView = "overview" | "focus";
 
+const CANYON_LAYERS: Record<string, { name: string; age: string; tone: string }> = {
+  "rim-trailhead": { name: "凯巴布石灰岩", age: "约 2.7 亿年前", tone: "limestone" },
+  "mile-and-half": { name: "凯巴布石灰岩", age: "约 2.7 亿年前", tone: "limestone" },
+  "three-mile": { name: "科科尼诺砂岩", age: "约 2.6 亿年前", tone: "sandstone" },
+  "havasupai-gardens": { name: "托ント台地页岩", age: "约 5.05 亿年前", tone: "shale" },
+  "devils-corkscrew": { name: "红墙石灰岩", age: "约 3.4 亿年前", tone: "redwall" },
+  "river-side": { name: "维许努片岩", age: "约 17 亿年前", tone: "schist" },
+  "phantom-ranch": { name: "内峡基底岩", age: "约 17–18 亿年前", tone: "basement" },
+};
+
 /** A presentation projection of the canonical route; never a second progress store. */
 export function journeyAt(
   milestones: RouteMilestoneSample[],
@@ -21,6 +31,7 @@ export function journeyAt(
   const point = current ? content.get(current.id) : undefined;
   const ocean = world === "mariana";
   const canyon = world === "colorado";
+  const canyonLayer = canyon && current ? CANYON_LAYERS[current.id] : undefined;
   const nodes = milestones.map((m,i) => ({
     id:m.id, name:content.get(m.id)?.shortName || m.name,
     fullName:m.name, number:String(i+1).padStart(2,"0"),
@@ -41,8 +52,9 @@ export function journeyAt(
     nextDepth:next ? next.refM : current?.refM ?? 0,
     axisLabel:ocean?"深度":canyon?"海拔":"海拔",
     movement:ocean?"下潜":canyon?"下降":"攀登",
-    sceneLabel:ocean?"垂直下潜":canyon?"峡谷地层之旅":"珠峰南坡路线",
+    sceneLabel:ocean?"深海垂直下潜":canyon?"峡谷地层下切":world==="everest"?"珠峰南坡攀登":world==="fuji"?"富士山攀登":"地貌探索",
     scaleLabel:ocean?"水层与路线示意 · 非等比":canyon?"路线与地层示意 · 非导航":"照片观察路线 · 非导航",
+    canyonLayer,
   };
 }
 

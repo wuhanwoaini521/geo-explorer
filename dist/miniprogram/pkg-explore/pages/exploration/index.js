@@ -1834,7 +1834,8 @@ Page({
         const t = e.touches && e.touches[0];
         if (!t)
             return;
-        const dy = (this.lastTouchY - t.clientY) * (this.data.worldOcean ? -1 : 1);
+        const descending = this.data.worldOcean || this.data.worldCanyon;
+        const dy = (this.lastTouchY - t.clientY) * (descending ? -1 : 1);
         this.lastTouchY = t.clientY;
         const ex = this.exploration;
         if (!ex)
@@ -1845,7 +1846,11 @@ Page({
             this.target = (0, format_1.clamp)(this.target + (dy * METERS_PER_PX) / total, 0, 1);
             this.setData({
                 expMoving: true,
-                expMotionText: this.data.worldOcean ? (dy >= 0 ? "正在下潜" : "正在上浮") : (dy >= 0 ? "沿路线前进中" : "沿路线回撤中"),
+                expMotionText: this.data.worldOcean
+                    ? (dy >= 0 ? "正在下潜" : "正在上浮")
+                    : this.data.worldCanyon
+                        ? (dy >= 0 ? "正在下降峡谷" : "正在返回谷缘")
+                        : (dy >= 0 ? "沿路线前进中" : "沿路线回撤中"),
             });
             return;
         }
