@@ -27,6 +27,8 @@ export interface MarianaPresentation {
   bottomOpacity: number;
   darknessOpacity: number;
   railTopPercent: number;
+  /** 海面出发阶段展示经核验的历史任务档案；深水区不把它伪装成环境照片。 */
+  surfaceArchiveVisible: boolean;
   atBottom: boolean;
 }
 
@@ -194,6 +196,7 @@ export function marianaPresentationAt(
     bottomOpacity: roundOpacity(bottomProgress),
     darknessOpacity: roundOpacity((depthM - 180) / 3200),
     railTopPercent: Math.round((8 + progress * 84) * 10) / 10,
+    surfaceArchiveVisible: depthM <= 120,
     atBottom: depthM >= maxDepthM - 0.5,
   };
 }

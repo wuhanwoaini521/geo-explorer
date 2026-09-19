@@ -575,6 +575,8 @@ Page({
         marineSnowParticles: [], // 海洋世界：深海海雪粒子（复用 Particle 结构）
         // 海洋世界使用纯函数生成物理分层参数；不把任务舱内照片冒充海沟或海床。
         mariana: (0, mariana_presentation_1.marianaPresentationAt)(0),
+        // 仅在海面出发阶段显示的历史任务档案，不作为深海环境背景。
+        marianaSurfaceArchiveSrc: (0, media_service_1.resolveMediaSrc)("content/mariana/m3-trieste-1960.jpg"),
         route: null,
         // 阶段横幅 / 知识 / 随堂
         stageBanner: {
@@ -1220,6 +1222,12 @@ Page({
             liveOverlay: null,
             liveInfo: "实景暂不可用 · 已回退本地影像",
         });
+    },
+    /** 表层历史图不可用时移除档案卡，避免小程序显示破图占位。 */
+    onMarianaSurfaceArchiveError() {
+        if (!this.data.marianaSurfaceArchiveSrc)
+            return;
+        this.setData({ marianaSurfaceArchiveSrc: "" });
     },
     /** Gate 3：真实路线HUD（差分推送；死亡区/峰顶附独立 flag 供样式切换） */
     renderExpeditionView(drive) {

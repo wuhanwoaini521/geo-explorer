@@ -50,6 +50,22 @@
       <view class="mariana-darkness" style="opacity:{{mariana.darknessOpacity}}"></view>
     </view>
 
+    <!-- 海面出发才展示经核验的历史任务档案；深水区不将其伪装成海沟环境。 -->
+    <view wx:if="{{mariana.surfaceArchiveVisible && marianaSurfaceArchiveSrc}}" class="mariana-surface-archive">
+      <image
+        class="mariana-surface-archive-image"
+        mode="aspectFill"
+        src="{{marianaSurfaceArchiveSrc}}"
+        binderror="onMarianaSurfaceArchiveError"
+      ></image>
+      <view class="mariana-surface-archive-shade"></view>
+      <view class="mariana-surface-archive-copy">
+        <text class="mariana-surface-archive-kicker">1960 · TASK ARCHIVE</text>
+        <text class="mariana-surface-archive-title">里雅斯特号海面出发</text>
+        <text class="mariana-surface-archive-credit">U.S. Navy · Public Domain</text>
+      </view>
+    </view>
+
     <!-- 表层阳光光柱（0-200m 极强，1000m 熄灭） -->
     <view class="ocean-rays" style="opacity:{{mariana.rayOpacity}}">
       <view class="ocean-ray ray-a"></view>

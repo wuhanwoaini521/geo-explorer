@@ -58,5 +58,12 @@ describe("马里亚纳垂直下潜展示", () => {
     expect(state.progress).toBe(0);
     expect(state.pressureText).toBe("1 atm");
     expect(state.atBottom).toBe(false);
+    expect(state.surfaceArchiveVisible).toBe(true);
+  });
+
+  it("只在海面出发阶段展示历史任务档案", () => {
+    expect(marianaPresentationAt(120).surfaceArchiveVisible).toBe(true);
+    expect(marianaPresentationAt(121).surfaceArchiveVisible).toBe(false);
+    expect(marianaPresentationAt(6000).surfaceArchiveVisible).toBe(false);
   });
 });

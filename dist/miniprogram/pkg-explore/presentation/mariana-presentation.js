@@ -132,6 +132,7 @@ function marianaPresentationAt(inputDepthM, inputMaxDepthM = DEFAULT_MAX_DEPTH_M
         bottomOpacity: roundOpacity(bottomProgress),
         darknessOpacity: roundOpacity((depthM - 180) / 3200),
         railTopPercent: Math.round((8 + progress * 84) * 10) / 10,
+        surfaceArchiveVisible: depthM <= 120,
         atBottom: depthM >= maxDepthM - 0.5,
     };
 }
