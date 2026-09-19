@@ -1,4 +1,4 @@
-# Overnight Quality Report（自动生成 2026-09-12）
+# Overnight Quality Report（自动生成 2026-09-18）
 
 ## 总体指标（代码计算）
 
@@ -16,11 +16,11 @@
 | Knowledge-waypoint linkage | 32%（13/41） |
 | Knowledge quiz coverage（全局+随堂） | 52 题 |
 | Knowledge graph edges | 61（跨世界 15） |
-| Media candidates | 48 |
-| Runtime media assets | 43 |
-| Waypoint runtime media coverage | 72%（21/29） |
-| Fallback-only waypoints | 8 |
-| Validation errors | 0 |
+| Media candidates | 51 |
+| Runtime media assets | 47 |
+| Waypoint runtime media coverage | 76%（22/29） |
+| Fallback-only waypoints | 7 |
+| Validation errors | 50 |
 | Validation warnings | 0（全部为待晋升/待候选债务记录） |
 
 ## Waypoint 知识密度

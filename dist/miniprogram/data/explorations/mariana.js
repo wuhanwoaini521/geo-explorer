@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MARIANA = void 0;
+const media_service_1 = require("../../services/media-service");
 const SRC_WIKI_MARIANA = {
     name: "Wikipedia — Mariana Trench",
     url: "https://zh.wikipedia.org/wiki/%E9%A9%AC%E9%87%8C%E4%BA%9A%E7%BA%B3%E6%B5%B7%E6%B2%9F",
@@ -202,6 +203,10 @@ exports.MARIANA = {
                 knowledgeIds: ["pressure", "k33"],
                 sources: [SRC_WIKI_MARIANA, SRC_FENDOUZHE],
                 reviewStatus: "approved",
+                mediaIds: ["wp-surface-start"],
+                images: [(0, media_service_1.resolveMediaSrc)("content/mariana/m3-trieste-1960.jpg")],
+                imageCredits: ["U.S. Navy — Wikimedia Commons · Public Domain"],
+                imageKinds: ["photo"],
             },
             {
                 id: "thermocline",
@@ -317,6 +322,10 @@ exports.MARIANA = {
                 knowledgeIds: ["pressure"],
                 sources: [SRC_PRESSURE, SRC_TEMP],
                 reviewStatus: "approved",
+                mediaIds: ["m5-hirondellea"],
+                images: [(0, media_service_1.resolveMediaSrc)("content/mariana/m5-hirondellea.jpg")],
+                imageCredits: ["Daiju Azuma — Wikimedia Commons · CC BY-SA 2.5"],
+                imageKinds: ["photo"],
             },
             {
                 id: "challenger-bottom",
@@ -342,6 +351,11 @@ exports.MARIANA = {
                 sources: [SRC_CHALLENGER, SRC_WIKI_MARIANA, SRC_FENDOUZHE],
                 reviewStatus: "approved",
                 mediaIds: ["m2-limiting-factor-bottom"],
+                images: [(0, media_service_1.resolveMediaSrc)("content/mariana/m2-limiting-factor-bottom.jpg")],
+                imageCredits: [
+                    "DSV Limiting Factor 舱内任务操作记录（非海床影像） · Victor Vescovo — Wikimedia Commons · CC0",
+                ],
+                imageKinds: ["photo"],
             },
         ],
     },

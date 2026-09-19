@@ -1,302 +1,302 @@
 {
-  "generatedAt": "2026-09-12T00:35:16.695Z",
+  "generatedAt": "2026-09-18T15:53:08.042Z",
   "assets": [
     {
       "candidateId": "ev-a2-ebc-pano",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-a2-ebc-pano.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-a2-ebc-pano.jpg",
-      "runtimePath": "/assets/content/everest/ev-a2-ebc-pano.jpg",
+      "sourcePath": "media-source/everest/ev-a2-ebc-pano.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "6911x4443",
-      "bytes": 24595691
+      "bytes": 0
     },
     {
       "candidateId": "ev-a3-ebc-view",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-a3-ebc-view.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-a3-ebc-view.jpg",
-      "runtimePath": "/assets/content/everest/ev-a3-ebc-view.jpg",
+      "sourcePath": "media-source/everest/ev-a3-ebc-view.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "5184x3456",
-      "bytes": 5880690
+      "bytes": 0
     },
     {
       "candidateId": "ev-b1-western-cwm",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-b1-western-cwm.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\everest\\ev-b1-western-cwm.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-b1-western-cwm.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/everest/ev-b1-western-cwm.jpg",
       "runtimePath": "/assets/content/everest/ev-b1-western-cwm.jpg",
       "resolution": "4000x3000",
-      "bytes": 1785654
+      "bytes": 91858
     },
     {
       "candidateId": "ev-c1-yellow-band",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-c1-yellow-band.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\everest\\ev-c1-yellow-band.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-c1-yellow-band.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/everest/ev-c1-yellow-band.jpg",
       "runtimePath": "/assets/content/everest/ev-c1-yellow-band.jpg",
       "resolution": "4608x3072",
-      "bytes": 6652875
+      "bytes": 50901
     },
     {
       "candidateId": "ev-c3-balcony-pumori",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-c3-balcony-pumori.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-c3-balcony-pumori.jpg",
-      "runtimePath": "/assets/content/everest/ev-c3-balcony-pumori.jpg",
+      "sourcePath": "media-source/everest/ev-c3-balcony-pumori.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "1800x1200",
-      "bytes": 1017264
+      "bytes": 0
     },
     {
       "candidateId": "ev-d1-summit",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-d1-summit.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-d1-summit.jpg",
-      "runtimePath": "/assets/content/everest/ev-d1-summit.jpg",
+      "sourcePath": "media-source/everest/ev-d1-summit.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "4096x3072",
-      "bytes": 2393687
+      "bytes": 0
     },
     {
       "candidateId": "ev-icefall-ladders",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-icefall-ladders.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\everest\\ev-icefall-ladders.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-icefall-ladders.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/everest/ev-icefall-ladders.jpg",
       "runtimePath": "/assets/content/everest/ev-icefall-ladders.jpg",
       "resolution": "4608x3072",
-      "bytes": 8960701
+      "bytes": 77577
     },
     {
       "candidateId": "m1-gebco-bathymetry",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m1-gebco-bathymetry.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\m1-gebco-bathymetry.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m1-gebco-bathymetry.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/m1-gebco-bathymetry.jpg",
       "runtimePath": "/assets/content/mariana/m1-gebco-bathymetry.jpg",
       "resolution": "2128x1552",
-      "bytes": 996418
+      "bytes": 127313
     },
     {
       "candidateId": "m2-limiting-factor-bottom",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m2-limiting-factor-bottom.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\m2-limiting-factor-bottom.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m2-limiting-factor-bottom.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/m2-limiting-factor-bottom.jpg",
       "runtimePath": "/assets/content/mariana/m2-limiting-factor-bottom.jpg",
       "resolution": "4032x3024",
-      "bytes": 3800060
+      "bytes": 71940
     },
     {
       "candidateId": "m3-trieste-1960",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m3-trieste-1960.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\m3-trieste-1960.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m3-trieste-1960.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/m3-trieste-1960.jpg",
       "runtimePath": "/assets/content/mariana/m3-trieste-1960.jpg",
       "resolution": "740x580",
-      "bytes": 147171
+      "bytes": 104690
     },
     {
       "candidateId": "m4-hadal-snailfish-map",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m4-hadal-snailfish-map.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\m4-hadal-snailfish-map.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m4-hadal-snailfish-map.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/m4-hadal-snailfish-map.jpg",
       "runtimePath": "/assets/content/mariana/m4-hadal-snailfish-map.jpg",
       "resolution": "2008x1421",
-      "bytes": 1703645
+      "bytes": 106497
     },
     {
       "candidateId": "m5-hirondellea",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m5-hirondellea.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\m5-hirondellea.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m5-hirondellea.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/m5-hirondellea.jpg",
       "runtimePath": "/assets/content/mariana/m5-hirondellea.jpg",
       "resolution": "797x598",
-      "bytes": 129214
+      "bytes": 32010
     },
     {
       "candidateId": "f1-yamanaka-view",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f1-yamanaka-view.preview.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f1-yamanaka-view.preview.jpg",
-      "runtimePath": "/assets/content/fuji/f1-yamanaka-view.preview.jpg",
+      "sourcePath": "media-source/fuji/f1-yamanaka-view.preview.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": null,
-      "bytes": 637411
+      "bytes": 0
     },
     {
       "candidateId": "f3-goraiko",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f3-goraiko.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\fuji\\f3-goraiko.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f3-goraiko.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/fuji/f3-goraiko.jpg",
       "runtimePath": "/assets/content/fuji/f3-goraiko.jpg",
       "resolution": null,
-      "bytes": 2642154
+      "bytes": 33723
     },
     {
       "candidateId": "f4-hoei-rim",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f4-hoei-rim.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\fuji\\f4-hoei-rim.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f4-hoei-rim.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/fuji/f4-hoei-rim.jpg",
       "runtimePath": "/assets/content/fuji/f4-hoei-rim.jpg",
       "resolution": "6000x4000",
-      "bytes": 10147802
+      "bytes": 97647
     },
     {
       "candidateId": "f5-navy-climb",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f5-navy-climb.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\fuji\\f5-navy-climb.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f5-navy-climb.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/fuji/f5-navy-climb.jpg",
       "runtimePath": "/assets/content/fuji/f5-navy-climb.jpg",
       "resolution": "5472x3648",
-      "bytes": 169575
+      "bytes": 32403
     },
     {
       "candidateId": "f-yoshida-huts",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f-yoshida-huts.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\fuji\\f-yoshida-huts.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f-yoshida-huts.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/fuji/f-yoshida-huts.jpg",
       "runtimePath": "/assets/content/fuji/f-yoshida-huts.jpg",
       "resolution": "6000x4000",
-      "bytes": 11297874
+      "bytes": 128078
     },
     {
       "candidateId": "f-navy-trail",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f-navy-trail.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f-navy-trail.jpg",
-      "runtimePath": "/assets/content/fuji/f-navy-trail.jpg",
+      "sourcePath": "media-source/fuji/f-navy-trail.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "3000x1993",
-      "bytes": 603438
+      "bytes": 0
     },
     {
       "candidateId": "f-forest-lower",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f-forest-lower.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\fuji\\f-forest-lower.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f-forest-lower.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/fuji/f-forest-lower.jpg",
       "runtimePath": "/assets/content/fuji/f-forest-lower.jpg",
       "resolution": "3888x2592",
-      "bytes": 5404396
+      "bytes": 182884
     },
     {
       "candidateId": "f-osunabashiri",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f-osunabashiri.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\fuji\\f-osunabashiri.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f-osunabashiri.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/fuji/f-osunabashiri.jpg",
       "runtimePath": "/assets/content/fuji/f-osunabashiri.jpg",
       "resolution": "6000x4000",
-      "bytes": 14490019
+      "bytes": 129539
     },
     {
       "candidateId": "f-cross-section",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/fuji/f-cross-section.png",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/fuji/f-cross-section.png",
-      "runtimePath": "/assets/content/fuji/f-cross-section.png",
+      "sourcePath": "media-source/fuji/f-cross-section.png",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "1966x499",
-      "bytes": 163760
+      "bytes": 0
     },
     {
       "candidateId": "c1-trailhead",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c1-trailhead.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c1-trailhead.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c1-trailhead.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c1-trailhead.jpg",
       "runtimePath": "/assets/content/colorado/c1-trailhead.jpg",
       "resolution": "3008x2000",
-      "bytes": 3981276
+      "bytes": 147746
     },
     {
       "candidateId": "c2-devils-corkscrew",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c2-devils-corkscrew.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c2-devils-corkscrew.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c2-devils-corkscrew.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c2-devils-corkscrew.jpg",
       "runtimePath": "/assets/content/colorado/c2-devils-corkscrew.jpg",
       "resolution": "6000x3219",
-      "bytes": 9529414
+      "bytes": 117880
     },
     {
       "candidateId": "c3-kaibab-fossils",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c3-kaibab-fossils.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c3-kaibab-fossils.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c3-kaibab-fossils.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c3-kaibab-fossils.jpg",
       "runtimePath": "/assets/content/colorado/c3-kaibab-fossils.jpg",
       "resolution": "3872x2592",
-      "bytes": 4587003
+      "bytes": 146801
     },
     {
       "candidateId": "c4-phantom-ranch",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c4-phantom-ranch.preview.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c4-phantom-ranch.preview.jpg",
-      "runtimePath": "/assets/content/colorado/c4-phantom-ranch.preview.jpg",
+      "sourcePath": "media-source/colorado/c4-phantom-ranch.preview.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": null,
-      "bytes": 1092633
+      "bytes": 0
     },
     {
       "candidateId": "c-indian-garden",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c-indian-garden.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c-indian-garden.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c-indian-garden.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c-indian-garden.jpg",
       "runtimePath": "/assets/content/colorado/c-indian-garden.jpg",
       "resolution": "3008x2000",
-      "bytes": 2655334
+      "bytes": 156006
     },
     {
       "candidateId": "c-resthouse-15",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c-resthouse-15.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c-resthouse-15.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c-resthouse-15.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c-resthouse-15.jpg",
       "runtimePath": "/assets/content/colorado/c-resthouse-15.jpg",
       "resolution": "1024x728",
-      "bytes": 264561
+      "bytes": 141380
     },
     {
       "candidateId": "c-resthouse-3mi",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c-resthouse-3mi.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c-resthouse-3mi.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c-resthouse-3mi.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c-resthouse-3mi.jpg",
       "runtimePath": "/assets/content/colorado/c-resthouse-3mi.jpg",
       "resolution": "1024x732",
-      "bytes": 185590
+      "bytes": 97358
     },
     {
       "candidateId": "c-river-nps",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c-river-nps.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c-river-nps.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c-river-nps.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c-river-nps.jpg",
       "runtimePath": "/assets/content/colorado/c-river-nps.jpg",
       "resolution": "1544x1024",
-      "bytes": 1146387
+      "bytes": 98894
     },
     {
       "candidateId": "c-vishnu-river",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c-vishnu-river.preview.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c-vishnu-river.preview.jpg",
-      "runtimePath": "/assets/content/colorado/c-vishnu-river.preview.jpg",
+      "sourcePath": "media-source/colorado/c-vishnu-river.preview.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": null,
-      "bytes": 1155592
+      "bytes": 0
     },
     {
       "candidateId": "k-pelagic-zones",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k-pelagic-zones.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\k-pelagic-zones.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k-pelagic-zones.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/k-pelagic-zones.jpg",
       "runtimePath": "/assets/content/mariana/k-pelagic-zones.jpg",
       "resolution": "2321x1402",
-      "bytes": 486514
+      "bytes": 36728
     },
     {
       "candidateId": "k-atolla",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k-atolla.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k-atolla.jpg",
-      "runtimePath": "/assets/content/mariana/k-atolla.jpg",
+      "sourcePath": "media-source/mariana/k-atolla.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "600x399",
-      "bytes": 27727
+      "bytes": 0
     },
     {
       "candidateId": "k-marine-snow",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k-marine-snow.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k-marine-snow.jpg",
-      "runtimePath": "/assets/content/mariana/k-marine-snow.jpg",
+      "sourcePath": "media-source/mariana/k-marine-snow.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "720x720",
-      "bytes": 100931
+      "bytes": 0
     },
     {
       "candidateId": "k-ifremer-snow",
@@ -309,129 +309,147 @@
     },
     {
       "candidateId": "k-subduction",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/k-subduction.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\everest\\k-subduction.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/k-subduction.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/everest/k-subduction.jpg",
       "runtimePath": "/assets/content/everest/k-subduction.jpg",
       "resolution": "1138x577",
-      "bytes": 97566
+      "bytes": 28007
     },
     {
       "candidateId": "k-hillary-tenzing",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/k-hillary-tenzing.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\everest\\k-hillary-tenzing.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/k-hillary-tenzing.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/everest/k-hillary-tenzing.jpg",
       "runtimePath": "/assets/content/everest/k-hillary-tenzing.jpg",
       "resolution": "828x494",
-      "bytes": 70357
+      "bytes": 55193
     },
     {
       "candidateId": "k-condor",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/k-condor.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\k-condor.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/k-condor.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/k-condor.jpg",
       "runtimePath": "/assets/content/colorado/k-condor.jpg",
       "resolution": "1752x2222",
-      "bytes": 1119485
+      "bytes": 72010
     },
     {
       "candidateId": "ev-d2-summit-portrait",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-d2-summit-portrait.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-d2-summit-portrait.jpg",
-      "runtimePath": "/assets/content/everest/ev-d2-summit-portrait.jpg",
+      "sourcePath": "media-source/everest/ev-d2-summit-portrait.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "1440x1800",
-      "bytes": 321247
+      "bytes": 0
     },
     {
       "candidateId": "ev-d3-summit-y",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-d3-summit-y.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-d3-summit-y.jpg",
-      "runtimePath": "/assets/content/everest/ev-d3-summit-y.jpg",
+      "sourcePath": "media-source/everest/ev-d3-summit-y.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "5184x3888",
-      "bytes": 6984241
+      "bytes": 0
     },
     {
       "candidateId": "ev-d4-summit-x",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/ev-d4-summit-x.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/ev-d4-summit-x.jpg",
-      "runtimePath": "/assets/content/everest/ev-d4-summit-x.jpg",
+      "sourcePath": "media-source/everest/ev-d4-summit-x.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "3000x4000",
-      "bytes": 2576299
+      "bytes": 0
     },
     {
       "candidateId": "m6-maug-aerial",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m6-maug-aerial.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m6-maug-aerial.jpg",
-      "runtimePath": "/assets/content/mariana/m6-maug-aerial.jpg",
+      "sourcePath": "media-source/mariana/m6-maug-aerial.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "4148x2889",
-      "bytes": 2835368
+      "bytes": 0
     },
     {
       "candidateId": "k34-firefly-squid",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k34-firefly-squid.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k34-firefly-squid.jpg",
-      "runtimePath": "/assets/content/mariana/k34-firefly-squid.jpg",
+      "sourcePath": "media-source/mariana/k34-firefly-squid.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "2048x1536",
-      "bytes": 747718
+      "bytes": 0
     },
     {
       "candidateId": "k34-anglerfish-noaa",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k34-anglerfish-noaa.jpg",
-      "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k34-anglerfish-noaa.jpg",
-      "runtimePath": "/assets/content/mariana/k34-anglerfish-noaa.jpg",
+      "sourcePath": "media-source/mariana/k34-anglerfish-noaa.jpg",
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
       "resolution": "2119x1276",
-      "bytes": 1656037
+      "bytes": 0
     },
     {
       "candidateId": "k34-noctiluca-glow",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k34-noctiluca-glow.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\k34-noctiluca-glow.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k34-noctiluca-glow.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/k34-noctiluca-glow.jpg",
       "runtimePath": "/assets/content/mariana/k34-noctiluca-glow.jpg",
       "resolution": "3000x4000",
-      "bytes": 1898255
+      "bytes": 27121
     },
     {
       "candidateId": "k40-ifremer-snow",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/k40-ifremer-snow.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\k40-ifremer-snow.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/k40-ifremer-snow.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/k40-ifremer-snow.jpg",
       "runtimePath": "/assets/content/mariana/k40-ifremer-snow.jpg",
       "resolution": "2048x1536",
-      "bytes": 1224822
+      "bytes": 54586
     },
     {
       "candidateId": "m7-challenger-sonar",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/mariana/m7-challenger-sonar.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\mariana\\m7-challenger-sonar.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/mariana/m7-challenger-sonar.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/mariana/m7-challenger-sonar.jpg",
       "runtimePath": "/assets/content/mariana/m7-challenger-sonar.jpg",
       "resolution": null,
-      "bytes": 144792
+      "bytes": 66037
+    },
+    {
+      "candidateId": "m8-mariana-deep-photo",
+      "sourcePath": null,
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
+      "resolution": null,
+      "bytes": 0
+    },
+    {
+      "candidateId": "p-everest-kala-patthar",
+      "sourcePath": null,
+      "absoluteExists": false,
+      "reviewBoardRelativePath": null,
+      "runtimePath": null,
+      "resolution": null,
+      "bytes": 0
     },
     {
       "candidateId": "c6-south-rim-panorama",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/colorado/c6-south-rim-panorama.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\colorado\\c6-south-rim-panorama.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/colorado/c6-south-rim-panorama.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/colorado/c6-south-rim-panorama.jpg",
       "runtimePath": "/assets/content/colorado/c6-south-rim-panorama.jpg",
       "resolution": null,
-      "bytes": 4809432
+      "bytes": 38224
     },
     {
       "candidateId": "k32-modern-climb",
-      "sourcePath": "/home/hans/Code/self-github/geo-explorer/media-source/everest/k32-modern-climb.jpg",
+      "sourcePath": "D:\\code\\self-github\\geo-explorer\\media-remote\\content\\everest\\k32-modern-climb.jpg",
       "absoluteExists": true,
-      "reviewBoardRelativePath": "../../../media-source/everest/k32-modern-climb.jpg",
+      "reviewBoardRelativePath": "../../../media-remote/content/everest/k32-modern-climb.jpg",
       "runtimePath": "/assets/content/everest/k32-modern-climb.jpg",
       "resolution": null,
-      "bytes": 8960701
+      "bytes": 77577
     }
   ]
 }

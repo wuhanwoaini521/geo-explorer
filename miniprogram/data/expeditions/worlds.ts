@@ -95,6 +95,8 @@ export const MARIANA_EXPEDITION = buildWorldExpedition(world("mariana"), {
   type: "DIVE",
   // 下潜几乎没有水平位移：以垂直深度差作为路线里程，用户读到的推进即深度。
   totalDistanceM: 10935,
+  // 当前没有经核验的挑战者深渊海床实拍可作整场背景。
+  // 使用已审核的代表性深海环境照；垂直下潜主体由程序化环境层表达。
   heroImage: "/assets/content/mariana/k40-ifremer-snow.jpg",
   heroAspect: 1080 / 810,
   focusX: 0.44,
@@ -112,7 +114,7 @@ export const MARIANA_EXPEDITION = buildWorldExpedition(world("mariana"), {
     { x: 0.51, y: 0.7 },
     { x: 0.46, y: 0.9 },
   ],
-  liveInfo: "深海实拍影像 · 代表性视角",
+  liveInfo: "深海热液喷口与海雪实拍 · 代表性环境（非马里亚纳原位照）",
   liveAssetId: "k40-ifremer-snow",
   media: liveManifest(
     "mariana-expedition-media",

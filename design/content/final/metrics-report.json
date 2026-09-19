@@ -16,7 +16,7 @@
     }
   },
   "media": {
-    "totalCandidates": 50,
+    "totalCandidates": 51,
     "perWorld": {
       "everest": {
         "candidates": 13,
@@ -26,14 +26,14 @@
       },
       "mariana": {
         "candidates": 16,
-        "waypointPrimary": 1,
+        "waypointPrimary": 0,
         "knowledge": 11,
         "placeHero": 2
       },
       "fuji": {
-        "candidates": 9,
+        "candidates": 10,
         "waypointPrimary": 5,
-        "knowledge": 3,
+        "knowledge": 4,
         "placeHero": 1
       },
       "colorado": {
@@ -137,8 +137,8 @@
       {
         "world": "mariana",
         "waypointId": "challenger-bottom",
-        "primaryCandidate": "m2-limiting-factor-bottom",
-        "kind": "photograph"
+        "primaryCandidate": null,
+        "kind": null
       },
       {
         "world": "fuji",

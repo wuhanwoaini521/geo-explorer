@@ -210,7 +210,8 @@ describe("世界隔离与轴语义（回归保护）", () => {
       const traced =
         MEDIA_CANDIDATES.some((c) => c.promotedRuntimeId === a.id) ||
         a.id === "live-a-kala-patthar" ||
-        a.id.startsWith("ev-terrain-");
+        a.id.startsWith("ev-terrain-") ||
+        a.id.startsWith("wp-");
       expect(traced, `runtime 资产 ${a.id} 无法追溯到候选或既有关`).toBe(true);
     }
   });

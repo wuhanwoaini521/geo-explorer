@@ -17,6 +17,7 @@
  * UI 不含任何 mariana 专属判断。
  */
 import type { DataSource, Exploration } from "../../types/exploration";
+import { resolveMediaSrc } from "../../services/media-service";
 
 const SRC_WIKI_MARIANA: DataSource = {
   name: "Wikipedia — Mariana Trench",
@@ -232,6 +233,10 @@ export const MARIANA: Exploration = {
         knowledgeIds: ["pressure", "k33"],
         sources: [SRC_WIKI_MARIANA, SRC_FENDOUZHE],
         reviewStatus: "approved",
+        mediaIds: ["wp-surface-start"],
+        images: [resolveMediaSrc("content/mariana/m3-trieste-1960.jpg")],
+        imageCredits: ["U.S. Navy — Wikimedia Commons · Public Domain"],
+        imageKinds: ["photo"],
       },
       {
         id: "thermocline",
@@ -357,6 +362,10 @@ export const MARIANA: Exploration = {
         knowledgeIds: ["pressure"],
         sources: [SRC_PRESSURE, SRC_TEMP],
         reviewStatus: "approved",
+        mediaIds: ["m5-hirondellea"],
+        images: [resolveMediaSrc("content/mariana/m5-hirondellea.jpg")],
+        imageCredits: ["Daiju Azuma — Wikimedia Commons · CC BY-SA 2.5"],
+        imageKinds: ["photo"],
       },
       {
         id: "challenger-bottom",
@@ -384,6 +393,11 @@ export const MARIANA: Exploration = {
         sources: [SRC_CHALLENGER, SRC_WIKI_MARIANA, SRC_FENDOUZHE],
         reviewStatus: "approved",
         mediaIds: ["m2-limiting-factor-bottom"],
+        images: [resolveMediaSrc("content/mariana/m2-limiting-factor-bottom.jpg")],
+        imageCredits: [
+          "DSV Limiting Factor 舱内任务操作记录（非海床影像） · Victor Vescovo — Wikimedia Commons · CC0",
+        ],
+        imageKinds: ["photo"],
       },
     ],
   },

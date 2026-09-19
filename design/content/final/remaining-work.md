@@ -1,4 +1,4 @@
-# Remaining Work（自动生成 2026-09-12）
+# Remaining Work（自动生成 2026-09-18）
 
 > 分级：P0（阻塞用户体验）/ P1（明显增强）/ P2（长期扩充）。
 > 维度：AUTOMATABLE（下个 Long Run 可做）/ NEEDS_WINDOWS / NEEDS_HUMAN_MEDIA_REVIEW / FUTURE。

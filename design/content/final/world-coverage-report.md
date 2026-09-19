@@ -1,4 +1,4 @@
-# World Coverage Report（自动生成 2026-09-12）
+# World Coverage Report（自动生成 2026-09-18）
 
 | World | Formation | Geology | Environment | Climate | Phenomena | Ecology | Human | Measurement | Risk |
 |---|---|---|---|---|---|---|---|---|---|

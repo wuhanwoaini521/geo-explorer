@@ -1,4 +1,4 @@
-# Source Quality Report（自动生成 2026-09-12）
+# Source Quality Report（自动生成 2026-09-18）
 
 | 指标 | 值 |
 |---|---:|
