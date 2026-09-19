@@ -45,12 +45,14 @@ describe("Gate 3.5A：canonical 观察信任", () => {
   });
 
   it("关键 P0/P1 文案和确认控件真实存在于 WXML", () => {
-    const exploration = readFileSync("miniprogram/pkg-explore/pages/exploration/index.wxml", "utf8");
+    const exploration = ["index", "journey-dock", "journey-ocean"].map(name => readFileSync(`miniprogram/pkg-explore/pages/exploration/${name}.wxml`, "utf8")).join("\n");
     const profile = readFileSync("miniprogram/pages/profile/index.wxml", "utf8");
     const quiz = readFileSync("miniprogram/pages/quiz/index.wxml", "utf8");
     // 前进提示已按世界类型动态化（攀登/下潜/下切），断言提示仍在且绑定了动作词
     expect(exploration).toContain("expClimbLabel");
-    expect(exploration).toContain("前进；可用“上一个”回看");
+    expect(exploration).toContain('bindtap="onContinueJourney"');
+    expect(exploration).toContain('bindtap="onStepDown"');
+    expect(exploration).toContain("journey.movement");
     expect(exploration).toContain("context-elevation");
     expect(profile).toContain("清空本地数据");
     expect(quiz).toContain("继续学习");

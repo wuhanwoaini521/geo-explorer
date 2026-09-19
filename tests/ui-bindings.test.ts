@@ -221,7 +221,11 @@ describe("探索页视觉约束", () => {
     expect(wxml).toMatch(/waypointCard\.image/);
     expect(wxml).toMatch(/view-fallback.*scene\.plates\.hero/);
     expect(wxml).not.toMatch(/view-fallback[^\n]*live-a-kala-patthar/);
-    expect(wxml).toMatch(/class="exp-route-hint"/);
+    const dock = readFileSync(join(pageDir("exploration"), "journey-dock.wxml"), "utf-8");
+    expect(wxml).toContain('include src="journey-dock.wxml"');
+    expect(dock).toContain("journey.currentName");
+    expect(dock).toContain("journey.nextName");
+    expect(dock).toContain('bindtap="onContinueJourney"');
   });
 });
 

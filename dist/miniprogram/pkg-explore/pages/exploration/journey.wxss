@@ -1,0 +1,111 @@
+/* Journey composition: one scene above one dock, sharing the route's position. */
+.journey-page { --journey-dock-height: 530rpx; background: #061923; }
+.journey-page .exp-top { right: 210rpx; }
+.journey-page .exp-top-title { font-size: 30rpx; letter-spacing: 0; }
+.journey-page .exp-top-meta { font-size: 20rpx; }
+.journey-page .exp-top-status { display: none; }
+.journey-page .vis-toggle { top: auto; bottom: calc(var(--journey-dock-height) + env(safe-area-inset-bottom) + 22rpx); right: 26rpx; }
+.journey-page .live-info-chip { top: auto; bottom: calc(var(--journey-dock-height) + env(safe-area-inset-bottom) + 86rpx); right: 28rpx; max-width: 65%; }
+.journey-view-switch { position: absolute; left: 28rpx; right: 28rpx; z-index: 18; display: flex; align-items: center; gap: 8rpx; }
+.journey-view-button { margin: 0; padding: 0 25rpx; height: 62rpx; line-height: 62rpx; border-radius: 32rpx; background: #102a39; color: #b8cfda; font-size: 23rpx; border: 1rpx solid #466274; }
+.journey-view-button::after, .journey-actions button::after { border: 0; }
+.journey-view-active { background: #c9f2ee; border-color: #c9f2ee; color: #073b46; font-weight: 700; }
+.journey-view-position { margin-left: auto; font-size: 21rpx; color: #d7e9ee; }
+.journey-eyebrow { display: block; color: #94b7c3; font-size: 17rpx; letter-spacing: 2rpx; line-height: 1.5; }
+.journey-dock { position: absolute; bottom: 0; left: 0; right: 0; height: calc(var(--journey-dock-height) + env(safe-area-inset-bottom)); padding: 26rpx 30rpx calc(24rpx + env(safe-area-inset-bottom)); box-sizing: border-box; background: #0c202d; border-top: 1rpx solid #35515c; z-index: 20; display: flex; flex-direction: column; gap: 14rpx; color: #edf6f8; }
+.journey-dock-ocean { background: #071c27; }
+.journey-location { display: flex; justify-content: space-between; align-items: center; gap: 20rpx; min-height: 78rpx; }
+.journey-location-copy { flex: 1; min-width: 0; }
+.journey-place { display: block; margin-top: 6rpx; font-size: 32rpx; font-weight: 650; line-height: 1.25; }
+.journey-measure { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+.journey-measure-value { font-size: 42rpx; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.journey-measure-unit { font-size: 19rpx; color: #9fb9c3; margin-top: 6rpx; }
+.journey-stations { position: relative; display: flex; justify-content: space-between; height: 55rpx; margin: 0 8rpx; flex-shrink: 0; }
+.journey-stations-line, .journey-stations-fill { position: absolute; left: 0; right: 0; top: 14rpx; height: 2rpx; background: #35505c; }
+.journey-stations-fill { right: auto; background: #9bded8; }
+.journey-mini-station { position: relative; min-width: 44rpx; padding: 6rpx 0 0; text-align: center; font-size: 17rpx; color: #a3bbc5; }
+.journey-mini-dot { width: 17rpx; height: 17rpx; border: 2rpx solid #6e8b98; border-radius: 50%; background: #0c202d; margin: 0 auto 7rpx; }
+.mini-completed .journey-mini-dot { background: #9bded8; border-color: #9bded8; }
+.mini-current .journey-mini-dot { background: #e0fff9; border-color: #e0fff9; box-shadow: 0 0 0 5rpx #387475; }
+.mini-current { color: #e0fff9; }
+.journey-telemetry { display: flex; justify-content: space-between; gap: 10rpx; color: #9db5bf; font-size: 20rpx; border-bottom: 1rpx solid #29414b; padding: 0 0 15rpx; }
+.telemetry-value { color: #e1f0f3; margin-left: 6rpx; font-variant-numeric: tabular-nums; }
+.journey-discovery { display: flex; gap: 13rpx; align-items: center; min-height: 60rpx; }
+.journey-discovery-label { flex-shrink: 0; font-size: 19rpx; color: #a7dcd5; }
+.journey-discovery-text { flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 22rpx; line-height: 1.5; color: #c2d3da; }
+.journey-discover-arrow { font-size: 32rpx; color: #9ddfd6; }
+.journey-next { display: flex; justify-content: space-between; gap: 14rpx; color: #b7cfd9; font-size: 21rpx; margin-top: auto; }
+.journey-next text:last-child { flex-shrink: 0; }
+.journey-actions { display: flex; gap: 18rpx; }
+.journey-actions button { margin: 0; height: 78rpx; line-height: 78rpx; padding: 0 18rpx; font-size: 25rpx; border-radius: 16rpx; }
+.journey-back { width: 210rpx; flex-shrink: 0; background: #132d3b; color: #c8dde5; border: 1rpx solid #355464; }
+.journey-forward { flex: 1; background: #b6eee3; color: #073f44; font-weight: 650; }
+.journey-actions button[disabled] { opacity: .55; }
+.journey-page .exp-sheet-fade { bottom: calc(var(--journey-dock-height) + env(safe-area-inset-bottom)); height: 90rpx; }
+.journey-page .exp-summit-pill { top: 240rpx; }
+.journey-page .wpd-sheet { z-index: 40; }
+
+/* The water-column is deliberately a labelled schematic, not a false seabed photo. */
+.descent-environment { position: absolute; inset: 0; overflow: hidden; }
+.descent-light { position: absolute; inset: 0; background: linear-gradient(109deg, transparent 12%, #b3edee66 16%, transparent 30%, #b3edee33 43%, transparent 53%); }
+.descent-snow { position: absolute; inset: 15% 0 25%; }
+.descent-particle { position: absolute; width: 3rpx; height: 3rpx; border-radius: 50%; background: #c1dfe0; }
+.descent-walls { position: absolute; top: 22%; bottom: 24%; left: 0; right: 0; }
+.descent-wall-left, .descent-wall-right { position: absolute; inset: 0; background: linear-gradient(110deg,#152e39,#06131d); }
+.descent-wall-left { clip-path: polygon(0 0, 13% 4%, 8% 13%, 22% 27%, 17% 38%, 29% 54%, 23% 63%, 35% 78%, 41% 100%, 0 100%); }
+.descent-wall-right { clip-path: polygon(100% 0, 87% 7%, 91% 16%, 80% 30%, 84% 38%, 73% 54%, 78% 64%, 65% 81%, 59% 100%, 100% 100%); background: linear-gradient(250deg,#213c47,#071822); }
+.descent-floor { position: absolute; left: 12%; right: 12%; height: 110rpx; bottom: calc(var(--journey-dock-height) + 60rpx); background: radial-gradient(ellipse at 50% 30%,#426065,#0c222a 70%); border-radius: 50% 50% 0 0; }
+.descent-scene { position: absolute; bottom: calc(var(--journey-dock-height) + env(safe-area-inset-bottom) + 20rpx); left: 28rpx; right: 28rpx; z-index: 8; display: flex; flex-direction: column; }
+.descent-scene-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10rpx; flex-shrink: 0; padding-bottom: 20rpx; }
+.descent-scene-head .journey-eyebrow { color: #b4d6e0; font-size: 16rpx; }
+.descent-zone { display: block; font-size: 38rpx; margin-top: 7rpx; font-weight: 600; }
+.descent-mode-label { font-size: 21rpx; color: #b8d8e3; padding-bottom: 5rpx; }
+.descent-transect { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.descent-axis { position: absolute; top: 0; bottom: 0; left: 34%; border-left: 1rpx dashed #729ca7; }
+.descent-axis-done { position: absolute; top: 0; left: 34%; width: 2rpx; background: #a5eee1; }
+.descent-station { position: absolute; left: 0; right: 0; height: 76rpx; margin-top: -38rpx; display: flex; align-items: center; z-index: 2; }
+.descent-station-depth { width: 25%; text-align: right; font-size: 25rpx; color: #c5dfe5; font-variant-numeric: tabular-nums; }
+.descent-unit { font-size: 17rpx; opacity: .75; }
+.descent-station-dot { position: absolute; left: 34%; width: 12rpx; height: 12rpx; border-radius: 50%; background: #0c2432; border: 2rpx solid #9dc4cf; transform: translateX(-50%); }
+.descent-station-copy { position: absolute; left: 45%; right: 0; }
+.descent-station-name { display: block; font-size: 26rpx; color: #c4dbe2; }
+.descent-station-state { display: block; font-size: 18rpx; margin-top: 5rpx; color: #91b1bf; }
+.station-current .descent-station-name { font-weight: 650; color: #fff; }
+.station-current .descent-station-state { color: #b7f3e5; }
+.station-completed .descent-station-dot { background: #b6eee3; }
+.descent-probe-position { position: absolute; left: 34%; z-index: 3; width: 66rpx; height: 40rpx; margin-left: -33rpx; margin-top: -20rpx; pointer-events: none; }
+.descent-probe { position: relative; width: 66rpx; height: 40rpx; }
+.descent-probe-hull { position: absolute; top: 4rpx; left: 4rpx; right: 4rpx; height: 28rpx; border-radius: 18rpx; background: #eadfba; border: 2rpx solid #fff6d9; box-shadow: 0 2rpx 12rpx #00191b; }
+.descent-probe-window { position: absolute; width: 15rpx; height: 15rpx; top: 4rpx; left: 23rpx; border-radius: 50%; border: 2rpx solid #536f78; background: #16394c; }
+.descent-probe-mast { position: absolute; height: 12rpx; width: 3rpx; background: #dfd5b4; top: -7rpx; left: 27rpx; }
+.descent-probe-runner { position: absolute; height: 6rpx; width: 50rpx; border-bottom: 3rpx solid #aaa889; top: 32rpx; left: 8rpx; }
+.descent-probe-beam { position: absolute; top: 25rpx; left: -30rpx; width: 130rpx; height: 160rpx; background: linear-gradient(#c7ebc72b,transparent); clip-path: polygon(44% 0,56% 0,100% 100%,0 100%); }
+.descent-probe-label { display: block; text-align: center; white-space: nowrap; margin-top: 8rpx; margin-left: -20rpx; width: 106rpx; font-size: 17rpx; color: #e6e3cb; }
+.descent-overview .descent-probe-label { display: none; }
+.descent-foot { display: flex; justify-content: space-between; gap: 12rpx; padding-top: 16rpx; font-size: 17rpx; color: #acc6cf; }
+.descent-strata { position: absolute; inset: 0; border-radius: 12rpx; overflow: hidden; }
+.descent-stratum { position: absolute; left: 0; right: 0; border-top: 1rpx solid #7794a344; }
+.descent-stratum text { position: absolute; right: 12rpx; bottom: 8rpx; font-size: 16rpx; color: #b4cdd7; }
+.stratum-sun { top: 0; height: 22%; background: #236f8d80; }
+.stratum-twilight { top: 22%; height: 14%; background: #164564cc; }
+.stratum-midnight { top: 36%; height: 14%; background: #102c43dd; }
+.stratum-abyss { top: 50%; height: 12%; background: #0b1e2fee; }
+.stratum-hadal { top: 62%; bottom: 0; background: #04111bee; }
+.descent-overview .descent-station-name { font-size: 23rpx; }
+.descent-overview .descent-station-state { font-size: 16rpx; margin-top: 1rpx; }
+.descent-overview .descent-station-depth { font-size: 22rpx; }
+.descent-overview .descent-station { height: 66rpx; margin-top: -33rpx; }
+.journey-page.ocean-mode .exp-sheet-fade { display: none; }
+@media (max-height: 720px) {
+  .journey-page { --journey-dock-height: 480rpx; }
+  .journey-dock { padding-top: 18rpx; gap: 10rpx; }
+  .journey-location { min-height: 62rpx; }
+  .journey-place { font-size: 28rpx; }
+  .journey-measure-value { font-size: 36rpx; }
+  .journey-discovery { min-height: 48rpx; }
+  .journey-discovery-text { -webkit-line-clamp: 1; }
+  .descent-scene-head { padding-bottom: 10rpx; }
+  .descent-zone { font-size: 30rpx; }
+  .descent-scene-head .journey-eyebrow { display: none; }
+  .descent-foot { font-size: 15rpx; }
+}

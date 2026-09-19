@@ -1,0 +1,39 @@
+<!-- Scientific descent schematic: no stock photo claims, no mountain projection. -->
+<view class="descent-environment" style="background:{{mariana.waterGradient}}">
+  <view class="descent-light" style="opacity:{{mariana.rayOpacity}}"></view>
+  <view class="descent-snow" style="opacity:{{mariana.marineSnowOpacity}}">
+    <view wx:for="{{marineSnowParticles}}" wx:key="id" class="descent-particle" style="left:{{item.left}}%;top:{{index * 5}}%;opacity:{{item.opacity}}"></view>
+  </view>
+  <view class="descent-walls" style="opacity:{{mariana.trenchOpacity}}"><view class="descent-wall-left"></view><view class="descent-wall-right"></view></view>
+  <view class="descent-floor" style="opacity:{{mariana.bottomOpacity}}"></view>
+</view>
+<view wx:if="{{journey}}" class="descent-scene descent-{{journeyView}}" style="top:{{capBottom + 72}}px">
+  <view class="descent-scene-head">
+    <view><text class="journey-eyebrow">MARIANA TRENCH / DIVE 01</text><text class="descent-zone">{{journeyView === 'overview' ? '从海面，到地球深处' : mariana.zoneName}}</text></view>
+    <text class="descent-mode-label">{{journeyView === 'overview' ? '全程' : mariana.zoneRange}}</text>
+  </view>
+  <view class="descent-transect">
+    <view wx:if="{{journeyView === 'overview'}}" class="descent-strata">
+      <view class="descent-stratum stratum-sun"><text>阳光带</text></view>
+      <view class="descent-stratum stratum-twilight"><text>微光带</text></view>
+      <view class="descent-stratum stratum-midnight"><text>黑暗带</text></view>
+      <view class="descent-stratum stratum-abyss"><text>深渊带</text></view>
+      <view class="descent-stratum stratum-hadal"><text>超深渊带</text></view>
+    </view>
+    <view class="descent-axis"></view>
+    <view class="descent-axis-done" style="height:{{journey.markerTop}}%"></view>
+    <block wx:for="{{journey.nodes}}" wx:key="id">
+      <view wx:if="{{item.visible}}" class="descent-station station-{{item.state}}" style="top:{{item.top}}%" data-id="{{item.id}}" catchtap="onTapExpeditionWaypoint" role="button" aria-label="{{item.fullName}}，{{item.value}}米，{{item.state === 'upcoming' ? '待探索' : '已到达'}}">
+        <text class="descent-station-depth">{{item.value}}<text class="descent-unit"> m</text></text>
+        <view class="descent-station-dot"></view>
+        <view class="descent-station-copy"><text class="descent-station-name">{{item.fullName}}</text><text class="descent-station-state">{{item.state === 'current' ? '当前所在' : item.state === 'completed' ? '已探索 · 查看发现' : '待探索'}}</text></view>
+      </view>
+    </block>
+    <view class="descent-probe-position {{expMoving || expClimbing ? 'descent-in-motion' : ''}}" style="top:{{journey.markerTop}}%">
+      <view class="descent-probe-beam"></view>
+      <view class="descent-probe"><view class="descent-probe-mast"></view><view class="descent-probe-hull"><view class="descent-probe-window"></view></view><view class="descent-probe-runner"></view></view>
+      <text class="descent-probe-label">{{mariana.atBottom ? '坐底完成' : expMoving || expClimbing ? '下潜中' : '潜水器'}}</text>
+    </view>
+  </view>
+  <view class="descent-foot"><text>{{journey.scaleLabel}}</text><text>{{journeyView === 'focus' ? '向下拖动，继续下潜 ↓' : '点击站点查看发现'}}</text></view>
+</view>

@@ -1,4 +1,4 @@
-<view wx:if="{{ready}}" class="page {{routeMode ? 'route-mode' : ''}} {{worldOcean ? 'ocean-mode' : ''}}" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd">
+<view wx:if="{{ready}}" class="page {{routeMode ? 'route-mode' : ''}} {{worldOcean ? 'ocean-mode' : ''}} {{worldCanyon ? 'canyon-mode' : ''}} journey-page journey-{{journeyView}}" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd">
   <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
   <view class="layer-sky" style="background:{{skyGradient}}"></view>
 
@@ -36,86 +36,12 @@
     </view>
 
     <!-- §40：LIVE 实景数据说明一行 -->
-    <view wx:if="{{liveInfo}}" class="live-info-chip" style="top:{{capTop + 46}}px; right:{{capRight}}px">{{liveInfo}}</view>
+    <view wx:if="{{liveInfo}}" class="live-info-chip">{{liveInfo}}</view>
   </block>
 
   <!-- ===== 2. 海洋世界：程序化垂直水柱，不以任务舱内照片冒充海沟或海床 ===== -->
   <block wx:elif="{{worldOcean}}">
-    <view class="mariana-water-column mariana-zone-{{mariana.zoneId}}" style="background:{{mariana.waterGradient}}">
-      <view class="mariana-surface" style="opacity:{{mariana.surfaceOpacity}}">
-        <view class="mariana-surface-line"></view>
-        <view class="mariana-caustics"></view>
-      </view>
-      <view class="mariana-pressure-lines"></view>
-      <view class="mariana-darkness" style="opacity:{{mariana.darknessOpacity}}"></view>
-    </view>
-
-    <!-- 海面出发才展示经核验的历史任务档案；深水区不将其伪装成海沟环境。 -->
-    <view wx:if="{{mariana.surfaceArchiveVisible && marianaSurfaceArchiveSrc}}" class="mariana-surface-archive">
-      <image
-        class="mariana-surface-archive-image"
-        mode="aspectFill"
-        src="{{marianaSurfaceArchiveSrc}}"
-        binderror="onMarianaSurfaceArchiveError"
-      ></image>
-      <view class="mariana-surface-archive-shade"></view>
-      <view class="mariana-surface-archive-copy">
-        <text class="mariana-surface-archive-kicker">1960 · TASK ARCHIVE</text>
-        <text class="mariana-surface-archive-title">里雅斯特号海面出发</text>
-        <text class="mariana-surface-archive-credit">U.S. Navy · Public Domain</text>
-      </view>
-    </view>
-
-    <!-- 表层阳光光柱（0-200m 极强，1000m 熄灭） -->
-    <view class="ocean-rays" style="opacity:{{mariana.rayOpacity}}">
-      <view class="ocean-ray ray-a"></view>
-      <view class="ocean-ray ray-b"></view>
-      <view class="ocean-ray ray-c"></view>
-    </view>
-
-    <!-- 上浮微气泡（0-500m 密集，1200m 受高压消融） -->
-    <view class="bubbles-layer" style="opacity:{{mariana.bubbleOpacity}}">
-      <view wx:for="{{bubbles}}" wx:key="id" class="bubble" style="left:{{item.left}}%; width:{{item.size}}px; height:{{item.size}}px; animation-duration:{{item.duration + 3}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
-    </view>
-
-    <!-- 深海海雪粒子（800m+ 出现，1000m-11000m 永夜深渊中的有机雪花缓缓沉降） -->
-    <view class="marine-snow-layer" style="opacity:{{mariana.marineSnowOpacity}}">
-      <view wx:for="{{marineSnowParticles}}" wx:key="id" class="marine-snow-flake" style="left:{{item.left}}%; width:{{item.size > 8 ? 6 : 4}}rpx; height:{{item.size > 8 ? 6 : 4}}rpx; animation-duration:{{item.duration + 4}}s; animation-delay:{{item.delay}}s; opacity:{{item.opacity}}"></view>
-    </view>
-
-    <!-- 6000m 以下逐渐进入超深渊海沟；侧壁为程序化地貌轮廓，不宣称实拍。 -->
-    <view class="trench-canyon" style="opacity:{{mariana.trenchOpacity}}">
-      <view class="trench-wall trench-wall-left"></view>
-      <view class="trench-wall trench-wall-right"></view>
-    </view>
-
-    <!-- 9000m 后海沟底部逐渐进入视野；只使用程序化地形与探测光束。 -->
-    <view class="challenger-seabed" style="opacity:{{mariana.bottomOpacity}}">
-      <view class="probe-spotlight"></view>
-      <view class="seabed-ridge seabed-ridge-back"></view>
-      <view class="seabed-ridge seabed-ridge-front"></view>
-      <view wx:if="{{mariana.atBottom}}" class="seabed-badge">
-        <text class="seabed-badge-kicker">BOTTOM REACHED</text>
-        <text class="seabed-badge-title">抵达挑战者深渊</text>
-        <text class="seabed-badge-sub">深度 10,935 m · 路线完成</text>
-      </view>
-    </view>
-
-    <!-- 当前海洋带与垂直深度刻度：让 0→10,935m 的下降方向始终可感知。 -->
-    <view class="mariana-zone-chip">
-      <text class="mariana-zone-name">{{mariana.zoneName}}</text>
-      <text class="mariana-zone-en">{{mariana.zoneNameEn}} · {{mariana.zoneRange}}</text>
-    </view>
-    <view class="mariana-depth-rail" aria-label="马里亚纳垂直深度刻度">
-      <view class="mariana-depth-axis"></view>
-      <text class="depth-tick depth-tick-0">0</text>
-      <text class="depth-tick depth-tick-200">200</text>
-      <text class="depth-tick depth-tick-1000">1,000</text>
-      <text class="depth-tick depth-tick-4000">4,000</text>
-      <text class="depth-tick depth-tick-6000">6,000</text>
-      <text class="depth-tick depth-tick-bottom">10,935 m</text>
-      <view class="depth-rail-marker" style="top:{{mariana.railTopPercent}}%"></view>
-    </view>
+    <include src="journey-ocean.wxml" />
   </block>
 
   <!-- ===== 3. 通用陆地世界（非山岳、非海洋：大峡谷等） ===== -->
@@ -140,7 +66,7 @@
   </block>
 
   <!-- ===== 4. 沉浸路线层（Terrain / Ocean-Conforming Route：山岳与海洋深潜通用） ===== -->
-  <view wx:if="{{routeMode && conceptRoute && conceptRouteMarker && routeLayerTransform}}" class="concept-route {{worldOcean ? 'concept-route-ocean' : ''}}" style="transform:{{routeLayerTransform}};transform-origin:{{routeAnchorX}}% {{routeAnchorY}}%">
+  <view wx:if="{{routeMode && !worldOcean && conceptRoute && conceptRouteMarker && routeLayerTransform}}" class="concept-route {{worldOcean ? 'concept-route-ocean' : ''}}" style="transform:{{routeLayerTransform}};transform-origin:{{routeAnchorX}}% {{routeAnchorY}}%">
     <!-- 未来路线：弱化浅色线（近端更粗更亮 / 远端更细更淡，形成空间远近感） -->
     <view wx:for="{{conceptRoute.segments}}" wx:key="id" class="concept-route-seg concept-route-seg-base" style="{{item.style}}"></view>
     <!-- 已走路线：点亮（含当前段的局部裁剪，跟随 marker） -->
@@ -223,155 +149,18 @@
     </view>
 
     <!-- Gate 3.3C.1：LIVE 实景 / TERRAIN（DEM）切换（右上角低打扰；right 由 capRight 驱动，清开原生胶囊） -->
-    <view wx:if="{{!worldOcean}}" class="vis-toggle" style="top:{{capTop}}px; right:{{capRight}}px">
+    <view wx:if="{{!worldOcean}}" class="vis-toggle">
       <text class="vis-toggle-item {{visActive === 'LIVE' ? 'vis-on' : ''}} {{visLiveFallback ? 'vis-unavailable' : ''}}" data-mode="LIVE" bindtap="onToggleVisualMode">{{visLiveFallback ? '实景·不可用' : '实景'}}</text>
       <text class="vis-toggle-item {{visActive === 'TERRAIN' ? 'vis-on' : ''}}" data-mode="TERRAIN" bindtap="onToggleVisualMode">DEM</text>
     </view>
 
-    <!-- 底部 40% 面板：对齐探索进度参考图（位置/海拔 → 距顶峰 → 环境 → 进度 → 操作） -->
-    <view class="exp-sheet {{worldOcean ? 'exp-ocean-sheet' : ''}} {{expDeathZone ? 'exp-death' : ''}} {{expedition.atSummit ? 'exp-summit-sheet' : ''}}">
-      <!-- 位置 + 海拔（隐藏 REFERENCE 徽标，避免干扰） -->
-      <view class="exp-pos">
-        <view class="exp-pos-l">
-          <text wx:if="{{worldOcean}}" class="exp-depth-prefix">DEPTH</text>
-          <text class="exp-elev">{{expedition.currentElevText}}</text>
-          <text class="exp-elev-unit">m</text>
-        </view>
-        <text wx:if="{{worldOcean}}" class="exp-pos-name">{{expedition.currentLandform}}</text>
-        <text wx:else class="exp-pos-name" bindtap="onOpenCurrentCamp">{{expedition.currentLandform}} ›</text>
-      </view>
-
-      <!-- 下一观察点（不再使用“距顶峰”的登山目标文案） -->
-      <view wx:if="{{worldOcean}}" class="exp-goal exp-ocean-goal">
-        <view class="exp-goal-row">
-          <text class="exp-goal-k">距挑战者深渊底部</text>
-          <text class="exp-goal-v">{{mariana.remainingBottomText}}</text>
-        </view>
-      </view>
-      <view wx:else class="exp-goal">
-        <view class="exp-goal-row">
-          <text wx:if="{{expedition.atSummit}}" class="exp-goal-k">路线终点 · {{expedition.currentLandform}}</text>
-          <text wx:else class="exp-goal-k">下一观察点 · {{expedition.nextLandform}}</text>
-          <text wx:if="{{expedition.atSummit}}" class="exp-goal-v">{{expTerminus.headline}}</text>
-          <text wx:elif="{{expedition.nextGapText === '—'}}" class="exp-goal-v">已抵达</text>
-          <text wx:else class="exp-goal-v">还有 {{expedition.nextGapText}}</text>
-        </view>
-      </view>
-
-      <!-- 阶段 + 环境三指标（MODEL / REFERENCE 徽标隐藏） -->
-      <view wx:if="{{worldOcean}}" class="exp-ocean-core">
-        <view class="ocean-metric ocean-metric-zone">
-          <text class="ocean-metric-k">海洋带</text>
-          <text class="ocean-metric-v">{{mariana.zoneName}}</text>
-          <text class="ocean-metric-sub">{{mariana.zoneNameEn}}</text>
-        </view>
-        <view class="ocean-metric">
-          <text class="ocean-metric-k">水压</text>
-          <text class="ocean-metric-v">{{expedition.pressText}}</text>
-        </view>
-        <view class="ocean-metric">
-          <text class="ocean-metric-k">光照</text>
-          <text class="ocean-metric-v">{{expedition.oxygenText}}</text>
-        </view>
-        <view class="ocean-metric">
-          <text class="ocean-metric-k">水温</text>
-          <text class="ocean-metric-v">{{expedition.tempText}}</text>
-        </view>
-      </view>
-      <view wx:else class="exp-core">
-        <view class="exp-stage">
-          <view class="exp-stage-mark"><text>地貌</text></view>
-          <view class="exp-stage-txt">
-            <text class="exp-stage-name">{{expedition.currentLandform}}</text>
-          </view>
-        </view>
-        <view class="exp-env" bindtap="onOpenAltitudePage">
-          <view class="exp-env-item">
-            <text class="exp-env-k">{{worldOcean ? '水压' : '气压'}}</text>
-            <text class="exp-env-v">{{expedition.pressText}}</text>
-          </view>
-          <view class="exp-env-item">
-            <text class="exp-env-k">{{worldOcean ? '光照' : '氧气'}}</text>
-            <text class="exp-env-v">{{expedition.oxygenText}}</text>
-          </view>
-          <view class="exp-env-item">
-            <text class="exp-env-k">{{worldOcean ? '水温' : '气温'}}</text>
-            <text class="exp-env-v">{{expedition.tempText}}</text>
-          </view>
-        </view>
-      </view>
-
-      <text wx:if="{{!expedition.atSummit && expedition.stageIntro}}" class="exp-stage-intro">{{expedition.stageIntro}}</text>
-
-      <!-- 地貌观察序列（只表达已观察范围） -->
-      <view class="exp-route">
-        <view class="exp-route-track">
-          <view class="exp-route-fill" style="width:{{expedition.progress * 100}}%"></view>
-          <view class="exp-route-marker" style="left:{{expedition.progress * 100}}%"></view>
-        </view>
-      <view class="exp-route-meta">
-        <text class="exp-route-label">{{worldOcean ? '海面' : '起点'}}</text>
-        <text class="exp-route-pct">{{expedition.pct}}%</text>
-        <text class="exp-route-label">{{worldOcean ? '挑战者深渊' : expTerminus.label}}</text>
-      </view>
-
-      <!-- 终点完成摘要：占用登顶后释放出的引导空间，给出明确的路线终点与成果反馈。 -->
-      <view wx:if="{{expedition.atSummit && summaryStats}}" class="exp-finish">
-        <view class="exp-finish-copy">
-          <text class="exp-finish-kicker">{{expTerminus.kicker}}</text>
-          <text class="exp-finish-title">{{expTerminus.note}}</text>
-        </view>
-        <view class="exp-finish-stats">
-          <view class="exp-finish-stat">
-            <text class="exp-finish-stat-v">{{summaryStats.durationText}}</text>
-            <text class="exp-finish-stat-k">探索用时</text>
-          </view>
-          <view class="exp-finish-stat">
-            <text class="exp-finish-stat-v">{{expedition.distanceText}}</text>
-            <text class="exp-finish-stat-k">完成路线</text>
-          </view>
-          <view class="exp-finish-stat">
-            <text class="exp-finish-stat-v">{{summaryStats.unlocked}}/{{summaryStats.nodeTotal}}</text>
-            <text class="exp-finish-stat-k">知识发现</text>
-          </view>
-        </view>
-      </view>
-      <text wx:if="{{!expedition.atSummit}}" class="exp-route-hint">{{expClimbing ? '正在切换观察点…' : '点击“' + expClimbLabel + '”前进；可用“上一个”回看'}}</text>
-      </view>
-
-      <!-- 死亡区克制提示（配色/文案/降低对比度；不弹窗不震屏） -->
-      <view wx:if="{{expDeathZone}}" class="exp-death-strip">
-        <text>死亡区 · 8000 m 以上 · 含氧不足海面 1/3</text>
-      </view>
-
-      <!-- 底部操作：上一个地貌 / 地貌索引 / 下一个地貌 -->
-      <view wx:if="{{expedition.atSummit}}" class="exp-actions exp-actions-finish">
-        <button class="exp-ctl exp-ctl-down" bindtap="onStepDown">回看路线</button>
-        <button wx:if="{{worldOcean}}" class="exp-ctl exp-ctl-route" bindtap="onViewRoute">下潜回顾</button>
-        <button wx:else class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">路线回顾</button>
-        <button class="exp-ctl exp-ctl-up exp-ctl-achievement" bindtap="onGoProfile">查看成就</button>
-      </view>
-      <view wx:else class="exp-actions">
-        <button
-          class="exp-ctl exp-ctl-down"
-          bindtap="onStepDown"
-          disabled="{{expClimbing}}"
-        >上一个</button>
-        <button wx:if="{{worldOcean}}" class="exp-ctl exp-ctl-route" bindtap="onViewRoute">下潜剖面</button>
-        <button wx:else class="exp-ctl exp-ctl-route" bindtap="onOpenRouteOverviewPage">路线概览</button>
-        <button
-          class="exp-ctl exp-ctl-up"
-          bindtap="onStepUp"
-          disabled="{{expClimbing}}"
-          >{{expClimbLabel}}</button>
-      </view>
-    </view>
+    <include src="journey-dock.wxml" />
 
     <!-- Gate 3.3C.1 P1：hero→面板 跨接缝照片暗化渐变（不挪/不加高面板；在面板上缘铺淡出，消除硬接缝） -->
     <view class="exp-sheet-fade"></view>
 
     <!-- 终点徽章：不遮住主地形，但必须让用户一眼确认旅程已完成。 -->
-    <view wx:if="{{expSummit && expSummit.show}}" class="exp-summit-pill">
+    <view wx:if="{{expSummit && expSummit.show && !worldOcean}}" class="exp-summit-pill">
       <view class="exp-summit-row">
         <view class="exp-summit-emblem {{worldOcean ? 'exp-bottom-emblem' : ''}}">
           <view wx:if="{{worldOcean}}" class="exp-bottom-ring"></view>
@@ -448,7 +237,7 @@
   </view>
 
   <!-- 知识提示条 -->
-  <view wx:if="{{hint.show}}" class="hint" bindtap="onHintTap">
+  <view wx:if="{{hint.show && !routeMode}}" class="hint" bindtap="onHintTap">
     <text class="hint-ico">i</text>
     <text class="hint-text">{{hint.text}}</text>
     <text class="hint-arrow">›</text>
@@ -492,7 +281,7 @@
   </view>
 
   <!-- 里程碑穿越提示（克制横幅；复用 stage-banner 样式） -->
-  <view wx:if="{{milestoneBanner.show}}" class="stage-banner ms-banner">
+  <view wx:if="{{milestoneBanner.show && !routeMode}}" class="stage-banner ms-banner">
     <view class="sb-mark"><text>地貌</text></view>
     <view class="sb-main">
       <text class="sb-name">{{milestoneBanner.title}}</text>
@@ -501,7 +290,7 @@
   </view>
 
   <!-- 自然带横幅 ===== -->
-  <view wx:if="{{!milestoneBanner.show && stageBanner.show}}" class="stage-banner">
+  <view wx:if="{{!routeMode && !milestoneBanner.show && stageBanner.show}}" class="stage-banner">
     <view class="sb-mark"><text>地貌</text></view>
     <view class="sb-main">
       <text class="sb-name">{{stageBanner.title}}</text>
@@ -589,7 +378,7 @@
        到达山上的真实节点后解锁：地点名 / 英文名 / 海拔 / 实景图 / 地形类型 /
        简介 / 详细说明 / 知识要点。半高卡片，不永久遮挡山体：上方仍能看到
        路线与当前位置；图片可点击全屏查看（wx.previewImage）。 -->
-  <view wx:if="{{waypointCard && waypointCard.show}}" class="wpd-sheet">
+  <view wx:if="{{waypointCard && waypointCard.show}}" class="wpd-sheet" catchtouchstart="noop" catchtouchmove="noop">
     <view class="wpd-grip" bindtap="onWaypointCardClose">
       <view class="wpd-grip-bar"></view>
     </view>
@@ -665,7 +454,7 @@
         bindtap="onOpenWaypointKnowledge"
       >查看完整知识</button>
       <button class="wpd-btn wpd-btn-primary" bindtap="onWaypointCardClose">
-        {{waypointCard.unlocked ? ('继续' + expClimbLabel) : '关闭'}}
+        返回探索
       </button>
     </view>
   </view>

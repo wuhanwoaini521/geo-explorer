@@ -104,6 +104,7 @@ import {
 } from "../../utils/summary";
 import { resolveMediaSrc } from "../../../services/media-service";
 import { marianaPresentationAt } from "../../presentation/mariana-presentation";
+import { journeyAt, type JourneyView, type JourneyState } from "../../presentation/journey-presentation";
 
 /* ---------------- 交互 / 动画参数 ---------------- */
 const TICK_MS = 55; // 渲染节拍（≈18fps）
@@ -1029,6 +1030,10 @@ Page({
     marineSnowParticles: [] as Particle[], // 海洋世界：深海海雪粒子（复用 Particle 结构）
     // 海洋世界使用纯函数生成物理分层参数；不把任务舱内照片冒充海沟或海床。
     mariana: marianaPresentationAt(0),
+    journeyView: "focus" as JourneyView,
+    journey: null as JourneyState | null,
+    worldCanyon: false,
+    arrival: null as { id: string; title: string } | null,
     // 仅在海面出发阶段显示的历史任务档案，不作为深海环境背景。
     marianaSurfaceArchiveSrc: resolveMediaSrc("content/mariana/m3-trieste-1960.jpg"),
     route: null as SceneRouteState | null,
@@ -1297,6 +1302,8 @@ Page({
       // Relay 模式：路由 HUD 初始态（动作文案必须先按世界类型初始化，
       // 不能只依赖 updateClimbUi——它要等用户动手才会被调用，首帧会显示硬编码的「攀登」）
       routeMode: this.routeMode,
+      journeyView: "focus",
+      worldCanyon: exploration.id === "colorado",
       expClimbLabel: this.expeditionVerb.verb,
       expTerminus: EXPEDITION_TERMINUS[expedition?.type ?? "CLIMB"] ?? EXPEDITION_TERMINUS.CLIMB,
       // Gate 3.3C.1：请求 = 默认模式；首帧 sync 会把 active 纠正为实际渲染
@@ -1813,6 +1820,12 @@ Page({
   renderExpeditionView(drive: ExpeditionDriveState) {
     const ex = this.exploration;
     if (!ex) return;
+    const journey = journeyAt(this.expeditionCore!.routeIndex.milestones, this.routeContent!, drive.progress, this.data.journeyView, ex.id);
+    const journeyKey = `${drive.progress.toFixed(4)}|${this.data.journeyView}`;
+    if (this.frameCache.journeyKey !== journeyKey) {
+      this.frameCache.journeyKey = journeyKey;
+      this.setData({ journey });
+    }
     const mariana = marianaPresentationAt(drive.refM, ex.maxElevation);
     const v: ExpeditionView = {
       pct: Math.round(drive.progress * 100),
@@ -2287,7 +2300,9 @@ Page({
     const viewScale =
       this.data.visActive === "LIVE" ? camZoomB * liveZoom : camZoomB;
     const routeLayerZoom = Math.round(viewScale * 1000) / 1000;
-    const routeLayerTransform = `${camMain} scale(${routeLayerZoom})`;
+    const routeLayerTransform = this.data.journeyView === "overview"
+      ? "translate3d(0,0,0) scale(1)"
+      : `${camMain} scale(${routeLayerZoom})`;
     const routeAnnotationScale = Math.round(clamp(1 / routeLayerZoom, 0.5, 1) * 1000) / 1000;
     nextCache.routeLayerTransform = routeLayerTransform;
     if (cache.routeLayerTransform !== routeLayerTransform) {
@@ -2390,6 +2405,36 @@ Page({
 
   /* ---------------- 交互：滑动 / 步进 ---------------- */
 
+  onJourneyView(e: PageEvent) {
+    const view = e.currentTarget?.dataset?.view;
+    if (view !== "overview" && view !== "focus") return;
+    this.touching = false;
+    this.setData({ journeyView: view, waypointCard: null });
+    this.frameCache = {};
+    this.tickFrame();
+  },
+
+  onInspectCurrent() {
+    const id = this.data.journey?.currentId;
+    if (id) this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } } as PageEvent);
+  },
+
+  onInspectArrival() {
+    const id = this.data.arrival?.id;
+    if (id) this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } } as PageEvent);
+  },
+
+  onContinueJourney() {
+    this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
+    this.frameCache = {};
+    this.onStepUp();
+  },
+
+  onJourneySummary() {
+    if (!this.data.journey?.complete) return;
+    this.setData({ summit: true, summaryStats: this.computeSummary() });
+  },
+
   busy(): boolean {
     return Boolean(
       this.data.intro ||
@@ -2402,6 +2447,7 @@ Page({
 
   onTouchStart(e: PageEvent) {
     if (this.busy()) return;
+    if (this.data.waypointCard?.show || this.data.openNode || this.data.routeOverview?.show) return;
     const t = e.touches && e.touches[0];
     if (!t) return;
     if (this.data.expClimbing) return;
@@ -2419,7 +2465,7 @@ Page({
     if (this.data.waypointCard && this.data.waypointCard.show) return;
     const t = e.touches && e.touches[0];
     if (!t) return;
-    const dy = this.lastTouchY - t.clientY; // 上滑 → 前进
+    const dy = (this.lastTouchY - t.clientY) * (this.data.worldOcean ? -1 : 1);
     this.lastTouchY = t.clientY;
     const ex = this.exploration;
     if (!ex) return;
@@ -2429,7 +2475,7 @@ Page({
       this.target = clamp(this.target + (dy * METERS_PER_PX) / total, 0, 1);
       this.setData({
         expMoving: true,
-        expMotionText: dy >= 0 ? "沿路线前进中" : "沿路线下撤中",
+        expMotionText: this.data.worldOcean ? (dy >= 0 ? "正在下潜" : "正在上浮") : (dy >= 0 ? "沿路线前进中" : "沿路线回撤中"),
       });
       return;
     }
@@ -2816,7 +2862,8 @@ Page({
     const card = this.waypointCardFor(id);
     if (!card || !card.unlocked) return;
     this.autoOpenedWaypoints.push(id);
-    this.setData({ waypointCard: card, hint: { show: false, text: "" } });
+    // Arrival is a compact invitation; reading must not interrupt movement.
+    this.setData({ arrival: { id, title: card.title }, hint: { show: false, text: "" } });
   },
 
   onWaypointCardClose() {
@@ -3086,6 +3133,10 @@ Page({
     }
     this.setData({
       intro: false,
+      arrival: null,
+      journeyView: "focus",
+      expClimbing: false,
+      expMoving: false,
       celebration: false,
       summit: false,
       summaryStats: null,

@@ -63,6 +63,46 @@ function driveTo(inst: PageDef, p: number): void {
 
 let pageDef: PageDef;
 
+describe("Journey 交互回归", () => {
+  it("切换总览/局部不改变位置、知识解锁或到达记录", () => {
+    const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();
+    driveTo(inst,0.42);
+    const before={current:inst.current, discovered:[...inst.discovered], crossings:[...inst.crossedMilestoneIds]};
+    inst.onJourneyView({currentTarget:{dataset:{view:"overview"}}});
+    expect(inst.current).toBe(before.current);
+    expect([...inst.discovered]).toEqual(before.discovered);
+    expect([...inst.crossedMilestoneIds]).toEqual(before.crossings);
+    expect(inst.data.journeyView).toBe("overview");
+    inst.onJourneyView({currentTarget:{dataset:{view:"focus"}}});
+    expect(inst.data.journey.markerTop).toBe(48);
+    inst.onUnload();
+  });
+  it("海洋向下拖动下潜，阅读卡片时不误推进", () => {
+    const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,0);
+    inst.onTouchStart({touches:[{clientY:200}]});inst.onTouchMove({touches:[{clientY:300}]});
+    expect(inst.target).toBeGreaterThan(0);
+    inst.touching=false;inst.onInspectCurrent();const target=inst.target;
+    inst.onTouchStart({touches:[{clientY:200}]});inst.onTouchMove({touches:[{clientY:400}]});
+    expect(inst.target).toBe(target);inst.onUnload();
+  });
+  it("抵达邀请不遮住场景，查看发现才打开卡片；未抵底不能打开完成报告", () => {
+    const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,0);
+    inst.onJourneySummary();expect(inst.data.summit).toBe(false);
+    driveTo(inst,inst.expeditionCore.routeIndex.milestones[1].progress);
+    expect(inst.data.arrival?.id).toBe("thermocline");expect(inst.data.waypointCard).toBeNull();
+    inst.onInspectCurrent();expect(inst.data.waypointCard.id).toBe("thermocline");
+    inst.onUnload();
+  });
+  it("抵达终点有报告，重开后清空完成与运动状态", () => {
+    const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,1);
+    inst.onJourneySummary();expect(inst.data.summit).toBe(true);expect(inst.data.summaryStats).toBeTruthy();
+    inst.onRestart();inst.tickFrame();
+    expect(inst.data.journey.index).toBe(1);expect(inst.data.journey.complete).toBe(false);
+    expect(inst.data.expClimbing).toBe(false);expect(inst.data.arrival).toBeNull();
+    inst.onUnload();
+  });
+});
+
 beforeAll(async () => {
   await import("../miniprogram/pkg-explore/pages/exploration/index");
   pageDef = lastPageDef!;
