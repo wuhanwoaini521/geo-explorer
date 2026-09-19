@@ -37,15 +37,16 @@ Logo（徽章版：雪山/海面/海沟与鲸）与命名物料在 `design/brand
 
 npm install
 
-npm run build     # 编译 TS + 拷贝资源 → dist/miniprogram/
+npm run build     # 生产结构构建（远端媒体不入包）→ dist/miniprogram/
+npm run build:local-media # 本地完整媒体预览 → dist-local/miniprogram/
 npm run typecheck # TS 严格模式检查
-npm test          # 552 个单测 / 50 个测试文件（引擎、数据契约、页面逻辑，Node 环境跑）
+npm test          # 600+ 自动化检查（引擎、数据契约、页面逻辑、包体与媒体边界）
 
 # 然后用微信开发者工具打开仓库根目录
 # （project.config.json 已配置 miniprogramRoot: dist/miniprogram/，工具加载构建产物）
 ```
 
-> ⚠️ 改了源码记得 `npm run build`——开发者工具看的是 `dist/`，不是 `miniprogram/`。
+> ⚠️ 改了源码记得 `npm run build`——开发者工具默认看的是 `dist/`，不是 `miniprogram/`。需要本地完整媒体时使用 `npm run build:local-media` 并在本地私有工程配置中把根目录指向 `dist-local/miniprogram/`；它不会再污染正式 `dist/`。
 > `dist/` 随仓库提交（跨机预览无需本地构建），但**禁止手改**，一切以 build 产物为准。
 
 ### 内容与媒体工具链
@@ -86,7 +87,7 @@ npm test          # 552 个单测 / 50 个测试文件（引擎、数据契约�
 │   ├── brand/                 # Logo、头像导出、品牌提案
 │   └── content/               # 内容审计 / 覆盖报告 / 媒体评审板 / 发布就绪报告
 ├── scripts/                   # 构建与内容工具链（terrain 渲染管线 / content 媒体与报告）
-├── tests/                     # vitest：552 个用例（数据契约 / 回归 / 发布冻结）
+├── tests/                     # vitest：600+ 自动化检查（数据契约 / 回归 / 发布冻结）
 └── dist/                      # 构建产物（随仓库提交，开发者工具加载这里）
 ```
 

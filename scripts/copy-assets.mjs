@@ -18,10 +18,19 @@ import { REMOTE_MEDIA_DIR, isRemoteOwned } from "./media-ownership.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const src = join(root, "miniprogram");
-const out = join(root, "dist", "miniprogram");
 const remoteSrc = join(root, REMOTE_MEDIA_DIR);
 
 const withLocalMedia = process.argv.includes("--with-local-media");
+const outArgIndex = process.argv.indexOf("--out-dir");
+const outRel = (outArgIndex >= 0 && process.argv[outArgIndex + 1]
+  ? process.argv[outArgIndex + 1]
+  : "dist/miniprogram"
+).replace(/\\/g, "/");
+if (!new Set(["dist/miniprogram", "dist-local/miniprogram"]).has(outRel)) {
+  console.error(`[copy-assets] 拒绝写入未授权目录：${outRel}`);
+  process.exit(1);
+}
+const out = join(root, ...outRel.split("/"));
 
 const ASSET_EXT = new Set([
   ".wxml",

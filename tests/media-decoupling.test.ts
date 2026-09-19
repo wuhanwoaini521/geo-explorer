@@ -16,8 +16,10 @@ import { fileURLToPath } from "node:url";
 import {
   MEDIA_PLACEHOLDER,
   isRemoteMediaEnabled,
+  mediaFallbackSrc,
   mediaLocalPath,
   mediaRemoteUrl,
+  resolveAssetSource,
   resolveMediaSrc,
   stripAssetsPrefix,
 } from "../miniprogram/services/media-service";
@@ -53,11 +55,25 @@ describe("媒体逻辑键解析", () => {
     expect(resolveMediaSrc(null)).toBe(MEDIA_PLACEHOLDER);
   });
 
-  it("远端失败时不返回本地副本 —— 内容媒体在正式包里根本不存在", () => {
-    const cdnSrc = resolveMediaSrc(KEY, CDN);
-    expect(cdnSrc.startsWith(CDN)).toBe(true);
-    // 断言：不会出现"远端失败就悄悄回退到 /assets/"的路径存在
-    expect(cdnSrc).not.toContain("/assets/");
+  it("远端地址支持可选版本目录，并显式暴露 fallback 链", () => {
+    const resolved = resolveAssetSource(KEY, {
+      remoteBase: "https://cdn.example.com/geo-explorer/",
+      version: "prod/v2",
+      localFallback: "world/globe-texture-realistic-2048.jpg",
+    });
+    expect(resolved.src).toBe("https://cdn.example.com/geo-explorer/prod/v2/content/fuji/f-forest-lower.jpg");
+    expect(resolved.fallbackSrc).toBe("/assets/world/globe-texture-realistic-2048.jpg");
+    expect(resolved.placeholderSrc).toBe(MEDIA_PLACEHOLDER);
+    expect(resolved.remote).toBe(true);
+  });
+
+  it("失败链依次为显式本地兜底 → 设计占位，不产生破图路径", () => {
+    const local = "world/globe-texture-realistic-2048.jpg";
+    const remote = resolveMediaSrc(KEY, CDN);
+    const fallback = mediaFallbackSrc(remote, local);
+    expect(fallback).toBe(`/assets/${local}`);
+    expect(mediaFallbackSrc(fallback, local)).toBe(MEDIA_PLACEHOLDER);
+    expect(mediaFallbackSrc(MEDIA_PLACEHOLDER, local)).toBe(MEDIA_PLACEHOLDER);
   });
 });
 

@@ -12,6 +12,7 @@ exports.knowledgeImage = knowledgeImage;
  * 优先级：approved-only（MediaRegistry）→ 实景照片优先 → 语义兜底 → 无图返回空。
  */
 const world_manifests_1 = require("../data/media/world-manifests");
+const asset_resolver_1 = require("../engine/asset-resolver");
 const media_registry_1 = require("../engine/media-registry");
 const media_service_1 = require("../services/media-service");
 /**
@@ -41,7 +42,7 @@ function knowledgeImages(item) {
     if (media.length) {
         const photos = media.filter((a) => a.kind === "photograph");
         const rest = media.filter((a) => a.kind !== "photograph");
-        return [...photos, ...rest].map((a) => (0, media_service_1.resolveMediaSrc)(a.mediaKey));
+        return [...photos, ...rest].map((asset) => (0, asset_resolver_1.resolveRegistryAsset)(world_manifests_1.RUNTIME_MANIFESTS, asset.id).src);
     }
     const fallback = KNOWLEDGE_FALLBACK_IMAGE[item.id];
     return fallback ? [(0, media_service_1.resolveMediaSrc)(fallback)] : [];

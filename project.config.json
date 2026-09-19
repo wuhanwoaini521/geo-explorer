@@ -41,13 +41,13 @@
       "list": [
         {
           "name": "探索-珠峰",
-          "pathName": "pages/exploration/index",
+          "pathName": "pkg-explore/pages/exploration/index",
           "query": "id=everest",
           "scene": null
         },
         {
           "name": "探索-马里亚纳",
-          "pathName": "pages/exploration/index",
+          "pathName": "pkg-explore/pages/exploration/index",
           "query": "id=mariana",
           "scene": null
         }

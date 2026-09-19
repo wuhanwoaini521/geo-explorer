@@ -6,7 +6,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "build": "npm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs && node scripts/check-requires.mjs",
-    "build:local-media": "npm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs --with-local-media && node scripts/check-requires.mjs",
+    "build:local-media": "node scripts/clean.mjs --out-dir dist-local && tsc -p tsconfig.build.json --outDir dist-local/miniprogram && node scripts/copy-assets.mjs --with-local-media --out-dir dist-local/miniprogram && node scripts/check-requires.mjs --out-dir dist-local/miniprogram",
+    "clean:local": "node scripts/clean.mjs --out-dir dist-local",
     "build:prod": "node scripts/apply-media-config.mjs && node scripts/check-media-config.mjs && npm run build",
     "clean": "node scripts/clean.mjs",
     "media:manifest": "node scripts/media-manifest.mjs --write",
@@ -17,6 +18,7 @@
     "test:watch": "vitest",
     "content:validate": "vitest run tests/worlds-contract.test.ts",
     "wechat:screenshot": "node scripts/wechat-screenshot.cjs",
+    "wechat:product-capture": "node scripts/product-ui-capture.cjs",
     "everest:viewer": "npm --prefix tools/everest-route-calibrator run build && node tools/everest-route-calibrator/server.mjs",
     "content:report": "npx tsx scripts/content/report.ts",
     "package:audit": "node scripts/package-audit.mjs",

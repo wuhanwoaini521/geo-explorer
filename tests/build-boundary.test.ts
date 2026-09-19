@@ -37,6 +37,16 @@ function compiledPathOf(srcRel: string): string {
 }
 
 describe("Gate 2 生产构建边界", () => {
+  it("本地完整媒体构建写入 dist-local，不污染生产 dist", () => {
+    const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const localBuild = pkg.scripts["build:local-media"];
+    expect(localBuild).toContain("--out-dir dist-local");
+    expect(localBuild).toContain("--outDir dist-local/miniprogram");
+    expect(localBuild).not.toMatch(/npm run clean(?:\s|$)/);
+  });
+
   it("tsconfig.build.json exclude 覆盖清单中的全部 .ts 条目", () => {
     const fromTsconfig = tsconfigBuildExcludes().sort();
     const tsOnly = RUNTIME_EXCLUDES.filter((p) => p.endsWith(".ts")).sort();

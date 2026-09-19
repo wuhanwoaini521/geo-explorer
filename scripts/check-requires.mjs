@@ -85,12 +85,17 @@ const isMain =
 
 if (isMain) {
   const { fileURLToPath } = await import("node:url");
-  const root = join(
-    dirname(fileURLToPath(import.meta.url)),
-    "..",
-    "dist",
-    "miniprogram",
-  );
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const outArgIndex = process.argv.indexOf("--out-dir");
+  const outRel = (outArgIndex >= 0 && process.argv[outArgIndex + 1]
+    ? process.argv[outArgIndex + 1]
+    : "dist/miniprogram"
+  ).replace(/\\/g, "/");
+  if (!new Set(["dist/miniprogram", "dist-local/miniprogram"]).has(outRel)) {
+    console.error(`[check-requires] 拒绝检查未授权目录：${outRel}`);
+    process.exit(1);
+  }
+  const root = join(repoRoot, ...outRel.split("/"));
   const { ok, issues, fileCount, skipped } = checkDistRequires(root);
   if (!ok) {
     console.error("FAIL: 以下 require 无法在微信 module loader 下解析（裸目录引用）：");
@@ -101,7 +106,7 @@ if (isMain) {
     process.exit(1);
   }
   if (skipped) {
-    console.warn("[check-requires] dist/miniprogram 不存在，已跳过（应在 build 后校验）");
+    console.warn(`[check-requires] ${outRel} 不存在，已跳过（应在 build 后校验）`);
   } else {
     console.log(
       `[check-requires] OK — ${fileCount} 个 JS 文件全部通过（无目录级 require / 无悬空引用）`,

@@ -43,6 +43,25 @@ export const MEDIA_PLACEHOLDER = "/assets/ui/media-placeholder.svg";
 /** 逻辑资源键：相对 assets/ 的路径，例如 "content/fuji/f-forest-lower.jpg" */
 export type MediaKey = string;
 
+export interface AssetResolveOptions {
+  /** 覆盖公开媒体基址；缺省读取中央配置。 */
+  remoteBase?: string;
+  /** 可选版本目录。remoteBase 已自带版本时保持为空。 */
+  version?: string;
+  /** 仅传入确认随包存在的本地资源；远端失败时优先使用。 */
+  localFallback?: MediaKey;
+  /** 最终设计占位；缺省使用全局轻量占位图。 */
+  placeholder?: string;
+}
+
+export interface ResolvedAssetSource {
+  mediaKey: string;
+  src: string;
+  fallbackSrc: string;
+  placeholderSrc: string;
+  remote: boolean;
+}
+
 /** 远端媒体基址（以 "/" 结尾）。为空表示未配置远端，走包内路径（本地开发）。 */
 export function mediaRemoteBase(): string {
   return CONFIG.media.remoteBase;
@@ -63,6 +82,50 @@ export function mediaRemoteUrl(key: MediaKey, remoteBase: string = mediaRemoteBa
   return `${remoteBase}${stripAssetsPrefix(key)}`;
 }
 
+function versionedRemoteBase(remoteBase: string, version?: string): string {
+  const base = remoteBase.endsWith("/") ? remoteBase : `${remoteBase}/`;
+  const segment = String(version ?? "").replace(/^\/+|\/+$/g, "");
+  return segment ? `${base}${segment}/` : base;
+}
+
+/**
+ * AssetResolver 的底层契约：返回首选地址、一次本地兜底和最终占位。
+ *
+ * localFallback 必须由调用方显式声明且确认随包存在，避免把已远端化的内容媒体
+ * 偷偷重新塞回生产包。页面在 binderror 时依次切换 fallbackSrc → placeholderSrc。
+ */
+export function resolveAssetSource(
+  key: MediaKey | undefined | null,
+  options: AssetResolveOptions = {},
+): ResolvedAssetSource {
+  const placeholderSrc = options.placeholder || MEDIA_PLACEHOLDER;
+  const normalized = key ? stripAssetsPrefix(key) : "";
+  if (!normalized) {
+    return {
+      mediaKey: "",
+      src: placeholderSrc,
+      fallbackSrc: placeholderSrc,
+      placeholderSrc,
+      remote: false,
+    };
+  }
+
+  const remoteBase = options.remoteBase ?? mediaRemoteBase();
+  const remote = remoteBase.length > 0;
+  const fallbackSrc = options.localFallback
+    ? mediaLocalPath(options.localFallback)
+    : placeholderSrc;
+  return {
+    mediaKey: normalized,
+    src: remote
+      ? mediaRemoteUrl(normalized, versionedRemoteBase(remoteBase, options.version))
+      : mediaLocalPath(normalized),
+    fallbackSrc,
+    placeholderSrc,
+    remote,
+  };
+}
+
 /**
  * 逻辑键 → 实际可加载地址。
  *
@@ -77,8 +140,7 @@ export function resolveMediaSrc(
   key: MediaKey | undefined | null,
   remoteBase: string = mediaRemoteBase(),
 ): string {
-  if (!key) return MEDIA_PLACEHOLDER;
-  return remoteBase.length > 0 ? mediaRemoteUrl(key, remoteBase) : mediaLocalPath(key);
+  return resolveAssetSource(key, { remoteBase }).src;
 }
 
 /**
@@ -96,6 +158,12 @@ export function stripAssetsPrefix(key: string): string {
  * 降级视觉（渐变兜底 / emoji 位），这里只负责把失败暴露成数据状态，
  * 不改变任何现有视觉语言。
  */
-export function mediaFallbackSrc(current: string): string {
-  return current === MEDIA_PLACEHOLDER ? current : MEDIA_PLACEHOLDER;
+export function mediaFallbackSrc(
+  current: string,
+  localFallback?: MediaKey,
+  placeholder: string = MEDIA_PLACEHOLDER,
+): string {
+  const fallback = localFallback ? mediaLocalPath(localFallback) : placeholder;
+  if (current === placeholder) return placeholder;
+  return current === fallback ? placeholder : fallback;
 }

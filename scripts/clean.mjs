@@ -8,9 +8,20 @@
 import { existsSync, lstatSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-const dist = join(process.cwd(), "dist");
+function optionValue(name, fallback) {
+  const i = process.argv.indexOf(name);
+  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+}
+
+const outDir = optionValue("--out-dir", "dist").replace(/\\/g, "/");
+if (!new Set(["dist", "dist-local"]).has(outDir)) {
+  console.error(`[clean] 拒绝清理未授权目录：${outDir}`);
+  process.exit(1);
+}
+
+const dist = join(process.cwd(), outDir);
 if (!existsSync(dist)) {
-  console.log("[clean] dist 不存在，跳过");
+  console.log(`[clean] ${outDir} 不存在，跳过`);
   process.exit(0);
 }
 
@@ -40,7 +51,7 @@ function walk(p) {
 
 walk(dist);
 
-const summary = `[clean] 删除 ${removed} 个文件${keptDirs ? `；${keptDirs} 个目录被占用已保留` : ""}`;
+const summary = `[clean] ${outDir} 删除 ${removed} 个文件${keptDirs ? `；${keptDirs} 个目录被占用已保留` : ""}`;
 if (cannotRemove.length) {
   console.warn("[clean] WARN: 以下文件无法删除（可能被占用），依赖覆盖写入：");
   for (const p of cannotRemove.slice(0, 20)) console.warn("  " + p);

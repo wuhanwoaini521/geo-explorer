@@ -8,6 +8,7 @@
  * 优先级：approved-only（MediaRegistry）→ 实景照片优先 → 语义兜底 → 无图返回空。
  */
 import { RUNTIME_MANIFESTS } from "../data/media/world-manifests";
+import { resolveRegistryAsset } from "../engine/asset-resolver";
 import { getMediaForEntity } from "../engine/media-registry";
 import { resolveMediaSrc } from "../services/media-service";
 import type { Knowledge } from "../types/models";
@@ -40,7 +41,9 @@ export function knowledgeImages(item: Knowledge): string[] {
   if (media.length) {
     const photos = media.filter((a) => a.kind === "photograph");
     const rest = media.filter((a) => a.kind !== "photograph");
-    return [...photos, ...rest].map((a) => resolveMediaSrc(a.mediaKey));
+    return [...photos, ...rest].map(
+      (asset) => resolveRegistryAsset(RUNTIME_MANIFESTS, asset.id).src,
+    );
   }
   const fallback = KNOWLEDGE_FALLBACK_IMAGE[item.id];
   return fallback ? [resolveMediaSrc(fallback)] : [];
