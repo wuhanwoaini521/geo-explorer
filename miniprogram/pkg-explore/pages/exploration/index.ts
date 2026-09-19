@@ -103,6 +103,7 @@ import {
   type QuizAnswerRecord,
 } from "../../utils/summary";
 import { resolveMediaSrc } from "../../../services/media-service";
+import { marianaPresentationAt } from "../../presentation/mariana-presentation";
 
 /* ---------------- 交互 / 动画参数 ---------------- */
 const TICK_MS = 55; // 渲染节拍（≈18fps）
@@ -528,6 +529,10 @@ interface RouteOverviewState {
   totalKmText: string;
   ascentText: string;
   descentText: string;
+  ascentLabel: string;
+  descentLabel: string;
+  profileLabel: string;
+  stageLabel: string;
   startName: string;
   startElevText: string;
   endName: string;
@@ -1021,7 +1026,9 @@ Page({
     flora: [] as FloraItem[],
     particles: [] as Particle[],
     bubbles: [] as Particle[], // 海洋世界：上浮气泡（复用 Particle 结构）
-    rayOpacity: 0, // 海洋世界：表层光柱透明度（随深度衰减）
+    marineSnowParticles: [] as Particle[], // 海洋世界：深海海雪粒子（复用 Particle 结构）
+    // 海洋世界使用纯函数生成物理分层参数；不把任务舱内照片冒充海沟或海床。
+    mariana: marianaPresentationAt(0),
     route: null as SceneRouteState | null,
 
     // 阶段横幅 / 知识 / 随堂
@@ -1298,19 +1305,23 @@ Page({
       expedition: emptyExpeditionView(),
       expDeathZone: false,
       expSummit: null,
-      // 有 Expedition 附件（routePath）的世界同样走沉浸式地形分支：非山岳世界借此
-      // 复用相机推进、贴画面路线与实景/DEM 切换，而不是停留在抽象 CSS 场景。
+      // 有 Expedition 附件（routePath）的世界同样走沉浸式地形分支；
+      // 但海洋世界（style === 'ocean'）拥有专属物理分层沉浸背景（光柱/海雪/海沟岩壁/海底坐底），不混入山岳 DEM。
       worldMountain:
-        (exploration.world && exploration.world.style === "mountain") ||
-        Boolean(expedition && expedition.routePath),
+        Boolean(exploration.world && exploration.world.style === "mountain") ||
+        (Boolean(expedition && expedition.routePath) && exploration.world?.style !== "ocean"),
       worldOcean:
         (exploration.world && exploration.world.style === "ocean") || false,
       // 非山岳世界：实景照片替代抽象 CSS 场景（2026-09-12 用户反馈）
       worldPhoto: resolveWorldPhoto(exploration),
-      // 海洋世界：一次性生成上浮气泡（低频，不复位）
+      // 海洋世界：一次性生成上浮气泡与深海海雪粒子（低频，不复位）
       bubbles:
         (exploration.world && exploration.world.style === "ocean") || false
           ? buildParticles(10)
+          : [],
+      marineSnowParticles:
+        (exploration.world && exploration.world.style === "ocean") || false
+          ? buildParticles(18)
           : [],
     });
   },
@@ -1794,6 +1805,7 @@ Page({
   renderExpeditionView(drive: ExpeditionDriveState) {
     const ex = this.exploration;
     if (!ex) return;
+    const mariana = marianaPresentationAt(drive.refM, ex.maxElevation);
     const v: ExpeditionView = {
       pct: Math.round(drive.progress * 100),
       progress: Math.round(drive.progress * 1000) / 1000,
@@ -1811,7 +1823,7 @@ Page({
       nextName: drive.next ? drive.next.name : this.data.expTerminus.reached,
       nextLandform: drive.next
         ? landformLabel(drive.next.id, drive.next.name)
-        : "雪峰顶部",
+        : this.data.expTerminus.top,
       nextGapText: drive.next ? formatDistanceM(drive.nextGapM) : "—",
       stageName: drive.stage ? drive.stage.name : "",
       stageEmoji: drive.stage ? drive.stage.emoji : "",
@@ -1821,11 +1833,17 @@ Page({
       atSummit: drive.atSummit,
       latText: drive.lat.toFixed(4),
       lonText: drive.lon.toFixed(4),
-      pressText: `${formatNumber(pressureAt(ex, drive.modelM), 0)} hPa`,
-      oxygenText: drive.deathZone
-        ? OXYGEN_DEATH_TEXT
-        : formatPercent(pressureRatioAt(drive.modelM), 1),
-      tempText: formatTemperature(temperatureAt(ex, drive.modelM)),
+      pressText: this.data.worldOcean
+        ? mariana.pressureText
+        : `${formatNumber(pressureAt(ex, drive.modelM), 0)} hPa`,
+      oxygenText: this.data.worldOcean
+        ? mariana.lightText
+        : drive.deathZone
+          ? OXYGEN_DEATH_TEXT
+          : formatPercent(pressureRatioAt(drive.modelM), 1),
+      tempText: this.data.worldOcean
+        ? mariana.temperatureText
+        : formatTemperature(temperatureAt(ex, drive.modelM)),
     };
     const sig = [
       v.pct,
@@ -1892,6 +1910,7 @@ Page({
       return;
     }
     const idx = core.routeIndex;
+    const isOcean = Boolean(this.data.worldOcean);
     const totalM = idx.totalDistanceM || 0;
     const km = (m: number) =>
       m >= 1000 ? `${formatNumber(m / 1000, 1)} km` : `${Math.round(m)} m`;
@@ -1905,7 +1924,7 @@ Page({
         landmark: "地标",
         danger: "危险段",
         knowledge: "知识",
-        summit: "峰顶",
+        summit: isOcean ? "海底终点" : "峰顶",
         waypoint: "途经点",
       };
       return map[k] ?? "途经点";
@@ -1945,10 +1964,16 @@ Page({
       routeOverview: {
         show: true,
         name: idx.name,
-        intro: `全程 ${km(totalM)}（含起伏 ${km(idx.total3dDistanceM)}）· 累计爬升 ${elev(idx.ascentM)} · 累计下降 ${elev(idx.descentM)}`,
+        intro: isOcean
+          ? `从海面垂直下潜 ${km(totalM)}，穿越 ${stage.length} 个水层阶段，最终抵达挑战者深渊。`
+          : `全程 ${km(totalM)}（含起伏 ${km(idx.total3dDistanceM)}）· 累计爬升 ${elev(idx.ascentM)} · 累计下降 ${elev(idx.descentM)}`,
         totalKmText: km(totalM),
-        ascentText: elev(idx.ascentM),
-        descentText: elev(idx.descentM),
+        ascentText: isOcean ? elev(core.maxElevation) : elev(idx.ascentM),
+        descentText: isOcean ? `${stage.length} 带` : elev(idx.descentM),
+        ascentLabel: isOcean ? "最大深度" : "爬升",
+        descentLabel: isOcean ? "海洋带" : "下降",
+        profileLabel: isOcean ? "垂直深度剖面" : "DEM 海拔剖面",
+        stageLabel: isOcean ? "下潜阶段" : "路线阶段",
         startName: first?.name ?? "起点",
         startElevText: first ? elev(first.refM) : "",
         endName: last?.name ?? "终点",
@@ -2130,7 +2155,7 @@ Page({
       }
     }
 
-    // ---- 低频：仅跨阶段边界时刷新整套环境与视觉（地形/天光/雾/植被/人物姿态/生物/刻度） ----
+    // ---- 低频：仅跨阶段边界时刷新整套环境与视觉（地形/天光/雾/植被/路线标记/生物/刻度） ----
     nextCache.stageId = d.stage.id;
     if (cache.stageId !== d.stage.id) {
       patch.stageName = d.stage.name;
@@ -2152,9 +2177,15 @@ Page({
       ).toFixed(2)})`;
       patch.terrainTop = d.terrainTint[0];
       patch.terrainBottom = d.terrainTint[1];
-      // 海洋世界：表层光柱随深度衰减（只在阶段边界更新，低频）
-      if (this.data.worldOcean) {
-        patch.rayOpacity = Math.round((1 - progress) * 50) / 100;
+    }
+
+    // 海洋世界：纯函数推导连续水层、HUD 与抵底状态，避免把照片误当作环境。
+    if (this.data.worldOcean) {
+      const mariana = marianaPresentationAt(elevationM, ex.maxElevation);
+      const oceanKey = `${mariana.zoneId}|${mariana.depthM}|${mariana.atBottom}`;
+      nextCache.oceanKey = oceanKey;
+      if (cache.oceanKey !== oceanKey) {
+        patch.mariana = mariana;
       }
     }
 
@@ -2286,7 +2317,7 @@ Page({
       if (cache.sceneKey !== sKey) {
         patch.scene = this.data.worldMountain
           ? buildScene(this.expeditionHeroImage, d, progress, summitMode)
-          : SCENE_DEFAULT;
+          : { ...SCENE_DEFAULT, plates: { ...SCENE_DEFAULT.plates, hero: "" } };
       }
     }
 
@@ -2519,15 +2550,16 @@ Page({
 
   /** 里程碑穿越事件：录制 + 短横幅（克制，不弹大层）+ 首次到达自动弹地点卡 */
   onMilestoneCrossed(m: RouteMilestoneSample) {
-    if (m.kind === "summit") {
+    const isOcean = this.data.worldOcean;
+    if (m.kind === "summit" && !isOcean) {
       // 登顶已有峰顶轻提示，里程碑横幅/卡片冗余；仅记录（卡片仍可点击回看）
       return;
     }
-    if (m.id !== "base-camp") {
+    if (m.id !== "base-camp" && m.id !== "surface-start") {
       // 出发后每到达一个真实地理节点 → 先解锁并自动弹出 Discovery Card
       this.maybeAutoOpenWaypointCard(m.id);
     }
-    if (m.id === "base-camp") {
+    if (m.id === "base-camp" || m.id === "surface-start") {
       // 起点宿主不弹横幅（与 intro 首页重叠）
       return;
     }

@@ -213,7 +213,7 @@ describe("探索页视觉约束", () => {
     expect(wxml).not.toMatch(/class="exp-current-copy"/);
     expect(wxml).not.toMatch(/class="exp-links"/);
     expect(wxml).not.toMatch(/class="exp-step"/);
-    expect(wxml).toMatch(/class="concept-route"/);
+    expect(wxml).toMatch(/class="concept-route/);
     expect(wxml).toMatch(/conceptRoute\.segments/);
     expect(wxml).toMatch(/conceptRoute\.completedSegments/);
     expect(wxml).toMatch(/liveOverlay && !routeMode/);

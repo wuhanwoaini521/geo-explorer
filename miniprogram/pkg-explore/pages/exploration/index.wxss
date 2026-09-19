@@ -55,12 +55,60 @@ page {
 .peak-b { right: -2vw; font-size: 300rpx; color: rgba(255,255,255,0.5); }
 .peak-c { left: 30vw; font-size: 340rpx; color: rgba(255,255,255,0.65); }
 
-/* ---------------- 海洋世界（world.style === 'ocean'） ---------------- */
+/* ---------------- 马里亚纳：程序化垂直水柱 ---------------- */
+.mariana-water-column {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: background 0.7s linear;
+  overflow: hidden;
+}
+.mariana-surface {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.7s linear;
+}
+.mariana-surface-line {
+  position: absolute;
+  top: 6vh;
+  left: -8vw;
+  width: 116vw;
+  height: 8rpx;
+  border-radius: 50%;
+  background: rgba(226, 249, 255, 0.88);
+  box-shadow: 0 0 18rpx rgba(154, 234, 255, 0.9), 0 18rpx 55rpx rgba(58, 196, 232, 0.48);
+  transform: rotate(-1.5deg);
+}
+.mariana-caustics {
+  position: absolute;
+  top: 6vh;
+  left: -20vw;
+  width: 140vw;
+  height: 30vh;
+  background: repeating-linear-gradient(105deg, transparent 0 46rpx, rgba(207, 246, 255, 0.13) 48rpx 53rpx, transparent 55rpx 100rpx);
+  filter: blur(3rpx);
+  transform: perspective(500rpx) rotateX(58deg);
+}
+.mariana-pressure-lines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background: repeating-linear-gradient(180deg, transparent 0 74rpx, rgba(126, 211, 238, 0.13) 75rpx 76rpx);
+}
+.mariana-darkness {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 35%, transparent 0%, rgba(0, 2, 7, 0.28) 50%, rgba(0, 2, 6, 0.84) 100%);
+  transition: opacity 0.7s linear;
+}
+
 .ocean-rays {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  transition: opacity 0.4s linear;
+  z-index: 3;
+  transition: opacity 0.5s ease-out;
 }
 .ocean-ray {
   position: absolute;
@@ -85,6 +133,7 @@ page {
   inset: 0;
   pointer-events: none;
   z-index: 5;
+  transition: opacity 0.6s ease-out;
 }
 .bubble {
   position: absolute;
@@ -105,6 +154,311 @@ page {
   0% { transform: translateY(0) scale(0.7); }
   90% { transform: translateY(-108vh) scale(1.15); }
   100% { transform: translateY(-115vh) scale(1.2); }
+}
+
+/* 深海海雪：800m+ 出现，微光有机碎屑缓缓沉降 */
+.marine-snow-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  transition: opacity 0.8s ease-out;
+}
+.marine-snow-flake {
+  position: absolute;
+  top: -4vh;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(235, 248, 255, 0.95) 0%, rgba(180, 220, 240, 0.4) 65%, transparent 100%);
+  box-shadow: 0 0 6rpx rgba(180, 230, 255, 0.6);
+  animation-name: marine-snow-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes marine-snow-drift {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(54vh) translateX(12rpx); }
+  100% { transform: translateY(112vh) translateX(-8rpx); }
+}
+
+/* 超深渊海沟轮廓：程序化地貌，不宣称原位摄影。 */
+.trench-canyon {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: opacity 0.8s ease-out;
+  overflow: hidden;
+}
+.trench-wall {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 38vw;
+  background:
+    repeating-linear-gradient(168deg, transparent 0 28rpx, rgba(36, 89, 104, 0.12) 29rpx 31rpx),
+    linear-gradient(180deg, rgba(4, 16, 23, 0.86) 0%, rgba(1, 6, 10, 0.98) 100%);
+}
+.trench-wall-left {
+  left: 0;
+  clip-path: polygon(0 0, 72% 0, 100% 24%, 56% 46%, 78% 70%, 34% 100%, 0 100%);
+  border-right: 2rpx solid rgba(89, 180, 199, 0.16);
+  box-shadow: 10rpx 0 30rpx rgba(0, 0, 0, 0.85);
+}
+.trench-wall-right {
+  right: 0;
+  clip-path: polygon(28% 0, 100% 0, 100% 100%, 66% 100%, 22% 72%, 44% 48%, 0 24%);
+  border-left: 2rpx solid rgba(89, 180, 199, 0.16);
+  box-shadow: -10rpx 0 30rpx rgba(0, 0, 0, 0.85);
+}
+
+/* 抵底阶段：程序化海沟底轮廓与探测光束。 */
+.challenger-seabed {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+  transition: opacity 0.8s ease-out;
+}
+.probe-spotlight {
+  position: absolute;
+  top: 17vh;
+  left: 50%;
+  width: 88vw;
+  height: 52vh;
+  transform: translateX(-50%);
+  clip-path: polygon(45% 0, 55% 0, 94% 100%, 6% 100%);
+  background: linear-gradient(180deg, rgba(188, 240, 250, 0.12), rgba(137, 220, 237, 0.28) 72%, rgba(209, 246, 250, 0.42));
+  filter: blur(12rpx);
+}
+.seabed-ridge {
+  position: absolute;
+  bottom: 43vh;
+  left: -6vw;
+  width: 112vw;
+  transform-origin: 50% 100%;
+}
+.seabed-ridge-back {
+  height: 18vh;
+  opacity: 0.62;
+  clip-path: polygon(0 48%, 12% 42%, 25% 50%, 39% 31%, 55% 54%, 72% 37%, 86% 48%, 100% 34%, 100% 100%, 0 100%);
+  background: linear-gradient(180deg, #18323a, #071116 55%, #020609);
+}
+.seabed-ridge-front {
+  height: 11vh;
+  clip-path: polygon(0 42%, 18% 31%, 33% 49%, 48% 25%, 63% 43%, 78% 28%, 100% 46%, 100% 100%, 0 100%);
+  background:
+    repeating-linear-gradient(155deg, transparent 0 26rpx, rgba(95, 157, 165, 0.08) 27rpx 29rpx),
+    linear-gradient(180deg, #0e252b, #02070a 70%);
+  box-shadow: 0 -4rpx 24rpx rgba(93, 205, 219, 0.14);
+}
+.seabed-badge {
+  position: absolute;
+  bottom: 45vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  padding: 10rpx 28rpx;
+  border-radius: 16rpx;
+  background: rgba(3, 10, 20, 0.82);
+  border: 1rpx solid rgba(112, 224, 234, 0.46);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10rpx);
+  z-index: 10;
+}
+.seabed-badge-title {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #e7fbff;
+  letter-spacing: 1rpx;
+}
+.seabed-badge-sub {
+  font-size: 18rpx;
+  color: rgba(226, 232, 240, 0.8);
+}
+.seabed-badge-kicker {
+  color: #62d6e7;
+  font-size: 15rpx;
+  font-weight: 800;
+  letter-spacing: 3rpx;
+}
+
+.mariana-zone-chip {
+  position: absolute;
+  left: 50%;
+  top: 14vh;
+  z-index: 8;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(2, 13, 22, 0.48);
+  border: 1rpx solid rgba(141, 225, 242, 0.2);
+  backdrop-filter: blur(8rpx);
+  white-space: nowrap;
+}
+.mariana-zone-name { color: #e8fbff; font-size: 22rpx; font-weight: 750; }
+.mariana-zone-en { color: rgba(171, 229, 239, 0.68); font-size: 14rpx; letter-spacing: 1rpx; }
+
+.mariana-depth-rail {
+  position: absolute;
+  left: 22rpx;
+  top: 18vh;
+  bottom: 43vh;
+  width: 70rpx;
+  z-index: 9;
+  pointer-events: none;
+}
+.mariana-depth-axis {
+  position: absolute;
+  left: 10rpx;
+  top: 8%;
+  bottom: 8%;
+  width: 2rpx;
+  background: linear-gradient(180deg, rgba(198, 244, 252, 0.72), rgba(62, 167, 188, 0.22));
+}
+.depth-tick {
+  position: absolute;
+  left: 20rpx;
+  color: rgba(201, 238, 244, 0.56);
+  font-size: 14rpx;
+  font-variant-numeric: tabular-nums;
+}
+.depth-tick::before {
+  content: "";
+  position: absolute;
+  left: -20rpx;
+  top: 50%;
+  width: 12rpx;
+  height: 1rpx;
+  background: rgba(194, 239, 247, 0.54);
+}
+.depth-tick-0 { top: 6%; }
+.depth-tick-200 { top: 16%; }
+.depth-tick-1000 { top: 29%; }
+.depth-tick-4000 { top: 48%; }
+.depth-tick-6000 { top: 65%; }
+.depth-tick-bottom { top: 88%; }
+.depth-rail-marker {
+  position: absolute;
+  left: 3rpx;
+  width: 17rpx;
+  height: 17rpx;
+  margin-top: -8rpx;
+  border-radius: 50%;
+  border: 2rpx solid #ddfbff;
+  background: #27c2dd;
+  box-shadow: 0 0 0 6rpx rgba(39, 194, 221, 0.15), 0 0 14rpx rgba(83, 220, 238, 0.92);
+  transition: top 0.12s linear;
+}
+
+/* 深海下潜路线特别微调（青蓝色荧光） */
+.concept-route-ocean .concept-route-seg-base {
+  background: rgba(56, 189, 248, 0.22);
+}
+.concept-route-ocean .concept-route-seg-completed {
+  background: linear-gradient(90deg, #38bdf8 0%, #06b6d4 100%);
+  box-shadow: 0 0 10rpx rgba(56, 189, 248, 0.8);
+}
+.concept-route-ocean .concept-route-point-dot {
+  background: #0284c7;
+  border-color: #38bdf8;
+  box-shadow: 0 0 8rpx rgba(56, 189, 248, 0.6);
+}
+.concept-route-ocean .concept-route-point-current .concept-route-point-dot {
+  background: #fbbf24;
+  border-color: #fef08a;
+  box-shadow: 0 0 14rpx #fbbf24;
+}
+.concept-route-ocean .concept-route-marker-core {
+  background: #fbbf24;
+  box-shadow: 0 0 16rpx #fbbf24, 0 0 30rpx rgba(251, 191, 36, 0.6);
+}
+.concept-route-ocean {
+  top: 17vh;
+  bottom: 43vh;
+  height: auto;
+}
+.concept-route-ocean .concept-route-point-flag { display: none; }
+.concept-route-bottom-target {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42rpx;
+  height: 18rpx;
+  margin: -9rpx 0 0 -21rpx;
+  border: 2rpx solid rgba(112, 224, 234, 0.84);
+  border-radius: 50%;
+  box-shadow: 0 0 12rpx rgba(70, 202, 220, 0.64);
+}
+.mariana-probe {
+  position: relative;
+  width: 38rpx;
+  height: 28rpx;
+  margin: 0 0 0 -5rpx;
+  filter: drop-shadow(0 0 10rpx rgba(99, 221, 238, 0.8));
+}
+.concept-route-marker-moving .mariana-probe {
+  animation: probeDescentPulse 0.9s ease-in-out infinite;
+}
+@keyframes probeDescentPulse {
+  0%, 100% { transform: translateY(-2rpx); opacity: 0.9; }
+  50% { transform: translateY(3rpx); opacity: 1; }
+}
+.probe-body {
+  position: absolute;
+  left: 3rpx;
+  top: 5rpx;
+  width: 30rpx;
+  height: 19rpx;
+  border: 2rpx solid #d8f8fc;
+  border-radius: 13rpx 13rpx 9rpx 9rpx;
+  background: linear-gradient(180deg, #4cc6d7, #126b80);
+}
+.probe-port {
+  position: absolute;
+  left: 50%;
+  top: 5rpx;
+  width: 8rpx;
+  height: 8rpx;
+  margin-left: -4rpx;
+  border-radius: 50%;
+  background: #d8fbff;
+  box-shadow: 0 0 7rpx rgba(218, 252, 255, 0.94);
+}
+.probe-antenna {
+  position: absolute;
+  left: 18rpx;
+  top: -2rpx;
+  width: 2rpx;
+  height: 9rpx;
+  background: #bceff5;
+}
+.probe-antenna::before {
+  content: "";
+  position: absolute;
+  left: -2rpx;
+  top: -3rpx;
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: #ffcf66;
+  box-shadow: 0 0 7rpx rgba(255, 207, 102, 0.88);
+}
+.probe-skid {
+  position: absolute;
+  left: 7rpx;
+  bottom: -1rpx;
+  width: 25rpx;
+  height: 5rpx;
+  border: 2rpx solid rgba(199, 244, 249, 0.86);
+  border-top: 0;
+  border-radius: 0 0 8rpx 8rpx;
 }
 
 .ground-wrap {
@@ -1651,6 +2005,16 @@ page {
 .exp-sheet.exp-summit-sheet::before {
   background: linear-gradient(90deg, transparent, rgba(255, 222, 137, 0.92), transparent);
 }
+.ocean-mode .exp-sheet {
+  height: 43vh;
+  background: linear-gradient(180deg, rgba(4, 31, 43, 0.67), rgba(2, 15, 25, 0.88) 56%, rgba(1, 8, 14, 0.96));
+  border-color: rgba(108, 215, 232, 0.24);
+  box-shadow: 0 -12rpx 40rpx rgba(0, 5, 10, 0.38), inset 0 1rpx 0 rgba(201, 245, 251, 0.12);
+}
+.ocean-mode .exp-sheet.exp-summit-sheet {
+  background: linear-gradient(180deg, rgba(10, 49, 58, 0.76), rgba(2, 19, 27, 0.94) 58%, rgba(1, 8, 12, 0.98));
+  border-color: rgba(112, 224, 234, 0.44);
+}
 
 /* Gate 3.3C.1 P1：hero 照片→exp-sheet 接缝暗化渐变（置于面板上缘上方，透明→暗，跨接缝消硬边） */
 .exp-sheet-fade {
@@ -1669,6 +2033,11 @@ page {
     rgba(6, 9, 18, 0.86) 100%
   );
 }
+.ocean-mode .exp-sheet-fade {
+  bottom: 43vh;
+  height: 18vh;
+  background: linear-gradient(180deg, transparent, rgba(1, 9, 15, 0.35) 48%, rgba(1, 8, 14, 0.9));
+}
 
 /* ---- 当前位置 ---- */
 .exp-pos {
@@ -1678,6 +2047,14 @@ page {
   gap: 12rpx;
 }
 .exp-pos-l { display: flex; align-items: baseline; gap: 6rpx; }
+.exp-depth-prefix {
+  align-self: center;
+  margin-right: 4rpx;
+  font-size: 14rpx;
+  font-weight: 800;
+  letter-spacing: 2rpx;
+  color: rgba(101, 220, 235, 0.75);
+}
 .exp-elev {
   font-size: 70rpx;
   font-weight: 800;
@@ -1706,6 +2083,7 @@ page {
 .exp-goal-row { display: flex; align-items: baseline; gap: 8rpx; }
 .exp-goal-k { font-size: 18rpx; color: rgba(255,255,255,0.6); }
 .exp-goal-v { font-size: 24rpx; font-weight: 700; color: #bde9ff; font-variant-numeric: tabular-nums; }
+.exp-ocean-goal .exp-goal-v { color: #78e2ef; }
 
 /* 路线进度条（青色，微调 03 的 cyan bar） */
 .exp-route { display: flex; flex-direction: column; gap: 4rpx; }
@@ -1818,6 +2196,86 @@ page {
   font-weight: 700;
   color: #bde9ff;
   font-variant-numeric: tabular-nums;
+}
+
+/* 马里亚纳专属 HUD：海洋带占主列，水压/光照/水温为三个等宽遥测列。 */
+.exp-ocean-core {
+  display: grid;
+  grid-template-columns: 1.45fr repeat(3, 1fr);
+  gap: 4rpx;
+  padding: 9rpx 10rpx;
+  border: 1rpx solid rgba(129, 222, 235, 0.13);
+  border-radius: 16rpx;
+  background: rgba(2, 14, 22, 0.28);
+}
+.ocean-metric {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rpx;
+  padding-left: 6rpx;
+  border-left: 1rpx solid rgba(144, 223, 233, 0.12);
+}
+.ocean-metric-zone {
+  align-items: flex-start;
+  padding-left: 0;
+  border-left: 0;
+}
+.ocean-metric-k {
+  color: rgba(199, 235, 240, 0.46);
+  font-size: 14rpx;
+}
+.ocean-metric-v {
+  max-width: 100%;
+  overflow: hidden;
+  color: #bceff5;
+  font-size: 19rpx;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ocean-metric-zone .ocean-metric-v { color: #f0fdff; font-size: 21rpx; }
+.ocean-metric-sub {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(102, 211, 226, 0.6);
+  font-size: 11rpx;
+  letter-spacing: 1rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ocean-mode .exp-route-fill { background: linear-gradient(90deg, #167f9a, #54d9e9); }
+.ocean-mode .exp-route-marker { border-color: #5cdeeb; box-shadow: 0 0 10rpx rgba(92, 222, 235, 0.86); }
+.ocean-mode .exp-route-pct { color: #8be7f0; }
+.ocean-mode .exp-stage-intro { -webkit-line-clamp: 1; }
+.ocean-mode .exp-summit-sheet .exp-route-fill { background: linear-gradient(90deg, #1b8fa0, #98f1f5); }
+.ocean-mode .exp-summit-sheet .exp-route-pct,
+.ocean-mode .exp-summit-sheet .exp-goal-v { color: #a8f2f5; }
+.exp-bottom-emblem {
+  border-color: rgba(110, 224, 235, 0.62);
+  background: rgba(21, 111, 126, 0.2);
+}
+.exp-bottom-ring {
+  width: 26rpx;
+  height: 12rpx;
+  border: 2rpx solid #8ce8ef;
+  border-radius: 50%;
+  box-shadow: 0 0 10rpx rgba(97, 220, 232, 0.72), inset 0 0 6rpx rgba(97, 220, 232, 0.52);
+}
+
+@media (max-height: 700px) {
+  .ocean-mode .exp-sheet { height: 46vh; padding-top: 14rpx; gap: 5rpx; }
+  .ocean-mode .exp-sheet-fade { bottom: 46vh; }
+  .ocean-mode .concept-route-ocean,
+  .ocean-mode .mariana-depth-rail { bottom: 46vh; }
+  .ocean-mode .seabed-ridge { bottom: 46vh; }
+  .ocean-mode .seabed-badge { bottom: 48vh; }
+  .ocean-mode .exp-elev { font-size: 60rpx; }
+  .ocean-mode .exp-stage-intro { display: none; }
+  .ocean-mode .exp-actions { padding-top: 7rpx; }
 }
 
 /* 死亡区：克制变化（面板整体降饱和 + 细红描边 + 文案），不弹窗 */
