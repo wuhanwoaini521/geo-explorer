@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-阶段二 checkpoint：在 `codex/exploration-redesign` 重建探索页的总览/局部视角、旅程控制台和马里亚纳垂直下潜示意，并完成大峡谷地层实验与珠峰轻量迁移。保留路线引擎、内容、媒体注册、知识解锁和记录系统。用户已有 `project.config.json` 改动保留且不提交；本地开发者工具读取 `dist-local/miniprogram/`，两套构建均同步。
+本轮在 `codex/exploration-redesign` 重建了 Exploration 的交互主干：整条路线与当前位置共享同一进度，用户可以连续拖动或逐站推进、点击节点发现内容，并在抵达终点后查看探索报告。Mariana 改为专属垂直下潜场景；Everest 保留成熟的实景/DEM 路线并接入新控制台；Grand Canyon 完成“路线 + 岩层时间”实验。路线引擎、内容、媒体注册、知识解锁和记录系统均保留。用户已有 `project.config.json` 改动保留且不提交；本地开发者工具读取 `dist-local/miniprogram/`，源码与两套构建产物已同步。
 
 ## Current Problem
 
-源码确认：旧水柱沿用了山岳路径投影，7 个下潜节点在主场景中不能完整呈现；底部 HUD 占 43%–46% 视口；总览为独立长说明层；首次到站会弹出内容卡，中断连续探索。微信原生自动化连接失败，视觉结论仅基于本轮无头代码预览，不能等同微信真机验收。
+源码与改版前截图共同确认：旧水柱沿用了山岳路径投影，7 个下潜节点在主场景中不能完整呈现；底部 HUD 占 43%–46% 视口；总览为独立长说明层；首次到站会弹出内容卡，中断连续探索。世界之间虽然数据不同，但操作与空间表达没有形成足够强的差异。
 
 ## New Interaction Model
 
@@ -41,16 +41,31 @@
 
 - `before/`：改版前代码基线。
 - `round-1/`：第一轮 Mariana/Everest 起点、全部站点、总览终点及大峡谷基线。
-- `round-2/`：Mariana、Everest、Colorado 的起点、全部节点、总览起终点，共 28 张，390×844。
+- `round-2/`：Mariana、Everest、Colorado 的起点、全部节点、总览起终点，共 28 张，390×844；用于第二轮结构检查。
 - `round-2-small/`：同一矩阵，共 28 张，360×640；用于检查紧凑视口、底部安全区与长文案裁切。
+- `round-3/`：最终 390×844 矩阵，共 28 张；`capture-report.json` 记录 0 页面错误、0 图片加载失败。
 - `scripts/exploration-headless.cjs` 使用真实编译 Page + 源 WXML/WXSS，后台 Chromium 渲染。属于浏览器适配预览，不是微信原生模拟器。
 - 适配器已检查并修复 page 选择器、内联 rpx、WXML include、text 选择器的转换；不得将适配器转换问题误判为产品问题。
 - 微信原生截图阻塞：`ws://127.0.0.1:9420` 无法建立自动化会话；没有自动打开可见窗口。
 
 ## Validation
 
-阶段一：`npm test` 58 个测试文件通过，649 项通过、7 项跳过；typecheck/build/build:local-media 通过。阶段二定向 56 项通过。新增行为回归覆盖视角切换不改状态、Mariana/Colorado 拖动方向、岩层投影、内容卡防误触、到站提示与终点报告/重开。最终全量命令待收尾阶段执行。
+| 命令 | 结果 |
+| --- | --- |
+| `npm run typecheck` | 通过 |
+| `npm run content:validate` | 45/45 通过 |
+| `npm test` | 58 个测试文件通过，650 项通过，7 项按项目约定跳过 |
+| `npm run build` | 通过；78 个 JS 文件引用检查通过 |
+| `npm run build:local-media` | 通过；`dist-local/miniprogram/` 含 46 个本地开发媒体 |
+| `npm run package:audit` | 通过；总包 1.59 MiB，主包 1.21 MiB，全部包低于 2 MiB 单包限制 |
+| `npm run content:report` | 通过；41/41 知识有来源，内容报告已更新 |
+| `npm run quality:report` | 通过；0 errors / 0 warnings，知识图 61 边、跨世界 15 边 |
+| `git diff --check` | 通过 |
+
+新增回归覆盖总览/局部切换不改变进度与解锁状态、Mariana/Colorado 的拖动方向、连续节点投影、大峡谷实际海拔与岩层年代、内容卡防误触、到站邀请、终点报告和重新开始。
 
 ## Remaining Issues
 
-进行中：最终全量审计、报告整理与微信端点重试。微信原生会话、正式媒体 CDN 域名/凭据仍为外部条件，当前不宣称原生视觉通过或正式发布可用。
+1. 微信自动化端点 `ws://127.0.0.1:9420` 最终重试仍无法连接；没有启动或抢占可见窗口。因此已完成真实 Page 逻辑 + WXML/WXSS 的无头截图 QA，但不宣称微信原生视觉通过。
+2. 正式媒体 CDN base URL / 凭据仍未配置；`dist-local` 可供明早开发者工具本地预览，正式包继续遵循既有远程媒体边界。
+3. 质量报告仍列出需要人工媒体签核的 P1，以及 Fuji/Colorado 专属场景插画等长期 P2；本轮 Exploration 体验无 P0 剩余项。
