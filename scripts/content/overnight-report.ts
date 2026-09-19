@@ -29,7 +29,19 @@ const OUT = join(ROOT, "design/content/final");
 /* ---------------- 指标计算 ---------------- */
 
 const allAssets = RUNTIME_MANIFESTS.flatMap((m) => m.assets);
-const issues = validateContent((p) => existsSync(join(ROOT, "miniprogram", p)));
+/**
+ * 生产包不携带受远程托管的内容媒体；质量报告仍需把其已审核的源副本视为可用，
+ * 否则会把“远程优先”策略误报成 50 个断链资产。
+ */
+function runtimeAssetExists(assetPath: string): boolean {
+  const normalized = assetPath.replace(/\\/g, "/").replace(/^\/+/, "");
+  if (existsSync(join(ROOT, "miniprogram", normalized))) return true;
+  if (existsSync(join(ROOT, "media-remote", normalized))) return true;
+  const remotePath = normalized.replace(/^assets\//, "");
+  return remotePath !== normalized && existsSync(join(ROOT, "media-remote", remotePath));
+}
+
+const issues = validateContent(runtimeAssetExists);
 const errors = issues.filter((i) => i.level === "error");
 const warnings = issues.filter((i) => i.level === "warning");
 
@@ -206,6 +218,7 @@ function overnightReport(): string {
   out += `\n> 0 关联：${density.zero.length ? density.zero.join(", ") : "无"}。全部 waypoint ≥1 条知识，无「塞 8 条」超载点（3+ 仅 4 个关键节点）。\n\n`;
 
   out += `## Validation 明细\n\n`;
+  for (const error of errors) out += `- E ${error.code}: ${error.message}\n`;
   for (const w of warnings) out += `- W ${w.code}: ${w.message}\n`;
   out += `\n## 结论\n\n- 内容质量扫描：0 AI 套话、0 跨 waypoint 同字段重复、0 summary/content 重复、0 短条目（<60 字）。\n- 全部量化指标达成；剩余工作见 remaining-work.md。\n`;
   return out;

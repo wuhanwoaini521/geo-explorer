@@ -1,4 +1,4 @@
-# Overnight Quality Report（自动生成 2026-09-18）
+# Overnight Quality Report（自动生成 2026-09-19）
 
 ## 总体指标（代码计算）
 
@@ -20,7 +20,7 @@
 | Runtime media assets | 47 |
 | Waypoint runtime media coverage | 76%（22/29） |
 | Fallback-only waypoints | 7 |
-| Validation errors | 50 |
+| Validation errors | 0 |
 | Validation warnings | 0（全部为待晋升/待候选债务记录） |
 
 ## Waypoint 知识密度

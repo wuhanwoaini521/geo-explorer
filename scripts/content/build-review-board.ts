@@ -14,7 +14,13 @@
  * 用法：npx tsx scripts/content/build-review-board.ts
  *   file:// 直开 index.html / contact-sheet.html；或 npm run media:review（本地 HTTP）。
  */
-import { readFileSync, writeFileSync, mkdirSync, statSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  statSync,
+} from "node:fs";
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { MEDIA_CANDIDATES } from "../../miniprogram/data/media/candidates";
@@ -32,8 +38,12 @@ interface MetaItem {
   localPath?: string;
   resolution?: string;
 }
+const sourceMeta = join(ROOT, "media-source/_metadata.json");
+const committedMeta = join(OUT_DIR, "media-source-metadata.json");
 const META: MetaItem[] = (
-  JSON.parse(readFileSync(join(ROOT, "media-source/_metadata.json"), "utf8")) as MetaItem[]
+  JSON.parse(
+    readFileSync(existsSync(sourceMeta) ? sourceMeta : committedMeta, "utf8"),
+  ) as MetaItem[]
 ).filter((m) => m.localPath);
 const metaById = (id: string): MetaItem | undefined => META.find((m) => m.id === id);
 
@@ -45,12 +55,18 @@ function isFile(p: string): boolean {
   }
 }
 
-/** 候选 id → 原图绝对路径（media-source，含 localPath 前缀，不再重复拼接） */
+/** 候选 id → 原图绝对路径；无 media-source 时只读使用已审核的 media-remote 副本。 */
 function candidateImageAbs(id: string): string | null {
   const m = metaById(id);
   if (!m?.localPath) return null;
   const abs = resolve(ROOT, m.localPath);
-  return isFile(abs) ? abs : null;
+  if (isFile(abs)) return abs;
+  const relativeSource = m.localPath.replace(/^media-source[\\/]/, "");
+  const remoteCandidates = [
+    resolve(ROOT, "media-remote", relativeSource),
+    resolve(ROOT, "media-remote/content", relativeSource),
+  ];
+  return remoteCandidates.find(isFile) ?? null;
 }
 
 /** file:// 与 http:// 双模式都正确的相对路径（程序计算，不手猜） */
@@ -108,7 +124,7 @@ function worldOfCandidate(tags: string[], entityType: string, entityId: string):
 
 const RECOMMEND_RULES: Record<string, { recommendation: string; reason: string }> = {
   "ev-d1-summit": { recommendation: "REJECT", reason: "【用户反馈 2026-09-12】不用这么近的人物特写 → REJECT。D2/D4（自拍/特写）同批否决；D3（中距离人物+经幡环境）留 ALTERNATIVE。峰顶 runtime 维持 DEM 兜底（无人物）" },
-  "m2-limiting-factor-bottom": { recommendation: "YES", reason: "【视觉检查】舱内自拍 + 声呐屏（沟壁剖面清晰可见）——真实坐底记录，适合 challenger-bottom/k11 的「人类在场」叙事；海底本身不可见，主视觉建议以 m1 测深图补充" },
+  "m2-limiting-factor-bottom": { recommendation: "YES", reason: "【视觉检查】DSV Limiting Factor 载人舱内的操作员与任务设备记录；仅适合作为 challenger-bottom 的 secondary 人类任务叙事，画面不展示海沟岩壁、海床或沉积物" },
   "ev-icefall-ladders": { recommendation: "YES", reason: "【视觉检查】黎明冰瀑 + 铝梯过裂隙 + 队列，无水印，横竖裁切空间充足——khumbu-icefall hero 首选" },
   "ev-c1-yellow-band": { recommendation: "YES", reason: "【视觉检查】深蓝天幕下的长队列雪坡 + 黄色带岩层，氛围与洛子壁节点高度吻合；人像占比小，可竖屏裁切" },
   "f-yoshida-huts": { recommendation: "YES", reason: "Alpsdake 实拍吉田路线山小屋带，与本八合目节点精确对应" },
@@ -183,7 +199,7 @@ function buildCards(): Card[] {
     if (abs) {
       assetsManifest.push({
         candidateId: c.id,
-        sourcePath: abs,
+        sourcePath: relative(ROOT, abs).split("\\").join("/"),
         absoluteExists: true,
         reviewBoardRelativePath: relFromBoard(abs),
         runtimePath: m?.localPath?.replace(/^media-source/, "/assets/content") ?? null,

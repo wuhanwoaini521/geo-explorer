@@ -1,4 +1,4 @@
-# Knowledge Graph Report（自动生成 2026-09-18）
+# Knowledge Graph Report（自动生成 2026-09-19）
 
 | 指标 | 值 |
 |---|---:|
