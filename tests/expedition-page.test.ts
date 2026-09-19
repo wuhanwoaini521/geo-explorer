@@ -94,6 +94,18 @@ describe("Journey 交互回归", () => {
     expect(inst.data.journey.canyonLayer.age).toContain("3.4 亿");
     inst.onUnload();
   });
+  it("下一站预览可打开图文，并从卡片一键前往对应站点", () => {
+    const inst=createInstance(pageDef);inst.onLoad({id:"everest"});inst.onStartClimb();driveTo(inst,0);
+    expect(inst.data.journey.nextId).toBe("khumbu-icefall");
+    expect(inst.data.journey.nextImage).toContain("khumbu");
+    inst.onInspectNext();
+    expect(inst.data.waypointCard).toEqual(expect.objectContaining({id:"khumbu-icefall",unlocked:false,isNext:true}));
+    expect(inst.data.waypointCard.detail).toBeTruthy();
+    inst.onWaypointPreviewContinue();
+    expect(inst.data.waypointCard).toBeNull();
+    expect(inst.climbReq?.toDistanceM).toBeCloseTo(inst.expeditionCore.routeIndex.milestones[1].distanceM,3);
+    inst.onUnload();
+  });
   it("抵达邀请不遮住场景，查看发现才打开卡片；未抵底不能打开完成报告", () => {
     const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,0);
     inst.onJourneySummary();expect(inst.data.summit).toBe(false);
@@ -169,7 +181,7 @@ describe("探索页路线模式（Everest V2）", () => {
     ).not.toBe(at67.x);
   });
 
-  it("点击山体途经点：未到达只给名称/海拔，到达后解锁实景图与知识", () => {
+  it("点击山体途经点：未到达可看行前图文，到达后解锁完整知识", () => {
     const inst = createInstance(pageDef);
     inst.onLoad({ id: "everest" });
     inst.onTapExpeditionWaypoint({ currentTarget: { dataset: { id: "camp-i" } } });
@@ -177,7 +189,11 @@ describe("探索页路线模式（Everest V2）", () => {
     expect(locked).toEqual(
       expect.objectContaining({ show: true, title: "C1 营地", unlocked: false }),
     );
-    expect(locked.image).toBeUndefined();
+    expect(locked.image).toBe("/assets/expeditions/everest/waypoints/camp-i.jpg");
+    expect(locked.detail).toBeTruthy();
+    expect(locked.detailOpen).toBe(true);
+    expect(locked.facts.length).toBeGreaterThan(0);
+    expect(locked.knowledgeId).toBeUndefined();
 
     driveTo(inst, 0.3); // 越过 C1（里程碑进度 0.28766）
     inst.onTapExpeditionWaypoint({ currentTarget: { dataset: { id: "camp-i" } } });

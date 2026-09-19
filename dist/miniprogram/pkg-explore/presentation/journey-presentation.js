@@ -21,6 +21,7 @@ function journeyAt(milestones, content, progress, view, world) {
     const position = index + local;
     const last = Math.max(1, milestones.length - 1);
     const point = current ? content.get(current.id) : undefined;
+    const nextPoint = next ? content.get(next.id) : undefined;
     const ocean = world === "mariana";
     const canyon = world === "colorado";
     const canyonLayer = canyon && current ? CANYON_LAYERS[current.id] : undefined;
@@ -37,13 +38,16 @@ function journeyAt(milestones, content, progress, view, world) {
     });
     return {
         nodes, currentId: (current === null || current === void 0 ? void 0 : current.id) || "", currentName: (current === null || current === void 0 ? void 0 : current.name) || "",
-        nextName: (next === null || next === void 0 ? void 0 : next.name) || "旅程完成", index: index + 1, count: milestones.length,
+        nextId: (next === null || next === void 0 ? void 0 : next.id) || "", nextName: (next === null || next === void 0 ? void 0 : next.name) || "旅程完成",
+        nextShortName: (nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.shortName) || (next === null || next === void 0 ? void 0 : next.name) || "旅程完成",
+        index: index + 1, count: milestones.length,
         reached: index + 1, complete: p >= 1, segmentPercent: Math.round(local * 100),
         markerTop: view === "overview" ? 8 + position / last * 84 : 48,
         overallPercent: Math.round(p * 100),
         stripPercent: Math.round(position / last * 1000) / 10,
         observation: (point === null || point === void 0 ? void 0 : point.whatToNotice) || (point === null || point === void 0 ? void 0 : point.desc) || "沿路线观察环境的变化。",
-        nextPreview: next ? ((_a = content.get(next.id)) === null || _a === void 0 ? void 0 : _a.desc) || "下一处发现正在前方。" : "回看沿途发现，或把这次探索留在你的记录里。",
+        nextPreview: next ? (nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.desc) || "下一处发现正在前方。" : "回看沿途发现，或把这次探索留在你的记录里。",
+        nextImage: ((_a = nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.images) === null || _a === void 0 ? void 0 : _a[0]) || "",
         nextDepth: next ? next.refM : (_b = current === null || current === void 0 ? void 0 : current.refM) !== null && _b !== void 0 ? _b : 0,
         axisLabel: ocean ? "深度" : canyon ? "海拔" : "海拔",
         movement: ocean ? "下潜" : canyon ? "下降" : "攀登",

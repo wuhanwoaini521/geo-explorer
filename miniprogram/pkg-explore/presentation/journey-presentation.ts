@@ -29,6 +29,7 @@ export function journeyAt(
   const position = index + local;
   const last = Math.max(1, milestones.length-1);
   const point = current ? content.get(current.id) : undefined;
+  const nextPoint = next ? content.get(next.id) : undefined;
   const ocean = world === "mariana";
   const canyon = world === "colorado";
   const canyonLayer = canyon && current ? CANYON_LAYERS[current.id] : undefined;
@@ -42,13 +43,16 @@ export function journeyAt(
   }));
   return {
     nodes, currentId:current?.id || "", currentName:current?.name || "",
-    nextName:next?.name || "旅程完成", index:index+1, count:milestones.length,
+    nextId:next?.id || "", nextName:next?.name || "旅程完成",
+    nextShortName:nextPoint?.shortName || next?.name || "旅程完成",
+    index:index+1, count:milestones.length,
     reached:index+1, complete:p>=1, segmentPercent:Math.round(local*100),
     markerTop:view==="overview"?8+position/last*84:48,
     overallPercent:Math.round(p*100),
     stripPercent:Math.round(position/last*1000)/10,
     observation:point?.whatToNotice || point?.desc || "沿路线观察环境的变化。",
-    nextPreview:next ? content.get(next.id)?.desc || "下一处发现正在前方。" : "回看沿途发现，或把这次探索留在你的记录里。",
+    nextPreview:next ? nextPoint?.desc || "下一处发现正在前方。" : "回看沿途发现，或把这次探索留在你的记录里。",
+    nextImage:nextPoint?.images?.[0] || "",
     nextDepth:next ? next.refM : current?.refM ?? 0,
     axisLabel:ocean?"深度":canyon?"海拔":"海拔",
     movement:ocean?"下潜":canyon?"下降":"攀登",

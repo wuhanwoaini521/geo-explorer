@@ -31,6 +31,12 @@
 .journey-telemetry { display: flex; justify-content: space-between; gap: 10rpx; color: #9db5bf; font-size: 20rpx; border-bottom: 1rpx solid #29414b; padding: 0 0 15rpx; }
 .telemetry-value { color: #e1f0f3; margin-left: 6rpx; font-variant-numeric: tabular-nums; }
 .journey-discovery { display: flex; gap: 13rpx; align-items: center; min-height: 60rpx; }
+.journey-preview { display: flex; gap: 13rpx; align-items: center; min-height: 88rpx; padding: 8rpx; margin: -4rpx -8rpx; border-radius: 14rpx; background: rgba(255,255,255,.045); }
+.journey-preview:active { background: rgba(182,238,227,.12); }
+.journey-preview-image { width: 92rpx; height: 72rpx; flex-shrink: 0; border-radius: 10rpx; background: #18313d; }
+.journey-preview-placeholder { display: flex; align-items: center; justify-content: center; color: #91adb8; font-size: 17rpx; }
+.journey-preview-copy { flex: 1; min-width: 0; }
+.journey-preview-copy .journey-discovery-label { display: block; margin-bottom: 3rpx; color: #b6eee3; }
 .journey-discovery-label { flex-shrink: 0; font-size: 19rpx; color: #a7dcd5; }
 .journey-discovery-text { flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 22rpx; line-height: 1.5; color: #c2d3da; }
 .journey-discover-arrow { font-size: 32rpx; color: #9ddfd6; }
@@ -40,6 +46,7 @@
 .journey-actions button { margin: 0; height: 78rpx; line-height: 78rpx; padding: 0 18rpx; font-size: 25rpx; border-radius: 16rpx; }
 .journey-back { width: 210rpx; flex-shrink: 0; background: #132d3b; color: #c8dde5; border: 1rpx solid #355464; }
 .journey-forward { flex: 1; background: #b6eee3; color: #073f44; font-weight: 650; }
+.journey-forward:active { transform: translateY(1rpx); background: #d0fff5; }
 .journey-actions button[disabled] { opacity: .55; }
 .journey-page .exp-sheet-fade { bottom: calc(var(--journey-dock-height) + env(safe-area-inset-bottom)); height: 90rpx; }
 .journey-page .exp-summit-pill { top: 240rpx; }

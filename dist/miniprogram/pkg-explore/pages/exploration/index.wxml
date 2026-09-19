@@ -392,7 +392,7 @@
       <view class="wpd-head-right">
         <text class="wpd-alt">{{waypointCard.altitudeText}}</text>
         <text wx:if="{{waypointCard.unlocked}}" class="wpd-unlocked">已到达</text>
-        <text wx:else class="wpd-locked">未到达</text>
+        <text wx:else class="wpd-locked">行前预览</text>
       </view>
       <text class="wpd-close" bindtap="onWaypointCardClose">✕</text>
     </view>
@@ -454,9 +454,8 @@
         class="wpd-btn wpd-btn-ghost"
         bindtap="onOpenWaypointKnowledge"
       >查看完整知识</button>
-      <button class="wpd-btn wpd-btn-primary" bindtap="onWaypointCardClose">
-        返回探索
-      </button>
+      <button wx:if="{{waypointCard.isNext && !waypointCard.unlocked}}" class="wpd-btn wpd-btn-primary" catchtap="onWaypointPreviewContinue">前往 {{waypointCard.title}}</button>
+      <button wx:else class="wpd-btn wpd-btn-primary" bindtap="onWaypointCardClose">返回探索</button>
     </view>
   </view>
 

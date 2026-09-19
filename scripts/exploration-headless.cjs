@@ -141,6 +141,7 @@ async function main() {
   try {
     for(const world of (process.env.CAPTURE_WORLDS||'mariana,everest,colorado').split(',')) {
       p=instance(world);await capture(world+'-start');
+      if(p.onInspectNext){p.onInspectNext();await capture(world+'-next-preview');p.onWaypointCardClose();}
       if(p.onJourneyView){p.onJourneyView({currentTarget:{dataset:{view:'overview'}}});await capture(world+'-overview-start');p.onJourneyView({currentTarget:{dataset:{view:'focus'}}});}
       const count=p.expeditionCore.routeIndex.milestones.length;
       for(let i=1;i<count;i++){await advance(p);await capture(world+'-'+i);}

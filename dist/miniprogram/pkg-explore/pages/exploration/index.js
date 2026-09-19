@@ -1243,6 +1243,11 @@ Page({
         if (!ex)
             return;
         const journey = (0, journey_presentation_1.journeyAt)(this.expeditionCore.routeIndex.milestones, this.routeContent, drive.progress, this.data.journeyView, ex.id);
+        if (journey.nextId) {
+            const nextMedia = resolveWaypointMedia(journey.nextId);
+            if (nextMedia.images.length)
+                journey.nextImage = nextMedia.images[0];
+        }
         const journeyKey = `${drive.progress.toFixed(4)}|${this.data.journeyView}`;
         if (this.frameCache.journeyKey !== journeyKey) {
             this.frameCache.journeyKey = journeyKey;
@@ -1782,6 +1787,12 @@ Page({
         if (id)
             this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } });
     },
+    onInspectNext() {
+        var _a;
+        const id = (_a = this.data.journey) === null || _a === void 0 ? void 0 : _a.nextId;
+        if (id)
+            this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } });
+    },
     onInspectArrival() {
         var _a;
         const id = (_a = this.data.arrival) === null || _a === void 0 ? void 0 : _a.id;
@@ -1792,6 +1803,12 @@ Page({
         this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
         this.frameCache = {};
         this.onStepUp();
+    },
+    onWaypointPreviewContinue() {
+        const card = this.data.waypointCard;
+        if (!(card === null || card === void 0 ? void 0 : card.isNext) || this.data.expClimbing)
+            return;
+        this.onContinueJourney();
     },
     onJourneySummary() {
         var _a;
@@ -2165,10 +2182,10 @@ Page({
      * 构建某个山体节点的 Discovery Card（地点知识卡）。
      *
      * 位置/海拔/解锁状态一律来自 canonical drive（RouteIndex 里程碑），
-     * 内容来自场景数据；未到达的节点只给名称与海拔，不提前剧透知识内容。
+     * 内容来自场景数据；未到达的节点提供行前预览，完整知识页仍在到达后解锁。
      */
     waypointCardFor(id) {
-        var _a, _b;
+        var _a, _b, _c;
         const core = this.expeditionCore;
         if (!core)
             return null;
@@ -2180,10 +2197,10 @@ Page({
             : (_b = (_a = this.exploration) === null || _a === void 0 ? void 0 : _a.route) === null || _b === void 0 ? void 0 : _b.waypoints.find((w) => w.id === id);
         const unlocked = milestone.progress <= this.current + 1e-4;
         // Gate 6：运行时媒体（MediaRegistry）优先；未登记实体回退 legacy images[]。
-        const runtime = unlocked ? resolveWaypointMedia(id) : { images: [], credits: [], kinds: [] };
-        const images = runtime.images.length ? runtime.images : unlocked ? (content && content.images) || [] : [];
-        const creditSource = runtime.images.length ? runtime.credits : unlocked && content ? content.imageCredits : undefined;
-        const kindSource = runtime.images.length ? runtime.kinds : unlocked && content ? content.imageKinds : undefined;
+        const runtime = resolveWaypointMedia(id);
+        const images = runtime.images.length ? runtime.images : (content && content.images) || [];
+        const creditSource = runtime.images.length ? runtime.credits : content ? content.imageCredits : undefined;
+        const kindSource = runtime.images.length ? runtime.kinds : content ? content.imageKinds : undefined;
         const imageIndex = 0;
         return {
             show: true,
@@ -2193,13 +2210,11 @@ Page({
             terrain: content ? content.terrain : undefined,
             landform: landformLabel(id, milestone.name),
             altitudeText: `${(0, expedition_observation_1.formatObservationElevation)(milestone.refM, core.maxElevation)} m`,
-            desc: unlocked
-                ? (content && content.desc) || "这里是一处值得观察的高山地貌。"
-                : `继续${this.expeditionVerb.verb}至此处，即可解锁这个地点的实景图与知识。`,
-            whatToNotice: unlocked && content ? content.whatToNotice : undefined,
-            detail: unlocked && content ? content.detail : undefined,
-            detailOpen: false,
-            facts: unlocked && content && content.facts ? content.facts : [],
+            desc: (content && content.desc) || "这里是一处值得观察的地理节点。",
+            whatToNotice: content ? content.whatToNotice : undefined,
+            detail: content ? content.detail : undefined,
+            detailOpen: !unlocked,
+            facts: content && content.facts ? content.facts : [],
             images,
             imageIndex,
             image: images[imageIndex],
@@ -2209,6 +2224,7 @@ Page({
             imageKindLabel: imageKindLabel(kindSource === null || kindSource === void 0 ? void 0 : kindSource[imageIndex]),
             imageCount: images.length,
             unlocked,
+            isNext: ((_c = this.data.journey) === null || _c === void 0 ? void 0 : _c.nextId) === id,
             knowledgeId: unlocked && content ? content.knowledgeId : undefined,
         };
     },
