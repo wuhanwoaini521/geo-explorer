@@ -1,0 +1,5 @@
+.geo-progress { width:100%; height:9rpx; overflow:hidden; border-radius:999rpx; background:rgba(123,157,171,.23); }
+.geo-progress-fill { height:100%; border-radius:inherit; background:var(--geo-accent); transition:width var(--geo-motion-standard) ease-out; }
+.geo-progress-field { background:rgba(88,112,121,.16); }
+.geo-progress-field .geo-progress-fill { background:var(--geo-accent-strong); }
+.geo-progress-green .geo-progress-fill { background:var(--geo-green); }

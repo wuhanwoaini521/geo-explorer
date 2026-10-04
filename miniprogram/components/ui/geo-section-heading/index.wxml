@@ -1,0 +1,8 @@
+<view class="geo-section-heading">
+  <view class="geo-section-heading-copy">
+    <text wx:if="{{kicker}}" class="geo-section-kicker">{{kicker}}</text>
+    <text class="geo-section-title">{{title}}</text>
+  </view>
+  <text wx:if="{{action}}" class="geo-section-action" bindtap="onAction">{{action}} ›</text>
+  <text wx:elif="{{caption}}" class="geo-section-caption">{{caption}}</text>
+</view>

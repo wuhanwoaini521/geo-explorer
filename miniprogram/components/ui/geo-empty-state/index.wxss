@@ -1,0 +1,5 @@
+.geo-empty-state { min-height:120rpx; padding:28rpx 22rpx; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7rpx; box-sizing:border-box; border:1rpx solid var(--geo-line); border-radius:var(--geo-radius-md); color:var(--geo-muted); background:var(--geo-surface); font-size:18rpx; line-height:1.55; text-align:center; }
+.geo-empty-mark { color:var(--geo-accent); font-size:29rpx; }
+.geo-empty-title { color:var(--geo-ink); font-size:20rpx; font-weight:700; }
+.geo-empty-description { color:var(--geo-muted); font-size:17rpx; }
+.geo-empty-action { margin-top:3rpx; color:var(--geo-accent-strong); font-size:18rpx; }

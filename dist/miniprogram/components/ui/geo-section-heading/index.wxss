@@ -1,0 +1,6 @@
+.geo-section-heading { display:flex; width:100%; box-sizing:border-box; align-items:flex-end; justify-content:space-between; gap:var(--geo-space-3); }
+.geo-section-heading-copy { display:flex; min-width:0; flex-direction:column; gap:3rpx; }
+.geo-section-kicker { color:var(--geo-accent); font-size:14rpx; letter-spacing:1.7rpx; font-weight:700; }
+.geo-section-title { color:var(--geo-ink); font-size:25rpx; line-height:1.25; font-weight:800; }
+.geo-section-caption { max-width:48%; flex-shrink:0; color:var(--geo-muted); font-size:15rpx; line-height:1.35; text-align:right; }
+.geo-section-action { flex-shrink:0; color:var(--geo-accent-strong); font-size:18rpx; }

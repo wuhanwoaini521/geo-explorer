@@ -1,0 +1,3 @@
+<view class="geo-progress geo-progress-{{tone}}" aria-label="进度 {{value}}%">
+  <view class="geo-progress-fill" style="width:{{value}}%"></view>
+</view>

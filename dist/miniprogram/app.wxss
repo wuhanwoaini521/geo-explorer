@@ -1,3 +1,5 @@
+@import "./styles/design-tokens.wxss";
+
 /**
  * 全局样式 —— Geo Explorer Expedition V2（深夜蓝黑 / 冰蓝数据）。
  */

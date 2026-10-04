@@ -1,0 +1,6 @@
+<view class="geo-empty-state">
+  <text wx:if="{{mark}}" class="geo-empty-mark">{{mark}}</text>
+  <text wx:if="{{title}}" class="geo-empty-title">{{title}}</text>
+  <text wx:if="{{description}}" class="geo-empty-description">{{description}}</text>
+  <text wx:if="{{action}}" class="geo-empty-action" bindtap="onAction">{{action}}</text>
+</view>
