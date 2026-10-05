@@ -20,6 +20,7 @@ const globe_renderer_1 = require("../../engine/globe-renderer");
 const globe_marker_projection_1 = require("../../engine/globe-marker-projection");
 const webgl_globe_renderer_1 = require("../../engine/webgl-globe-renderer");
 const media_service_1 = require("../../services/media-service");
+const layout_1 = require("../../utils/layout");
 const COMING = [
     { id: "fuji", emoji: "🗻", title: "富士山", region: "日本 · 本州", basis: "海拔 3,776 m · 休眠火山" },
     { id: "sahara", emoji: "🏜️", title: "撒哈拉沙漠", region: "北非", basis: "世界最大热沙漠" },
@@ -35,16 +36,23 @@ const WORLD_DESTINATION_IDS = [
     "p-kilauea",
     "p-qinghai",
 ];
+// 仅供地图页「今日推荐」缩略卡使用；地点详情与地图标记仍使用媒体清单中的实景素材。
 const RECOMMENDATION_ILLUSTRATIONS = {
     "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
     "p-everest": "/assets/discovery/glacier-illustration-v1.jpg",
     "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
 };
+// 探索页地点浮层与继续探索卡片的氛围图；地球贴图和路线节点仍用原有地理素材。
 const EXPLORE_ILLUSTRATIONS = {
     "p-everest": "/assets/discovery/everest-illustration-v2.jpg",
     "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
     "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
     "p-colorado": "/assets/discovery/colorado-illustration-v1.jpg",
+};
+const HOME_MAP_LABEL_PRIORITY = {
+    "p-everest": 0,
+    "p-colorado": 1,
+    "p-mariana": 2,
 };
 const MARKER_GLYPHS = {
     mountain: "▲",
@@ -75,36 +83,23 @@ let globeTextureScale = 2048;
 let globeLabelContext = null;
 let globeLabelWidth = 0;
 let globeLabelHeight = 0;
+let globeLabelImages = {};
+let globeSideControlRects = [];
 let latestGlobeProjections = [];
 function activeGlobeRenderer() {
     return webglRenderer !== null && webglRenderer !== void 0 ? webglRenderer : canvasRenderer;
 }
-function mapHeaderTop() {
-    var _a, _b, _c, _d;
-    const runtime = wx;
-    const statusBarHeight = (_b = (_a = runtime.getSystemInfoSync) === null || _a === void 0 ? void 0 : _a.call(runtime).statusBarHeight) !== null && _b !== void 0 ? _b : 20;
-    const menuBottom = (_d = (_c = runtime.getMenuButtonBoundingClientRect) === null || _c === void 0 ? void 0 : _c.call(runtime).bottom) !== null && _d !== void 0 ? _d : statusBarHeight + 32;
-    return Math.ceil(Math.max(statusBarHeight + 12, menuBottom + 10));
-}
 function placeImage(place) {
-    const illustration = EXPLORE_ILLUSTRATIONS[place.id];
-    if (illustration)
-        return illustration;
-    const runtimeHero = (0, world_manifests_1.getPlaceHeroImage)(place.id);
-    if (runtimeHero)
-        return runtimeHero;
-    if (place.id === "p-everest")
-        return (0, media_service_1.resolveMediaSrc)("expeditions/everest/live/live-a-kala-patthar.jpg");
-    if (place.type === "glacier" || place.type === "mountain")
-        return (0, media_service_1.resolveMediaSrc)("world/everest-expedition-hero-v1.jpg");
-    return "";
+    var _a, _b;
+    return (_b = (_a = EXPLORE_ILLUSTRATIONS[place.id]) !== null && _a !== void 0 ? _a : (0, world_manifests_1.getPlaceHeroImage)(place.id)) !== null && _b !== void 0 ? _b : "";
 }
 function metricForPlace(place) {
+    const wholeMeters = Math.floor(Math.abs(place.elevationM)).toLocaleString();
     if (place.elevationM < 0)
-        return { label: "最大深度", value: `约 ${Math.abs(place.elevationM).toLocaleString()} m` };
+        return { label: "最大深度", value: `约 ${wholeMeters} m` };
     if (place.type === "canyon")
-        return { label: "谷底高程", value: `${place.elevationM.toLocaleString()} m` };
-    return { label: "最高点", value: `${place.elevationM.toLocaleString()} m` };
+        return { label: "谷底高程", value: `${wholeMeters} m` };
+    return { label: "最高点", value: `${wholeMeters} m` };
 }
 function worldMarker(place) {
     var _a, _b, _c;
@@ -114,6 +109,7 @@ function worldMarker(place) {
         id: place.id,
         name: place.name,
         nameEn: place.nameEn,
+        image: placeImage(place),
         typeLabel: (_b = (_a = places_1.PLACE_TYPE_META.find((item) => item.type === place.type)) === null || _a === void 0 ? void 0 : _a.label) !== null && _b !== void 0 ? _b : "地貌",
         typeGlyph: (_c = MARKER_GLYPHS[place.type]) !== null && _c !== void 0 ? _c : "·",
         latitude: place.latitude,
@@ -135,13 +131,14 @@ function worldMarker(place) {
     };
 }
 function destinationPreview(place) {
-    var _a, _b;
+    var _a, _b, _c;
     const metric = metricForPlace(place);
     return {
         id: place.id,
         name: place.name,
         nameEn: place.nameEn,
         typeLabel: (_b = (_a = places_1.PLACE_TYPE_META.find((item) => item.type === place.type)) === null || _a === void 0 ? void 0 : _a.label) !== null && _b !== void 0 ? _b : "地貌",
+        typeGlyph: (_c = MARKER_GLYPHS[place.type]) !== null && _c !== void 0 ? _c : "·",
         region: place.region,
         metricLabel: metric.label,
         metricValue: metric.value,
@@ -160,6 +157,7 @@ function destinationPreview(place) {
 Page({
     data: {
         open: [],
+        continueCard: null,
         coming: COMING,
         // 图鉴
         types: [{ type: ALL_TYPE, label: "全部", emoji: "🧭" }, ...places_1.PLACE_TYPE_META],
@@ -188,10 +186,13 @@ Page({
         globeEarthOnly: false,
         globeFailed: false,
         headerTop: 62,
+        globeCanvasHeight: "800rpx",
+        globeRendererReady: true,
+        recommendationsVisible: true,
     },
     onLoad(options) {
         var _a, _b, _c;
-        this.setData({ headerTop: mapHeaderTop() });
+        this.setData({ headerTop: (0, layout_1.getHeaderTopOffset)() });
         globeMode = (_a = options === null || options === void 0 ? void 0 : options.globe) !== null && _a !== void 0 ? _a : "";
         globeVariant = globeMode === "third" ? "third" : globeMode === "low" ? "low" : "half";
         globeEarthOnly = globeMode === "earth-only" || globeMode === "no-bump" || globeMode === "with-bump" || globeMode === "no-atmosphere" || globeMode === "subtle-atmosphere" || globeMode.startsWith("variant-");
@@ -210,7 +211,7 @@ Page({
         initialSelectedId = (_b = options === null || options === void 0 ? void 0 : options.selected) !== null && _b !== void 0 ? _b : "";
         initialQuery = (_c = options === null || options === void 0 ? void 0 : options.q) !== null && _c !== void 0 ? _c : "";
         globeSelectedMode = Boolean(initialSelectedId || initialQuery);
-        this.setData({ globeEarthOnly, globeSelectedMode });
+        this.setData({ globeEarthOnly, globeSelectedMode, globeCanvasHeight: globeEarthOnly ? "100%" : "800rpx" });
         this.refreshScenes();
         const query = initialQuery;
         const activeType = (options === null || options === void 0 ? void 0 : options.type) && options.type !== ALL_TYPE
@@ -226,12 +227,53 @@ Page({
         }
     },
     onReady() {
-        this.initGlobe();
+        this.fitGlobeCanvasToRecommendationRail();
+    },
+    /** 按真实布局压短绘制区，保证推荐栏不会落在原生 Canvas 下方。 */
+    fitGlobeCanvasToRecommendationRail() {
+        const initializeRenderer = () => this.data.webglFailed ? this.initCanvasFallback() : this.initGlobe();
+        if (this.data.globeEarthOnly && !this.data.webglFailed) {
+            this.initGlobe();
+            return;
+        }
+        let canvasRect = null;
+        let railRect = null;
+        let measured = 0;
+        const applyLayout = () => {
+            measured += 1;
+            if (measured < 2)
+                return;
+            if (!canvasRect || !railRect) {
+                initializeRenderer();
+                return;
+            }
+            const availableHeight = railRect.top - canvasRect.top - 12;
+            if (availableHeight < 140) {
+                this.setData({ globeCanvasHeight: "800rpx", recommendationsVisible: false }, initializeRenderer);
+                return;
+            }
+            const nextHeight = Math.min(canvasRect.height, availableHeight);
+            if (nextHeight < canvasRect.height - 1) {
+                this.setData({ globeCanvasHeight: `${Math.round(nextHeight)}px` }, initializeRenderer);
+            }
+            else {
+                initializeRenderer();
+            }
+        };
+        wx.createSelectorQuery()
+            .select(this.data.webglFailed ? "#globeCanvas" : "#globeWebglCanvas")
+            .boundingClientRect((rect) => { canvasRect = rect; applyLayout(); })
+            .exec();
+        wx.createSelectorQuery()
+            .select(".recommendation-rail")
+            .boundingClientRect((rect) => { railRect = rect; applyLayout(); })
+            .exec();
     },
     onShow() {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         (_b = (_a = this.getTabBar) === null || _a === void 0 ? void 0 : _a.call(this)) === null || _b === void 0 ? void 0 : _b.setData({ selected: 0 });
         (_d = (_c = this.getTabBar) === null || _c === void 0 ? void 0 : _c.call(this)) === null || _d === void 0 ? void 0 : _d.setData({ hidden: globeEarthOnly });
+        (_f = (_e = this.getTabBar) === null || _e === void 0 ? void 0 : _e.call(this)) === null || _f === void 0 ? void 0 : _f.setData({ theme: "dark" });
         // 从探索/图鉴返回后刷新完成度；仅当首页分类入口显式传入筛选时才切换类型
         const pending = (0, ui_bus_1.consumeTypeFilter)();
         const pendingQuery = (0, ui_bus_1.consumeSearchQuery)();
@@ -252,13 +294,39 @@ Page({
             return;
         }
         if (!this.data.atlasOpen) {
-            (_e = activeGlobeRenderer()) === null || _e === void 0 ? void 0 : _e.resumeRotation();
-            (_f = activeGlobeRenderer()) === null || _f === void 0 ? void 0 : _f.start();
+            (_g = activeGlobeRenderer()) === null || _g === void 0 ? void 0 : _g.resumeRotation();
+            (_h = activeGlobeRenderer()) === null || _h === void 0 ? void 0 : _h.start();
         }
     },
     onHide() {
         webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.stop();
         canvasRenderer === null || canvasRenderer === void 0 ? void 0 : canvasRenderer.stop();
+    },
+    /** 屏幕尺寸变化后重建原生 Canvas，避免沿用旧 viewport 与投影尺寸。 */
+    onResize() {
+        if (this.data.atlasOpen)
+            return;
+        webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
+        canvasRenderer === null || canvasRenderer === void 0 ? void 0 : canvasRenderer.stop();
+        webglRenderer = null;
+        canvasRenderer = null;
+        globeTouch = null;
+        globeCanvasWidth = 0;
+        globeCanvasHeight = 0;
+        globeLabelContext = null;
+        globeLabelWidth = 0;
+        globeLabelHeight = 0;
+        globeSideControlRects = [];
+        const baseHeight = this.data.globeEarthOnly ? "100%" : "800rpx";
+        this.setData({
+            globeRendererReady: false,
+            globeCanvasHeight: baseHeight,
+            recommendationsVisible: true,
+            webglFailed: false,
+            globeFailed: false,
+        }, () => {
+            this.setData({ globeRendererReady: true }, () => this.fitGlobeCanvasToRecommendationRail());
+        });
     },
     onUnload() {
         webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
@@ -273,12 +341,13 @@ Page({
         globeLabelContext = null;
         globeLabelWidth = 0;
         globeLabelHeight = 0;
+        globeSideControlRects = [];
         latestGlobeProjections = [];
     },
     initGlobe() {
         const system = wx.getSystemInfoSync();
         if (forceCanvas) {
-            this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+            this.setData({ webglFailed: true }, () => this.fitGlobeCanvasToRecommendationRail());
             return;
         }
         try {
@@ -289,7 +358,7 @@ Page({
                 var _a, _b;
                 const canvasInfo = result[0];
                 if (!(canvasInfo === null || canvasInfo === void 0 ? void 0 : canvasInfo.node) || !canvasInfo.width || !canvasInfo.height) {
-                    this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+                    this.setData({ webglFailed: true }, () => this.fitGlobeCanvasToRecommendationRail());
                     return;
                 }
                 globeCanvasWidth = canvasInfo.width;
@@ -305,7 +374,16 @@ Page({
                         atmosphereEnabled: globeAtmosphereEnabled,
                         textureScale: globeTextureScale,
                         bumpScale: globeMode === "variant-b" ? 1.02 : variantMode === "earth-only" ? 1.18 : globeVariant === "low" ? 0.94 : 1.18,
-                        atmosphereStrength: globeMode === "variant-c" ? 0.32 : 0.38,
+                        atmosphereStrength: globeMode === "variant-c" ? 0.32 : 0.64,
+                        onTextureDiagnostic: (diagnostic) => {
+                            const line = `[GLOBE_TEXTURE_DIAGNOSTIC] ${JSON.stringify(diagnostic)}`;
+                            if (diagnostic.stage === "load-error" || diagnostic.stage === "upload-error") {
+                                console.error(line);
+                            }
+                            else {
+                                console.info(line);
+                            }
+                        },
                     };
                     webglRenderer = new webgl_globe_renderer_1.WebGLGlobeRenderer(canvasInfo.node, canvasInfo.width, canvasInfo.height, system.pixelRatio, globeVariant, renderOptions);
                     const projectionListener = (projections) => {
@@ -352,12 +430,12 @@ Page({
                 catch (_c) {
                     webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
                     webglRenderer = null;
-                    this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+                    this.setData({ webglFailed: true }, () => this.fitGlobeCanvasToRecommendationRail());
                 }
             });
         }
         catch (_a) {
-            this.setData({ webglFailed: true }, () => this.initCanvasFallback());
+            this.setData({ webglFailed: true }, () => this.fitGlobeCanvasToRecommendationRail());
         }
     },
     initCanvasFallback() {
@@ -396,7 +474,7 @@ Page({
         try {
             wx.createSelectorQuery()
                 .select("#globeLabelCanvas")
-                .fields({ node: true, size: true })
+                .fields({ node: true, size: true, rect: true })
                 .exec((result) => {
                 const canvasInfo = result[0];
                 if (!(canvasInfo === null || canvasInfo === void 0 ? void 0 : canvasInfo.node) || !canvasInfo.width || !canvasInfo.height)
@@ -409,6 +487,38 @@ Page({
                 globeLabelContext = context;
                 globeLabelWidth = canvasInfo.width;
                 globeLabelHeight = canvasInfo.height;
+                const rpx = wx.getSystemInfoSync().windowWidth / 750;
+                globeSideControlRects = [
+                    { top: 338, width: 70 },
+                    { top: 432, width: 64 },
+                    { top: 520, width: 64 },
+                ].map(({ top, width }) => ({
+                    left: canvasInfo.width - (60 + width) * rpx,
+                    top: (top - 162) * rpx,
+                    width: width * rpx,
+                    height: width * rpx,
+                }));
+                globeLabelImages = {};
+                ["layers", "target", "atlas"].forEach((name) => {
+                    const image = canvasInfo.node.createImage();
+                    image.onload = () => {
+                        globeLabelImages[`map-control-${name}`] = image;
+                        this.drawGlobeLabels();
+                    };
+                    image.onerror = () => undefined;
+                    image.src = `/assets/icons/${name}-on-dark.png`;
+                });
+                this.data.worldMarkers.forEach((marker) => {
+                    if (!marker.image)
+                        return;
+                    const image = canvasInfo.node.createImage();
+                    image.onload = () => {
+                        globeLabelImages[marker.id] = image;
+                        this.drawGlobeLabels();
+                    };
+                    image.onerror = () => undefined;
+                    image.src = marker.image;
+                });
                 this.drawGlobeLabels(latestGlobeProjections);
             });
         }
@@ -422,9 +532,18 @@ Page({
             return;
         context.clearRect(0, 0, globeLabelWidth, globeLabelHeight);
         const markerById = new Map(this.data.worldMarkers.map((marker) => [marker.id, marker]));
+        const occupiedLabels = [];
         projections
-            .filter((projection) => projection.visible && projection.opacity > 0.2)
-            .sort((a, b) => a.z - b.z)
+            .filter((projection) => projection.visible && projection.opacity > 0.2
+            && (projection.id === this.data.selectedMarkerId || HOME_MAP_LABEL_PRIORITY[projection.id] !== undefined))
+            .sort((a, b) => {
+            var _a, _b;
+            return Number(b.id === this.data.selectedMarkerId) - Number(a.id === this.data.selectedMarkerId)
+                || ((_a = HOME_MAP_LABEL_PRIORITY[a.id]) !== null && _a !== void 0 ? _a : Number.MAX_SAFE_INTEGER)
+                    - ((_b = HOME_MAP_LABEL_PRIORITY[b.id]) !== null && _b !== void 0 ? _b : Number.MAX_SAFE_INTEGER)
+                || a.z - b.z
+                || a.id.localeCompare(b.id);
+        })
             .forEach((projection) => {
             const marker = markerById.get(projection.id);
             if (!marker)
@@ -433,28 +552,95 @@ Page({
             const title = marker.name;
             const meta = `${marker.typeLabel} · ${marker.metricText}`;
             context.save();
-            context.globalAlpha = selected ? 1 : Math.max(0.58, projection.opacity);
+            context.globalAlpha = selected ? 1 : Math.max(0.84, projection.opacity);
             context.font = selected ? "700 13px sans-serif" : "600 12px sans-serif";
             const titleWidth = context.measureText(title).width;
             context.font = "500 10px sans-serif";
             const metaWidth = context.measureText(meta).width;
-            const labelWidth = Math.min(168, Math.max(92, Math.max(titleWidth, metaWidth) + 22));
-            const labelHeight = selected ? 39 : 36;
-            const placeLeft = projection.screenX > globeLabelWidth * 0.64;
-            const left = Math.max(8, Math.min(globeLabelWidth - labelWidth - 8, placeLeft ? projection.screenX - labelWidth - 14 : projection.screenX + 14));
-            const top = Math.max(8, Math.min(globeLabelHeight - labelHeight - 8, projection.screenY - labelHeight / 2));
-            context.fillStyle = selected ? "rgba(44, 24, 27, .96)" : "rgba(3, 21, 35, .92)";
-            context.fillRect(left, top, labelWidth, labelHeight);
-            context.fillStyle = selected ? "#ff8264" : "#66e4ef";
-            context.fillRect(placeLeft ? left + labelWidth - 3 : left, top, 3, labelHeight);
+            const thumbnail = globeLabelImages[marker.id];
+            const labelWidth = Math.min(184, Math.max(124, Math.max(titleWidth, metaWidth) + (thumbnail ? 48 : 22)));
+            const labelHeight = selected ? 44 : 40;
+            const preferLeft = projection.screenX > globeLabelWidth * 0.64;
+            const centerTop = projection.screenY - labelHeight / 2;
+            const right = projection.screenX + 14;
+            const left = projection.screenX - labelWidth - 14;
+            const centerLeft = projection.screenX - labelWidth / 2;
+            const above = projection.screenY - labelHeight - 16;
+            const below = projection.screenY + 12;
+            const candidates = [
+                { left: preferLeft ? left : right, top: above },
+                { left: centerLeft, top: above },
+                { left: preferLeft ? right : left, top: above },
+                { left: preferLeft ? left : right, top: centerTop },
+                { left: preferLeft ? right : left, top: centerTop },
+                { left: centerLeft, top: centerTop },
+                { left: centerLeft, top: below },
+                { left: preferLeft ? left : right, top: above },
+                { left: preferLeft ? right : left, top: above },
+                { left: preferLeft ? left : right, top: below },
+                { left: preferLeft ? right : left, top: below },
+            ].map((candidate) => ({
+                left: Math.max(8, Math.min(globeLabelWidth - labelWidth - 8, candidate.left)),
+                top: Math.max(8, Math.min(globeLabelHeight - labelHeight - 8, candidate.top)),
+            }));
+            const rectFor = (candidate) => ({
+                ...candidate,
+                right: candidate.left + labelWidth,
+                bottom: candidate.top + labelHeight,
+            });
+            const overlapArea = (candidate) => occupiedLabels.reduce((sum, occupied) => {
+                const width = Math.min(candidate.right, occupied.right) - Math.max(candidate.left, occupied.left);
+                const height = Math.min(candidate.bottom, occupied.bottom) - Math.max(candidate.top, occupied.top);
+                return sum + (width > 0 && height > 0 ? width * height : 0);
+            }, 0);
+            const rects = candidates.map(rectFor);
+            const labelRect = rects.find((candidate) => overlapArea(candidate) === 0);
+            if (!labelRect) {
+                context.restore();
+                return;
+            }
+            occupiedLabels.push(labelRect);
+            const placeLeft = labelRect.left < projection.screenX;
+            const labelLeft = labelRect.left;
+            const labelTop = labelRect.top;
+            context.fillStyle = selected ? "rgba(44, 24, 27, .94)" : "rgba(3, 21, 35, .82)";
+            context.fillRect(labelLeft, labelTop, labelWidth, labelHeight);
+            context.fillStyle = selected ? "#e88b6b" : "#49b6c5";
+            context.fillRect(placeLeft ? labelLeft + labelWidth - 1.5 : labelLeft, labelTop + 1, 1.5, labelHeight - 2);
+            if (thumbnail)
+                context.drawImage(thumbnail, labelLeft + 5, labelTop + 5, 28, 28);
+            const copyLeft = labelLeft + (thumbnail ? 39 : 11);
             context.textAlign = "left";
             context.textBaseline = "top";
             context.font = selected ? "700 13px sans-serif" : "600 12px sans-serif";
             context.fillStyle = "#f4fbff";
-            context.fillText(title, left + 11, top + 5);
+            context.fillText(title, copyLeft, labelTop + 5);
             context.font = "500 10px sans-serif";
-            context.fillStyle = "#91d5e7";
-            context.fillText(meta, left + 11, top + 21);
+            context.fillStyle = "#b0cbd2";
+            context.fillText(meta, copyLeft, labelTop + 23);
+            context.restore();
+        });
+        this.drawGlobeSideControls(context);
+    },
+    drawGlobeSideControls(context) {
+        const names = ["layers", "target", "atlas"];
+        globeSideControlRects.forEach((rect, index) => {
+            const image = globeLabelImages[`map-control-${names[index]}`];
+            if (!image)
+                return;
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const iconSize = Math.min(16, rect.width * 0.48);
+            context.save();
+            context.globalAlpha = 1;
+            context.beginPath();
+            context.arc(centerX, centerY, rect.width / 2 - 0.5, 0, Math.PI * 2);
+            context.fillStyle = index === 0 ? "rgba(11,48,67,.92)" : "rgba(7,31,46,.84)";
+            context.fill();
+            context.strokeStyle = index === 0 ? "rgba(165,216,222,.54)" : "rgba(165,216,222,.34)";
+            context.lineWidth = 1;
+            context.stroke();
+            context.drawImage(image, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
             context.restore();
         });
     },
@@ -463,7 +649,7 @@ Page({
         (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.setMarkers(this.data.worldMarkers);
     },
     refreshScenes() {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         const records = (0, exploration_store_1.getRecords)();
         const everestRecord = records.find((record) => record.id === "everest");
         const reached = (_a = everestRecord === null || everestRecord === void 0 ? void 0 : everestRecord.reachElevation) !== null && _a !== void 0 ? _a : 0;
@@ -488,7 +674,7 @@ Page({
             };
         });
         const open = index_1.EXPLORATIONS.map((ex) => {
-            var _a, _b, _c, _d, _e, _f;
+            var _a, _b, _c, _d;
             const record = records.find((r) => r.id === ex.id) || null;
             const reached = record ? record.reachElevation : 0;
             const progress = Math.min(100, Math.round((reached / Math.max(1, ex.maxElevation)) * 100));
@@ -503,10 +689,14 @@ Page({
                 estMin: ex.estimatedMinutes,
                 desc: ex.meta.description,
                 progress,
-                reachedText: `${progress}% · ${(_b = (_a = ex.ui) === null || _a === void 0 ? void 0 : _a.extentWord) !== null && _b !== void 0 ? _b : "已至"} ${Math.round(reached).toLocaleString()} ${(_d = (_c = ex.ui) === null || _c === void 0 ? void 0 : _c.axisUnit) !== null && _d !== void 0 ? _d : "m"}`,
-                axisGlyph: (_f = (_e = ex.ui) === null || _e === void 0 ? void 0 : _e.forwardGlyph) !== null && _f !== void 0 ? _f : "▲",
+                reachedText: `${Math.round(reached).toLocaleString()} ${(_b = (_a = ex.ui) === null || _a === void 0 ? void 0 : _a.axisUnit) !== null && _b !== void 0 ? _b : "m"}`,
+                axisGlyph: (_d = (_c = ex.ui) === null || _c === void 0 ? void 0 : _c.forwardGlyph) !== null && _d !== void 0 ? _d : "▲",
                 completed: Boolean(record && record.completed),
                 record,
+                image: (() => {
+                    const place = places_1.PLACES.find((item) => item.explorationId === ex.id);
+                    return place ? placeImage(place) : "";
+                })(),
             };
         });
         const routeSegments = projection.points.slice(0, -1).map((point, index) => (0, expedition_observation_1.routeSegment)(point, projection.points[index + 1]));
@@ -516,6 +706,7 @@ Page({
             : (_c = currentPoint === null || currentPoint === void 0 ? void 0 : currentPoint.id) !== null && _c !== void 0 ? _c : "";
         this.setData({
             open,
+            continueCard: (_e = (_d = open.find((item) => item.id === "everest")) !== null && _d !== void 0 ? _d : open[0]) !== null && _e !== void 0 ? _e : null,
             mapPoints,
             routeSegments,
             activePointId,
@@ -529,10 +720,12 @@ Page({
                 .map((id) => places_1.PLACES.find((place) => place.id === id))
                 .filter((place) => Boolean(place))
                 .map((place) => {
+                var _a;
                 const preview = destinationPreview(place);
                 return {
                     ...preview,
-                    image: RECOMMENDATION_ILLUSTRATIONS[place.id] ?? placeImage(place),
+                    image: (_a = RECOMMENDATION_ILLUSTRATIONS[place.id]) !== null && _a !== void 0 ? _a : preview.image,
+                    typeLabel: place.id === "p-fuji" ? "火山地貌" : place.id === "p-everest" ? "冰川地貌" : "海沟地貌",
                 };
             }),
         });
@@ -588,11 +781,14 @@ Page({
             .map((id) => places_1.PLACES.find((place) => place.id === id))
             .filter((place) => Boolean(place));
         const worldPlaces = (0, place_search_1.queryPlaces)(destinationPlaces, this.data.query, this.data.activeType);
+        const defaultExplorePlaces = !this.data.query.trim() && this.data.activeType === ALL_TYPE
+            ? worldPlaces.filter((place) => HOME_MAP_LABEL_PRIORITY[place.id] !== undefined)
+            : worldPlaces;
         this.setData({
             atlas,
             atlasEmpty: atlas.length === 0,
-            worldMarkers: worldPlaces.map(worldMarker),
-            worldMarkerCount: worldPlaces.length,
+            worldMarkers: defaultExplorePlaces.map(worldMarker),
+            worldMarkerCount: defaultExplorePlaces.length,
         });
         this.syncGlobeMarkers();
         afterUpdate === null || afterUpdate === void 0 ? void 0 : afterUpdate();
@@ -605,12 +801,23 @@ Page({
         this.setData({ activeType: type });
         this.refreshAtlas();
     },
+    onToggleFavorite(e) {
+        var _a, _b, _c;
+        const id = String((_c = (_b = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.id) !== null && _c !== void 0 ? _c : "");
+        if (!id)
+            return;
+        favorites_store_1.favorites.toggle(id);
+        this.refreshAtlas();
+    },
     onQueryInput(e) {
         var _a, _b;
         const query = String((_b = (_a = e.detail) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "");
         this.setData({ query });
         this.refreshAtlas();
         this.focusGlobeQuery(query);
+    },
+    onAtlasSearchInput(e) {
+        this.onQueryInput(e);
     },
     onQueryClear() {
         var _a;
@@ -842,8 +1049,14 @@ Page({
         webglRenderer = null;
         canvasRenderer = null;
         globeTouch = null;
-        this.setData({ atlasOpen: false, webglFailed: false, globeFailed: false }, () => {
-            this.initGlobe();
+        this.setData({
+            atlasOpen: false,
+            webglFailed: false,
+            globeFailed: false,
+            globeCanvasHeight: this.data.globeEarthOnly ? "100%" : "800rpx",
+            recommendationsVisible: true,
+        }, () => {
+            this.fitGlobeCanvasToRecommendationRail();
         });
     },
     onToggleMapMode() {
@@ -854,6 +1067,17 @@ Page({
         this.setData({ selectedDestination: null, selectedMarkerId: "", globeSelectedMode: false });
         globeCanvasOffsetX = 0;
         (_a = activeGlobeRenderer()) === null || _a === void 0 ? void 0 : _a.reset();
+    },
+    onOpenMapActions() {
+        wx.showActionSheet({
+            itemList: ["重置地球视角", "打开地貌图鉴"],
+            success: ({ tapIndex }) => {
+                if (tapIndex === 0)
+                    this.onResetGlobe();
+                if (tapIndex === 1)
+                    this.onToggleAtlas();
+            },
+        });
     },
     onResetMap() {
         var _a;

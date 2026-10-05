@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 性能：ticker 只推送真正变化的字段（diff）；markers/flora 仅在阶段切换与解锁变化时重建。
  */
 const index_1 = require("../../../data/explorations/index");
-const index_2 = require("../../../data/expeditions/index");
+const index_2 = require("../../data/expeditions/index");
 const world_manifests_1 = require("../../../data/media/world-manifests");
 const media_registry_1 = require("../../../engine/media-registry");
 const places_1 = require("../../../data/places");
@@ -1800,9 +1800,20 @@ Page({
             this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } });
     },
     onContinueJourney() {
-        this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
+        var _a;
+        // 底部旅程面板位于全页滑动手势内：CTA 必须先结束残留触摸态，
+        // 再发起唯一一次“到下一真实节点”的请求，避免手势与按钮竞争路线位置。
+        if (this.data.expClimbing || this.climbReq || !((_a = this.data.journey) === null || _a === void 0 ? void 0 : _a.nextId))
+            return;
+        this.touching = false;
         this.frameCache = {};
         this.onStepUp();
+        if (!this.climbReq)
+            return;
+        this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
+        // 页面从后台恢复或计时器异常停止时，按钮仍应能独立恢复推进动画。
+        if (this.ticker === null)
+            this.startTicker();
     },
     onWaypointPreviewContinue() {
         const card = this.data.waypointCard;

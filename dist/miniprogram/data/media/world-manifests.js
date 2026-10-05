@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MEDIA_MANIFESTS = exports.RUNTIME_MANIFESTS = exports.COLORADO_MANIFEST = exports.FUJI_MANIFEST = exports.MARIANA_MANIFEST = exports.EVEREST_CONTENT_MANIFEST = exports.EVEREST_TERRAIN_MANIFEST = void 0;
 exports.getPlaceHeroImage = getPlaceHeroImage;
+exports.getWaypointHeroImage = getWaypointHeroImage;
 exports.validateRuntimeManifests = validateRuntimeManifests;
 const media_service_1 = require("../../services/media-service");
 const everest_1 = require("../expeditions/everest");
@@ -930,15 +931,22 @@ exports.COLORADO_MANIFEST = {
 };
 /** 地点 hero 图（runtime 优先）：已晋升者返回真实媒体；未晋升返回 undefined（页面走占位兜底）。 */
 function getPlaceHeroImage(placeId) {
-    var _a;
     for (const m of exports.RUNTIME_MANIFESTS) {
-        const list = m.assets.filter((a) => a.entityType === "place" && a.entityId === placeId && a.reviewStatus === "approved");
-        // 只有 purpose==="hero" 才是封面；科研支撑类（如测深图）不得抢占地点主视觉。
-        const hero = (_a = list.find((a) => a.purpose === "hero")) !== null && _a !== void 0 ? _a : list[0];
+        const hero = m.assets.find((a) => a.entityType === "place" && a.entityId === placeId && a.purpose === "hero" &&
+            a.kind === "photograph" && a.reviewStatus === "approved");
         if (hero)
             return (0, media_service_1.resolveMediaSrc)(hero.mediaKey);
     }
     return undefined;
+}
+/** Approved waypoint photographs may support route quizzes and detail previews. */
+function getWaypointHeroImage(waypointId) {
+    const asset = exports.RUNTIME_MANIFESTS.flatMap((manifest) => manifest.assets).find((candidate) => candidate.entityType === "waypoint" &&
+        candidate.entityId === waypointId &&
+        candidate.purpose === "hero" &&
+        candidate.kind === "photograph" &&
+        candidate.reviewStatus === "approved");
+    return asset ? (0, media_service_1.resolveMediaSrc)(asset.mediaKey) : undefined;
 }
 /** 全部运行时清单（MediaRegistry 查询源；新增清单在此登记） */
 exports.RUNTIME_MANIFESTS = [

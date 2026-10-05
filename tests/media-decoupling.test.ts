@@ -59,16 +59,16 @@ describe("媒体逻辑键解析", () => {
     const resolved = resolveAssetSource(KEY, {
       remoteBase: "https://cdn.example.com/geo-explorer/",
       version: "prod/v2",
-      localFallback: "world/globe-texture-realistic-2048.jpg",
+      localFallback: "world/globe-texture-realistic-2048.webp",
     });
     expect(resolved.src).toBe("https://cdn.example.com/geo-explorer/prod/v2/content/fuji/f-forest-lower.jpg");
-    expect(resolved.fallbackSrc).toBe("/assets/world/globe-texture-realistic-2048.jpg");
+    expect(resolved.fallbackSrc).toBe("/assets/world/globe-texture-realistic-2048.webp");
     expect(resolved.placeholderSrc).toBe(MEDIA_PLACEHOLDER);
     expect(resolved.remote).toBe(true);
   });
 
   it("失败链依次为显式本地兜底 → 设计占位，不产生破图路径", () => {
-    const local = "world/globe-texture-realistic-2048.jpg";
+    const local = "world/globe-texture-realistic-2048.webp";
     const remote = resolveMediaSrc(KEY, CDN);
     const fallback = mediaFallbackSrc(remote, local);
     expect(fallback).toBe(`/assets/${local}`);
@@ -175,7 +175,7 @@ describe("配置边界", () => {
 });
 
 describe("主包体积边界", () => {
-  it("主包 < 1.5 MiB，且包内本地媒体只剩渲染器关键例外", async () => {
+  it("主包 < 1.5 MiB，且包内媒体均不超过 200 KB", async () => {
     if (!existsSync(DIST)) return;
     type PkgFile = { path: string; size: number };
     type Pkg = { name: string; isMain: boolean; total: number; localMedia: PkgFile[] };
@@ -187,10 +187,9 @@ describe("主包体积边界", () => {
     expect(r.missing).toBe(false);
     const main = r.packages.find((p) => p.isMain) as Pkg;
     expect(main.total / 1048576, `主包 ${(main.total / 1024).toFixed(1)} KB`).toBeLessThan(1.5);
-    // 本地媒体：只允许 globe 颜色贴图这一个 >200 KB 的渲染器关键例外
     const over200 = r.packages
       .flatMap((p) => p.localMedia)
       .filter((f: PkgFile) => f.size > 200 * 1024);
-    expect(over200.map((f: PkgFile) => f.path)).toEqual(["assets/world/globe-texture-realistic-2048.jpg"]);
+    expect(over200.map((f: PkgFile) => f.path)).toEqual([]);
   });
 });

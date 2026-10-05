@@ -89,6 +89,9 @@ declare interface WxApi {
       fields(fields: Record<string, boolean>): {
         exec(callback: (result: unknown[]) => void): void;
       };
+      boundingClientRect(callback: (rect: { top: number; left: number; width: number; height: number } | null) => void): {
+        exec(): void;
+      };
     };
   };
   navigateTo(opts: {
@@ -123,6 +126,10 @@ declare interface WxApi {
     confirmText?: string;
     cancelText?: string;
     success?: (res: { confirm: boolean; cancel: boolean }) => void;
+  }): void;
+  showActionSheet(opts: {
+    itemList: string[];
+    success?: (res: { tapIndex: number }) => void;
   }): void;
   setNavigationBarTitle(opts: { title: string }): void;
   getSystemInfoSync(): {

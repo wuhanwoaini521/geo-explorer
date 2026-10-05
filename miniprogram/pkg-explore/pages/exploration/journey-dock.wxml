@@ -1,10 +1,10 @@
 <block wx:if="{{journey}}">
-  <view class="journey-view-switch" style="top:{{capBottom + 14}}px" catchtouchstart="noop" catchtouchmove="noop">
+  <view class="journey-view-switch" style="top:{{capBottom + 14}}px" catchtouchmove="noop">
     <button class="journey-view-button {{journeyView === 'overview' ? 'journey-view-active' : ''}}" data-view="overview" bindtap="onJourneyView">整条路线</button>
     <button class="journey-view-button {{journeyView === 'focus' ? 'journey-view-active' : ''}}" data-view="focus" bindtap="onJourneyView">{{worldOcean ? '当前水层' : '当前位置'}}</button>
     <text class="journey-view-position">第 {{journey.index}} / {{journey.count}} 站</text>
   </view>
-  <view class="journey-dock {{worldOcean ? 'journey-dock-ocean' : ''}} {{worldCanyon ? 'journey-dock-canyon' : ''}}" catchtouchstart="noop" catchtouchmove="noop">
+  <view class="journey-dock {{worldOcean ? 'journey-dock-ocean' : ''}} {{worldCanyon ? 'journey-dock-canyon' : ''}}" catchtouchmove="noop">
     <view class="journey-location" bindtap="onInspectCurrent" role="button" aria-label="查看当前位置的发现">
       <view class="journey-location-copy"><text class="journey-eyebrow">{{journey.complete ? 'EXPEDITION COMPLETE · 探索完成' : expMoving || expClimbing ? 'EXPLORING · 正在前进' : 'YOU ARE HERE · 当前所在'}}</text><text class="journey-place">{{journey.currentName}} <text class="journey-discover-arrow">›</text></text></view>
       <view class="journey-measure"><text class="journey-measure-value">{{worldCanyon ? journey.nodes[journey.index - 1].value : expedition.currentElevText}}</text><text class="journey-measure-unit">{{journey.axisLabel}} m</text></view>
@@ -31,9 +31,9 @@
     </view>
     <view class="journey-next"><text>{{journey.complete ? '已完成整条路线 · ' + journey.count + ' 个站点' : '下一站 · ' + journey.nextName}}</text><text>{{journey.complete ? '100%' : worldOcean ? journey.nextDepth + ' m 深' : expedition.nextGapText}}</text></view>
     <view class="journey-actions">
-      <button class="journey-back" bindtap="onStepDown" disabled="{{expClimbing || journey.overallPercent === 0}}">{{worldOcean ? '上浮一站' : '返回一站'}}</button>
-      <button wx:if="{{journey.complete}}" class="journey-forward" bindtap="onJourneySummary">查看探索报告</button>
-      <button wx:else class="journey-forward" bindtap="onContinueJourney" disabled="{{expClimbing}}">{{expClimbing ? expClimbLabel : '前往' + journey.nextShortName + (worldOcean || worldCanyon ? ' ↓' : ' ↑')}}</button>
+      <button class="journey-back" catchtap="onStepDown" disabled="{{expClimbing || journey.overallPercent === 0}}">{{worldOcean ? '上浮一站' : '返回一站'}}</button>
+      <button wx:if="{{journey.complete}}" class="journey-forward" catchtap="onJourneySummary">查看探索报告</button>
+      <button wx:else class="journey-forward" catchtap="onContinueJourney" disabled="{{expClimbing}}">{{expClimbing ? expClimbLabel : '前往' + journey.nextShortName + (worldOcean || worldCanyon ? ' ↓' : ' ↑')}}</button>
     </view>
   </view>
 </block>

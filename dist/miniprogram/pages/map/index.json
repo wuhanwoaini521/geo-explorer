@@ -1,5 +1,9 @@
 {
   "navigationBarTitleText": "地图",
   "navigationStyle": "custom",
-  "usingComponents": {}
+  "usingComponents": {
+    "geo-section-heading": "../../components/ui/geo-section-heading/index",
+    "geo-progress": "../../components/ui/geo-progress/index",
+    "geo-empty-state": "../../components/ui/geo-empty-state/index"
+  }
 }

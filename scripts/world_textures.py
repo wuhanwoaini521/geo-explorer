@@ -7,7 +7,7 @@
 产物分两层：
 
 - **runtime 层**（`miniprogram/assets/world/`，进微信代码包）
-  只有 standard 档位（2048），格式为 JPEG。
+  只有 standard 颜色档位（2048），格式为 WebP。
 - **design 层**（`design/world/`，不进代码包）
   high 档位（4096），PNG。Gate 2 起不再随包分发：三张图合计约 12.6 MB，占改造前
   整包的 45%，且只有开发期 query `?texture=4096` 能触发，正式运行从不加载。
@@ -33,11 +33,11 @@ HIGH_SIZE = 4096
 # 每个档位的锐化参数（与历史产物保持一致，改动会让已发布的贴图发生变化）
 SHARPEN = {STANDARD_SIZE: (1.05, 28), HIGH_SIZE: (1.45, 22)}
 
-# 运行时贴图统一使用 JPEG。PNG 对照片型内容几乎无法压缩（改造前 1748 KB/MP）。
-COLOR_QUALITY = 85
+# 2048×1024 分辨率不变；WebP q38 将产物稳定控制在 200 KB 内。
+COLOR_QUALITY = 38
 MATERIAL_QUALITY = 90
 
-OUTPUT_DIR = {STANDARD_SIZE: RUNTIME_WORLD, HIGH_SIZE: DESIGN_WORLD}
+OUTPUT_DIR = {STANDARD_SIZE: WORLD_UI, HIGH_SIZE: DESIGN_WORLD}
 
 
 def color_raster(width: int) -> Image.Image:
@@ -54,8 +54,8 @@ def color_raster(width: int) -> Image.Image:
 
 def save_color(image: Image.Image, width: int) -> Path:
     if width == STANDARD_SIZE:
-        path = RUNTIME_WORLD / f"globe-texture-realistic-{width}.jpg"
-        image.save(path, "JPEG", quality=COLOR_QUALITY, optimize=True, progressive=True)
+        path = WORLD_UI / f"globe-texture-realistic-{width}.webp"
+        image.save(path, "WEBP", quality=COLOR_QUALITY, method=6)
     else:
         path = DESIGN_WORLD / f"globe-texture-realistic-{width}.png"
         image.save(path, format="PNG", optimize=True)

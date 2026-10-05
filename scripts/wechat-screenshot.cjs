@@ -11,9 +11,10 @@
  *     e.g. cli.bat auto --project <project> --auto-port 9420)
  *
  * Env overrides:
- *   WECHAT_AUTOMATION_WS  automation websocket (default ws://127.0.0.1:9420)
+ *   WECHAT_AUTOMATION_WS  automation websocket (default ws://localhost:9420)
  *   WECHAT_PAGE           page path to capture, e.g. pages/map/index
  *                         (omitted: capture app.json's launch page)
+ *   WECHAT_SCREENSHOT_PATH absolute or project-relative PNG output path
  *
  * Output:
  *   artifacts/visual/current.png
@@ -33,9 +34,11 @@ const path = require("path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(PROJECT_ROOT, "artifacts", "visual");
-const OUT_IMG = path.join(OUT_DIR, "current.png");
+const OUT_IMG = process.env.WECHAT_SCREENSHOT_PATH
+  ? path.resolve(PROJECT_ROOT, process.env.WECHAT_SCREENSHOT_PATH)
+  : path.join(OUT_DIR, "current.png");
 
-const WS_DEFAULT = "ws://127.0.0.1:9420";
+const WS_DEFAULT = "ws://localhost:9420";
 const wsUrl = process.env.WECHAT_AUTOMATION_WS || WS_DEFAULT;
 const pagePath = (process.env.WECHAT_PAGE || "").trim();
 const appConfig = JSON.parse(
@@ -168,6 +171,7 @@ function fail(msg) {
     await sleep(RENDER_MS);
 
     log("capturing miniProgram.screenshot() ...");
+    fs.mkdirSync(path.dirname(OUT_IMG), { recursive: true });
     const res = await withTimeout(
       mini.screenshot({ path: OUT_IMG, format: "png" }),
       STEP_MS,

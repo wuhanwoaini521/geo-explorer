@@ -8,7 +8,7 @@
  *   - 重制 / 查看路线占位
  */
 import { describe, expect, it, beforeAll } from "vitest";
-import { getExpeditionById } from "../miniprogram/data/expeditions/index";
+import { getExpeditionById } from "../miniprogram/pkg-explore/data/expeditions/index";
 import { deriveState } from "../miniprogram/pkg-explore/engine/exploration-engine";
 
 /* ---------------- wx / Page 全局 mock ---------------- */
@@ -104,6 +104,32 @@ describe("Journey 交互回归", () => {
     inst.onWaypointPreviewContinue();
     expect(inst.data.waypointCard).toBeNull();
     expect(inst.climbReq?.toDistanceM).toBeCloseTo(inst.expeditionCore.routeIndex.milestones[1].distanceM,3);
+    inst.onUnload();
+  });
+  it.each([
+    ["everest", "khumbu-icefall"],
+    ["mariana", "thermocline"],
+  ])("%s 的底部前往按钮会启动到下一真实节点的推进", (id, nextId) => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id });
+    inst.onStartClimb();
+    driveTo(inst, 0);
+    inst.touching = true;
+
+    inst.onContinueJourney();
+
+    const next = inst.expeditionCore.routeIndex.milestones.find(
+      (milestone: { id: string }) => milestone.id === nextId,
+    );
+    expect(inst.touching).toBe(false);
+    expect(inst.data.expClimbing).toBe(true);
+    expect(next).toBeTruthy();
+    expect(inst.climbReq?.toDistanceM).toBeCloseTo(next!.distanceM, 3);
+    expect(inst.data.journeyView).toBe("focus");
+
+    const firstRequest = inst.climbReq;
+    inst.onContinueJourney();
+    expect(inst.climbReq).toBe(firstRequest);
     inst.onUnload();
   });
   it("抵达邀请不遮住场景，查看发现才打开卡片；未抵底不能打开完成报告", () => {

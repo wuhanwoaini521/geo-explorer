@@ -9,7 +9,7 @@
  */
 import { RUNTIME_MANIFESTS } from "../data/media/world-manifests";
 import { resolveRegistryAsset } from "../engine/asset-resolver";
-import { getMediaForEntity } from "../engine/media-registry";
+import { getMediaById, getMediaForEntity } from "../engine/media-registry";
 import { resolveMediaSrc } from "../services/media-service";
 import type { Knowledge } from "../types/models";
 
@@ -29,6 +29,40 @@ const KNOWLEDGE_FALLBACK_IMAGE: Record<string, string> = {
   k27: "content/fuji/f3-goraiko.jpg", // 火山湖 · 富士山火口
   k29: "content/fuji/f4-hoei-rim.jpg", // 火山灰 · 宝永火口
 };
+
+/** Knowledge Atlas thumbnails follow the reference's real-landform photography. */
+export const KNOWLEDGE_ATLAS_MEDIA_IDS = {
+  atmosphere: "f1-yamanaka-view",
+  hydrology: "c-vishnu-river",
+  mountain: "p-everest-kala-patthar",
+  glacier: "ev-icefall-ladders",
+  geology: "c2-devils-corkscrew",
+  volcano: "f4-hoei-rim",
+  ecology: "k-condor",
+  ocean: "m8-mariana-deep-photo",
+} as const;
+
+const FEATURED_KNOWLEDGE_MEDIA_IDS: Partial<Record<string, string>> = {
+  k03: "p-everest-kala-patthar",
+  k08: "ev-icefall-ladders",
+  k11: "m8-mariana-deep-photo",
+};
+
+function approvedPhotograph(mediaId: string | undefined): string {
+  if (!mediaId) return "";
+  const asset = getMediaById(RUNTIME_MANIFESTS, mediaId);
+  if (!asset || asset.kind !== "photograph") return "";
+  return resolveRegistryAsset(RUNTIME_MANIFESTS, asset.id).src;
+}
+
+export function knowledgeAtlasImage(nodeId: keyof typeof KNOWLEDGE_ATLAS_MEDIA_IDS): string {
+  return approvedPhotograph(KNOWLEDGE_ATLAS_MEDIA_IDS[nodeId]);
+}
+
+/** Featured Atlas cards use scene photography while the detail page keeps its support media gallery. */
+export function featuredKnowledgeImage(item: Knowledge): string {
+  return approvedPhotograph(FEATURED_KNOWLEDGE_MEDIA_IDS[item.id]) || knowledgeImage(item);
+}
 
 /**
  * 该知识可展示的全部图片。

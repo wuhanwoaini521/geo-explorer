@@ -10,7 +10,7 @@ const automator = require("miniprogram-automator");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "artifacts", "visual");
-const WS = process.env.WECHAT_AUTOMATION_WS || "ws://127.0.0.1:9420";
+const WS = process.env.WECHAT_AUTOMATION_WS || "ws://localhost:9420";
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -80,4 +80,3 @@ main().catch((error) => {
   console.error(`[globe-capture] FAILED: ${error && error.message ? error.message : error}`);
   process.exitCode = 1;
 });
-

@@ -5,6 +5,7 @@ import { KNOWLEDGE } from "../../../data/knowledge";
 import { getKnowledgeProcess, processForTopic, type KnowledgeProcess } from "../../../data/processes";
 import { getPlaceById, PLACE_TYPE_LABEL } from "../../../data/places";
 import { knowledgeImages } from "../../../utils/knowledge-media";
+import { markKnowledgeRead } from "../../../services/knowledge-progress";
 import type { Knowledge } from "../../../types/models";
 
 interface RelatedPlace {
@@ -56,6 +57,7 @@ Page({
       imageFailed: false,
     });
     if (item) {
+      markKnowledgeRead(item.id);
       wx.setNavigationBarTitle({ title: item.title });
     }
   },

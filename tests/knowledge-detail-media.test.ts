@@ -6,6 +6,14 @@
  * 而测试只覆盖了标题/详解/关联地点，没有任何一条断言详情页有图。
  */
 import { describe, expect, it, beforeAll } from "vitest";
+import { RUNTIME_MANIFESTS } from "../miniprogram/data/media/world-manifests";
+import { getMediaById } from "../miniprogram/engine/media-registry";
+import { KNOWLEDGE } from "../miniprogram/data/knowledge";
+import {
+  featuredKnowledgeImage,
+  knowledgeAtlasImage,
+  KNOWLEDGE_ATLAS_MEDIA_IDS,
+} from "../miniprogram/utils/knowledge-media";
 
 /* ---------------- wx / Page 全局 mock ---------------- */
 const wxCalls: Record<string, unknown[][]> = {};
@@ -77,6 +85,28 @@ describe("知识详情页配图", () => {
     const inst = createInstance(detail);
     expect(() => inst.onLoad({ id: "k01" })).not.toThrow();
     expect(inst.data.images).toEqual([]);
+  });
+});
+
+describe("Knowledge Atlas 实景配图", () => {
+  it("八个节点都使用清单中已审核的实拍照片", () => {
+    for (const [nodeId, mediaId] of Object.entries(KNOWLEDGE_ATLAS_MEDIA_IDS)) {
+      const asset = getMediaById(RUNTIME_MANIFESTS, mediaId);
+      expect(asset?.kind, `${nodeId} 应使用实拍素材`).toBe("photograph");
+      expect(asset?.reviewStatus, `${nodeId} 素材必须已审核`).toBe("approved");
+      expect(knowledgeAtlasImage(nodeId as keyof typeof KNOWLEDGE_ATLAS_MEDIA_IDS)).toContain(
+        asset!.mediaKey.split("/").pop()!,
+      );
+    }
+  });
+
+  it("推荐知识卡优先使用与主题匹配的地貌实拍", () => {
+    const everest = KNOWLEDGE.find((item) => item.id === "k03");
+    const glacier = KNOWLEDGE.find((item) => item.id === "k08");
+    const ocean = KNOWLEDGE.find((item) => item.id === "k11");
+    expect(everest && featuredKnowledgeImage(everest)).toContain("live-a-kala-patthar.jpg");
+    expect(glacier && featuredKnowledgeImage(glacier)).toContain("ev-icefall-ladders.jpg");
+    expect(ocean && featuredKnowledgeImage(ocean)).toContain("k40-ifremer-snow.jpg");
   });
 });
 

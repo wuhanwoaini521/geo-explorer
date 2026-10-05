@@ -9,7 +9,7 @@
     "es6": false,
     "enhance": false,
     "postcss": true,
-    "minified": false,
+    "minified": true,
     "coverView": true,
     "lazyloadPlaceholderEnable": false,
     "ignoreDevUnusedFiles": false,
@@ -33,7 +33,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.7.7",
-  "appid": "",
+  "appid": "wx31b9e1f284cec60a",
   "projectname": "geo-explorer",
   "miniprogramRoot": "dist/miniprogram/",
   "condition": {

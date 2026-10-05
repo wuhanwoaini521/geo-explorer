@@ -7,7 +7,7 @@ const automator = require("miniprogram-automator");
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "artifacts", "visual");
 const state = process.env.GLOBE_STATE || "default";
-const WS = process.env.WECHAT_AUTOMATION_WS || "ws://127.0.0.1:9420";
+const WS = process.env.WECHAT_AUTOMATION_WS || "ws://localhost:9420";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

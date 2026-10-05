@@ -7,6 +7,7 @@ import {
 } from "../miniprogram/services/exploration-store";
 import {
   getQuizBest,
+  getQuizAttemptHistory,
   mergeQuizBest,
   saveQuizResult,
   summarizeQuizBest,
@@ -120,5 +121,44 @@ describe("summarizeQuizBest（我的页汇总，纯函数）", () => {
     } as Record<number, QuizBestRecord>);
     expect(summary.totalPlays).toBe(1);
     expect(summary.levels).toHaveLength(1);
+  });
+});
+
+describe("挑战历史（追加记录，兼容旧版最佳成绩）", () => {
+  it("保存题目、正确答案与时间，不覆盖旧版最佳成绩数据", () => {
+    const storage = createMemoryStorage();
+    saveQuizResult({ difficulty: 1, correct: 2, total: 3 }, storage);
+    saveQuizResult({
+      difficulty: 2,
+      correct: 2,
+      total: 2,
+      questionIds: ["q1", "q2"],
+      correctQuestionIds: ["q2", "unknown"],
+      completedAt: 1234,
+    }, storage);
+
+    expect(getQuizBest(storage)[1].bestCorrect).toBe(2);
+    expect(getQuizAttemptHistory(storage)).toEqual([
+      {
+        difficulty: 1,
+        correct: 2,
+        total: 3,
+        completedAt: expect.any(Number),
+        questionIds: [],
+        correctQuestionIds: [],
+      },
+      {
+        difficulty: 2,
+        correct: 2,
+        total: 2,
+        completedAt: 1234,
+        questionIds: ["q1", "q2"],
+        correctQuestionIds: ["q2"],
+      },
+    ]);
+  });
+
+  it("旧安装只有最佳成绩时返回空历史", () => {
+    expect(getQuizAttemptHistory(createMemoryStorage())).toEqual([]);
   });
 });

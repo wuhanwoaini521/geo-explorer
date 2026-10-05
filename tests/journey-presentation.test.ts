@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getExpeditionById } from "../miniprogram/data/expeditions/index";
+import { getExpeditionById } from "../miniprogram/pkg-explore/data/expeditions/index";
 import { journeyAt } from "../miniprogram/pkg-explore/presentation/journey-presentation";
 
 describe("探索旅程投影", () => {

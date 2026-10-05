@@ -12,7 +12,7 @@ import {
   EXPLORATIONS,
   getExplorationById,
 } from "../../../data/explorations/index";
-import { getExpeditionById } from "../../../data/expeditions/index";
+import { getExpeditionById } from "../../data/expeditions/index";
 import {
   RUNTIME_MANIFESTS,
   getPlaceHeroImage,
@@ -2436,9 +2436,16 @@ Page({
   },
 
   onContinueJourney() {
-    this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
+    // 底部旅程面板位于全页滑动手势内：CTA 必须先结束残留触摸态，
+    // 再发起唯一一次“到下一真实节点”的请求，避免手势与按钮竞争路线位置。
+    if (this.data.expClimbing || this.climbReq || !this.data.journey?.nextId) return;
+    this.touching = false;
     this.frameCache = {};
     this.onStepUp();
+    if (!this.climbReq) return;
+    this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
+    // 页面从后台恢复或计时器异常停止时，按钮仍应能独立恢复推进动画。
+    if (this.ticker === null) this.startTicker();
   },
 
   onWaypointPreviewContinue() {

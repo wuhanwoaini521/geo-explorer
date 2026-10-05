@@ -88,7 +88,7 @@
 - **远端总字节数**：5,112,904 字节（4.88 MiB）
 - **本地保留包内资产**：
   - `assets/ui/media-placeholder.svg` (626 B)
-  - `assets/world/globe-texture-realistic-2048.jpg` (528 KB，首屏离线渲染关键贴图)
+  - `assets/world/globe-texture-realistic-2048.webp` (196,846 B，首屏离线渲染关键贴图)
   - `assets/world/world-map.svg` (1,076 B)
 - **碰撞检查 (Collision Check)**：**0 冲突**，46 个本地文件映射到 46 个独立合规的 COS 键。
 - **版权与许可分类**：

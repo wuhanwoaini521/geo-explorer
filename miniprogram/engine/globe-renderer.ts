@@ -138,14 +138,14 @@ export class GlobeRenderer {
   private readonly pixelRatio: number;
   private markers: GlobeMarker[] = [];
   private renderedMarkers: RenderedMarker[] = [];
-  private rotation = 1.5;
+  private rotation = 2.83;
   private selectedId = "";
   private timer: ReturnType<typeof setInterval> | null = null;
   private focusTimer: ReturnType<typeof setInterval> | null = null;
   private momentumTimer: ReturnType<typeof setInterval> | null = null;
   private resumeTimer: ReturnType<typeof setTimeout> | null = null;
   private rotating = true;
-  private pitch = 0;
+  private pitch = 0.18;
   private texture: ImageLike | null = null;
   private textureReady = false;
 
@@ -168,12 +168,12 @@ export class GlobeRenderer {
     // 默认地图状态必须让球体轮廓落在 Canvas 内部。此前把球心和半径
     // 放到视口外，真实贴图被 Canvas 矩形边界截断，产生明显的“裁剪图”感。
     this.centerX = selectedMode ? focusedCenterX : variant === "third" ? width * 0.56 : variant === "low" ? width * 0.56 : width * 0.5;
-    this.centerY = selectedMode ? focusedCenterY : variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.72;
+    this.centerY = selectedMode ? focusedCenterY : variant === "third" ? height * 1.26 : variant === "low" ? height * 1.16 : height * 0.63;
     this.radius = selectedMode ? focusedRadius : variant === "third"
       ? Math.min(width * 0.50, height * 0.48)
       : variant === "low"
         ? Math.min(width * 0.8, height * 0.9)
-        : Math.min(width * 0.45, height * 0.5);
+        : Math.min(width * 0.5, height * 0.52);
     this.canvas.width = Math.round(width * this.pixelRatio);
     this.canvas.height = Math.round(height * this.pixelRatio);
     // Canvas 2D defaults vary between WeChat simulator versions. Set these
@@ -221,8 +221,8 @@ export class GlobeRenderer {
 
   reset(): void {
     this.cancelMotion();
-    this.rotation = 1.5;
-    this.pitch = 0;
+    this.rotation = 2.83;
+    this.pitch = 0.18;
     this.selectedId = "";
     this.draw();
   }

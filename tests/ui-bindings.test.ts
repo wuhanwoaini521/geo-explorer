@@ -14,7 +14,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = join(__dirname, "..", "miniprogram");
-const COMPONENTS_DIR = join(ROOT, "components");
+const COMPONENTS_DIR = join(ROOT, "pkg-explore", "components");
 const APP_JSON = JSON.parse(readFileSync(join(ROOT, "app.json"), "utf-8")) as {
   pages: string[];
   subpackages?: Array<{ root: string; name: string; pages: string[] }>;
@@ -91,7 +91,7 @@ beforeAll(async () => {
     await import(`../miniprogram/${e.dir}/index`);
   }
   // @ts-expect-error —— 组件由全局 Component() 注册，非 ES 模块（仅运行时加载）
-  await import("../miniprogram/components/knowledge-popup/index");
+  await import("../miniprogram/pkg-explore/components/knowledge-popup/index");
 });
 
 /** 从 WXML 抽取事件处理器名（bind / catch / bind:xxx / catch:xxx） */
@@ -225,7 +225,8 @@ describe("探索页视觉约束", () => {
     expect(wxml).toContain('include src="journey-dock.wxml"');
     expect(dock).toContain("journey.currentName");
     expect(dock).toContain("journey.nextName");
-    expect(dock).toContain('bindtap="onContinueJourney"');
+    expect(dock).toContain('catchtap="onContinueJourney"');
+    expect(dock).not.toContain('catchtouchstart="noop"');
   });
 });
 
@@ -255,8 +256,9 @@ describe("核心页面交互控件确实渲染", () => {
     const place = readFileSync(join(pageDir("place"), "index.wxml"), "utf-8");
     expect(home).toMatch(/bindinput="onQueryInput"/);
     expect(home).toMatch(/bindtap="onOpenType"/);
-    expect(home).toMatch(/stats.completed/);
-    expect(home).toMatch(/featured/);
+    expect(home).toMatch(/onRandomExplore/);
+    expect(home).toMatch(/class="discovery-hero"/);
+    expect(home).toMatch(/bindtap="onToggleSearch"/);
     expect(home).toMatch(/discovery.content/);
     expect(map).toMatch(/bindtap="onToggleAtlas"/);
     expect(map).not.toMatch(/bindinput="onQueryInput"/);
@@ -267,5 +269,52 @@ describe("核心页面交互控件确实渲染", () => {
     expect(knowledge).toMatch(/bindtap="onCategoryTap"/);
     expect(place).toMatch(/bindtap="onDetailTabTap"/);
     expect(place).toMatch(/activeDetailTab === 'environment'/);
+  });
+
+  it("发现列表没有地点照片时收敛为目录行，挑战筛选和任务等级一致", () => {
+    const home = readFileSync(join(pageDir("home"), "index.wxml"), "utf-8");
+    const homeStyles = readFileSync(join(pageDir("home"), "index.wxss"), "utf-8");
+    const quizTemplate = readFileSync(join(pageDir("quiz"), "index.wxml"), "utf-8");
+    const quizStyles = readFileSync(join(pageDir("quiz"), "index.wxss"), "utf-8");
+    const quiz = pageDefs.get("quiz")!;
+    expect(home).toMatch(/item\.image && !failedImages\[item\.id\]/);
+    expect(home).toContain("destination-catalog-row");
+    expect(home).not.toContain("destination-image-fallback");
+    expect(homeStyles).toMatch(/\.destination \{[^}]*height: 220rpx/);
+    expect(homeStyles).toMatch(/\.destination-card-0 \{ height: 245rpx/);
+    expect(home).toMatch(/class="discovery-title-block"[\s\S]*class="discovery-title"[\s\S]*class="discovery-subtitle"/);
+    expect(homeStyles).not.toMatch(/\.discovery-title-block \{[^}]*position: absolute/);
+    expect(quizTemplate).toMatch(/class="challenge-heading"/);
+    expect(quizStyles).toMatch(/\.challenge-heading > view:first-child \{[^}]*flex-direction: column/);
+
+    const context: {
+      data: { activeDifficulty: number };
+      update?: Record<string, any>;
+      setData(patch: Record<string, any>): void;
+    } = {
+      data: { activeDifficulty: 1 },
+      setData(patch: Record<string, any>) { this.update = patch; },
+    };
+    quiz.refreshIdle.call(context);
+    expect(context.update?.missions.map((mission: { id: string }) => mission.id)).toContain("fuji");
+    expect(context.update?.missions.every((mission: { difficulty: number }) => mission.difficulty === 1)).toBe(true);
+
+    let recordedDifficulty = 0;
+    const missionContext = {
+      data: {},
+      beginRun(_questions: unknown[], difficulty: number) { recordedDifficulty = difficulty; },
+    };
+    quiz.startMission.call(missionContext, "fuji");
+    expect(recordedDifficulty).toBe(1);
+  });
+
+  it("知识图谱掌握状态要求该节点的显式关联题全部答对", () => {
+    const knowledge = readFileSync(join(pageDir("knowledge"), "index.ts"), "utf-8");
+    expect(knowledge).toContain("topicId: \"k12\", worldIds: [\"everest\", \"fuji\"], masteryQuizIds: [\"q19\"]");
+    expect(knowledge).toContain("topicId: \"k36\", worldIds: [\"fuji\"], masteryQuizIds: [\"q21\"]");
+    expect(knowledge).toMatch(/relevantQuizIds\.length > 0 && relevantQuizIds\.every\(\(id\) => correctIds\.has\(id\)\)/);
+    expect(knowledge).toMatch(/const exploredWorlds = new Set\(getRecords\(\)\.map\(\(record\) => record\.id\)\)/);
+    expect(knowledge).toMatch(/config\.worldIds\.some\(\(worldId\) => exploredWorlds\.has\(worldId\)\)/);
+    expect(knowledge).not.toContain("categoryQuizIds.some");
   });
 });

@@ -11,8 +11,8 @@ import { describe, expect, it } from "vitest";
 import {
   expeditionRegistryCount,
   getExpeditionById,
-} from "../miniprogram/data/expeditions/index";
-import { WORLD_EXPEDITIONS } from "../miniprogram/data/expeditions/worlds";
+} from "../miniprogram/pkg-explore/data/expeditions/index";
+import { WORLD_EXPEDITIONS } from "../miniprogram/pkg-explore/data/expeditions/worlds";
 import { stagesCoverRoute } from "../miniprogram/engine/expedition-stages";
 import {
   validateExpedition,

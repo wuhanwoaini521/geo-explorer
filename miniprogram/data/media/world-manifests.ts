@@ -961,14 +961,26 @@ export const COLORADO_MANIFEST: MediaManifest = {
 /** 地点 hero 图（runtime 优先）：已晋升者返回真实媒体；未晋升返回 undefined（页面走占位兜底）。 */
 export function getPlaceHeroImage(placeId: string): string | undefined {
   for (const m of RUNTIME_MANIFESTS) {
-    const list = m.assets.filter(
-      (a) => a.entityType === "place" && a.entityId === placeId && a.reviewStatus === "approved",
+    const hero = m.assets.find(
+      (a) => a.entityType === "place" && a.entityId === placeId && a.purpose === "hero" &&
+        a.kind === "photograph" && a.reviewStatus === "approved",
     );
-    // 只有 purpose==="hero" 才是封面；科研支撑类（如测深图）不得抢占地点主视觉。
-    const hero = list.find((a) => a.purpose === "hero") ?? list[0];
     if (hero) return resolveMediaSrc(hero.mediaKey);
   }
   return undefined;
+}
+
+/** Approved waypoint photographs may support route quizzes and detail previews. */
+export function getWaypointHeroImage(waypointId: string): string | undefined {
+  const asset = RUNTIME_MANIFESTS.flatMap((manifest) => manifest.assets).find(
+    (candidate) =>
+      candidate.entityType === "waypoint" &&
+      candidate.entityId === waypointId &&
+      candidate.purpose === "hero" &&
+      candidate.kind === "photograph" &&
+      candidate.reviewStatus === "approved",
+  );
+  return asset ? resolveMediaSrc(asset.mediaKey) : undefined;
 }
 
 

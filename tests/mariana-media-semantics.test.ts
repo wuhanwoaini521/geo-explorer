@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MARIANA_EXPEDITION } from "../miniprogram/data/expeditions/worlds";
+import { MARIANA_EXPEDITION } from "../miniprogram/pkg-explore/data/expeditions/worlds";
 import { MARIANA } from "../miniprogram/data/explorations/mariana";
 import { KNOWLEDGE } from "../miniprogram/data/knowledge";
 import { MEDIA_CANDIDATES } from "../miniprogram/data/media/candidates";

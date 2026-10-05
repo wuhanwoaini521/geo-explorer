@@ -1,8 +1,8 @@
-<view class="page">
-  <view class="world-map" aria-label="世界地图">
-    <canvas wx:if="{{!atlasOpen && !webglFailed}}" id="globeWebglCanvas" type="webgl" class="globe-webgl-canvas {{globeEarthOnly ? 'globe-canvas-earth-only' : ''}}" bindtouchstart="onGlobeTouchStart" bindtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd" bindtouchcancel="onGlobeTouchCancel"></canvas>
-    <canvas wx:if="{{!atlasOpen && !webglFailed && !globeEarthOnly}}" id="globeLabelCanvas" type="2d" class="globe-label-canvas" disable-scroll="{{true}}" bindtouchstart="onGlobeTouchStart" catchtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd" bindtouchcancel="onGlobeTouchCancel"></canvas>
-    <canvas wx:if="{{!atlasOpen && webglFailed && !globeFailed}}" id="globeCanvas" type="2d" class="globe-canvas {{globeEarthOnly ? 'globe-canvas-earth-only' : ''}}" bindtouchstart="onGlobeTouchStart" bindtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd" bindtouchcancel="onGlobeTouchCancel"></canvas>
+<view class="page explore-page geo-theme-dark">
+  <view class="world-map" aria-label="交互式数字地球">
+    <canvas wx:if="{{globeRendererReady && !atlasOpen && !webglFailed}}" id="globeWebglCanvas" type="webgl" class="globe-webgl-canvas {{globeEarthOnly ? 'globe-canvas-earth-only' : ''}}" style="height:{{globeCanvasHeight}}" bindtouchstart="onGlobeTouchStart" bindtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd" bindtouchcancel="onGlobeTouchCancel"></canvas>
+    <canvas wx:if="{{globeRendererReady && !atlasOpen && !webglFailed && !globeEarthOnly}}" id="globeLabelCanvas" type="2d" class="globe-label-canvas" style="height:{{globeCanvasHeight}}" disable-scroll="{{true}}" bindtouchstart="onGlobeTouchStart" catchtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd" bindtouchcancel="onGlobeTouchCancel"></canvas>
+    <canvas wx:if="{{globeRendererReady && !atlasOpen && webglFailed && !globeFailed}}" id="globeCanvas" type="2d" class="globe-canvas {{globeEarthOnly ? 'globe-canvas-earth-only' : ''}}" style="height:{{globeCanvasHeight}}" bindtouchstart="onGlobeTouchStart" bindtouchmove="onGlobeTouchMove" bindtouchend="onGlobeTouchEnd" bindtouchcancel="onGlobeTouchCancel"></canvas>
     <image wx:if="{{globeFailed}}" class="world-map-fallback" src="/assets/world/world-map.svg" mode="aspectFill"></image>
 
     <cover-view wx:if="{{!atlasOpen && !globeEarthOnly && globeFailed}}" class="world-markers">
@@ -17,14 +17,6 @@
       </block>
     </cover-view>
 
-    <cover-view wx:if="{{!globeEarthOnly && !atlasOpen}}" class="world-map-caption">
-      <cover-view class="caption-kicker">GEO EXPLORER</cover-view>
-      <cover-view class="caption-title">在地球上发现下一段旅程</cover-view>
-      <cover-view class="caption-sub">{{worldMarkerCount}} 个精选目的地 · {{atlasTotal}} 个地貌地点</cover-view>
-    </cover-view>
-
-    <cover-view wx:if="{{!globeEarthOnly && !atlasOpen && !selectedDestination}}" class="globe-hint"><cover-view class="globe-hint-dot"></cover-view><cover-view>拖动地球 · 点击地点查看简介</cover-view></cover-view>
-
     <cover-view wx:if="{{selectedDestination && !atlasOpen}}" class="destination-preview" bindtap="onOpenDestination">
       <cover-view class="destination-panel-head">
         <cover-view class="destination-kicker">{{selectedDestination.typeLabel}} · {{selectedDestination.region}}</cover-view>
@@ -34,34 +26,73 @@
       <cover-view class="destination-en">{{selectedDestination.nameEn}}</cover-view>
       <cover-view class="destination-desc destination-desc-compact">{{selectedDestination.description}}</cover-view>
       <cover-view class="destination-metric">{{selectedDestination.metricLabel}} · {{selectedDestination.metricValue}}</cover-view>
-      <cover-view class="destination-action">{{selectedDestination.actionLabel}} <cover-view class="destination-arrow">›</cover-view></cover-view>
+      <cover-view class="destination-action">{{selectedDestination.actionLabel}} <cover-image class="destination-arrow-icon" src="/assets/icons/arrow-teal.svg"></cover-image></cover-view>
     </cover-view>
   </view>
 
   <block wx:if="{{!globeEarthOnly}}">
-    <view class="map-head" style="top:{{headerTop}}px">
-      <view class="map-title-group"><text class="map-title">探索世界</text><text class="map-title-en">WORLD OVERVIEW</text></view>
-      <view class="map-header-actions"><text bindtap="onResetGlobe">复位</text><text class="map-header-action-primary" bindtap="onToggleAtlas">图鉴</text></view>
-    </view>
-    <view class="map-legend"><text class="legend-label">地图</text><text class="legend-item"><text class="legend-dot legend-open"></text>可探索</text><text class="legend-item"><text class="legend-dot"></text>精选地点</text><text class="legend-count">已显示 {{worldMarkerCount}}</text></view>
+    <cover-view class="map-head" style="top:{{headerTop}}px">
+      <cover-view class="map-brand-mark" aria-hidden="true"><cover-image class="map-brand-icon" src="/assets/icons/brand-location.svg"></cover-image></cover-view>
+      <cover-view class="map-title-group">
+        <cover-view class="map-title">Geo Explorer</cover-view>
+        <cover-view class="map-subtitle">探索地球 · 发现世界 · 理解自然</cover-view>
+        <cover-view class="map-title-en">EXPLORE · LEARN · DISCOVER</cover-view>
+      </cover-view>
+      <cover-view class="map-header-actions">
+        <cover-view class="map-icon-action map-header-action-primary" aria-label="打开地貌图鉴" bindtap="onToggleAtlas"><cover-image class="map-control-icon" src="/assets/icons/search-on-dark.svg"></cover-image></cover-view>
+        <cover-view class="map-icon-action" aria-label="地图设置" bindtap="onOpenMapActions"><cover-image class="map-control-icon" src="/assets/icons/settings-on-dark.svg"></cover-image></cover-view>
+      </cover-view>
+    </cover-view>
 
-    <view wx:if="{{!atlasOpen}}" class="recommendation-rail">
-      <view class="recommendation-head"><view><text class="recommendation-kicker">FEATURED EXPLORATIONS</text><text class="recommendation-title">推荐探索</text></view><text class="recommendation-count">横向滑动查看更多</text></view>
-      <scroll-view class="recommendation-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-        <view class="recommendation-row">
-          <view wx:for="{{recommendations}}" wx:key="id" class="recommendation-card" data-id="{{item.id}}" bindtap="onOpenRecommendation">
-            <image wx:if="{{item.image && !failedImages[item.id]}}" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onImageError"></image><view class="recommendation-shade"></view>
-            <view class="recommendation-copy"><text class="recommendation-en">{{item.nameEn}}</text><text class="recommendation-name">{{item.name}}</text><text class="recommendation-metric">{{item.metricValue}}</text></view>
-            <view class="recommendation-cta"><text>{{item.actionLabel}}</text><text>›</text></view>
-          </view>
-        </view>
-      </scroll-view>
-    </view>
+    <cover-view wx:if="{{!atlasOpen}}" class="map-side-controls" aria-label="地球控制">
+      <cover-view class="map-side-control map-side-control-layers" aria-label="切换地图图层" bindtap="onToggleMapMode"></cover-view>
+      <cover-view class="map-side-control map-side-control-target" aria-label="重置地球视角" bindtap="onResetGlobe"></cover-view>
+      <cover-view class="map-side-control map-side-control-atlas" aria-label="打开地貌图鉴" bindtap="onToggleAtlas"></cover-view>
+    </cover-view>
 
-    <view wx:if="{{atlasOpen}}" class="atlas-drawer">
-      <view class="atlas-drawer-head"><view><text class="atlas-kicker">WORLD ATLAS</text><text class="atlas-title">地貌图鉴</text></view><text class="atlas-close" bindtap="onToggleAtlas">×</text></view>
-      <scroll-view class="atlas-types" scroll-x enhanced show-scrollbar="{{false}}"><view class="atlas-type-row"><text wx:for="{{types}}" wx:key="type" class="atlas-type {{activeType === item.type ? 'atlas-type-active' : ''}}" data-type="{{item.type}}" bindtap="onTypeTap">{{item.label}}</text></view></scroll-view>
-      <scroll-view class="atlas-list" scroll-y><view wx:if="{{atlas.length}}" class="atlas-grid"><view wx:for="{{atlas}}" wx:key="id" class="atlas-item" data-id="{{item.id}}" bindtap="onOpenPlace"><view class="atlas-item-mark">{{item.emoji}}</view><view class="atlas-item-copy"><text class="atlas-item-name">{{item.name}}</text><text class="atlas-item-meta">{{item.typeLabel}}{{item.exploration ? ' · 可探索' : ''}}</text><text class="atlas-item-desc">{{item.shortDescription}}</text></view><text class="atlas-item-arrow">›</text></view></view><view wx:else class="atlas-empty"><text>没有匹配的地点</text><text>试试其他关键词或分类</text></view></scroll-view>
-    </view>
+    <cover-view wx:if="{{!atlasOpen && continueCard}}" class="continue-panel" data-id="{{continueCard.id}}" bindtap="onGo">
+      <cover-view class="continue-head"><cover-view class="continue-label">继续探索</cover-view></cover-view>
+      <cover-view class="continue-main">
+        <cover-view wx:if="{{continueCard.image}}" class="continue-image-frame"><cover-image class="continue-image continue-image-{{continueCard.id}}" src="{{continueCard.image}}"></cover-image></cover-view>
+        <cover-view wx:else class="continue-image-fallback">▲</cover-view>
+        <cover-view class="continue-copy">
+          <cover-view class="continue-title">{{continueCard.place}}</cover-view>
+          <cover-view class="continue-meta">{{continueCard.record ? continueCard.reachedText : '从 0 m 出发'}}  →  {{continueCard.elevText}}</cover-view>
+          <cover-view class="continue-progress-copy">进度 {{continueCard.progress}}%</cover-view>
+          <cover-view class="continue-progress geo-track"><cover-view class="continue-progress-fill geo-track-fill" style="width:{{continueCard.progress}}%"></cover-view></cover-view>
+        </cover-view>
+        <cover-view class="continue-action" aria-hidden="true"><cover-image class="continue-arrow-icon" src="/assets/icons/arrow-on-dark.svg"></cover-image></cover-view>
+      </cover-view>
+    </cover-view>
   </block>
+
+  <view wx:if="{{!atlasOpen && !globeEarthOnly && recommendationsVisible}}" class="recommendation-rail">
+    <geo-section-heading class="map-recommend-heading" title="今日推荐" action="更多" bind:action="onToggleAtlas" />
+    <scroll-view class="recommendation-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="recommendation-row">
+        <view wx:for="{{recommendations}}" wx:key="id" class="recommendation-card" data-id="{{item.id}}" bindtap="onOpenRecommendation">
+          <image wx:if="{{item.image && !failedImages[item.id]}}" class="recommendation-image recommendation-image-{{item.id}}" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onImageError"></image>
+          <view wx:else class="recommendation-image-fallback">{{item.typeGlyph}}</view>
+          <view class="recommendation-shade"></view>
+          <view class="recommendation-copy"><text class="recommendation-en">{{item.typeLabel}}</text><text class="recommendation-name">{{item.name}}</text><text class="recommendation-metric">{{item.metricValue}}</text></view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{atlasOpen}}" class="atlas-drawer">
+    <view class="atlas-drawer-head"><view><text class="atlas-kicker">WORLD ATLAS  /  {{atlasTotal}} SITES</text><text class="atlas-title">地貌图鉴</text></view><text class="atlas-close" bindtap="onToggleAtlas">×</text></view>
+    <view class="atlas-search"><image class="atlas-search-icon" src="/assets/icons/search-on-light.svg" mode="aspectFit"></image><input value="{{query}}" placeholder="搜索知识、地点或地貌" confirm-type="search" bindinput="onAtlasSearchInput" /><text wx:if="{{query}}" bindtap="onQueryClear">×</text></view>
+    <scroll-view class="atlas-types" scroll-x enhanced show-scrollbar="{{false}}"><view class="atlas-type-row"><text wx:for="{{types}}" wx:key="type" class="atlas-type {{activeType === item.type ? 'atlas-type-active' : ''}}" data-type="{{item.type}}" bindtap="onTypeTap">{{item.label}}</text></view></scroll-view>
+    <scroll-view class="atlas-list" scroll-y>
+      <view wx:if="{{atlas.length}}" class="atlas-grid">
+        <view wx:for="{{atlas}}" wx:key="id" class="atlas-item" data-id="{{item.id}}" bindtap="onOpenPlace">
+          <view class="atlas-item-mark">{{item.emoji}}</view>
+          <view class="atlas-item-copy"><text class="atlas-item-name">{{item.name}}</text><text class="atlas-item-meta">{{item.typeLabel}}{{item.exploration ? ' · 可探索' : ''}}</text><text class="atlas-item-desc">{{item.shortDescription}}</text></view>
+          <text class="atlas-favorite" data-id="{{item.id}}" catchtap="onToggleFavorite">{{item.favorited ? '♥' : '♡'}}</text>
+        </view>
+      </view>
+      <geo-empty-state wx:else title="没有匹配的地点" description="试试其他关键词或分类" />
+    </scroll-view>
+  </view>
 </view>

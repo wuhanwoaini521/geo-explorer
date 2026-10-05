@@ -22,7 +22,7 @@ import {
   resolveExpeditionVisual,
   resolveLiveOverlay,
 } from "../miniprogram/pkg-explore/engine/expedition-visual";
-import { getExpeditionById } from "../miniprogram/data/expeditions/index";
+import { getExpeditionById } from "../miniprogram/pkg-explore/data/expeditions/index";
 
 /* ---------------- wx / Page 全局 mock（与 expedition-page.test.ts 同款） ---------------- */
 const wxRecord: Record<string, unknown[][]> = {};

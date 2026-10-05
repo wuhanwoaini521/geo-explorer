@@ -5,8 +5,8 @@
  * ------------------------
  * - **颜色贴图始终留在包内**（2048）。它是地图 tabBar 页面的首屏主视觉，也是
  *   WebGL/Canvas 两条渲染路径的共同输入：走远端会让小球在冷启动时先空一帧、
- *   并在弱网/失败时退化成纯色球。它是 Gate 4 唯一被论证保留的本地大媒体
- *   （527.9 KB），量化理由见 docs/media-ownership-gate4.md §渲染器关键例外。
+ *   并在弱网/失败时退化成纯色球。颜色贴图保持 2048×1024，使用 WebP 将体积
+ *   控制在微信代码质量建议的 200 KB 以内。
  * - **高度图与镜面图走远端**。它们是次要光照线索，远端失败时渲染器保留
  *   1×1 占位贴图 → 地球仍以基础光照正常渲染，交互不受影响。
  * - **4096 档位只在配置了远端基址时才可用**，此时三张图都从远端取；
@@ -38,8 +38,9 @@ export const GLOBE_TEXTURE_STANDARD_SIZE = 2048;
 /** high 档位的贴图边长（宽） */
 export const GLOBE_TEXTURE_HIGH_SIZE = 4096;
 
-/** 贴图统一使用 JPEG：PNG 对照片型内容几乎无法压缩（改造前 1748 KB/MP）。 */
-export const GLOBE_TEXTURE_EXT = ".jpg";
+/** 包内颜色贴图使用 WebP 控制主包体积；远端材质图继续使用 JPEG。 */
+export const GLOBE_TEXTURE_LOCAL_COLOR_EXT = ".webp";
+export const GLOBE_TEXTURE_REMOTE_EXT = ".jpg";
 
 /** 远端贴图在媒体根下的子目录 */
 const GLOBE_REMOTE_PREFIX = "world/";
@@ -59,11 +60,13 @@ export interface ResolvedGlobeTextures {
   sources: GlobeTextureSource[];
 }
 
-const localSrc = (key: GlobeTextureKey, size: number): string =>
-  `${GLOBE_TEXTURE_LOCAL_BASE}${STEM[key]}-${size}${GLOBE_TEXTURE_EXT}`;
+const localSrc = (key: GlobeTextureKey, size: number): string => {
+  const ext = key === "color" ? GLOBE_TEXTURE_LOCAL_COLOR_EXT : GLOBE_TEXTURE_REMOTE_EXT;
+  return `${GLOBE_TEXTURE_LOCAL_BASE}${STEM[key]}-${size}${ext}`;
+};
 
 const remoteSrc = (base: string, key: GlobeTextureKey, size: number): string =>
-  `${base}${GLOBE_REMOTE_PREFIX}${STEM[key]}-${size}${GLOBE_TEXTURE_EXT}`;
+  `${base}${GLOBE_REMOTE_PREFIX}${STEM[key]}-${size}${GLOBE_TEXTURE_REMOTE_EXT}`;
 
 /**
  * 解析贴图资源列表。

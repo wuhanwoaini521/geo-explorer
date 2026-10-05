@@ -10,7 +10,7 @@
  *   CAPTURE_NAME=M01-sunlight   输出文件名（不含扩展名）
  *   CAPTURE_INTRO=1             保留开始引导层
  *   CAPTURE_SET=after|before
- *   WECHAT_AUTOMATION_WS=ws://127.0.0.1:9420
+ *   WECHAT_AUTOMATION_WS=ws://localhost:9420
  */
 "use strict";
 
@@ -24,7 +24,7 @@ const steps = Math.max(0, Number(process.env.CAPTURE_STEPS || 0));
 const name = process.env.CAPTURE_NAME || `${world}-${steps}`;
 const setName = process.env.CAPTURE_SET || "after";
 const keepIntro = process.env.CAPTURE_INTRO === "1";
-const wsEndpoint = process.env.WECHAT_AUTOMATION_WS || "ws://127.0.0.1:9420";
+const wsEndpoint = process.env.WECHAT_AUTOMATION_WS || "ws://localhost:9420";
 const outDir = path.join(ROOT, "artifacts", "visual", "product-ui-sprint", setName);
 const outFile = path.join(outDir, `${name}.png`);
 

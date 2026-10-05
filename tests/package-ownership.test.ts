@@ -141,6 +141,19 @@ describe("Gate 3 分包所有权", () => {
     expect(ok.length).toBeGreaterThan(0);
   });
 
+  it("探索专用注册表与组件由 pkg-explore 持有", () => {
+    const owned = [
+      "pkg-explore/data/expeditions/index.ts",
+      "pkg-explore/data/expeditions/worlds.ts",
+      "pkg-explore/data/expeditions/world-expedition.ts",
+      "pkg-explore/components/knowledge-popup/index.ts",
+    ];
+    for (const rel of owned) expect(existsSync(join(SRC, rel)), `${rel} 缺失`).toBe(true);
+    expect(existsSync(join(SRC, "data/expeditions/index.ts"))).toBe(false);
+    expect(existsSync(join(SRC, "components/knowledge-popup/index.ts"))).toBe(false);
+    expect(existsSync(join(SRC, "components/progress-bar/index.ts"))).toBe(false);
+  });
+
   it("每个页面四件套都在其 app.json 声明的包内", () => {
     const entries: Array<{ pkg: string; dir: string }> = [];
     const dirOf = (p: string) => p.split("/").slice(0, -1).join("/");

@@ -1,6 +1,6 @@
 """Create render-ready globe texture variants from the checked-in source.
 
-standard 档位（2048）写进 miniprogram/assets/world/ 作为运行时贴图（JPEG）；
+standard 档位（2048）写进 miniprogram/assets/world/ 作为运行时贴图（WebP）；
 high 档位（4096）只写到 design/world/，不进微信代码包（见 scripts/world_textures.py）。
 """
 

@@ -6,8 +6,8 @@
  * ------------------------
  * - **颜色贴图始终留在包内**（2048）。它是地图 tabBar 页面的首屏主视觉，也是
  *   WebGL/Canvas 两条渲染路径的共同输入：走远端会让小球在冷启动时先空一帧、
- *   并在弱网/失败时退化成纯色球。它是 Gate 4 唯一被论证保留的本地大媒体
- *   （527.9 KB），量化理由见 docs/media-ownership-gate4.md §渲染器关键例外。
+ *   并在弱网/失败时退化成纯色球。颜色贴图保持 2048×1024，使用 WebP 将体积
+ *   控制在微信代码质量建议的 200 KB 以内。
  * - **高度图与镜面图走远端**。它们是次要光照线索，远端失败时渲染器保留
  *   1×1 占位贴图 → 地球仍以基础光照正常渲染，交互不受影响。
  * - **4096 档位只在配置了远端基址时才可用**，此时三张图都从远端取；
@@ -16,7 +16,7 @@
  * 纯函数，无 wx / Page / Storage / Network 依赖，可在 Node 单测。
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GLOBE_TEXTURE_EXT = exports.GLOBE_TEXTURE_HIGH_SIZE = exports.GLOBE_TEXTURE_STANDARD_SIZE = exports.GLOBE_TEXTURE_LOCAL_BASE = exports.GLOBE_TEXTURE_KEYS = void 0;
+exports.GLOBE_TEXTURE_REMOTE_EXT = exports.GLOBE_TEXTURE_LOCAL_COLOR_EXT = exports.GLOBE_TEXTURE_HIGH_SIZE = exports.GLOBE_TEXTURE_STANDARD_SIZE = exports.GLOBE_TEXTURE_LOCAL_BASE = exports.GLOBE_TEXTURE_KEYS = void 0;
 exports.resolveGlobeTextures = resolveGlobeTextures;
 exports.globeColorTextureSrc = globeColorTextureSrc;
 const media_service_1 = require("../services/media-service");
@@ -33,12 +33,16 @@ exports.GLOBE_TEXTURE_LOCAL_BASE = "/assets/world/";
 exports.GLOBE_TEXTURE_STANDARD_SIZE = 2048;
 /** high 档位的贴图边长（宽） */
 exports.GLOBE_TEXTURE_HIGH_SIZE = 4096;
-/** 贴图统一使用 JPEG：PNG 对照片型内容几乎无法压缩（改造前 1748 KB/MP）。 */
-exports.GLOBE_TEXTURE_EXT = ".jpg";
+/** 包内颜色贴图使用 WebP 控制主包体积；远端材质图继续使用 JPEG。 */
+exports.GLOBE_TEXTURE_LOCAL_COLOR_EXT = ".webp";
+exports.GLOBE_TEXTURE_REMOTE_EXT = ".jpg";
 /** 远端贴图在媒体根下的子目录 */
 const GLOBE_REMOTE_PREFIX = "world/";
-const localSrc = (key, size) => `${exports.GLOBE_TEXTURE_LOCAL_BASE}${STEM[key]}-${size}${exports.GLOBE_TEXTURE_EXT}`;
-const remoteSrc = (base, key, size) => `${base}${GLOBE_REMOTE_PREFIX}${STEM[key]}-${size}${exports.GLOBE_TEXTURE_EXT}`;
+const localSrc = (key, size) => {
+    const ext = key === "color" ? exports.GLOBE_TEXTURE_LOCAL_COLOR_EXT : exports.GLOBE_TEXTURE_REMOTE_EXT;
+    return `${exports.GLOBE_TEXTURE_LOCAL_BASE}${STEM[key]}-${size}${ext}`;
+};
+const remoteSrc = (base, key, size) => `${base}${GLOBE_REMOTE_PREFIX}${STEM[key]}-${size}${exports.GLOBE_TEXTURE_REMOTE_EXT}`;
 /**
  * 解析贴图资源列表。
  *

@@ -1,8 +1,8 @@
-<view wx:if="{{!hidden}}" class="tabbar">
+<view wx:if="{{!hidden}}" class="tabbar tabbar-{{theme}} {{selected === 0 ? 'tabbar-explore' : ''}}">
   <view class="pill">
     <view class="tabs">
-      <!-- 滑动琥珀指示器（带回弹过渡） -->
-      <view class="indicator" style="left: {{selected * 20}}%"></view>
+      <!-- Shared active state; page onShow selects the correct light/dark surface. -->
+      <view wx:if="{{selected !== 0}}" class="indicator" style="left: {{selected * 20}}%"></view>
       <view
         wx:for="{{tabs}}"
         wx:key="pagePath"
@@ -10,7 +10,11 @@
         data-index="{{index}}"
         bindtap="onTap"
       >
-        <view class="tab-ico tab-ico-{{index}}"><view class="tab-ico-shape"></view></view>
+        <view class="tab-ico">
+          <image wx:if="{{selected === index && theme === 'light'}}" class="tab-icon-image" src="{{item.activeLight}}" mode="aspectFit"></image>
+          <image wx:elif="{{selected === index}}" class="tab-icon-image" src="{{item.activeDark}}" mode="aspectFit"></image>
+          <image wx:else class="tab-icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+        </view>
         <text class="tab-text">{{item.text}}</text>
       </view>
     </view>

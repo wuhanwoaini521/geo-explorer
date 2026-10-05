@@ -1,101 +1,133 @@
-<view class="page">
-  <!-- ===== 阶段一：选择难度 ===== -->
-  <block wx:if="{{phase === 'idle'}}">
-    <text class="page-title">地貌挑战</text>
-    <text class="page-sub">题库共 {{count}} 道题 · 每轮连答 5 题，即时判分</text>
-
-    <view class="levels">
-      <view
-        class="lv"
-        wx:for="{{levels}}"
-        wx:key="id"
-        data-level="{{item.id}}"
-        bindtap="onStart"
-      >
-        <text class="lv-label">{{item.label}}</text>
-        <text class="lv-stars">{{item.stars}}</text>
-        <text class="lv-best">{{item.bestText}}</text>
-        <text class="lv-go">开始挑战 →</text>
-      </view>
-    </view>
-
-    <view class="rule">
-      <text class="rule-t">玩法说明</text>
-      <text class="rule-line">· 每轮从题库随机抽 5 题，优先抽所选难度，不足自动补齐</text>
-      <text class="rule-line">· 选后立即判分并展示解析，本轮内不可回退修改</text>
-      <text class="rule-line">· 按难度分别记录最佳成绩：正确率优先，其次正确数</text>
-    </view>
-  </block>
-
-  <!-- ===== 阶段二：答题 ===== -->
-  <block wx:if="{{phase === 'play' && play}}">
-    <view class="play-head">
-      <text class="play-step">{{play.index + 1}} / {{play.total}}</text>
-      <view class="play-track">
-        <view class="play-fill" style="width:{{play.index / play.total * 100}}%"></view>
-      </view>
-    </view>
-
-    <view class="q-card">
-      <view class="q-head">
-        <view class="q-mark"><text>地貌</text></view>
-        <text class="q-question">{{play.question}}</text>
-      </view>
-
-      <view class="q-options">
-        <view
-          wx:for="{{play.options}}"
-          wx:key="*this"
-          class="q-opt {{play.selected === index ? 'sel' : ''}} {{play.revealed && play.selected === index && play.correct ? 'right' : ''}} {{play.revealed && play.selected === index && !play.correct ? 'wrong' : ''}} {{play.revealed && play.selected !== index ? 'dim' : ''}}"
-          data-index="{{index}}"
-          bindtap="onPick"
-        >
-          <text class="q-key">{{index === 0 ? 'A' : index === 1 ? 'B' : index === 2 ? 'C' : 'D'}}</text>
-          <text class="q-opt-text">{{item}}</text>
+<view class="challenge-page geo-theme-field">
+  <scroll-view class="challenge-scroll" scroll-y="true" enhanced show-scrollbar="{{false}}">
+    <view class="challenge-content" style="padding-top:{{headerTop}}px">
+      <block wx:if="{{phase === 'idle'}}">
+        <view class="challenge-heading">
+          <view>
+            <text class="geo-page-title">挑战</text>
+            <text class="geo-page-subtitle">通过游戏化任务巩固知识</text>
+          </view>
+          <view class="week-progress">
+            <text class="week-flame">🔥</text>
+            <view class="week-progress-copy"><text class="week-kicker">本周进度</text><text class="week-value">{{weekProgress}}<text class="week-total"> / 5</text></text></view>
+          </view>
         </view>
-      </view>
 
-      <view wx:if="{{play.revealed}}" class="q-result">
-        <text class="q-verdict {{play.correct ? 'ok' : 'no'}}">{{play.correct ? '✓ 回答正确' : '✗ 答错了'}}</text>
-        <text class="q-explain">{{play.explanation}}</text>
-        <view class="q-next" bindtap="onNext">
-          {{play.index + 1 >= play.total ? '查看成绩 →' : '下一题 →'}}
+        <scroll-view class="difficulty-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="difficulty-row">
+            <view class="geo-chip {{activeDifficulty === 0 ? 'geo-chip-active' : ''}}" data-difficulty="0" bindtap="onDifficultyFilter">全部</view>
+            <view class="geo-chip {{activeDifficulty === 1 ? 'geo-chip-active' : ''}}" data-difficulty="1" bindtap="onDifficultyFilter">入门</view>
+            <view class="geo-chip {{activeDifficulty === 2 ? 'geo-chip-active' : ''}}" data-difficulty="2" bindtap="onDifficultyFilter">进阶</view>
+            <view class="geo-chip {{activeDifficulty === 3 ? 'geo-chip-active' : ''}}" data-difficulty="3" bindtap="onDifficultyFilter">达人</view>
+          </view>
+        </scroll-view>
+
+        <swiper class="featured-swiper" current="{{featuredIndex}}" duration="320" bindchange="onFeaturedChange">
+          <swiper-item wx:for="{{featuredSlides}}" wx:key="id">
+            <view class="daily-mission geo-panel-press" catchtap="onStartMission" data-id="{{item.id}}">
+              <image wx:if="{{item.image && !failedImages[item.id]}}" class="daily-image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onMissionImageError"></image>
+              <view class="daily-shade"></view>
+              <view class="daily-copy">
+                <text class="daily-kicker">{{item.kicker}}</text>
+                <text class="daily-title">{{item.title}}</text>
+                <text class="daily-description">{{item.subtitle}}</text>
+                <view class="daily-meta"><text wx:for="{{item.metaItems}}" wx:key="*this">{{item}}</text></view>
+                <view class="daily-cta">{{item.cta}} <text>→</text></view>
+              </view>
+            </view>
+          </swiper-item>
+        </swiper>
+        <view class="featured-dots" aria-label="{{featuredSlides.length}} 项推荐挑战">
+          <view wx:for="{{featuredSlides}}" wx:key="id" class="featured-dot {{featuredIndex === index ? 'featured-dot-active' : ''}}" data-index="{{index}}" bindtap="onFeaturedDotTap"></view>
         </view>
-      </view>
-      <view wx:else class="q-tip">选择一个答案后立即判分</view>
+
+        <view class="mission-section-head">
+          <text class="mission-section-title">探索任务</text>
+          <text class="mission-section-more" data-difficulty="0" bindtap="onDifficultyFilter">更多 ›</text>
+        </view>
+
+        <view wx:if="{{missions.length}}" class="mission-list">
+          <view class="mission-card geo-panel-press" wx:for="{{missions}}" wx:key="id" data-id="{{item.id}}" bindtap="onStartMission">
+            <view class="mission-thumb mission-thumb-{{item.id}}">
+              <image wx:if="{{item.image && !failedImages[item.id]}}" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onMissionImageError"></image>
+              <view wx:if="{{!item.image || failedImages[item.id]}}" class="mission-thumb-fallback"></view>
+              <view class="mission-thumb-shade"></view>
+            </view>
+            <view class="mission-main">
+              <view class="mission-title-row">
+                <text class="mission-title">{{item.title}}</text>
+                <text class="mission-difficulty difficulty-{{item.difficulty}}">{{item.difficultyLabel}}</text>
+              </view>
+              <text class="mission-subtitle">{{item.subtitle}}</text>
+              <view class="mission-progress-meta"><text>{{item.progressText}}</text><text>{{item.total}} 题</text></view>
+              <geo-progress value="{{item.progress}}" tone="field" />
+            </view>
+            <text class="mission-arrow">›</text>
+          </view>
+        </view>
+        <geo-empty-state wx:else class="mission-empty" description="这个难度暂时没有专题任务，选择“全部”继续探索。" />
+        <view class="challenge-bottom-space"></view>
+      </block>
+
+      <block wx:if="{{phase === 'play' && play}}">
+        <view class="play-title-row">
+          <view>
+            <text class="play-kicker">EXPEDITION MISSION</text>
+            <text class="play-title">{{currentMissionTitle}}</text>
+          </view>
+          <text class="play-step">{{play.index + 1}} / {{play.total}}</text>
+        </view>
+        <geo-progress class="play-track" value="{{((play.index + 1) / play.total) * 100}}" tone="field" />
+        <view class="question-card geo-panel">
+          <view wx:if="{{play.image && !play.imageFailed}}" class="question-media">
+            <image class="question-image" src="{{play.image}}" mode="aspectFill" aria-label="{{play.imageAlt}}" binderror="onVisualError"></image>
+            <text class="question-photo-tag">GEO FIELD PHOTO</text>
+          </view>
+          <view wx:elif="{{play.image && play.imageFailed}}" class="question-image-error">实景照片暂时无法加载，仍可继续答题。</view>
+          <view class="question-heading">
+            <text class="question-kicker">{{play.image ? '观察实景' : '地貌知识'}}</text>
+            <text class="q-question">{{play.question}}</text>
+          </view>
+          <view class="q-options">
+            <view wx:for="{{play.options}}" wx:key="*this"
+              class="q-opt {{play.selected === index ? 'sel' : ''}} {{play.revealed && play.selected === index && play.correct ? 'right' : ''}} {{play.revealed && play.selected === index && !play.correct ? 'wrong' : ''}} {{play.revealed && play.selected !== index ? 'dim' : ''}}"
+              data-index="{{index}}" bindtap="onPick">
+              <text class="q-key">{{index === 0 ? 'A' : index === 1 ? 'B' : index === 2 ? 'C' : 'D'}}</text>
+              <text class="q-opt-text">{{item}}</text>
+            </view>
+          </view>
+          <view wx:if="{{play.revealed}}" class="q-result">
+            <text class="q-verdict {{play.correct ? 'ok' : 'no'}}">{{play.correct ? '回答正确' : '再看一次'}}</text>
+            <text class="q-explain">{{play.explanation}}</text>
+            <view class="q-next" bindtap="onNext">{{play.index + 1 >= play.total ? '查看成绩 →' : '下一题 →'}}</view>
+          </view>
+          <text wx:else class="q-tip">选择一个答案后查看解析</text>
+        </view>
+      </block>
+
+      <block wx:if="{{phase === 'result' && result}}">
+        <view class="result-card geo-panel">
+          <text class="result-kicker">MISSION COMPLETE</text>
+          <view class="result-mark">{{result.pct >= 80 ? '表现出色' : result.pct >= 60 ? '继续前进' : '再练一轮'}}</view>
+          <text class="result-title">挑战完成</text>
+          <view class="result-star-row">
+            <text class="result-star {{result.stars >= 1 ? 'on' : ''}}">★</text>
+            <text class="result-star {{result.stars >= 2 ? 'on' : ''}}">★</text>
+            <text class="result-star {{result.stars >= 3 ? 'on' : ''}}">★</text>
+          </view>
+          <view class="result-stats">
+            <view class="result-stat"><text class="result-value">{{result.correct}} / {{result.total}}</text><text class="result-label">答对题数</text></view>
+            <view class="result-stat"><text class="result-value">{{result.pct}}%</text><text class="result-label">正确率</text></view>
+          </view>
+          <text wx:if="{{result.isRecord}}" class="result-record">刷新了该难度的最佳成绩</text>
+          <text wx:else class="result-best">该难度 {{result.bestText}}</text>
+          <view class="result-actions">
+            <view class="act act-primary" bindtap="onContinueLearning">继续学习</view>
+            <view class="act act-secondary" bindtap="onRetry">再来一轮</view>
+            <view class="act act-secondary" bindtap="onBackIdle">返回任务列表</view>
+          </view>
+        </view>
+      </block>
     </view>
-  </block>
-
-  <!-- ===== 阶段三：结算 ===== -->
-  <block wx:if="{{phase === 'result' && result}}">
-    <view class="result-card">
-      <view class="result-mark"><text>{{result.pct >= 80 ? '优秀' : result.pct >= 60 ? '继续' : '再看'}}</text></view>
-      <text class="result-title">挑战完成！</text>
-      <view class="result-star-row">
-        <text class="result-star {{result.stars >= 1 ? 'on' : ''}}">★</text>
-        <text class="result-star {{result.stars >= 2 ? 'on' : ''}}">★</text>
-        <text class="result-star {{result.stars >= 3 ? 'on' : ''}}">★</text>
-      </view>
-
-      <view class="result-stats">
-        <view class="rstat">
-          <text class="rstat-v">{{result.correct}}/{{result.total}}</text>
-          <text class="rstat-k">答对题数</text>
-        </view>
-        <view class="rstat">
-          <text class="rstat-v">{{result.pct}}%</text>
-          <text class="rstat-k">正确率</text>
-        </view>
-      </view>
-
-      <view wx:if="{{result.isRecord}}" class="result-record">新纪录！刷新了该难度的最佳成绩</view>
-      <view wx:else class="result-best">该难度最佳：{{result.bestText}}</view>
-
-      <view class="result-actions">
-        <view class="act act-primary" bindtap="onContinueLearning">继续学习</view>
-        <view class="act act-ghost" bindtap="onRetry">再来一轮</view>
-        <view class="act act-ghost" bindtap="onBackIdle">换个难度</view>
-      </view>
-    </view>
-  </block>
+  </scroll-view>
 </view>

@@ -13,7 +13,7 @@
 | :--- | :--- | :--- |
 | **远端托管候选文件数** | **46** | 全部来自 `media-remote/` |
 | **远端托管候选总大小** | **5,112,904 字节 (约 4.88 MiB)** | 经质量 80 优化派生 JPEG |
-| **本地保留渲染关键资源** | **3** | `assets/ui/media-placeholder.svg`, `assets/world/globe-texture-realistic-2048.jpg`, `assets/world/world-map.svg` |
+| **本地保留渲染关键资源** | **3** | `assets/ui/media-placeholder.svg`, `assets/world/globe-texture-realistic-2048.webp`, `assets/world/world-map.svg` |
 | **目标 COS 键前缀** | `geo-media/main-v1/` | 严格前缀隔离，防火墙拦截所有 V2 路径 |
 | **键映射冲突 (Collision)** | **0** | 46 个文件 1:1 绝对唯一映射 |
 | **版权分类 A 类 (自由许可/官方授权)** | **33 项** | CC BY-SA, CC BY, US NPS, NOAA, GEBCO, USGS |
@@ -27,7 +27,7 @@
 
 - **`RUNTIME_REQUIRED`**：小程序四世界沉浸探索、世界图鉴、知识图谱运行时所必须消费的视觉资产。
 - **`REMOTE_CANDIDATE`**：体积较大（>20 KB），通过 Gate 4 移出本地代码包，计划托管于 COS 并由 EdgeOne 交付。
-- **`LOCAL_FALLBACK`**：代码包内保留的轻量 UI 占位图 (`media-placeholder.svg`) 或离线首屏关键贴图 (`globe-texture-realistic-2048.jpg`)。
+- **`LOCAL_FALLBACK`**：代码包内保留的轻量 UI 占位图 (`media-placeholder.svg`) 或离线首屏关键贴图 (`globe-texture-realistic-2048.webp`)。
 - **`DESIGN_ONLY`** / **`UNUSED`**：`design/`, `docs/`, `tests/` 内的临时文件，严格禁止自动上传至 COS。
 
 ---

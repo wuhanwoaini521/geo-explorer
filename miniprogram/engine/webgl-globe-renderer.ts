@@ -19,7 +19,7 @@ interface ImageLike {
   height: number;
   src: string;
   onload?: () => void;
-  onerror?: () => void;
+  onerror?: (error?: unknown) => void;
 }
 
 interface WebGLCanvasLike {
@@ -74,6 +74,7 @@ interface WebGLContextLike {
   drawElements(mode: number, count: number, type: number, offset: number): void;
   drawArrays(mode: number, first: number, count: number): void;
   uniform4f(location: unknown, x: number, y: number, z: number, w: number): void;
+  getError?(): number;
 }
 
 interface Geometry {
@@ -100,7 +101,30 @@ export interface GlobeRenderOptions {
   bumpScale?: number;
   atmosphereStrength?: number;
   textureScale?: 2048 | 4096;
+  onTextureDiagnostic?: GlobeTextureDiagnosticListener;
 }
+
+export type GlobeTextureDiagnosticStage =
+  | "load-start"
+  | "load-success"
+  | "load-error"
+  | "upload-success"
+  | "upload-error";
+
+export interface GlobeTextureDiagnostic {
+  key: keyof TextureSet;
+  src: string;
+  remote: boolean;
+  stage: GlobeTextureDiagnosticStage;
+  width?: number;
+  height?: number;
+  error?: string;
+  glError?: number;
+}
+
+export type GlobeTextureDiagnosticListener = (event: GlobeTextureDiagnostic) => void;
+
+type ResolvedGlobeRenderOptions = Required<Omit<GlobeRenderOptions, "onTextureDiagnostic">>;
 
 export interface ProjectedGlobeMarker extends GlobeProjection {
   id: string;
@@ -113,6 +137,7 @@ export type GlobeProjectionListener = (markers: ProjectedGlobeMarker[]) => void;
 
 const DEG = Math.PI / 180;
 const GL = {
+  NO_ERROR: 0,
   VERTEX_SHADER: 0x8b31,
   FRAGMENT_SHADER: 0x8b30,
   COMPILE_STATUS: 0x8b81,
@@ -264,7 +289,7 @@ void main() {
   vec3 viewDirection = vec3(0.0, 0.0, 1.0);
   float diffuse = max(dot(normal, lightDirection), 0.0);
   // 环境光保留暗部地表信息，定向光负责让山地起伏变得可见。
-  float light = 0.36 + diffuse * 0.72;
+  float light = 0.52 + diffuse * 0.76;
   float heightTint = 0.96 + (height - 0.42) * 0.10 * uBumpEnabled;
   // 低幅度的高度响应让“开/关 bump”在移动端截图中可辨识，仍不会
   // 把真实比例的山脉夸张成几何凸起。
@@ -284,7 +309,7 @@ void main() {
   // Fresnel 只在边缘轻微提亮，避免形成完整的人工圆环。
   float facing = max(dot(normal, viewDirection), 0.0);
   float fresnel = pow(1.0 - facing, 4.0) * uAtmosphereEnabled * uAtmosphereStrength;
-  lit += vec3(0.018, 0.085, 0.13) * fresnel;
+  lit += vec3(0.035, 0.18, 0.24) * fresnel;
 
   // Oversized partial globe 会超出 Canvas 的矩形视口。让接近视口边缘的
   // 地表逐渐透明，避免左右和底部出现“图片被裁掉”的硬直线；这不是
@@ -418,7 +443,8 @@ export class WebGLGlobeRenderer {
   private readonly centerX: number;
   private readonly centerY: number;
   private readonly pixelRatio: number;
-  private readonly options: Required<GlobeRenderOptions>;
+  private readonly options: ResolvedGlobeRenderOptions;
+  private readonly onTextureDiagnostic?: GlobeTextureDiagnosticListener;
   private readonly rotationLocation: unknown;
   private readonly pitchLocation: unknown;
   private readonly centerLocation: unknown;
@@ -446,8 +472,8 @@ export class WebGLGlobeRenderer {
   private markers: GlobeMarker[] = [];
   private renderedMarkers: Array<GlobeMarker & { x: number; y: number; z: number }> = [];
   private projectionListener: GlobeProjectionListener | null = null;
-  private rotation = 1.5;
-  private pitch = 0;
+  private rotation = 2.83;
+  private pitch = 0.18;
   private selectedId = "";
   private timer: ReturnType<typeof setInterval> | null = null;
   private focusTimer: ReturnType<typeof setInterval> | null = null;
@@ -470,6 +496,7 @@ export class WebGLGlobeRenderer {
     this.width = width;
     this.height = height;
     this.pixelRatio = Math.max(1, pixelRatio);
+    this.onTextureDiagnostic = options.onTextureDiagnostic;
     const earthOnly = options.earthOnly === true;
     const selectedMode = options.selectedMode === true;
     // Canvas 始终保持在页面视口内。放大地球由球体半径控制，不再依赖
@@ -481,7 +508,7 @@ export class WebGLGlobeRenderer {
         ? height * 0.72
         : variant === "third"
           ? height * 1.2
-          : variant === "low" ? height * 1.08 : height * 0.72;
+          : variant === "low" ? height * 1.08 : height * 0.63;
     this.radius = earthOnly
       ? Math.min(width * 0.72, height * 0.72)
       : selectedMode
@@ -490,7 +517,7 @@ export class WebGLGlobeRenderer {
       ? Math.min(width * 0.73, height * 0.9)
       : variant === "low"
         ? Math.min(width * 0.73, height * 0.9)
-        : Math.min(width * 0.45, height * 0.5);
+        : Math.min(width * 0.5, height * 0.52);
     this.options = {
       earthOnly,
       selectedMode,
@@ -583,8 +610,8 @@ export class WebGLGlobeRenderer {
 
   reset(): void {
     this.cancelMotion();
-    this.rotation = 1.5;
-    this.pitch = 0;
+    this.rotation = 2.83;
+    this.pitch = 0.18;
     this.selectedId = "";
     this.draw();
   }
@@ -748,27 +775,125 @@ export class WebGLGlobeRenderer {
   }
 
   private loadTextures(): void {
-    if (!this.canvas.createImage) return;
-    this.globeTextures.sources.forEach(({ key, src }, index) => {
+    if (!this.canvas.createImage) {
+      this.globeTextures.sources.forEach(({ key, src, remote }) => {
+        this.emitTextureDiagnostic({
+          key,
+          src,
+          remote,
+          stage: "load-error",
+          error: "Canvas.createImage unavailable",
+        });
+      });
+      return;
+    }
+    this.globeTextures.sources.forEach(({ key, src, remote }, index) => {
       const image = this.canvas.createImage?.();
-      if (!image) return;
+      if (!image) {
+        this.emitTextureDiagnostic({
+          key,
+          src,
+          remote,
+          stage: "load-error",
+          error: "Canvas.createImage returned no image",
+        });
+        return;
+      }
+      this.emitTextureDiagnostic({ key, src, remote, stage: "load-start" });
       image.onload = () => {
-        this.uploadTexture(this.textures[key], image, index);
+        this.emitTextureDiagnostic({
+          key,
+          src,
+          remote,
+          stage: "load-success",
+          width: image.width,
+          height: image.height,
+        });
+        try {
+          const glError = this.uploadTexture(this.textures[key], image, index);
+          if (glError !== GL.NO_ERROR) {
+            this.emitTextureDiagnostic({
+              key,
+              src,
+              remote,
+              stage: "upload-error",
+              width: image.width,
+              height: image.height,
+              glError,
+              error: `WebGL texImage2D failed with 0x${glError.toString(16)}`,
+            });
+          } else {
+            this.emitTextureDiagnostic({
+              key,
+              src,
+              remote,
+              stage: "upload-success",
+              width: image.width,
+              height: image.height,
+            });
+          }
+        } catch (error) {
+          this.emitTextureDiagnostic({
+            key,
+            src,
+            remote,
+            stage: "upload-error",
+            width: image.width,
+            height: image.height,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
         this.draw();
       };
-      image.onerror = () => {
-        // 保留 1×1 占位图，地球仍可用基础光照渲染，不阻断页面交互。
+      image.onerror = (error) => {
+        this.emitTextureDiagnostic({
+          key,
+          src,
+          remote,
+          stage: "load-error",
+          error: this.describeImageError(error),
+        });
         this.draw();
       };
       image.src = src;
     });
   }
 
-  private uploadTexture(texture: unknown, image: ImageLike, index: number): void {
+  private uploadTexture(texture: unknown, image: ImageLike, index: number): number {
     this.gl.activeTexture(GL.TEXTURE0 + index);
     this.gl.bindTexture(GL.TEXTURE_2D, texture);
     this.gl.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, 0);
+    this.drainWebGLErrors();
     this.gl.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image);
+    return this.gl.getError?.() ?? GL.NO_ERROR;
+  }
+
+  private drainWebGLErrors(): void {
+    if (!this.gl.getError) return;
+    for (let index = 0; index < 8; index += 1) {
+      if (this.gl.getError() === GL.NO_ERROR) return;
+    }
+  }
+
+  private emitTextureDiagnostic(event: GlobeTextureDiagnostic): void {
+    try {
+      this.onTextureDiagnostic?.(event);
+    } catch {
+      // 诊断回调不能影响渲染链路。
+    }
+  }
+
+  private describeImageError(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (typeof error === "string") return error;
+    if (error && typeof error === "object") {
+      try {
+        return JSON.stringify(error);
+      } catch {
+        return Object.prototype.toString.call(error);
+      }
+    }
+    return "Image load/decode failed";
   }
 
   private draw(): void {

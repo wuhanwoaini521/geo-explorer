@@ -10,16 +10,18 @@ This file lives in design/world/ on purpose: it documents build-time assets and
 is not part of the WeChat code package. (It was moved out of
 miniprogram/assets/world/ in Gate 2; the package no longer carries it.)
 
-Runtime (shipped) — miniprogram/assets/world/, JPEG
-  Color map      globe-texture-realistic-2048.jpg (2048 x 1024)
-  Elevation map  globe-height-2048.jpg            (2048 x 1024)
-  Specular map   globe-specular-2048.jpg          (2048 x 1024)
+Runtime color (shipped) — miniprogram/assets/world/, WebP
+  Color map      globe-texture-realistic-2048.webp (2048 x 1024)
+
+Remote materials — media-remote/world/, JPEG
+  Elevation map  globe-height-2048.jpg              (2048 x 1024)
+  Specular map   globe-specular-2048.jpg            (2048 x 1024)
 
   2048 is the shipped tier. At 3x device density the globe sphere is about
   1012 px across and the visible hemisphere of a 2048 equirectangular map spans
   1024 texels, i.e. roughly 1:1 — lowering the tier would visibly soften the
-  sphere. JPEG replaced PNG in Gate 2 because all three maps are photographic
-  or continuous-tone content: PNG cost ~1748 KB/MP for the color map.
+  sphere. WebP keeps the full color-map resolution below the 200 KB package
+  recommendation; JPEG remains suitable for the remotely hosted material maps.
 
   Regenerate with:
     python scripts/prepare-globe-texture-variants.py
@@ -66,5 +68,5 @@ projection cleanup, Lanczos resampling and a restrained unsharp pass produced
 the runtime colour maps. Pillow plus deterministic Gaussian-blurred relief and
 material masks produced the height/specular maps.
 
-Runtime: all shipped maps are local/offline assets; the WebGL renderer makes no
-map tile or network request.
+Runtime: the color map is a local/offline asset. Secondary height/specular maps
+may load remotely; their failure leaves the base color globe usable.

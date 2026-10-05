@@ -37,6 +37,15 @@ function compiledPathOf(srcRel: string): string {
 }
 
 describe("Gate 2 生产构建边界", () => {
+  it("开发者工具默认审查正式产物并启用 JS 压缩", () => {
+    const cfg = JSON.parse(readFileSync(join(ROOT, "project.config.json"), "utf8")) as {
+      miniprogramRoot?: string;
+      setting?: { minified?: boolean };
+    };
+    expect(cfg.miniprogramRoot).toBe("dist/miniprogram/");
+    expect(cfg.setting?.minified).toBe(true);
+  });
+
   it("本地完整媒体构建写入 dist-local，不污染生产 dist", () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
       scripts: Record<string, string>;

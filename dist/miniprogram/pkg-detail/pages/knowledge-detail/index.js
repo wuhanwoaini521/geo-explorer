@@ -7,6 +7,7 @@ const knowledge_1 = require("../../../data/knowledge");
 const processes_1 = require("../../../data/processes");
 const places_1 = require("../../../data/places");
 const knowledge_media_1 = require("../../../utils/knowledge-media");
+const knowledge_progress_1 = require("../../../services/knowledge-progress");
 Page({
     data: {
         item: null,
@@ -47,6 +48,7 @@ Page({
             imageFailed: false,
         });
         if (item) {
+            (0, knowledge_progress_1.markKnowledgeRead)(item.id);
             wx.setNavigationBarTitle({ title: item.title });
         }
     },

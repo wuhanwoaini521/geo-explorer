@@ -10,8 +10,8 @@
     <view class="passport-main">
       <image class="passport-avatar" src="/assets/ui/avatar-explorer-pixel-v1.png" mode="aspectFill" />
       <view class="passport-identity"><view class="passport-brand"><text class="passport-eyebrow">GE</text><text class="passport-brand-name">Geo Explorer</text></view><view class="passport-identity-divider"></view><text class="passport-name">hansen</text><text class="passport-role">EARTH EXPLORER</text></view>
-      <view class="passport-stamp passport-stamp-large"><text>FIELD</text><text>EXPLORER</text><text>✦ · ✦</text></view>
-      <view class="passport-stamp passport-stamp-round"><text>GE</text></view>
+      <view class="passport-stamp passport-stamp-large"><image wx:if="{{profileHero}}" class="passport-stamp-photo" src="{{profileHero}}" mode="aspectFill" /><view class="passport-stamp-copy"><text>FIELD</text><text>EXPLORER</text><text>✦ · ✦</text></view></view>
+      <view class="passport-stamp passport-stamp-round"><image wx:if="{{profileHero}}" class="passport-stamp-photo" src="{{profileHero}}" mode="aspectFill" /></view>
     </view>
     <view class="passport-progress-row"><text class="passport-level">Lv. {{passport.level}}</text><view class="passport-progress"><view class="passport-progress-fill" style="width:{{passport.percent}}%"></view></view><text class="passport-exp">{{passport.current}} / {{passport.threshold}}</text></view>
   </view>

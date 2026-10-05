@@ -34,8 +34,9 @@ describe("resolveGlobeTextures —— 本地模式（未配置远端）", () => 
     for (const s of r.sources) {
       expect(s.remote).toBe(false);
       expect(s.src.startsWith("/assets/world/")).toBe(true);
-      expect(s.src).toContain("-2048.jpg");
     }
+    expect(r.sources.find((s) => s.key === "color")?.src).toContain("-2048.webp");
+    expect(r.sources.filter((s) => s.key !== "color").every((s) => s.src.endsWith(".jpg"))).toBe(true);
   });
 
   it("请求 4096 但无远端 → 降级 2048，且不出现 4096 路径", () => {
@@ -56,7 +57,7 @@ describe("resolveGlobeTextures —— 远端模式", () => {
     expect(r.size).toBe(GLOBE_TEXTURE_STANDARD_SIZE);
     const by = Object.fromEntries(r.sources.map((s) => [s.key, s]));
     expect(by.color.remote).toBe(false);
-    expect(by.color.src).toBe("/assets/world/globe-texture-realistic-2048.jpg");
+    expect(by.color.src).toBe("/assets/world/globe-texture-realistic-2048.webp");
     expect(by.height.remote).toBe(true);
     expect(by.height.src).toBe(`${CDN}world/globe-height-2048.jpg`);
     expect(by.specular.remote).toBe(true);
@@ -82,14 +83,15 @@ describe("resolveGlobeTextures —— 远端模式", () => {
 
 describe("globeColorTextureSrc", () => {
   it("始终指向包内颜色贴图", () => {
-    expect(globeColorTextureSrc()).toBe("/assets/world/globe-texture-realistic-2048.jpg");
+    expect(globeColorTextureSrc()).toBe("/assets/world/globe-texture-realistic-2048.webp");
   });
 });
 
 describe("构建产物边界", () => {
   it("包内存在颜色贴图与地图兜底 SVG", () => {
     if (!existsSync(DIST)) return;
-    expect(existsSync(join(DIST_WORLD, "globe-texture-realistic-2048.jpg"))).toBe(true);
+    expect(existsSync(join(DIST_WORLD, "globe-texture-realistic-2048.webp"))).toBe(true);
+    expect(existsSync(join(DIST_WORLD, "globe-texture-realistic-2048.jpg"))).toBe(false);
     expect(existsSync(join(DIST_WORLD, "world-map.svg"))).toBe(true);
   });
 

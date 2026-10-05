@@ -94,6 +94,18 @@ export interface QuizResultInput {
   difficulty: number;
   correct: number;
   total: number;
+  questionIds?: string[];
+  correctQuestionIds?: string[];
+  completedAt?: number;
+}
+
+export interface QuizAttemptRecord {
+  difficulty: number;
+  correct: number;
+  total: number;
+  completedAt: number;
+  questionIds: string[];
+  correctQuestionIds: string[];
 }
 
 /** 记录一次挑战成绩（内部合并最佳，返回该难度最新记录） */
@@ -105,7 +117,54 @@ export function saveQuizResult(
   const merged = mergeQuizBest(all[input.difficulty], input);
   all[input.difficulty] = merged;
   storage.set(STORAGE_KEY, all);
+  const attempts = getQuizAttemptHistory(storage);
+  const questionIds = Array.from(new Set((input.questionIds ?? []).filter(Boolean)));
+  const correctQuestionIds = Array.from(
+    new Set((input.correctQuestionIds ?? []).filter((id) => questionIds.includes(id))),
+  );
+  attempts.push({
+    difficulty: Math.max(1, Math.min(3, Number(input.difficulty) || 1)),
+    correct: Math.max(0, Math.min(Number(input.total) || 0, Number(input.correct) || 0)),
+    total: Math.max(0, Number(input.total) || 0),
+    completedAt: Number(input.completedAt) || Date.now(),
+    questionIds,
+    correctQuestionIds,
+  });
+  storage.set(ATTEMPT_STORAGE_KEY, attempts.slice(-MAX_ATTEMPT_HISTORY));
   return merged;
+}
+
+const ATTEMPT_STORAGE_KEY = "geoexplorer.quiz.attempts.v1";
+const MAX_ATTEMPT_HISTORY = 120;
+
+/** Read recent completed runs; older installations simply return an empty history. */
+export function getQuizAttemptHistory(
+  storage: StorageLike = defaultStorage(),
+): QuizAttemptRecord[] {
+  const raw = storage.get<unknown>(ATTEMPT_STORAGE_KEY);
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((item): item is Partial<QuizAttemptRecord> => Boolean(item && typeof item === "object"))
+    .map((item) => {
+      const questionIds = Array.isArray(item.questionIds)
+        ? Array.from(new Set(item.questionIds.filter((id): id is string => typeof id === "string" && Boolean(id))))
+        : [];
+      const correctQuestionIds = Array.isArray(item.correctQuestionIds)
+        ? Array.from(new Set(item.correctQuestionIds.filter((id): id is string =>
+            typeof id === "string" && questionIds.includes(id),
+          )))
+        : [];
+      const total = Math.max(0, Number(item.total) || 0);
+      return {
+        difficulty: Math.max(1, Math.min(3, Number(item.difficulty) || 1)),
+        correct: Math.max(0, Math.min(total, Number(item.correct) || 0)),
+        total,
+        completedAt: Math.max(0, Number(item.completedAt) || 0),
+        questionIds,
+        correctQuestionIds,
+      };
+    })
+    .slice(-MAX_ATTEMPT_HISTORY);
 }
 
 /** 读取全部难度的最佳成绩（无记录的难度不出现在结果里） */

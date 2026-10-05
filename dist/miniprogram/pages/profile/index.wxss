@@ -16,10 +16,10 @@
 .profile-title { color: #f5f3e7; font-size: 38rpx; line-height: 1.1; font-weight: 800; }
 .profile-subtitle { color: rgba(205,226,216,.82); font-size: 20rpx; }
 .profile-settings { width: 58rpx; height: 58rpx; display: flex; align-items: center; justify-content: center; border: 1rpx solid rgba(136,190,192,.25); border-radius: 50%; color: #d3e2dc; background: rgba(10,32,48,.68); font-size: 27rpx; }
-.passport-card { position: relative; overflow: hidden; padding: 30rpx 34rpx 28rpx; border: 2rpx solid rgba(239,222,185,.9); border-radius: 24rpx; color: #263c43; background: var(--geo-paper); box-shadow: 0 12rpx 28rpx rgba(1,12,22,.2); }
-.passport-card::before { position: absolute; inset: 10rpx; border: 1rpx dashed rgba(102,124,117,.35); border-radius: 16rpx; content: ""; pointer-events: none; }
-.passport-main { position: relative; z-index: 1; min-height: 210rpx; box-sizing: border-box; padding-top: 12rpx; display: flex; align-items: flex-start; gap: 50rpx; }
-.passport-avatar { width: 150rpx; height: 150rpx; flex: 0 0 150rpx; overflow: hidden; border: 4rpx solid #d5be8d; border-radius: 50%; background: #c9d8d1; }
+.passport-card { position: relative; overflow: hidden; padding: 30rpx 34rpx 28rpx; border: 2rpx solid rgba(239,222,185,.9); border-radius: 24rpx; color: #263c43; background: radial-gradient(ellipse at 20% 18%,rgba(255,255,255,.42),transparent 45%),linear-gradient(125deg,#f6eddd 0%,#eee3ce 55%,#f4ead7 100%); box-shadow: 0 12rpx 28rpx rgba(1,12,22,.2); }
+.passport-card::before { position: absolute; inset: 10rpx; border: 1rpx solid rgba(123,105,78,.13); border-radius: 16rpx; content: ""; pointer-events: none; }
+.passport-main { position: relative; z-index: 1; min-height: 210rpx; box-sizing: border-box; padding: 12rpx 0 0 16rpx; display: flex; align-items: flex-start; gap: 50rpx; }
+.passport-avatar { width: 150rpx; height: 150rpx; flex: 0 0 150rpx; overflow: hidden; border: 4rpx solid rgba(255,255,255,.96); border-radius: 50%; background: #4b91df; box-shadow: 0 3rpx 9rpx rgba(40,91,139,.2); }
 .passport-identity { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-right: 118rpx; }
 .passport-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 4rpx; }
 .passport-eyebrow { color: #8c978c; font-size: 32rpx; line-height: 1.05; font-weight: 700; }
@@ -27,38 +27,42 @@
 .passport-identity-divider { width: 100%; margin: 16rpx 0 24rpx; border-top: 1rpx dashed rgba(102,124,117,.28); }
 .passport-name { color: #1e3845; font-size: 36rpx; line-height: 1.08; font-weight: 800; }
 .passport-role { margin-top: 20rpx; color: #72908a; font-size: 20rpx; letter-spacing: 1.1rpx; }
-.passport-stamp { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2rpx solid rgba(48,139,136,.48); color: #3f9993; font-size: 10rpx; font-weight: 800; letter-spacing: 1rpx; opacity: .76; }
-.passport-stamp-large { right: 20rpx; top: -5rpx; width: 124rpx; height: 90rpx; transform: rotate(12deg); border-style: dashed; border-radius: 8rpx; color: #818a83; background: rgba(92,159,145,.04); }
+.passport-stamp { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; border: 2rpx solid rgba(48,139,136,.48); color: #3f9993; font-size: 10rpx; font-weight: 800; letter-spacing: 1rpx; opacity: .76; }
+.passport-stamp-photo { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; opacity: .3; }
+.passport-stamp-large { right: 20rpx; top: -5rpx; width: 124rpx; height: 90rpx; transform: rotate(12deg); border-style: solid; border-radius: 8rpx; color: #697a78; background: rgba(223,224,211,.55); box-shadow: inset 0 0 0 4rpx rgba(102,116,111,.1); }
+.passport-stamp-copy { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
 .passport-stamp-large text:first-child { font-size: 16rpx; }
-.passport-stamp-round { right: -10rpx; bottom: -1rpx; width: 170rpx; height: 140rpx; transform: rotate(-13deg); border-width: 3rpx; border-radius: 50%; box-shadow: inset 0 0 0 5rpx rgba(48,139,136,.1); }
-.passport-stamp-round text { font-size: 20rpx; }
-.passport-progress-row { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12rpx; margin-top: 26rpx; padding: 0 50rpx 0 24rpx; }
-.passport-level { flex: 0 0 auto; color: #183f4c; font-size: 36rpx; font-weight: 900; }
-.passport-progress { flex: 1; max-width: 270rpx; height: 14rpx; overflow: hidden; border-radius: 99rpx; background: #d3c7ab; }
+.passport-stamp-round { right: -10rpx; bottom: -1rpx; width: 170rpx; height: 140rpx; transform: rotate(-13deg); border-width: 3rpx; border-radius: 50%; color: #267d7c; background: rgba(124,191,174,.2); box-shadow: inset 0 0 0 5rpx rgba(48,139,136,.36); }
+.passport-stamp-round::after { position: absolute; z-index: 1; inset: 0; border-radius: 50%; background: rgba(30,135,118,.46); content: ""; pointer-events: none; }
+.passport-stamp-round .passport-stamp-photo { opacity: .48; }
+.passport-progress-row { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12rpx; margin-top: 26rpx; padding: 0 50rpx 0 36rpx; }
+.passport-level { flex: 0 0 auto; color: #183f4c; font-size: 42rpx; font-weight: 900; }
+.passport-progress { flex: 1; max-width: 270rpx; height: 18rpx; overflow: hidden; border-radius: 99rpx; background: #dddcd6; }
 .passport-progress-fill { height: 100%; border-radius: 99rpx; background: #28a99e; transition: width 230ms ease-out; }
-.passport-exp { flex: 0 0 auto; color: #526c70; font-size: 22rpx; font-weight: 700; }
+.passport-exp { flex: 0 0 auto; color: #526c70; font-size: 26rpx; font-weight: 700; }
 .stats-grid { display: flex; gap: 0; margin-top: 14rpx; overflow: hidden; border: 1rpx solid rgba(130,186,194,.18); border-radius: 18rpx; background: rgba(8,35,53,.9); }
-.metric-card { flex: 1; min-width: 0; min-height: 130rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.metric-card + .metric-card { border-left: 1rpx solid rgba(130,186,194,.14); }
-.metric-value { color: #f1f1e5; font-size: 30rpx; line-height: 1.1; font-weight: 800; }
-.metric-label { margin-top: 8rpx; color: #a9c0bc; font-size: 16rpx; white-space: nowrap; }
-.profile-section-heading { display: flex; align-items: center; justify-content: space-between; margin: 27rpx 2rpx 12rpx; color: #f0f2eb; font-size: 25rpx; font-weight: 780; }
+.stats-grid.geo-frosted-frame { border-color: rgba(91,145,168,.24); background: linear-gradient(120deg,rgba(8,28,46,.94),rgba(11,27,44,.96) 55%,rgba(9,27,44,.94)); box-shadow: inset 0 1rpx 0 rgba(177,211,220,.1),inset 0 0 25rpx rgba(42,95,119,.1),0 8rpx 24rpx rgba(0,7,16,.22); }
+.metric-card { flex: 1; min-width: 0; min-height: 190rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.metric-card + .metric-card { border-left: 1rpx solid rgba(130,166,178,.12); }
+.metric-value { color: #f1f1e5; font-size: 42rpx; line-height: 1.1; font-weight: 800; }
+.metric-label { margin-top: 12rpx; color: #a9c0bc; font-size: 22rpx; white-space: nowrap; }
+.profile-section-heading { display: flex; align-items: center; justify-content: space-between; margin: 40rpx 2rpx 16rpx; color: #f0f2eb; font-size: 25rpx; font-weight: 780; }
 .section-more { color: #b2c8c6; font-size: 16rpx; font-weight: 500; }
 .badge-scroll { width: 100%; }
 .badge-row { display: flex; justify-content: space-between; gap: 9rpx; }
 .badge-card { width: 24%; flex: 0 0 24%; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-.badge-art { position: relative; isolation: isolate; width: 128rpx; height: 128rpx; flex: 0 0 128rpx; margin: 0 auto; display: flex; align-items: center; justify-content: center; overflow: hidden; clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); background: linear-gradient(145deg,#edf7f6 0%,#779aaa 13%,#dce9ec 26%,#3d6078 47%,#90aebb 67%,#eaf0e8 83%,#506d7e 100%); box-shadow: 0 0 0 2rpx rgba(3,14,27,.9),0 7rpx 17rpx rgba(0,8,18,.42),0 0 13rpx rgba(105,196,226,.2),inset 0 2rpx 4rpx rgba(255,255,255,.72); }
-.badge-art image, .badge-art-fallback { position: absolute; z-index: 0; top: 9rpx; right: 9rpx; bottom: 9rpx; left: 9rpx; width: auto; height: auto; clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); }
-.badge-art::before { position: absolute; z-index: 1; inset: 4rpx; border: 2rpx solid rgba(239,249,247,.74); clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); content: ""; pointer-events: none; }
+.badge-art { position: relative; isolation: isolate; width: 144rpx; height: 144rpx; flex: 0 0 144rpx; margin: 0 auto; display: flex; align-items: center; justify-content: center; overflow: hidden; clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); background: linear-gradient(145deg,#f4fbf8 0%,#779aaa 13%,#e5eff0 26%,#3d6078 47%,#90aebb 67%,#f6f3e8 83%,#506d7e 100%); box-shadow: 0 0 0 2rpx rgba(3,14,27,.9),0 8rpx 19rpx rgba(0,8,18,.46),0 0 16rpx rgba(105,196,226,.23),inset 0 2rpx 5rpx rgba(255,255,255,.8); }
+.badge-art image, .badge-art-fallback { position: absolute; z-index: 0; top: 11rpx; right: 11rpx; bottom: 11rpx; left: 11rpx; width: auto; height: auto; clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); }
+.badge-art::before { position: absolute; z-index: 1; inset: 3rpx; border: 3rpx solid rgba(245,251,248,.82); clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); content: ""; pointer-events: none; }
 .badge-art::after { position: absolute; z-index: 2; inset: 9rpx; clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); background: linear-gradient(145deg,rgba(255,255,255,.26),transparent 38%,rgba(4,16,28,.2)); content: ""; pointer-events: none; }
-.badge-hex-border { position: absolute; z-index: 3; inset: 8rpx; border: 1rpx solid rgba(234,246,244,.55); clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); pointer-events: none; }
+.badge-hex-border { position: absolute; z-index: 3; inset: 10rpx; border: 2rpx solid rgba(234,246,244,.6); clip-path: polygon(50% 0,94% 20%,94% 70%,50% 100%,6% 70%,6% 20%); pointer-events: none; }
 .badge-pending-dot { position: absolute; z-index: 4; right: 13%; top: 12%; width: 12rpx; height: 12rpx; border: 2rpx solid #e8f1ed; border-radius: 50%; background: #7b98a1; }
 .badge-art-fallback { display: flex; align-items: center; justify-content: center; color: #d2eff0; font-size: 34rpx; }
 .badge-medal-colorado .badge-art, .badge-medal-fuji .badge-art { background: linear-gradient(145deg,#fff0c7 0%,#a8623b 13%,#ffe3a0 26%,#81503c 47%,#c98c56 67%,#fff0c9 83%,#87583e 100%); box-shadow: 0 0 0 2rpx rgba(24,11,8,.9),0 7rpx 17rpx rgba(0,8,18,.42),0 0 13rpx rgba(239,166,98,.2),inset 0 2rpx 4rpx rgba(255,250,227,.76); }
 .badge-medal-colorado .badge-art::before, .badge-medal-fuji .badge-art::before { border-color: rgba(255,240,198,.82); }
 .badge-medal-colorado .badge-hex-border, .badge-medal-fuji .badge-hex-border { border-color: rgba(255,224,166,.62); }
-.badge-title { max-width: 100%; margin-top: 7rpx; color: #e8f0e7; font-size: 17rpx; font-weight: 800; text-align: center; }
-.badge-subtitle { max-width: 100%; margin-top: 3rpx; overflow: hidden; color: #a6bdbc; font-size: 12rpx; white-space: nowrap; text-overflow: ellipsis; }
+.badge-title { max-width: 100%; margin-top: 9rpx; color: #e8f0e7; font-size: 20rpx; font-weight: 800; text-align: center; }
+.badge-subtitle { max-width: 100%; margin-top: 4rpx; overflow: hidden; color: #a6bdbc; font-size: 15rpx; white-space: nowrap; text-overflow: ellipsis; }
 .record-heading { margin-top: 27rpx; }
 .record-list { display: flex; flex-direction: column; gap: 9rpx; }
 .profile-compact-empty { padding: 14rpx 16rpx; border: 1rpx solid rgba(135,190,197,.14); border-radius: 13rpx; color: #97adae; background: rgba(9,38,56,.62); font-size: 16rpx; }
