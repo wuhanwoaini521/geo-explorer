@@ -35,6 +35,17 @@ const WORLD_DESTINATION_IDS = [
     "p-kilauea",
     "p-qinghai",
 ];
+const RECOMMENDATION_ILLUSTRATIONS = {
+    "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
+    "p-everest": "/assets/discovery/glacier-illustration-v1.jpg",
+    "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
+};
+const EXPLORE_ILLUSTRATIONS = {
+    "p-everest": "/assets/discovery/everest-illustration-v2.jpg",
+    "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
+    "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
+    "p-colorado": "/assets/discovery/colorado-illustration-v1.jpg",
+};
 const MARKER_GLYPHS = {
     mountain: "▲",
     ocean: "▼",
@@ -76,7 +87,9 @@ function mapHeaderTop() {
     return Math.ceil(Math.max(statusBarHeight + 12, menuBottom + 10));
 }
 function placeImage(place) {
-    // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
+    const illustration = EXPLORE_ILLUSTRATIONS[place.id];
+    if (illustration)
+        return illustration;
     const runtimeHero = (0, world_manifests_1.getPlaceHeroImage)(place.id);
     if (runtimeHero)
         return runtimeHero;
@@ -512,11 +525,16 @@ Page({
                 .filter((place) => Boolean(place))
                 .map(worldMarker),
             worldMarkerCount: WORLD_DESTINATION_IDS.length,
-            recommendations: WORLD_DESTINATION_IDS
-                .slice(0, 2)
+            recommendations: ["p-fuji", "p-everest", "p-mariana"]
                 .map((id) => places_1.PLACES.find((place) => place.id === id))
                 .filter((place) => Boolean(place))
-                .map(destinationPreview),
+                .map((place) => {
+                const preview = destinationPreview(place);
+                return {
+                    ...preview,
+                    image: RECOMMENDATION_ILLUSTRATIONS[place.id] ?? placeImage(place),
+                };
+            }),
         });
         this.syncGlobeMarkers();
     },

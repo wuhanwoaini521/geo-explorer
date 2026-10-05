@@ -48,22 +48,22 @@ interface TypeEntry {
 const SCENE_CATALOG: SceneCard[] = [
   {
     id: "everest", title: "珠穆朗玛峰", subtitle: "地球之巅 · 8,848 m", emoji: "🏔️",
-    meta: "", badge: "", image: "/assets/expeditions/everest/live/live-a-kala-patthar.jpg",
+    meta: "", badge: "", image: "/assets/discovery/everest-illustration-v2.jpg",
     tags: ["高山地貌", "地貌观察"], type: "mountain", target: "exploration",
   },
   {
     id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处 · 10,935 m", emoji: "🌊",
-    meta: "", badge: "", image: getPlaceHeroImage("p-mariana") ?? "",
+    meta: "", badge: "", image: "/assets/discovery/mariana-illustration-v1.jpg",
     tags: ["海沟", "下潜"], type: "ocean", target: "exploration",
   },
   {
     id: "colorado", title: "科罗拉多大峡谷", subtitle: "下切 1,389 m · 穿越二十亿年", emoji: "🏞️",
-    meta: "", badge: "", image: getPlaceHeroImage("p-colorado") ?? "",
+    meta: "", badge: "", image: "/assets/discovery/colorado-illustration-v1.jpg",
     tags: ["峡谷", "地质剖面"], type: "canyon", target: "exploration",
   },
   {
     id: "fuji", title: "富士山", subtitle: "攀登日本最高点 · 3,776 m", emoji: "🗻",
-    meta: "", badge: "", image: getPlaceHeroImage("p-fuji") ?? "",
+    meta: "", badge: "", image: "/assets/discovery/fuji-illustration-v1.jpg",
     tags: ["火山", "攀登"], type: "volcano", target: "exploration",
   },
 ];

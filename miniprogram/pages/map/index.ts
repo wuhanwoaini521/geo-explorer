@@ -169,6 +169,19 @@ const WORLD_DESTINATION_IDS = [
   "p-qinghai",
 ] as const;
 
+const RECOMMENDATION_ILLUSTRATIONS: Record<string, string> = {
+  "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
+  "p-everest": "/assets/discovery/glacier-illustration-v1.jpg",
+  "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
+};
+
+const EXPLORE_ILLUSTRATIONS: Record<string, string> = {
+  "p-everest": "/assets/discovery/everest-illustration-v2.jpg",
+  "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
+  "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
+  "p-colorado": "/assets/discovery/colorado-illustration-v1.jpg",
+};
+
 const MARKER_GLYPHS: Partial<Record<PlaceType, string>> = {
   mountain: "▲",
   ocean: "▼",
@@ -226,7 +239,8 @@ function mapHeaderTop(): number {
 }
 
 function placeImage(place: Place): string {
-  // Long Run 2：已晋升的地点 hero（runtime 媒体）优先
+  const illustration = EXPLORE_ILLUSTRATIONS[place.id];
+  if (illustration) return illustration;
   const runtimeHero = getPlaceHeroImage(place.id);
   if (runtimeHero) return runtimeHero;
   if (place.id === "p-everest") return resolveMediaSrc("expeditions/everest/live/live-a-kala-patthar.jpg");
@@ -694,11 +708,13 @@ Page({
         .filter((place): place is Place => Boolean(place))
         .map(worldMarker),
       worldMarkerCount: WORLD_DESTINATION_IDS.length,
-      recommendations: WORLD_DESTINATION_IDS
-        .slice(0, 2)
+      recommendations: ["p-fuji", "p-everest", "p-mariana"]
         .map((id) => PLACES.find((place) => place.id === id))
         .filter((place): place is Place => Boolean(place))
-        .map(destinationPreview),
+        .map((place) => ({
+          ...destinationPreview(place),
+          image: RECOMMENDATION_ILLUSTRATIONS[place.id] ?? placeImage(place),
+        })),
     });
     this.syncGlobeMarkers();
   },
