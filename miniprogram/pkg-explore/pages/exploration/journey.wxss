@@ -53,15 +53,16 @@
 .journey-page .wpd-sheet { z-index: 40; }
 
 /* The water-column is deliberately a labelled schematic, not a false seabed photo. */
-.descent-environment { position: absolute; inset: 0; overflow: hidden; }
+.descent-environment { position: absolute; inset: 0; overflow: hidden; transition: background 700ms linear; }
 .descent-light { position: absolute; inset: 0; background: linear-gradient(109deg, transparent 12%, #b3edee66 16%, transparent 30%, #b3edee33 43%, transparent 53%); }
 .descent-snow { position: absolute; inset: 15% 0 25%; }
-.descent-particle { position: absolute; width: 3rpx; height: 3rpx; border-radius: 50%; background: #c1dfe0; }
-.descent-walls { position: absolute; top: 22%; bottom: 24%; left: 0; right: 0; }
+.descent-particle { position: absolute; width: 3rpx; height: 3rpx; border-radius: 50%; background: #c1dfe0; animation: descentDrift 7s linear infinite; }
+@keyframes descentDrift { from { margin-top: -18rpx; } to { margin-top: 18rpx; } }
+.descent-walls { position: absolute; top: 22%; bottom: 24%; left: 0; right: 0; transform-origin: 50% 50%; }
 .descent-wall-left, .descent-wall-right { position: absolute; inset: 0; background: linear-gradient(110deg,#152e39,#06131d); }
 .descent-wall-left { clip-path: polygon(0 0, 13% 4%, 8% 13%, 22% 27%, 17% 38%, 29% 54%, 23% 63%, 35% 78%, 41% 100%, 0 100%); }
 .descent-wall-right { clip-path: polygon(100% 0, 87% 7%, 91% 16%, 80% 30%, 84% 38%, 73% 54%, 78% 64%, 65% 81%, 59% 100%, 100% 100%); background: linear-gradient(250deg,#213c47,#071822); }
-.descent-floor { position: absolute; left: 12%; right: 12%; height: 110rpx; bottom: calc(var(--journey-dock-height) + 60rpx); background: radial-gradient(ellipse at 50% 30%,#426065,#0c222a 70%); border-radius: 50% 50% 0 0; }
+.descent-floor { position: absolute; left: 12%; right: 12%; height: 110rpx; bottom: calc(var(--journey-dock-height) + 60rpx); background: radial-gradient(ellipse at 50% 30%,#426065,#0c222a 70%); border-radius: 50% 50% 0 0; transform-origin: 50% 100%; }
 .descent-scene { position: absolute; bottom: calc(var(--journey-dock-height) + env(safe-area-inset-bottom) + 20rpx); left: 28rpx; right: 28rpx; z-index: 8; display: flex; flex-direction: column; }
 .descent-scene-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10rpx; flex-shrink: 0; padding-bottom: 20rpx; }
 .descent-scene-head .journey-eyebrow { color: #b4d6e0; font-size: 16rpx; }
@@ -81,6 +82,10 @@
 .station-current .descent-station-state { color: #b7f3e5; }
 .station-completed .descent-station-dot { background: #b6eee3; }
 .descent-probe-position { position: absolute; left: 34%; z-index: 3; width: 66rpx; height: 40rpx; margin-left: -33rpx; margin-top: -20rpx; pointer-events: none; }
+.descent-in-motion .descent-probe-hull { animation: descentProbeRun .42s ease-in-out infinite alternate; }
+.descent-in-motion .descent-probe-beam { animation: descentBeamPulse .85s ease-in-out infinite alternate; }
+@keyframes descentProbeRun { to { transform: translateY(4rpx); box-shadow: 0 3rpx 16rpx #063342; } }
+@keyframes descentBeamPulse { to { opacity: .72; } }
 .descent-probe { position: relative; width: 66rpx; height: 40rpx; }
 .descent-probe-hull { position: absolute; top: 4rpx; left: 4rpx; right: 4rpx; height: 28rpx; border-radius: 18rpx; background: #eadfba; border: 2rpx solid #fff6d9; box-shadow: 0 2rpx 12rpx #00191b; }
 .descent-probe-window { position: absolute; width: 15rpx; height: 15rpx; top: 4rpx; left: 23rpx; border-radius: 50%; border: 2rpx solid #536f78; background: #16394c; }

@@ -1,11 +1,11 @@
 <!-- Scientific descent schematic: no stock photo claims, no mountain projection. -->
 <view class="descent-environment" style="background:{{mariana.waterGradient}}">
-  <view class="descent-light" style="opacity:{{mariana.rayOpacity}}"></view>
-  <view class="descent-snow" style="opacity:{{mariana.marineSnowOpacity}}">
+  <view class="descent-light" style="opacity:{{mariana.rayOpacity}};transform:translate3d(0,-{{mariana.depthM * 0.012}}px,0)"></view>
+  <view class="descent-snow" style="opacity:{{mariana.marineSnowOpacity}};transform:translate3d(0,-{{mariana.depthM * 0.02}}px,0)">
     <view wx:for="{{marineSnowParticles}}" wx:key="id" class="descent-particle" style="left:{{item.left}}%;top:{{index * 5}}%;opacity:{{item.opacity}}"></view>
   </view>
-  <view class="descent-walls" style="opacity:{{mariana.trenchOpacity}}"><view class="descent-wall-left"></view><view class="descent-wall-right"></view></view>
-  <view class="descent-floor" style="opacity:{{mariana.bottomOpacity}}"></view>
+  <view class="descent-walls" style="opacity:{{mariana.trenchOpacity}};transform:translate3d(0,-{{mariana.depthM * 0.008}}px,0) scaleX({{1 + mariana.trenchOpacity * 0.5}})"><view class="descent-wall-left"></view><view class="descent-wall-right"></view></view>
+  <view class="descent-floor" style="opacity:{{mariana.bottomOpacity}};transform:scale({{1 + mariana.bottomOpacity * 1.2}})"></view>
 </view>
 <view wx:if="{{journey}}" class="descent-scene descent-{{journeyView}}" style="top:{{capBottom + 72}}px">
   <view class="descent-scene-head">

@@ -180,7 +180,6 @@
     </view>
   </block>
 
-
   <!-- ===== 顶部 HUD ===== -->
   <view wx:if="{{!routeMode}}" class="hud-top">
     <view class="hud-left">

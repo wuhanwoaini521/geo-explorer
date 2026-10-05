@@ -144,7 +144,8 @@ export const FUJI_EXPEDITION = buildWorldExpedition(world("fuji"), {
   // 攀登：视线自下而上推进（与山脚→峰顶一致）
   cameraFocusY: { from: 0.62, to: 0.3 },
   cameraOffsetY: { from: 0.55, to: 0.45 },
-  cameraScale: { from: 1.04, to: 1.2 },
+  // 每次抵达节点，镜头会随路线位置继续推近，保持连续的上坡行进感。
+  cameraScale: { from: 1.04, to: 1.55 },
   // 视觉核验：沿火山砂坡的引导绳走向，由前景坡脚折向左上坡面再到火口缘
   spine: [
     { x: 0.62, y: 0.95 },

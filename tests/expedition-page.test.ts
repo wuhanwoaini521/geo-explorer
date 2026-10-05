@@ -132,20 +132,21 @@ describe("Journey 交互回归", () => {
     expect(inst.climbReq).toBe(firstRequest);
     inst.onUnload();
   });
-  it("抵达邀请不遮住场景，查看发现才打开卡片；未抵底不能打开完成报告", () => {
+  it("抵达节点时保留路线场景，查看发现才打开卡片；未抵底不能打开完成报告", () => {
     const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,0);
     inst.onJourneySummary();expect(inst.data.summit).toBe(false);
     driveTo(inst,inst.expeditionCore.routeIndex.milestones[1].progress);
-    expect(inst.data.arrival?.id).toBe("thermocline");expect(inst.data.waypointCard).toBeNull();
+    expect(inst.data.journey.index).toBe(2);expect(inst.data.waypointCard).toBeNull();
     inst.onInspectCurrent();expect(inst.data.waypointCard.id).toBe("thermocline");
     inst.onUnload();
   });
-  it("抵达终点有报告，重开后清空完成与运动状态", () => {
+  it("抵达终点有报告，重开后回到第一站路线起点", () => {
     const inst=createInstance(pageDef);inst.onLoad({id:"mariana"});inst.onStartClimb();driveTo(inst,1);
     inst.onJourneySummary();expect(inst.data.summit).toBe(true);expect(inst.data.summaryStats).toBeTruthy();
     inst.onRestart();inst.tickFrame();
     expect(inst.data.journey.index).toBe(1);expect(inst.data.journey.complete).toBe(false);
-    expect(inst.data.expClimbing).toBe(false);expect(inst.data.arrival).toBeNull();
+    expect(inst.data.expClimbing).toBe(false);
+    expect(inst.data.journey.currentId).toBe("surface-start");
     inst.onUnload();
   });
 });

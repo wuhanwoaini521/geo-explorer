@@ -1035,7 +1035,6 @@ Page({
     journeyView: "focus" as JourneyView,
     journey: null as JourneyState | null,
     worldCanyon: false,
-    arrival: null as { id: string; title: string } | null,
     // 仅在海面出发阶段显示的历史任务档案，不作为深海环境背景。
     marianaSurfaceArchiveSrc: resolveMediaSrc("content/mariana/m3-trieste-1960.jpg"),
     route: null as SceneRouteState | null,
@@ -1121,7 +1120,6 @@ Page({
   /** 视口宽高比（cover 投影的唯一容器参数；安全区刷新时更新） */
   containerAspect: 375 / 812,
   /** 本会话已自动弹出过 Discovery Card 的节点（首达只弹一次） */
-  autoOpenedWaypoints: [] as string[],
   /** Gate 3.4：真实相机配置（数据层；renderFrame 每帧 derive 相机帧，不再横亘硬编码缩放） */
   expCamera: null as CameraConfig | null,
   // Gate 3.3C：Dual Visual Mode 会话状态（不含渲染字段）
@@ -1212,7 +1210,6 @@ Page({
     this.expeditionRoutePath = expedition?.routePath ?? null;
     this.routeGeometry = null;
     this.routeGeometryKey = "";
-    this.autoOpenedWaypoints = [];
     this.exploration = exploration;
     // 主视觉跟随该世界的 routePath（非珠峰世界是实景照片，珠峰是自制 DEM 渲染图）
     this.expeditionHeroImage =
@@ -2430,11 +2427,6 @@ Page({
     if (id) this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } } as PageEvent);
   },
 
-  onInspectArrival() {
-    const id = this.data.arrival?.id;
-    if (id) this.onTapExpeditionWaypoint({ currentTarget: { dataset: { id } } } as PageEvent);
-  },
-
   onContinueJourney() {
     // 底部旅程面板位于全页滑动手势内：CTA 必须先结束残留触摸态，
     // 再发起唯一一次“到下一真实节点”的请求，避免手势与按钮竞争路线位置。
@@ -2443,7 +2435,7 @@ Page({
     this.frameCache = {};
     this.onStepUp();
     if (!this.climbReq) return;
-    this.setData({ waypointCard: null, arrival: null, journeyView: "focus" });
+    this.setData({ waypointCard: null, journeyView: "focus" });
     // 页面从后台恢复或计时器异常停止时，按钮仍应能独立恢复推进动画。
     if (this.ticker === null) this.startTicker();
   },
@@ -2631,16 +2623,12 @@ Page({
     });
   },
 
-  /** 里程碑穿越事件：录制 + 短横幅（克制，不弹大层）+ 首次到达自动弹地点卡 */
+  /** 里程碑穿越事件：录制 + 短横幅，不打断路线运动 */
   onMilestoneCrossed(m: RouteMilestoneSample) {
     const isOcean = this.data.worldOcean;
     if (m.kind === "summit" && !isOcean) {
       // 登顶已有峰顶轻提示，里程碑横幅/卡片冗余；仅记录（卡片仍可点击回看）
       return;
-    }
-    if (m.id !== "base-camp" && m.id !== "surface-start") {
-      // 出发后每到达一个真实地理节点 → 先解锁并自动弹出 Discovery Card
-      this.maybeAutoOpenWaypointCard(m.id);
     }
     if (m.id === "base-camp" || m.id === "surface-start") {
       // 起点宿主不弹横幅（与 intro 首页重叠）
@@ -2881,17 +2869,6 @@ Page({
       waypointCard: card,
       hint: { show: false, text: "" },
     });
-  },
-
-  /** 首次到达某节点：自动弹出 Discovery Card（每会话每节点一次） */
-  maybeAutoOpenWaypointCard(id: string) {
-    if (id === "base-camp") return; // 起点：与引导页/初始状态重叠，不弹
-    if (this.autoOpenedWaypoints.indexOf(id) !== -1) return;
-    const card = this.waypointCardFor(id);
-    if (!card || !card.unlocked) return;
-    this.autoOpenedWaypoints.push(id);
-    // Arrival is a compact invitation; reading must not interrupt movement.
-    this.setData({ arrival: { id, title: card.title }, hint: { show: false, text: "" } });
   },
 
   onWaypointCardClose() {
@@ -3149,7 +3126,6 @@ Page({
     this.lastRouteDistanceM = 0;
     this.crossedMilestoneIds = [];
     // 首达自动弹卡记账一并重置（新会话可再次首达）
-    this.autoOpenedWaypoints = [];
     if (this.milestoneTimer) {
       clearTimeout(this.milestoneTimer);
       this.milestoneTimer = null;
@@ -3161,7 +3137,6 @@ Page({
     }
     this.setData({
       intro: false,
-      arrival: null,
       journeyView: "focus",
       expClimbing: false,
       expMoving: false,
