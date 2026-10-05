@@ -9,11 +9,14 @@
 //
 // 路径相对 miniprogram/assets/（即 mediaKey）。
 export const REMOTE_OWNED_PATTERNS = [
+  // 发现页与地图页使用的四世界插画卡片
+  "discovery/",
   // 四个世界的内容照片（地点封面 / 知识配图 / 航点图）
   "content/",
   // 珠峰实景与航点裁切
   "expeditions/",
-  // 渲染器材质图：作为次要光照线索，远端失败时地球仍以基础光照渲染
+  // 地球颜色贴图及材质图：远端颜色失败时运行时回退到随包 JPEG
+  "world/globe-texture-realistic-2048.jpg",
   "world/globe-height-2048.jpg",
   "world/globe-specular-2048.jpg",
   // 珠峰 TERRAIN 主视觉（全屏承载影像）

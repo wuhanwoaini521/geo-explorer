@@ -3,8 +3,8 @@
   "generator": "scripts/media-manifest.mjs",
   "version": "v1",
   "pathContract": "mediaKey 与远端对象键一一对应：<remoteBase><mediaKey>",
-  "count": 46,
-  "totalBytes": 5112904,
+  "count": 52,
+  "totalBytes": 7228130,
   "files": [
     {
       "mediaKey": "content/colorado/c-indian-garden.jpg",
@@ -211,6 +211,36 @@
       "sha256": "169820891abe803b444bda497e8e0efce54918211b580bdaf03e1f43d046641b"
     },
     {
+      "mediaKey": "discovery/colorado-illustration-v1.jpg",
+      "repoPath": "media-remote/discovery/colorado-illustration-v1.jpg",
+      "bytes": 408339,
+      "sha256": "54f49109277955ced2d7882e786b72601c430ee3721f372347d5d1059e60b768"
+    },
+    {
+      "mediaKey": "discovery/everest-illustration-v2.jpg",
+      "repoPath": "media-remote/discovery/everest-illustration-v2.jpg",
+      "bytes": 304140,
+      "sha256": "8fb9420b1fd2d7313396db29de40d33528fb0734ce9f07714e67fd9f85c0e3d9"
+    },
+    {
+      "mediaKey": "discovery/fuji-illustration-v1.jpg",
+      "repoPath": "media-remote/discovery/fuji-illustration-v1.jpg",
+      "bytes": 218375,
+      "sha256": "e5455cc80d31c1bdd73061b0adc20db239e724df20abf32ca3433b51307d103d"
+    },
+    {
+      "mediaKey": "discovery/glacier-illustration-v1.jpg",
+      "repoPath": "media-remote/discovery/glacier-illustration-v1.jpg",
+      "bytes": 558145,
+      "sha256": "ce3871e9b02d395c9cf02418db12e3b5f39cd7367dfe1778b61e698764b9612b"
+    },
+    {
+      "mediaKey": "discovery/mariana-illustration-v1.jpg",
+      "repoPath": "media-remote/discovery/mariana-illustration-v1.jpg",
+      "bytes": 231678,
+      "sha256": "6430f3cb27bbbd48419166dd5362852c709b3b172a51d49e3ad31bf8bbe162ed"
+    },
+    {
       "mediaKey": "expeditions/everest/live/live-a-kala-patthar.jpg",
       "repoPath": "media-remote/expeditions/everest/live/live-a-kala-patthar.jpg",
       "bytes": 517192,
@@ -281,6 +311,12 @@
       "repoPath": "media-remote/world/globe-specular-2048.jpg",
       "bytes": 309470,
       "sha256": "a987bc1eb35cf12eb6c0510272594730824df855aae2e9e1c30bf8fccfd55a92"
+    },
+    {
+      "mediaKey": "world/globe-texture-realistic-2048.jpg",
+      "repoPath": "media-remote/world/globe-texture-realistic-2048.jpg",
+      "bytes": 394549,
+      "sha256": "971cf0a03a50f202c6472d211f032984ebc3ae1b5736aff92c088152148df304"
     }
   ]
 }

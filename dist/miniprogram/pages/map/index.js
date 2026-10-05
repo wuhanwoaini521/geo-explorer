@@ -17,6 +17,7 @@ const ui_bus_1 = require("../../services/ui-bus");
 const favorites_store_1 = require("../../services/favorites-store");
 const place_search_1 = require("../../utils/place-search");
 const globe_renderer_1 = require("../../engine/globe-renderer");
+const globe_texture_source_1 = require("../../engine/globe-texture-source");
 const globe_marker_projection_1 = require("../../engine/globe-marker-projection");
 const webgl_globe_renderer_1 = require("../../engine/webgl-globe-renderer");
 const media_service_1 = require("../../services/media-service");
@@ -38,16 +39,16 @@ const WORLD_DESTINATION_IDS = [
 ];
 // 仅供地图页「今日推荐」缩略卡使用；地点详情与地图标记仍使用媒体清单中的实景素材。
 const RECOMMENDATION_ILLUSTRATIONS = {
-    "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
-    "p-everest": "/assets/discovery/glacier-illustration-v1.jpg",
-    "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
+    "p-fuji": (0, media_service_1.resolveMediaSrc)("discovery/fuji-illustration-v1.jpg"),
+    "p-everest": (0, media_service_1.resolveMediaSrc)("discovery/glacier-illustration-v1.jpg"),
+    "p-mariana": (0, media_service_1.resolveMediaSrc)("discovery/mariana-illustration-v1.jpg"),
 };
 // 探索页地点浮层与继续探索卡片的氛围图；地球贴图和路线节点仍用原有地理素材。
 const EXPLORE_ILLUSTRATIONS = {
-    "p-everest": "/assets/discovery/everest-illustration-v2.jpg",
-    "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
-    "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
-    "p-colorado": "/assets/discovery/colorado-illustration-v1.jpg",
+    "p-everest": (0, media_service_1.resolveMediaSrc)("discovery/everest-illustration-v2.jpg"),
+    "p-mariana": (0, media_service_1.resolveMediaSrc)("discovery/mariana-illustration-v1.jpg"),
+    "p-fuji": (0, media_service_1.resolveMediaSrc)("discovery/fuji-illustration-v1.jpg"),
+    "p-colorado": (0, media_service_1.resolveMediaSrc)("discovery/colorado-illustration-v1.jpg"),
 };
 const HOME_MAP_LABEL_PRIORITY = {
     "p-everest": 0,
@@ -379,6 +380,11 @@ Page({
                             const line = `[GLOBE_TEXTURE_DIAGNOSTIC] ${JSON.stringify(diagnostic)}`;
                             if (diagnostic.stage === "load-error" || diagnostic.stage === "upload-error") {
                                 console.error(line);
+                                if (diagnostic.key === "color" && diagnostic.src === (0, globe_texture_source_1.globeColorTextureFallbackSrc)()) {
+                                    webglRenderer === null || webglRenderer === void 0 ? void 0 : webglRenderer.dispose();
+                                    webglRenderer = null;
+                                    this.setData({ webglFailed: true }, () => this.fitGlobeCanvasToRecommendationRail());
+                                }
                             }
                             else {
                                 console.info(line);

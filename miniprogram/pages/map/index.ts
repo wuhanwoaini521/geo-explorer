@@ -22,6 +22,7 @@ import { favorites } from "../../services/favorites-store";
 import type { Place, PlaceType } from "../../types/models";
 import { queryPlaces } from "../../utils/place-search";
 import { GlobeRenderer, type GlobeVariant } from "../../engine/globe-renderer";
+import { globeColorTextureFallbackSrc } from "../../engine/globe-texture-source";
 import { markerScreenPercent } from "../../engine/globe-marker-projection";
 import {
   WebGLGlobeRenderer,
@@ -189,17 +190,17 @@ const WORLD_DESTINATION_IDS = [
 
 // 仅供地图页「今日推荐」缩略卡使用；地点详情与地图标记仍使用媒体清单中的实景素材。
 const RECOMMENDATION_ILLUSTRATIONS: Record<string, string> = {
-  "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
-  "p-everest": "/assets/discovery/glacier-illustration-v1.jpg",
-  "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
+  "p-fuji": resolveMediaSrc("discovery/fuji-illustration-v1.jpg"),
+  "p-everest": resolveMediaSrc("discovery/glacier-illustration-v1.jpg"),
+  "p-mariana": resolveMediaSrc("discovery/mariana-illustration-v1.jpg"),
 };
 
 // 探索页地点浮层与继续探索卡片的氛围图；地球贴图和路线节点仍用原有地理素材。
 const EXPLORE_ILLUSTRATIONS: Record<string, string> = {
-  "p-everest": "/assets/discovery/everest-illustration-v2.jpg",
-  "p-mariana": "/assets/discovery/mariana-illustration-v1.jpg",
-  "p-fuji": "/assets/discovery/fuji-illustration-v1.jpg",
-  "p-colorado": "/assets/discovery/colorado-illustration-v1.jpg",
+  "p-everest": resolveMediaSrc("discovery/everest-illustration-v2.jpg"),
+  "p-mariana": resolveMediaSrc("discovery/mariana-illustration-v1.jpg"),
+  "p-fuji": resolveMediaSrc("discovery/fuji-illustration-v1.jpg"),
+  "p-colorado": resolveMediaSrc("discovery/colorado-illustration-v1.jpg"),
 };
 
 const HOME_MAP_LABEL_PRIORITY: Record<string, number> = {
@@ -550,6 +551,11 @@ Page({
                 const line = `[GLOBE_TEXTURE_DIAGNOSTIC] ${JSON.stringify(diagnostic)}`;
                 if (diagnostic.stage === "load-error" || diagnostic.stage === "upload-error") {
                   console.error(line);
+                  if (diagnostic.key === "color" && diagnostic.src === globeColorTextureFallbackSrc()) {
+                    webglRenderer?.dispose();
+                    webglRenderer = null;
+                    this.setData({ webglFailed: true }, () => this.fitGlobeCanvasToRecommendationRail());
+                  }
                 } else {
                   console.info(line);
                 }

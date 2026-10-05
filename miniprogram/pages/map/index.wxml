@@ -26,21 +26,21 @@
       <cover-view class="destination-en">{{selectedDestination.nameEn}}</cover-view>
       <cover-view class="destination-desc destination-desc-compact">{{selectedDestination.description}}</cover-view>
       <cover-view class="destination-metric">{{selectedDestination.metricLabel}} · {{selectedDestination.metricValue}}</cover-view>
-      <cover-view class="destination-action">{{selectedDestination.actionLabel}} <cover-image class="destination-arrow-icon" src="/assets/icons/arrow-teal.svg"></cover-image></cover-view>
+      <cover-view class="destination-action">{{selectedDestination.actionLabel}} <cover-image class="destination-arrow-icon" src="/assets/icons/arrow-teal.png"></cover-image></cover-view>
     </cover-view>
   </view>
 
   <block wx:if="{{!globeEarthOnly}}">
     <cover-view class="map-head" style="top:{{headerTop}}px">
-      <cover-view class="map-brand-mark" aria-hidden="true"><cover-image class="map-brand-icon" src="/assets/icons/brand-location.svg"></cover-image></cover-view>
+      <cover-view class="map-brand-mark" aria-hidden="true"><cover-image class="map-brand-icon" src="/assets/icons/brand-location.png"></cover-image></cover-view>
       <cover-view class="map-title-group">
         <cover-view class="map-title">Geo Explorer</cover-view>
         <cover-view class="map-subtitle">探索地球 · 发现世界 · 理解自然</cover-view>
         <cover-view class="map-title-en">EXPLORE · LEARN · DISCOVER</cover-view>
       </cover-view>
       <cover-view class="map-header-actions">
-        <cover-view class="map-icon-action map-header-action-primary" aria-label="打开地貌图鉴" bindtap="onToggleAtlas"><cover-image class="map-control-icon" src="/assets/icons/search-on-dark.svg"></cover-image></cover-view>
-        <cover-view class="map-icon-action" aria-label="地图设置" bindtap="onOpenMapActions"><cover-image class="map-control-icon" src="/assets/icons/settings-on-dark.svg"></cover-image></cover-view>
+        <cover-view class="map-icon-action map-header-action-primary" aria-label="打开地貌图鉴" bindtap="onToggleAtlas"><cover-image class="map-control-icon" src="/assets/icons/search-on-dark.png"></cover-image></cover-view>
+        <cover-view class="map-icon-action" aria-label="地图设置" bindtap="onOpenMapActions"><cover-image class="map-control-icon" src="/assets/icons/settings-on-dark.png"></cover-image></cover-view>
       </cover-view>
     </cover-view>
 
@@ -61,7 +61,7 @@
           <cover-view class="continue-progress-copy">进度 {{continueCard.progress}}%</cover-view>
           <cover-view class="continue-progress geo-track"><cover-view class="continue-progress-fill geo-track-fill" style="width:{{continueCard.progress}}%"></cover-view></cover-view>
         </cover-view>
-        <cover-view class="continue-action" aria-hidden="true"><cover-image class="continue-arrow-icon" src="/assets/icons/arrow-on-dark.svg"></cover-image></cover-view>
+        <cover-view class="continue-action" aria-hidden="true"><cover-image class="continue-arrow-icon" src="/assets/icons/arrow-on-dark.png"></cover-image></cover-view>
       </cover-view>
     </cover-view>
   </block>

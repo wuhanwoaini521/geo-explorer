@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import {
   MEDIA_PLACEHOLDER,
   isRemoteMediaEnabled,
+  mediaRemoteBase,
   mediaFallbackSrc,
   mediaLocalPath,
   mediaRemoteUrl,
@@ -35,7 +36,7 @@ describe("媒体逻辑键解析", () => {
   it("本地模式（未配置远端）→ 包内路径", () => {
     expect(resolveMediaSrc(KEY, "")).toBe(`/assets/${KEY}`);
     expect(mediaLocalPath(KEY)).toBe(`/assets/${KEY}`);
-    expect(isRemoteMediaEnabled()).toBe(false);
+    expect(isRemoteMediaEnabled()).toBe(mediaRemoteBase().length > 0);
   });
 
   it("远端模式 → 远端地址，且不做本地兜底", () => {

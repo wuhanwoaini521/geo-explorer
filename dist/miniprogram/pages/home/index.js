@@ -19,22 +19,22 @@ const layout_1 = require("../../utils/layout");
 const SCENE_CATALOG = [
     {
         id: "everest", title: "珠穆朗玛峰", subtitle: "世界第一高峰，地球的屋脊", emoji: "🏔️",
-        meta: "8,848 m", badge: "", image: "/assets/discovery/everest-illustration-v2.jpg",
+        meta: "8,848 m", badge: "", image: (0, media_service_1.resolveMediaSrc)("discovery/everest-illustration-v2.jpg"),
         tags: ["山脉", "地貌观察"], type: "mountain", target: "exploration",
     },
     {
         id: "mariana", title: "马里亚纳海沟", subtitle: "地球最深处，神秘的深渊世界", emoji: "🌊",
-        meta: "10,935 m", badge: "", image: "/assets/discovery/mariana-illustration-v1.jpg",
+        meta: "10,935 m", badge: "", image: (0, media_service_1.resolveMediaSrc)("discovery/mariana-illustration-v1.jpg"),
         tags: ["海洋", "下潜"], type: "ocean", target: "exploration",
     },
     {
         id: "colorado", title: "科罗拉多大峡谷", subtitle: "穿越二十亿年的地质历史", emoji: "🏞️",
-        meta: "1,389 m", badge: "", image: "/assets/discovery/colorado-illustration-v1.jpg",
+        meta: "1,389 m", badge: "", image: (0, media_service_1.resolveMediaSrc)("discovery/colorado-illustration-v1.jpg"),
         tags: ["峡谷", "地质剖面"], type: "canyon", target: "exploration",
     },
     {
         id: "fuji", title: "富士山", subtitle: "地球上最活跃的火山之一", emoji: "🗻",
-        meta: "3,776 m", badge: "", image: "/assets/discovery/fuji-illustration-v1.jpg",
+        meta: "3,776 m", badge: "", image: (0, media_service_1.resolveMediaSrc)("discovery/fuji-illustration-v1.jpg"),
         tags: ["火山", "攀登"], type: "volcano", target: "exploration",
     },
 ];

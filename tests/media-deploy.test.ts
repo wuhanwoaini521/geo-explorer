@@ -160,10 +160,10 @@ describe("凭证边界（PASS 条件 9）", () => {
 });
 
 describe("媒体规模（PASS 条件 1 的静态侧）", () => {
-  it("远端媒体 46 个文件，且全部落在 content/ expeditions/ world/ 三个前缀下", () => {
+  it("远端媒体 52 个文件，且全部落在 discovery/ content/ expeditions/ world/ 四个前缀下", () => {
     const files = MM.listRemoteFiles();
-    expect(files.length).toBe(46);
-    const allowed = ["content/", "expeditions/", "world/"];
+    expect(files.length).toBe(52);
+    const allowed = ["discovery/", "content/", "expeditions/", "world/"];
     for (const f of files) {
       expect(allowed.some((p) => f.startsWith(p)), `${f} 不在允许的远端前缀下`).toBe(true);
     }

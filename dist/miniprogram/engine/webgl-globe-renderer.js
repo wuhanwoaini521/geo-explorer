@@ -595,54 +595,35 @@ class WebGLGlobeRenderer {
             return;
         }
         this.globeTextures.sources.forEach(({ key, src, remote }, index) => {
-            var _a, _b;
-            const image = (_b = (_a = this.canvas).createImage) === null || _b === void 0 ? void 0 : _b.call(_a);
-            if (!image) {
-                this.emitTextureDiagnostic({
-                    key,
-                    src,
-                    remote,
-                    stage: "load-error",
-                    error: "Canvas.createImage returned no image",
-                });
-                return;
-            }
-            this.emitTextureDiagnostic({ key, src, remote, stage: "load-start" });
-            image.onload = () => {
-                this.emitTextureDiagnostic({
-                    key,
-                    src,
-                    remote,
-                    stage: "load-success",
-                    width: image.width,
-                    height: image.height,
-                });
-                try {
-                    const glError = this.uploadTexture(this.textures[key], image, index);
-                    if (glError !== GL.NO_ERROR) {
-                        this.emitTextureDiagnostic({
-                            key,
-                            src,
-                            remote,
-                            stage: "upload-error",
-                            width: image.width,
-                            height: image.height,
-                            glError,
-                            error: `WebGL texImage2D failed with 0x${glError.toString(16)}`,
-                        });
-                    }
-                    else {
-                        this.emitTextureDiagnostic({
-                            key,
-                            src,
-                            remote,
-                            stage: "upload-success",
-                            width: image.width,
-                            height: image.height,
-                        });
-                    }
-                }
-                catch (error) {
+            this.loadTexture(key, src, remote, index, key === "color");
+        });
+    }
+    loadTexture(key, src, remote, index, allowColorFallback) {
+        var _a, _b;
+        const image = (_b = (_a = this.canvas).createImage) === null || _b === void 0 ? void 0 : _b.call(_a);
+        if (!image) {
+            this.emitTextureDiagnostic({
+                key,
+                src,
+                remote,
+                stage: "load-error",
+                error: "Canvas.createImage returned no image",
+            });
+            return;
+        }
+        this.emitTextureDiagnostic({ key, src, remote, stage: "load-start" });
+        image.onload = () => {
+            this.emitTextureDiagnostic({
+                key,
+                src,
+                remote,
+                stage: "load-success",
+                width: image.width,
+                height: image.height,
+            });
+            try {
+                const glError = this.uploadTexture(this.textures[key], image, index);
+                if (glError !== GL.NO_ERROR) {
                     this.emitTextureDiagnostic({
                         key,
                         src,
@@ -650,23 +631,54 @@ class WebGLGlobeRenderer {
                         stage: "upload-error",
                         width: image.width,
                         height: image.height,
-                        error: error instanceof Error ? error.message : String(error),
+                        glError,
+                        error: `WebGL texImage2D failed with 0x${glError.toString(16)}`,
+                    });
+                    if (allowColorFallback) {
+                        this.loadTexture(key, (0, globe_texture_source_1.globeColorTextureFallbackSrc)(), false, index, false);
+                    }
+                }
+                else {
+                    this.emitTextureDiagnostic({
+                        key,
+                        src,
+                        remote,
+                        stage: "upload-success",
+                        width: image.width,
+                        height: image.height,
                     });
                 }
-                this.draw();
-            };
-            image.onerror = (error) => {
+            }
+            catch (error) {
                 this.emitTextureDiagnostic({
                     key,
                     src,
                     remote,
-                    stage: "load-error",
-                    error: this.describeImageError(error),
+                    stage: "upload-error",
+                    width: image.width,
+                    height: image.height,
+                    error: error instanceof Error ? error.message : String(error),
                 });
-                this.draw();
-            };
-            image.src = src;
-        });
+                if (allowColorFallback) {
+                    this.loadTexture(key, (0, globe_texture_source_1.globeColorTextureFallbackSrc)(), false, index, false);
+                }
+            }
+            this.draw();
+        };
+        image.onerror = (error) => {
+            this.emitTextureDiagnostic({
+                key,
+                src,
+                remote,
+                stage: "load-error",
+                error: this.describeImageError(error),
+            });
+            if (allowColorFallback) {
+                this.loadTexture(key, (0, globe_texture_source_1.globeColorTextureFallbackSrc)(), false, index, false);
+            }
+            this.draw();
+        };
+        image.src = src;
     }
     uploadTexture(texture, image, index) {
         var _a, _b, _c;

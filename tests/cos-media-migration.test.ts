@@ -33,6 +33,7 @@ import { buildManifest } from "../scripts/media-manifest.mjs";
 import {
   MEDIA_PLACEHOLDER,
   isRemoteMediaEnabled,
+  mediaRemoteBase,
   resolveMediaSrc,
 } from "../miniprogram/services/media-service";
 import { validateProductionBase } from "../scripts/check-media-config.mjs";
@@ -156,9 +157,9 @@ describe("Security — Credential Redaction & Signature Safety", () => {
 });
 
 describe("Stage 9 — Collision Checking & Manifest Mapping", () => {
-  it("所有 46 个本地媒体文件生成的目标 COS Key 无碰撞且全部合法", () => {
+  it("所有 52 个媒体文件生成的目标 COS Key 无碰撞且全部合法", () => {
     const manifest = buildManifest();
-    expect(manifest.count).toBe(46);
+    expect(manifest.count).toBe(52);
 
     const collisions = checkCollisions(manifest.files, MAIN_V1_COS_PREFIX);
     expect(collisions).toEqual([]);
@@ -188,7 +189,7 @@ describe("Stage 10 & 11 — Runtime Resolver & Fallback Contract", () => {
 
   it("未配置远端基址时解析为本地包内路径", () => {
     expect(resolveMediaSrc(TEST_KEY, "")).toBe(`/assets/${TEST_KEY}`);
-    expect(isRemoteMediaEnabled()).toBe(false);
+    expect(isRemoteMediaEnabled()).toBe(mediaRemoteBase().length > 0);
   });
 
   it("配置 Delivery Base 后解析为 EdgeOne / CDN 交付 URL", () => {

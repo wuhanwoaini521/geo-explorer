@@ -241,6 +241,14 @@ class GlobeRenderer {
             this.draw();
         };
         image.onerror = () => {
+            if (image.src === TEXTURE_SRC) {
+                image.onerror = () => {
+                    this.textureReady = false;
+                    this.draw();
+                };
+                image.src = (0, globe_texture_source_1.globeColorTextureFallbackSrc)();
+                return;
+            }
             this.textureReady = false;
             this.draw();
         };

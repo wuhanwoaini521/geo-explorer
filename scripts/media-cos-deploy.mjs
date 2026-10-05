@@ -149,7 +149,7 @@ async function main() {
     }
     process.exit(1);
   }
-  console.log(`Collision Check:  PASS (46 files map 1:1 uniquely)`);
+  console.log(`Collision Check:  PASS (${manifest.count} files map 1:1 uniquely)`);
 
   // 3. 执行 Smoke Test
   if (isSmokeOnly) {

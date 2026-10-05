@@ -5,7 +5,7 @@
  * 光照和经纬度投影，不连接在线地图服务，也不把地点 Marker 当成独立 UI 图层。
  */
 
-import { globeColorTextureSrc } from "./globe-texture-source";
+import { globeColorTextureFallbackSrc, globeColorTextureSrc } from "./globe-texture-source";
 
 export interface GlobeMarker {
   id: string;
@@ -360,6 +360,14 @@ export class GlobeRenderer {
       this.draw();
     };
     image.onerror = () => {
+      if (image.src === TEXTURE_SRC) {
+        image.onerror = () => {
+          this.textureReady = false;
+          this.draw();
+        };
+        image.src = globeColorTextureFallbackSrc();
+        return;
+      }
       this.textureReady = false;
       this.draw();
     };

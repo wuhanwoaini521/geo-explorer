@@ -18,4 +18,4 @@ exports.MEDIA_REMOTE_BASE = void 0;
  * 值必须包含版本目录（如 prod/v1/）：资源内容变化时新建 v2/，不覆盖仍被线上版本
  * 引用的 v1/，这样既能用 CDN 长缓存，也能回滚。
  */
-exports.MEDIA_REMOTE_BASE = "";
+exports.MEDIA_REMOTE_BASE = "https://geo-explore-1300119616.cos.ap-guangzhou.myqcloud.com/geo-media/main-v1/";

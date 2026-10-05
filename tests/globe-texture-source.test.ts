@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import {
   GLOBE_TEXTURE_HIGH_SIZE,
   GLOBE_TEXTURE_STANDARD_SIZE,
+  globeColorTextureFallbackSrc,
   globeColorTextureSrc,
   resolveGlobeTextures,
 } from "../miniprogram/engine/globe-texture-source";
@@ -51,13 +52,13 @@ describe("resolveGlobeTextures —— 本地模式（未配置远端）", () => 
 });
 
 describe("resolveGlobeTextures —— 远端模式", () => {
-  it("2048：颜色图仍在包内，高度/镜面走远端", () => {
+  it("2048：颜色、高度和镜面图均从远端加载", () => {
     const r = resolveGlobeTextures(2048, CDN);
     expect(r.tier).toBe("standard");
     expect(r.size).toBe(GLOBE_TEXTURE_STANDARD_SIZE);
     const by = Object.fromEntries(r.sources.map((s) => [s.key, s]));
-    expect(by.color.remote).toBe(false);
-    expect(by.color.src).toBe("/assets/world/globe-texture-realistic-2048.webp");
+    expect(by.color.remote).toBe(true);
+    expect(by.color.src).toBe(`${CDN}world/globe-texture-realistic-2048.jpg`);
     expect(by.height.remote).toBe(true);
     expect(by.height.src).toBe(`${CDN}world/globe-height-2048.jpg`);
     expect(by.specular.remote).toBe(true);
@@ -82,22 +83,28 @@ describe("resolveGlobeTextures —— 远端模式", () => {
 });
 
 describe("globeColorTextureSrc", () => {
-  it("始终指向包内颜色贴图", () => {
+  it("本地开发使用随包 WebP，生产远端使用 COS JPEG", () => {
     expect(globeColorTextureSrc()).toBe("/assets/world/globe-texture-realistic-2048.webp");
+    expect(globeColorTextureSrc(CDN)).toBe(`${CDN}world/globe-texture-realistic-2048.jpg`);
+  });
+
+  it("提供小体积 JPEG 作为 WebP 解码失败时的设备兼容回退", () => {
+    expect(globeColorTextureFallbackSrc()).toBe("/assets/world/globe-texture-realistic-1536.jpg");
   });
 });
 
 describe("构建产物边界", () => {
-  it("包内存在颜色贴图与地图兜底 SVG", () => {
+  it("包内存在颜色贴图、JPEG 兼容贴图与地图兜底 SVG", () => {
     if (!existsSync(DIST)) return;
     expect(existsSync(join(DIST_WORLD, "globe-texture-realistic-2048.webp"))).toBe(true);
+    expect(existsSync(join(DIST_WORLD, "globe-texture-realistic-1536.jpg"))).toBe(true);
     expect(existsSync(join(DIST_WORLD, "globe-texture-realistic-2048.jpg"))).toBe(false);
     expect(existsSync(join(DIST_WORLD, "world-map.svg"))).toBe(true);
   });
 
-  it("包内不存在远端化的地球材质图", () => {
+  it("包内不存在远端化的地球颜色和材质图", () => {
     if (!existsSync(DIST)) return;
-    for (const f of ["globe-height-2048.jpg", "globe-specular-2048.jpg"]) {
+    for (const f of ["globe-texture-realistic-2048.jpg", "globe-height-2048.jpg", "globe-specular-2048.jpg"]) {
       expect(existsSync(join(DIST_WORLD, f)), `${f} 应已远端化，不应出现在代码包`).toBe(false);
     }
   });

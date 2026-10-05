@@ -3,10 +3,9 @@
  *
  * 所有权（Gate 4 媒体解耦）
  * ------------------------
- * - **颜色贴图始终留在包内**（2048）。它是地图 tabBar 页面的首屏主视觉，也是
- *   WebGL/Canvas 两条渲染路径的共同输入：走远端会让小球在冷启动时先空一帧、
- *   并在弱网/失败时退化成纯色球。颜色贴图保持 2048×1024，使用 WebP 将体积
- *   控制在微信代码质量建议的 200 KB 以内。
+ * - 正式构建优先从 COS 加载 2048 JPEG 颜色贴图；包内 1536 JPEG 在远端失败时兜底，
+ *   本地开发则使用 2048 WebP。这样既能保证正式素材由远端统一管理，也不把首屏
+ *   地球渲染绑定到网络或设备对 WebP/WebGL 的支持。
  * - **高度图与镜面图走远端**。它们是次要光照线索，远端失败时渲染器保留
  *   1×1 占位贴图 → 地球仍以基础光照正常渲染，交互不受影响。
  * - **4096 档位只在配置了远端基址时才可用**，此时三张图都从远端取；
@@ -40,6 +39,8 @@ export const GLOBE_TEXTURE_HIGH_SIZE = 4096;
 
 /** 包内颜色贴图使用 WebP 控制主包体积；远端材质图继续使用 JPEG。 */
 export const GLOBE_TEXTURE_LOCAL_COLOR_EXT = ".webp";
+/** 低一档分辨率的 JPEG，仅在 Canvas/WebGL 不支持本地 WebP 时回退。 */
+export const GLOBE_TEXTURE_LOCAL_COLOR_FALLBACK = "/assets/world/globe-texture-realistic-1536.jpg";
 export const GLOBE_TEXTURE_REMOTE_EXT = ".jpg";
 
 /** 远端贴图在媒体根下的子目录 */
@@ -98,8 +99,7 @@ export function resolveGlobeTextures(
     tier: "standard",
     size,
     sources: GLOBE_TEXTURE_KEYS.map((key) => {
-      // 颜色贴图是渲染器关键资源，始终从包内取
-      const remote = hasRemote && key !== "color";
+      const remote = hasRemote;
       return {
         key,
         src: remote ? remoteSrc(remoteBase, key, size) : localSrc(key, size),
@@ -109,7 +109,14 @@ export function resolveGlobeTextures(
   };
 }
 
-/** Canvas 2D 兜底渲染器使用的单张颜色贴图地址（始终在包内） */
-export function globeColorTextureSrc(): string {
-  return localSrc("color", GLOBE_TEXTURE_STANDARD_SIZE);
+/** Canvas 2D 渲染器使用的颜色贴图：生产远端优先，本地开发读取随包 WebP。 */
+export function globeColorTextureSrc(remoteBase: string = mediaRemoteBase()): string {
+  return remoteBase
+    ? remoteSrc(remoteBase, "color", GLOBE_TEXTURE_STANDARD_SIZE)
+    : localSrc("color", GLOBE_TEXTURE_STANDARD_SIZE);
+}
+
+/** WebP 解码或纹理上传失败时使用的本地兼容颜色贴图。 */
+export function globeColorTextureFallbackSrc(): string {
+  return GLOBE_TEXTURE_LOCAL_COLOR_FALLBACK;
 }
