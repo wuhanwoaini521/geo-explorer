@@ -85,6 +85,37 @@ describe("Journey 交互回归", () => {
     inst.onTouchStart({touches:[{clientY:200}]});inst.onTouchMove({touches:[{clientY:400}]});
     expect(inst.target).toBe(target);inst.onUnload();
   });
+  it("富士山点击前往下一站后切入跟随镜头，焦点随路线进度渐进上移", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "fuji" });
+    inst.onStartClimb();
+    driveTo(inst, 0.1);
+    inst.onJourneyView({ currentTarget: { dataset: { view: "focus" } } });
+    const startTransform = String(inst.data.routeLayerTransform);
+    const startScale = Number(startTransform.match(/scale\(([\d.]+)\)/)?.[1]);
+    const startMarkerY = Number(inst.data.conceptRouteMarker.y);
+
+    driveTo(inst, 0.75);
+
+    const nextTransform = String(inst.data.routeLayerTransform);
+    const nextScale = Number(nextTransform.match(/scale\(([\d.]+)\)/)?.[1]);
+    expect(nextTransform).not.toBe(startTransform);
+    expect(nextScale).toBeGreaterThan(startScale);
+    expect(inst.data.conceptRouteMarker.y).toBeLessThan(startMarkerY);
+    inst.onUnload();
+  });
+  it("富士山前往下一站时自动切入当前位置镜头", () => {
+    const inst = createInstance(pageDef);
+    inst.onLoad({ id: "fuji" });
+    inst.onStartClimb();
+    driveTo(inst, 0);
+
+    inst.onContinueJourney();
+
+    expect(inst.data.journeyView).toBe("focus");
+    expect(inst.data.expClimbing).toBe(true);
+    inst.onUnload();
+  });
   it("大峡谷向下拖动会沿路线下降，并显示当前岩层", () => {
     const inst=createInstance(pageDef);inst.onLoad({id:"colorado"});inst.onStartClimb();driveTo(inst,0);
     inst.onTouchStart({touches:[{clientY:200}]});inst.onTouchMove({touches:[{clientY:300}]});

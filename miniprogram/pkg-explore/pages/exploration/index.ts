@@ -967,6 +967,7 @@ Page({
     metricsOpen: false,
     worldMountain: false,
     worldOcean: false,
+    worldFuji: false,
     // 非山岳世界：实景主视觉（approved hero）；空串时回退原 CSS 渐变场景
     worldPhoto: "",
     scene: SCENE_DEFAULT as SceneState,
@@ -1032,6 +1033,7 @@ Page({
     marineSnowParticles: [] as Particle[], // 海洋世界：深海海雪粒子（复用 Particle 结构）
     // 海洋世界使用纯函数生成物理分层参数；不把任务舱内照片冒充海沟或海床。
     mariana: marianaPresentationAt(0),
+    marianaTerrainHeroSrc: resolveMediaSrc("expeditions/mariana/mariana-trench-v1.jpg"),
     journeyView: "focus" as JourneyView,
     journey: null as JourneyState | null,
     worldCanyon: false,
@@ -1212,9 +1214,10 @@ Page({
     this.routeGeometryKey = "";
     this.exploration = exploration;
     // 主视觉跟随该世界的 routePath（非珠峰世界是实景照片，珠峰是自制 DEM 渲染图）
-    this.expeditionHeroImage =
-      (expedition && expedition.routePath && expedition.routePath.default.image) ||
-      EVEREST_CUSTOM_VISUAL;
+    const routeHeroImage = expedition?.routePath?.default.image;
+    this.expeditionHeroImage = routeHeroImage
+      ? resolveMediaSrc(routeHeroImage)
+      : EVEREST_CUSTOM_VISUAL;
     this.expeditionVerb = EXPEDITION_ACTION[expedition?.type ?? "CLIMB"] ?? EXPEDITION_ACTION.CLIMB;
     // 地点内容索引：路线模式的 waypoint 位置来自山体路径，内容仍来自场景数据
     const routeContent = new Map<string, ExplorationRouteWaypoint>();
@@ -1225,7 +1228,9 @@ Page({
     // Gate 3.3C：Dual Visual Mode 会话初始化（无视觉配置的旧场景如 Mariana 保持 TERRAIN）
     this.visualConfig = expedition?.visualMode ?? null;
     this.visualMedia = expedition?.media ?? null;
-    this.visMode = expedition?.visualMode?.defaultMode ?? "TERRAIN";
+    this.visMode = exploration.id === "fuji"
+      ? "TERRAIN"
+      : expedition?.visualMode?.defaultMode ?? "TERRAIN";
     this.visMountedSrc = "";
     this.visBroken = false;
     this.visLiveNoted = false;
@@ -1301,7 +1306,8 @@ Page({
       // Relay 模式：路由 HUD 初始态（动作文案必须先按世界类型初始化，
       // 不能只依赖 updateClimbUi——它要等用户动手才会被调用，首帧会显示硬编码的「攀登」）
       routeMode: this.routeMode,
-      journeyView: "focus",
+      journeyView: exploration.id === "fuji" ? "overview" : "focus",
+      worldFuji: exploration.id === "fuji",
       worldCanyon: exploration.id === "colorado",
       expClimbLabel: this.expeditionVerb.verb,
       expTerminus: EXPEDITION_TERMINUS[expedition?.type ?? "CLIMB"] ?? EXPEDITION_TERMINUS.CLIMB,
@@ -1823,6 +1829,10 @@ Page({
     if (journey.nextId) {
       const nextMedia = resolveWaypointMedia(journey.nextId);
       if (nextMedia.images.length) journey.nextImage = nextMedia.images[0];
+    }
+    if (journey.currentId) {
+      const currentMedia = resolveWaypointMedia(journey.currentId);
+      if (currentMedia.images.length) journey.currentImage = currentMedia.images[0];
     }
     const journeyKey = `${drive.progress.toFixed(4)}|${this.data.journeyView}`;
     if (this.frameCache.journeyKey !== journeyKey) {
@@ -3137,7 +3147,7 @@ Page({
     }
     this.setData({
       intro: false,
-      journeyView: "focus",
+      journeyView: this.data.worldFuji ? "overview" : "focus",
       expClimbing: false,
       expMoving: false,
       celebration: false,

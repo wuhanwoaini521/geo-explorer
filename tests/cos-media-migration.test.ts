@@ -157,9 +157,9 @@ describe("Security — Credential Redaction & Signature Safety", () => {
 });
 
 describe("Stage 9 — Collision Checking & Manifest Mapping", () => {
-  it("所有 52 个媒体文件生成的目标 COS Key 无碰撞且全部合法", () => {
+  it("所有 54 个媒体文件生成的目标 COS Key 无碰撞且全部合法", () => {
     const manifest = buildManifest();
-    expect(manifest.count).toBe(52);
+    expect(manifest.count).toBe(54);
 
     const collisions = checkCollisions(manifest.files, MAIN_V1_COS_PREFIX);
     expect(collisions).toEqual([]);

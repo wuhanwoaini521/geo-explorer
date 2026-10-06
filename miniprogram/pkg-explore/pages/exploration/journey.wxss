@@ -14,6 +14,7 @@
 .journey-eyebrow { display: block; color: #94b7c3; font-size: 17rpx; letter-spacing: 2rpx; line-height: 1.5; }
 .journey-dock { position: absolute; bottom: 0; left: 0; right: 0; height: calc(var(--journey-dock-height) + env(safe-area-inset-bottom)); padding: 26rpx 30rpx calc(24rpx + env(safe-area-inset-bottom)); box-sizing: border-box; background: #0c202d; border-top: 1rpx solid #35515c; z-index: 20; display: flex; flex-direction: column; gap: 14rpx; color: #edf6f8; }
 .journey-dock-ocean { background: #071c27; }
+.world-fuji .journey-dock { background: rgba(8,23,39,.84); backdrop-filter: blur(10rpx); }
 .journey-location { display: flex; justify-content: space-between; align-items: center; gap: 20rpx; min-height: 78rpx; }
 .journey-location-copy { flex: 1; min-width: 0; }
 .journey-place { display: block; margin-top: 6rpx; font-size: 32rpx; font-weight: 650; line-height: 1.25; }
@@ -33,6 +34,8 @@
 .journey-discovery { display: flex; gap: 13rpx; align-items: center; min-height: 60rpx; }
 .journey-preview { display: flex; gap: 13rpx; align-items: center; min-height: 88rpx; padding: 8rpx; margin: -4rpx -8rpx; border-radius: 14rpx; background: rgba(255,255,255,.045); }
 .journey-preview:active { background: rgba(182,238,227,.12); }
+.journey-field-note { border: 1rpx solid rgba(157,220,233,.28); background: rgba(6,24,36,.68); }
+.journey-field-note .journey-discovery-label { color: #9edce5; letter-spacing: 1rpx; }
 .journey-preview-image { width: 92rpx; height: 72rpx; flex-shrink: 0; border-radius: 10rpx; background: #18313d; }
 .journey-preview-placeholder { display: flex; align-items: center; justify-content: center; color: #91adb8; font-size: 17rpx; }
 .journey-preview-copy { flex: 1; min-width: 0; }
@@ -54,6 +57,7 @@
 
 /* The water-column is deliberately a labelled schematic, not a false seabed photo. */
 .descent-environment { position: absolute; inset: 0; overflow: hidden; transition: background 700ms linear; }
+.descent-terrain { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - var(--journey-dock-height) - env(safe-area-inset-bottom)); }
 .descent-light { position: absolute; inset: 0; background: linear-gradient(109deg, transparent 12%, #b3edee66 16%, transparent 30%, #b3edee33 43%, transparent 53%); }
 .descent-snow { position: absolute; inset: 15% 0 25%; }
 .descent-particle { position: absolute; width: 3rpx; height: 3rpx; border-radius: 50%; background: #c1dfe0; animation: descentDrift 7s linear infinite; }

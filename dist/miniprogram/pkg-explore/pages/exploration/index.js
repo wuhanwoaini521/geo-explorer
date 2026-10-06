@@ -512,6 +512,7 @@ Page({
         metricsOpen: false,
         worldMountain: false,
         worldOcean: false,
+        worldFuji: false,
         // 非山岳世界：实景主视觉（approved hero）；空串时回退原 CSS 渐变场景
         worldPhoto: "",
         scene: SCENE_DEFAULT,
@@ -576,6 +577,7 @@ Page({
         marineSnowParticles: [], // 海洋世界：深海海雪粒子（复用 Particle 结构）
         // 海洋世界使用纯函数生成物理分层参数；不把任务舱内照片冒充海沟或海床。
         mariana: (0, mariana_presentation_1.marianaPresentationAt)(0),
+        marianaTerrainHeroSrc: (0, media_service_1.resolveMediaSrc)("expeditions/mariana/mariana-trench-v1.jpg"),
         journeyView: "focus",
         journey: null,
         worldCanyon: false,
@@ -709,7 +711,7 @@ Page({
     celebrationTimer: null,
     /* ---------------- 生命周期 ---------------- */
     onLoad(query) {
-        var _a, _b, _c, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+        var _a, _b, _c, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
         this.installMotionAudit();
         this.refreshSafeArea();
         const id = (query && query.id) || "";
@@ -738,19 +740,22 @@ Page({
         this.routeGeometryKey = "";
         this.exploration = exploration;
         // 主视觉跟随该世界的 routePath（非珠峰世界是实景照片，珠峰是自制 DEM 渲染图）
-        this.expeditionHeroImage =
-            (expedition && expedition.routePath && expedition.routePath.default.image) ||
-                EVEREST_CUSTOM_VISUAL;
-        this.expeditionVerb = (_e = EXPEDITION_ACTION[(_c = expedition === null || expedition === void 0 ? void 0 : expedition.type) !== null && _c !== void 0 ? _c : "CLIMB"]) !== null && _e !== void 0 ? _e : EXPEDITION_ACTION.CLIMB;
+        const routeHeroImage = (_c = expedition === null || expedition === void 0 ? void 0 : expedition.routePath) === null || _c === void 0 ? void 0 : _c.default.image;
+        this.expeditionHeroImage = routeHeroImage
+            ? (0, media_service_1.resolveMediaSrc)(routeHeroImage)
+            : EVEREST_CUSTOM_VISUAL;
+        this.expeditionVerb = (_f = EXPEDITION_ACTION[(_e = expedition === null || expedition === void 0 ? void 0 : expedition.type) !== null && _e !== void 0 ? _e : "CLIMB"]) !== null && _f !== void 0 ? _f : EXPEDITION_ACTION.CLIMB;
         // 地点内容索引：路线模式的 waypoint 位置来自山体路径，内容仍来自场景数据
         const routeContent = new Map();
         const routeWaypoints = (exploration.route && exploration.route.waypoints) || [];
         routeWaypoints.forEach((waypoint) => routeContent.set(waypoint.id, waypoint));
         this.routeContent = routeContent;
         // Gate 3.3C：Dual Visual Mode 会话初始化（无视觉配置的旧场景如 Mariana 保持 TERRAIN）
-        this.visualConfig = (_f = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) !== null && _f !== void 0 ? _f : null;
-        this.visualMedia = (_g = expedition === null || expedition === void 0 ? void 0 : expedition.media) !== null && _g !== void 0 ? _g : null;
-        this.visMode = (_j = (_h = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) === null || _h === void 0 ? void 0 : _h.defaultMode) !== null && _j !== void 0 ? _j : "TERRAIN";
+        this.visualConfig = (_g = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) !== null && _g !== void 0 ? _g : null;
+        this.visualMedia = (_h = expedition === null || expedition === void 0 ? void 0 : expedition.media) !== null && _h !== void 0 ? _h : null;
+        this.visMode = exploration.id === "fuji"
+            ? "TERRAIN"
+            : (_k = (_j = expedition === null || expedition === void 0 ? void 0 : expedition.visualMode) === null || _j === void 0 ? void 0 : _j.defaultMode) !== null && _k !== void 0 ? _k : "TERRAIN";
         this.visMountedSrc = "";
         this.visBroken = false;
         this.visLiveNoted = false;
@@ -804,7 +809,7 @@ Page({
             metaPlace: exploration.meta.placeLabel,
             metaRegion: exploration.meta.region,
             // 路线副标题由场景数据提供（不再硬编码珠峰路线名）
-            routeSub: (_l = (_k = exploration.route) === null || _k === void 0 ? void 0 : _k.name) !== null && _l !== void 0 ? _l : exploration.meta.typeLabel,
+            routeSub: (_m = (_l = exploration.route) === null || _l === void 0 ? void 0 : _l.name) !== null && _m !== void 0 ? _m : exploration.meta.typeLabel,
             estMinutes: exploration.estimatedMinutes,
             metaDesc: exploration.meta.description,
             ui: { ...DEFAULT_UI, ...(exploration.ui || {}) },
@@ -812,10 +817,11 @@ Page({
             // Relay 模式：路由 HUD 初始态（动作文案必须先按世界类型初始化，
             // 不能只依赖 updateClimbUi——它要等用户动手才会被调用，首帧会显示硬编码的「攀登」）
             routeMode: this.routeMode,
-            journeyView: "focus",
+            journeyView: exploration.id === "fuji" ? "overview" : "focus",
+            worldFuji: exploration.id === "fuji",
             worldCanyon: exploration.id === "colorado",
             expClimbLabel: this.expeditionVerb.verb,
-            expTerminus: (_o = EXPEDITION_TERMINUS[(_m = expedition === null || expedition === void 0 ? void 0 : expedition.type) !== null && _m !== void 0 ? _m : "CLIMB"]) !== null && _o !== void 0 ? _o : EXPEDITION_TERMINUS.CLIMB,
+            expTerminus: (_p = EXPEDITION_TERMINUS[(_o = expedition === null || expedition === void 0 ? void 0 : expedition.type) !== null && _o !== void 0 ? _o : "CLIMB"]) !== null && _p !== void 0 ? _p : EXPEDITION_TERMINUS.CLIMB,
             // Gate 3.3C.1：请求 = 默认模式；首帧 sync 会把 active 纠正为实际渲染
             visMode: this.visMode,
             visActive: this.visMode,
@@ -827,7 +833,7 @@ Page({
             // 有 Expedition 附件（routePath）的世界同样走沉浸式地形分支；
             // 但海洋世界（style === 'ocean'）拥有专属物理分层沉浸背景（光柱/海雪/海沟岩壁/海底坐底），不混入山岳 DEM。
             worldMountain: Boolean(exploration.world && exploration.world.style === "mountain") ||
-                (Boolean(expedition && expedition.routePath) && ((_p = exploration.world) === null || _p === void 0 ? void 0 : _p.style) !== "ocean"),
+                (Boolean(expedition && expedition.routePath) && ((_q = exploration.world) === null || _q === void 0 ? void 0 : _q.style) !== "ocean"),
             worldOcean: (exploration.world && exploration.world.style === "ocean") || false,
             // 非山岳世界：实景照片替代抽象 CSS 场景（2026-09-12 用户反馈）
             worldPhoto: resolveWorldPhoto(exploration),
@@ -1244,6 +1250,11 @@ Page({
             const nextMedia = resolveWaypointMedia(journey.nextId);
             if (nextMedia.images.length)
                 journey.nextImage = nextMedia.images[0];
+        }
+        if (journey.currentId) {
+            const currentMedia = resolveWaypointMedia(journey.currentId);
+            if (currentMedia.images.length)
+                journey.currentImage = currentMedia.images[0];
         }
         const journeyKey = `${drive.progress.toFixed(4)}|${this.data.journeyView}`;
         if (this.frameCache.journeyKey !== journeyKey) {
@@ -2491,7 +2502,7 @@ Page({
         }
         this.setData({
             intro: false,
-            journeyView: "focus",
+            journeyView: this.data.worldFuji ? "overview" : "focus",
             expClimbing: false,
             expMoving: false,
             celebration: false,

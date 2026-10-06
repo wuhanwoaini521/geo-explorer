@@ -1696,6 +1696,20 @@ page {
   0%, 100% { box-shadow: 0 0 11rpx rgba(255, 203, 77, 0.75), 0 1rpx 3rpx rgba(35, 22, 4, 0.55); }
   50% { box-shadow: 0 0 20rpx rgba(255, 226, 132, 1), 0 1rpx 3rpx rgba(35, 22, 4, 0.55); }
 }
+.world-fuji .concept-route-seg-base {
+  background: #fff0bf;
+  box-shadow: 0 0 0 2rpx rgba(5, 22, 36, 0.68), 0 0 9rpx rgba(255, 218, 117, 0.78);
+}
+.world-fuji .concept-route-seg-completed {
+  box-shadow: 0 0 0 3rpx rgba(5, 22, 36, 0.76), 0 0 16rpx rgba(255, 200, 68, 0.96), 0 1rpx 3rpx rgba(35, 22, 4, 0.7);
+}
+.world-fuji .concept-route-seg-active {
+  animation: fujiClimbFlow 0.9s ease-in-out infinite;
+}
+@keyframes fujiClimbFlow {
+  0%, 100% { box-shadow: 0 0 0 3rpx rgba(5, 22, 36, 0.76), 0 0 12rpx rgba(255, 200, 68, 0.78); }
+  50% { box-shadow: 0 0 0 3rpx rgba(5, 22, 36, 0.76), 0 0 22rpx rgba(255, 226, 132, 1); }
+}
 /* Waypoint：路线上的真实地理节点（点击可回看地点知识卡） */
 .concept-route-point {
   position: absolute;

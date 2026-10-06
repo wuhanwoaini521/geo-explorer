@@ -1,4 +1,4 @@
-<view wx:if="{{ready}}" class="page {{routeMode ? 'route-mode' : ''}} {{worldOcean ? 'ocean-mode' : ''}} {{worldCanyon ? 'canyon-mode' : ''}} journey-page journey-{{journeyView}}" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd">
+<view wx:if="{{ready}}" class="page {{routeMode ? 'route-mode' : ''}} {{worldOcean ? 'ocean-mode' : ''}} {{worldCanyon ? 'canyon-mode' : ''}} {{worldFuji ? 'world-fuji' : ''}} journey-page journey-{{journeyView}}" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" bindtouchcancel="onTouchEnd">
   <!-- ===== 环境图层（共享天空：数据驱动自引擎） ===== -->
   <view class="layer-sky" style="background:{{skyGradient}}"></view>
 
@@ -149,7 +149,7 @@
     </view>
 
     <!-- Gate 3.3C.1：LIVE 实景 / TERRAIN（DEM）切换（右上角低打扰；right 由 capRight 驱动，清开原生胶囊） -->
-    <view wx:if="{{!worldOcean}}" class="vis-toggle">
+    <view wx:if="{{!worldOcean && !worldFuji}}" class="vis-toggle">
       <text class="vis-toggle-item {{visActive === 'LIVE' ? 'vis-on' : ''}} {{visLiveFallback ? 'vis-unavailable' : ''}}" data-mode="LIVE" bindtap="onToggleVisualMode">{{visLiveFallback ? '实景·不可用' : '实景'}}</text>
       <text class="vis-toggle-item {{visActive === 'TERRAIN' ? 'vis-on' : ''}}" data-mode="TERRAIN" bindtap="onToggleVisualMode">DEM</text>
     </view>

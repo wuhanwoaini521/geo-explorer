@@ -98,6 +98,14 @@ describe("非珠峰世界已接入 Expedition 机制", () => {
     }
   });
 
+  it("富士山路线从底部可见区域起步，并逐段向峰顶上行", () => {
+    const spine = getExpeditionById("fuji")!.routePath!.default.spine;
+    expect(spine[0].y).toBeLessThanOrEqual(0.6);
+    for (let i = 1; i < spine.length; i += 1) {
+      expect(spine[i].y).toBeLessThan(spine[i - 1].y);
+    }
+  });
+
   it("spine 落在竖屏 cover 裁切的可见窗口内（否则折线被裁到画面外）", () => {
     // 探索页主视觉铺满竖屏。横图按高度 cover 后只有中部一条可见，
     // 因此路线 x 必须收在 focusX ± 半窗口 之内——大峡谷曾因横向跨度过大而几乎看不见。

@@ -12,7 +12,7 @@ const CANYON_LAYERS = {
 };
 /** A presentation projection of the canonical route; never a second progress store. */
 function journeyAt(milestones, content, progress, view, world) {
-    var _a, _b;
+    var _a, _b, _c;
     const p = Math.max(0, Math.min(1, Number.isFinite(progress) ? progress : 0));
     const index = Math.max(0, milestones.filter(m => m.progress <= p + 1e-6).length - 1);
     const current = milestones[index];
@@ -38,6 +38,7 @@ function journeyAt(milestones, content, progress, view, world) {
     });
     return {
         nodes, currentId: (current === null || current === void 0 ? void 0 : current.id) || "", currentName: (current === null || current === void 0 ? void 0 : current.name) || "",
+        currentShortName: (point === null || point === void 0 ? void 0 : point.shortName) || (current === null || current === void 0 ? void 0 : current.name) || "",
         nextId: (next === null || next === void 0 ? void 0 : next.id) || "", nextName: (next === null || next === void 0 ? void 0 : next.name) || "旅程完成",
         nextShortName: (nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.shortName) || (next === null || next === void 0 ? void 0 : next.name) || "旅程完成",
         index: index + 1, count: milestones.length,
@@ -46,13 +47,14 @@ function journeyAt(milestones, content, progress, view, world) {
         overallPercent: Math.round(p * 100),
         stripPercent: Math.round(position / last * 1000) / 10,
         observation: (point === null || point === void 0 ? void 0 : point.whatToNotice) || (point === null || point === void 0 ? void 0 : point.desc) || "沿路线观察环境的变化。",
+        currentImage: ((_a = point === null || point === void 0 ? void 0 : point.images) === null || _a === void 0 ? void 0 : _a[0]) || "",
         nextPreview: next ? (nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.desc) || "下一处发现正在前方。" : "回看沿途发现，或把这次探索留在你的记录里。",
-        nextImage: ((_a = nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.images) === null || _a === void 0 ? void 0 : _a[0]) || "",
-        nextDepth: next ? next.refM : (_b = current === null || current === void 0 ? void 0 : current.refM) !== null && _b !== void 0 ? _b : 0,
+        nextImage: ((_b = nextPoint === null || nextPoint === void 0 ? void 0 : nextPoint.images) === null || _b === void 0 ? void 0 : _b[0]) || "",
+        nextDepth: next ? next.refM : (_c = current === null || current === void 0 ? void 0 : current.refM) !== null && _c !== void 0 ? _c : 0,
         axisLabel: ocean ? "深度" : canyon ? "海拔" : "海拔",
         movement: ocean ? "下潜" : canyon ? "下降" : "攀登",
         sceneLabel: ocean ? "深海垂直下潜" : canyon ? "峡谷地层下切" : world === "everest" ? "珠峰南坡攀登" : world === "fuji" ? "富士山攀登" : "地貌探索",
-        scaleLabel: ocean ? "水层与路线示意 · 非等比" : canyon ? "路线与地层示意 · 非导航" : "照片观察路线 · 非导航",
+        scaleLabel: ocean ? "水层与路线示意 · 非等比" : canyon ? "路线与地层示意 · 非导航" : world === "fuji" ? "概念地形与攀登路线 · 非导航" : "照片观察路线 · 非导航",
         canyonLayer,
     };
 }

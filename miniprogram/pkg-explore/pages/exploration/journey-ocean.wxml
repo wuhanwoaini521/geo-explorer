@@ -1,5 +1,6 @@
 <!-- Scientific descent schematic: no stock photo claims, no mountain projection. -->
 <view class="descent-environment" style="background:{{mariana.waterGradient}}">
+  <image class="descent-terrain" src="{{marianaTerrainHeroSrc}}" mode="aspectFill" style="opacity:{{0.42 + mariana.trenchOpacity * 0.2}}"></image>
   <view class="descent-light" style="opacity:{{mariana.rayOpacity}};transform:translate3d(0,-{{mariana.depthM * 0.012}}px,0)"></view>
   <view class="descent-snow" style="opacity:{{mariana.marineSnowOpacity}};transform:translate3d(0,-{{mariana.depthM * 0.02}}px,0)">
     <view wx:for="{{marineSnowParticles}}" wx:key="id" class="descent-particle" style="left:{{item.left}}%;top:{{index * 5}}%;opacity:{{item.opacity}}"></view>

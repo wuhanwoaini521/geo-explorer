@@ -36,6 +36,8 @@ const isDryRunExplicit = args.includes("--dry-run") || args.includes("-n");
 const isManifestOnly = args.includes("--manifest");
 const isSmokeOnly = args.includes("--smoke");
 const isMassUploadAllowed = args.includes("--execute-mass-upload");
+const singleKeyArg = args.indexOf("--media-key");
+const singleMediaKey = singleKeyArg >= 0 ? args[singleKeyArg + 1] : "";
 
 // 许可核验待复核名单（Category C / D）
 export const LICENSE_REVIEW_ITEMS = new Set([
@@ -159,6 +161,43 @@ async function main() {
       process.exit(0);
     }
     await runSmokeTest(client, client.prefix);
+    return;
+  }
+
+  // 3.5 精确单对象部署：只允许上传清单中明确存在的一个媒体键。
+  // 不需要打开批量上传开关，避免为新增资产重传整套媒体。
+  if (singleKeyArg >= 0) {
+    const file = manifest.files.find((candidate) => candidate.mediaKey === singleMediaKey);
+    if (!file || !singleMediaKey || singleMediaKey.includes("..")) {
+      console.error("FAIL: --media-key 必须精确匹配 media-remote/ 中的单个清单键。");
+      process.exit(1);
+    }
+    if (isDryRunExplicit) {
+      console.log(`DRY RUN: ${file.mediaKey} -> ${toTargetCosKey(file.mediaKey, client.prefix)} (${file.bytes} B)`);
+      return;
+    }
+    if (!env.hasCredentials) {
+      console.error("FAIL: COS 凭证未配置，单对象未上传。");
+      process.exit(1);
+    }
+    const target = toTargetCosKey(file.mediaKey, client.prefix);
+    try {
+      const head = await client.headObject(target);
+      if (!head.exists || head.sha256 !== file.sha256) {
+        await client.putObject(target, readFileSync(join(REMOTE_ROOT, file.mediaKey)), {
+          contentType: detectMimeType(target),
+          sha256: file.sha256,
+        });
+      }
+      const verified = await client.headObject(target);
+      if (!verified.exists || verified.sha256 !== file.sha256) {
+        throw new Error("上传后的对象 SHA-256 与本地文件不一致。");
+      }
+      console.log(`SINGLE OBJECT VERIFIED: ${target} (${file.bytes} B, sha256=${file.sha256})`);
+    } catch (err) {
+      console.error(`FAILED: ${redactCredentials(err.message || String(err), [client.secretKey, client.secretId])}`);
+      process.exit(1);
+    }
     return;
   }
 

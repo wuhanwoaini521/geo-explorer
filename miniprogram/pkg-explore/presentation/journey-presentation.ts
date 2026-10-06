@@ -43,6 +43,7 @@ export function journeyAt(
   }));
   return {
     nodes, currentId:current?.id || "", currentName:current?.name || "",
+    currentShortName:point?.shortName || current?.name || "",
     nextId:next?.id || "", nextName:next?.name || "旅程完成",
     nextShortName:nextPoint?.shortName || next?.name || "旅程完成",
     index:index+1, count:milestones.length,
@@ -51,13 +52,14 @@ export function journeyAt(
     overallPercent:Math.round(p*100),
     stripPercent:Math.round(position/last*1000)/10,
     observation:point?.whatToNotice || point?.desc || "沿路线观察环境的变化。",
+    currentImage:point?.images?.[0] || "",
     nextPreview:next ? nextPoint?.desc || "下一处发现正在前方。" : "回看沿途发现，或把这次探索留在你的记录里。",
     nextImage:nextPoint?.images?.[0] || "",
     nextDepth:next ? next.refM : current?.refM ?? 0,
     axisLabel:ocean?"深度":canyon?"海拔":"海拔",
     movement:ocean?"下潜":canyon?"下降":"攀登",
     sceneLabel:ocean?"深海垂直下潜":canyon?"峡谷地层下切":world==="everest"?"珠峰南坡攀登":world==="fuji"?"富士山攀登":"地貌探索",
-    scaleLabel:ocean?"水层与路线示意 · 非等比":canyon?"路线与地层示意 · 非导航":"照片观察路线 · 非导航",
+    scaleLabel:ocean?"水层与路线示意 · 非等比":canyon?"路线与地层示意 · 非导航":world==="fuji"?"概念地形与攀登路线 · 非导航":"照片观察路线 · 非导航",
     canyonLayer,
   };
 }

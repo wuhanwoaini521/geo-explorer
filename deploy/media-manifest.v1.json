@@ -3,8 +3,8 @@
   "generator": "scripts/media-manifest.mjs",
   "version": "v1",
   "pathContract": "mediaKey 与远端对象键一一对应：<remoteBase><mediaKey>",
-  "count": 52,
-  "totalBytes": 7228130,
+  "count": 54,
+  "totalBytes": 7589776,
   "files": [
     {
       "mediaKey": "content/colorado/c-indian-garden.jpg",
@@ -293,6 +293,18 @@
       "repoPath": "media-remote/expeditions/everest/waypoints/western-cwm-camp-ii.jpg",
       "bytes": 96044,
       "sha256": "377bfe85d5da7b729228fdce56c34e8e21a7fcc31abf706e03dd8ab7a48bc5dc"
+    },
+    {
+      "mediaKey": "expeditions/fuji/fuji-terrain-v1.jpg",
+      "repoPath": "media-remote/expeditions/fuji/fuji-terrain-v1.jpg",
+      "bytes": 189442,
+      "sha256": "9ffa76d5f07038164f10d1e7ddb6ddc105fe2c3b67a67668c26db21831a1f091"
+    },
+    {
+      "mediaKey": "expeditions/mariana/mariana-trench-v1.jpg",
+      "repoPath": "media-remote/expeditions/mariana/mariana-trench-v1.jpg",
+      "bytes": 172204,
+      "sha256": "117b4b9cd1ac0b1d95534d05ea74ded755c91a71ea02ab1c561bcd7040783408"
     },
     {
       "mediaKey": "world/everest-expedition-hero-v1.jpg",
